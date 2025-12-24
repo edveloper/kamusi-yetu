@@ -1,53 +1,44 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
-  /* Base styles */
-  body {
-    @apply bg-neutral-100 text-neutral-900;
-  }
+/* Define custom colors using Tailwind v4 syntax */
+@theme {
+  /* Kenyan-inspired color palette */
+  --color-primary-100: #E6F4E6;
+  --color-primary-300: #00AA00;
+  --color-primary-500: #006600;
+  --color-primary-600: #005500;
+  --color-primary-700: #004400;
+  --color-primary-900: #003300;
   
-  /* Ensure smooth scrolling */
-  html {
-    scroll-behavior: smooth;
-  }
+  --color-accent-100: #FFE6E6;
+  --color-accent-300: #FF4757;
+  --color-accent-500: #C8102E;
+  --color-accent-700: #A00000;
   
-  /* Better font rendering */
-  * {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+  --color-neutral-100: #F5F5F0;
+  --color-neutral-200: #E5E5E5;
+  --color-neutral-300: #C0C0C0;
+  --color-neutral-500: #808080;
+  --color-neutral-700: #4A4A4A;
+  --color-neutral-900: #1A1A1A;
+  
+  /* Shadows */
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.16);
 }
 
-@layer components {
-  /* Reusable button styles */
-  .btn-primary {
-    @apply bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors duration-200 font-medium;
-  }
-  
-  .btn-secondary {
-    @apply bg-neutral-200 text-neutral-900 px-4 py-2 rounded-lg hover:bg-neutral-300 transition-colors duration-200 font-medium;
-  }
-  
-  .btn-accent {
-    @apply bg-accent-500 text-white px-4 py-2 rounded-lg hover:bg-accent-700 transition-colors duration-200 font-medium;
-  }
-  
-  /* Card styles */
-  .card {
-    @apply bg-white rounded-xl shadow-soft p-6 border border-neutral-200;
-  }
-  
-  /* Input styles */
-  .input {
-    @apply w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all;
-  }
+/* Base styles */
+body {
+  background-color: var(--color-neutral-100);
+  color: var(--color-neutral-900);
 }
 
-@layer utilities {
-  /* Custom utilities */
-  .text-balance {
-    text-wrap: balance;
-  }
+html {
+  scroll-behavior: smooth;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
