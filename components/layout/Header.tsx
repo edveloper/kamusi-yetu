@@ -7,8 +7,8 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo with Kenyan flag colors */}
-          <Link href="/" className="flex items-center space-x-3 group">
-            <div className="relative w-10 h-10 rounded-lg overflow-hidden shadow-md">
+          <Link href="/" className="flex items-center space-x-2 md:space-x-3 group">
+            <div className="relative w-9 h-9 md:w-10 md:h-10 rounded-lg overflow-hidden shadow-md">
               {/* Kenyan flag stripes */}
               <div className="absolute inset-0 flex flex-col">
                 <div className="flex-1 bg-black"></div>
@@ -19,10 +19,10 @@ export default function Header() {
               <div className="absolute inset-0 border-2 border-white"></div>
               {/* Letter K overlay */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-white font-bold text-xl drop-shadow-lg">K</span>
+                <span className="text-white font-bold text-lg md:text-xl drop-shadow-lg">K</span>
               </div>
             </div>
-            <span className="text-xl font-bold text-gray-900 group-hover:text-green-700 transition">
+            <span className="text-lg md:text-xl font-bold text-gray-900 group-hover:text-green-700 transition font-logotext-lg md:text-xl font-bold text-gray-900 group-hover:text-green-700 transition font-[family-name:var(--font-playfair)]">
               Kamusi Yetu
             </span>
           </Link>
@@ -44,13 +44,16 @@ export default function Header() {
           </nav>
 
           {/* CTA Buttons */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 md:space-x-3">
             <Link href="/contribute">
-              <button className="bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800 transition font-medium">
-                + Add Word
+              {/* Mobile: Just icon, Desktop: Full text */}
+              <button className="bg-green-700 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg hover:bg-green-800 transition font-medium text-sm md:text-base flex items-center gap-1.5 whitespace-nowrap">
+                <span className="text-lg md:text-base">+</span>
+                <span className="hidden sm:inline">Add Word</span>
+                <span className="sm:hidden">Add</span>
               </button>
             </Link>
-            <button className="text-gray-700 hover:text-green-700 transition font-medium px-4 py-2">
+            <button className="text-gray-700 hover:text-green-700 transition font-medium px-3 py-2 md:px-4 md:py-2 text-sm md:text-base">
               Login
             </button>
           </div>

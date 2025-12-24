@@ -5,16 +5,16 @@ import Input from '@/components/ui/Input'
 export default function Home() {
   return (
     <div className="min-h-screen">
-      {/* Hero Section - Beautiful Kenyan Green Gradient */}
-      <section className="bg-gradient-to-br from-green-700 via-green-600 to-emerald-600 text-white py-24">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-br from-primary-700 to-primary-500 text-white py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="mb-6">
             <span className="text-6xl">🇰🇪</span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight font-logo">
             Every Kenyan Language,
             <br />
-            <span className="text-green-100">Equal and Alive</span>
+            <span className="text-primary-100">Equal and Alive</span>
           </h1>
           <p className="text-xl md:text-2xl mb-10 text-green-50 max-w-3xl mx-auto">
             A collaborative dictionary built by Kenyans, for Kenyans
@@ -34,23 +34,23 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Quick Stats */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-              <div className="text-4xl font-bold">25,000+</div>
-              <div className="text-green-100 text-sm mt-1">Words</div>
+          {/* Quick Stats - Fixed for mobile */}
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-4xl mx-auto">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 md:p-6 border border-white/20">
+              <div className="text-2xl md:text-4xl font-bold leading-tight">25,000+</div>
+              <div className="text-green-100 text-xs md:text-sm mt-1">Words</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-              <div className="text-4xl font-bold">7</div>
-              <div className="text-green-100 text-sm mt-1">Languages</div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 md:p-6 border border-white/20">
+              <div className="text-2xl md:text-4xl font-bold leading-tight">7</div>
+              <div className="text-green-100 text-xs md:text-sm mt-1">Languages</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-              <div className="text-4xl font-bold">2,340</div>
-              <div className="text-green-100 text-sm mt-1">Contributors</div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 md:p-6 border border-white/20">
+              <div className="text-2xl md:text-4xl font-bold leading-tight">2,340</div>
+              <div className="text-green-100 text-xs md:text-sm mt-1">Contributors</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-              <div className="text-4xl font-bold">🚀</div>
-              <div className="text-green-100 text-sm mt-1">Growing Daily</div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 md:p-6 border border-white/20">
+              <div className="text-2xl md:text-4xl font-bold leading-tight">🚀</div>
+              <div className="text-green-100 text-xs md:text-sm mt-1">Growing Daily</div>
             </div>
           </div>
         </div>
@@ -163,7 +163,7 @@ export default function Home() {
       {/* Word of the Day */}
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-r from-green-700 to-emerald-600 rounded-2xl shadow-2xl p-8 md:p-12 text-white">
+          <div className="bg-gradient-to-r from-primary-700 to-primary-500 rounded-2xl shadow-2xl p-8 md:p-12 text-white">
             <div className="flex items-center gap-3 mb-6">
               <span className="text-4xl">💡</span>
               <h2 className="text-2xl font-bold">Word of the Day</h2>
@@ -190,7 +190,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-red-600 to-red-700">
+      <section className="py-20 bg-gradient-to-br from-accent-500 to-accent-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Help Preserve Our Languages
