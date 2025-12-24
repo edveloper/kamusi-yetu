@@ -1,8 +1,19 @@
-import Button from '@/components/ui/Button'
-import Card from '@/components/ui/Card'
-import Input from '@/components/ui/Input'
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
+  const router = useRouter()
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
+    }
+  }
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -20,11 +31,13 @@ export default function Home() {
             A collaborative dictionary built by Kenyans, for Kenyans
           </p>
           
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto mb-8">
+          {/* Search Bar - Now functional */}
+          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8">
             <div className="bg-white rounded-2xl shadow-2xl p-3">
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search in any language..."
                 className="w-full px-6 py-4 text-gray-900 text-lg focus:outline-none rounded-xl"
               />
@@ -32,7 +45,7 @@ export default function Home() {
             <p className="text-green-100 text-sm mt-3">
               💡 Try searching: mtoto, child, kaana, nyathi...
             </p>
-          </div>
+          </form>
 
           {/* Quick Stats - Fixed for mobile */}
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-4xl mx-auto">
