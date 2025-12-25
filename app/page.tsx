@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function Home() {
   const router = useRouter()
@@ -30,7 +31,7 @@ export default function Home() {
           <p className="text-xl md:text-2xl mb-10 text-green-50 max-w-3xl mx-auto">
             A collaborative dictionary built by Kenyans, for Kenyans
           </p>
-          
+
           {/* Search Bar - Now functional */}
           <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8">
             <div className="bg-white rounded-2xl shadow-2xl p-3">
@@ -80,7 +81,7 @@ export default function Home() {
               ✏️ Edit
             </button>
           </div>
-          
+
           <div className="flex flex-wrap gap-3">
             <div className="bg-green-50 text-green-800 px-5 py-3 rounded-full font-medium flex items-center gap-2 border-2 border-green-200">
               <span className="w-3 h-3 bg-green-600 rounded-full animate-pulse"></span>
@@ -108,67 +109,75 @@ export default function Home() {
             <span className="text-4xl">🔥</span>
             Trending Now
           </h2>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Trending Card 1 */}
-            <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6 border border-gray-100 cursor-pointer group">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900 group-hover:text-green-700 transition">
-                    &quot;ruto&quot;
-                  </h3>
-                  <p className="text-sm text-gray-500 mt-1">Sheng • verb</p>
+            <Link href="/entry/1">
+              <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6 border border-gray-100 cursor-pointer group">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900 group-hover:text-green-700 transition">
+                      &quot;ruto&quot;
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-1">Sheng • verb</p>
+                  </div>
+                  <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-bold">
+                    342 🔥
+                  </span>
                 </div>
-                <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-bold">
-                  342 🔥
-                </span>
+                <p className="text-gray-700 leading-relaxed">
+                  To promise something and not deliver. Modern political slang gaining popularity...
+                </p>
               </div>
-              <p className="text-gray-700 leading-relaxed">
-                To promise something and not deliver. Modern political slang gaining popularity...
-              </p>
-            </div>
+            </Link>
 
             {/* Trending Card 2 */}
-            <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6 border border-gray-100 cursor-pointer group">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900 group-hover:text-green-700 transition">
-                    &quot;chakula&quot;
-                  </h3>
-                  <p className="text-sm text-gray-500 mt-1">Swahili • noun</p>
+            <Link href="/entry/2">
+              <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6 border border-gray-100 cursor-pointer group">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900 group-hover:text-green-700 transition">
+                      &quot;chakula&quot;
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-1">Swahili • noun</p>
+                  </div>
+                  <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-bold">
+                    156 🔥
+                  </span>
                 </div>
-                <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-bold">
-                  156 🔥
-                </span>
+                <p className="text-gray-700 leading-relaxed">
+                  Food. See how this word translates across all 7 Kenyan languages...
+                </p>
               </div>
-              <p className="text-gray-700 leading-relaxed">
-                Food. See how this word translates across all 7 Kenyan languages...
-              </p>
-            </div>
+            </Link>
 
             {/* Trending Card 3 */}
-            <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6 border border-gray-100 cursor-pointer group">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900 group-hover:text-green-700 transition">
-                    &quot;harambee&quot;
-                  </h3>
-                  <p className="text-sm text-gray-500 mt-1">Swahili • noun</p>
+            <Link href="/entry/3">
+              <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6 border border-gray-100 cursor-pointer group">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900 group-hover:text-green-700 transition">
+                      &quot;harambee&quot;
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-1">Swahili • noun</p>
+                  </div>
+                  <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-bold">
+                    134 🔥
+                  </span>
                 </div>
-                <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-bold">
-                  134 🔥
-                </span>
+                <p className="text-gray-700 leading-relaxed">
+                  All pull together. Kenya&apos;s national motto and spirit of community...
+                </p>
               </div>
-              <p className="text-gray-700 leading-relaxed">
-                All pull together. Kenya&apos;s national motto and spirit of community...
-              </p>
-            </div>
+            </Link>
           </div>
 
           <div className="mt-8 text-center">
-            <button className="text-green-700 hover:text-green-800 font-semibold text-lg hover:underline">
-              View all trending words →
-            </button>
+            <Link href="/search">
+              <button className="text-green-700 hover:text-green-800 font-semibold text-lg hover:underline">
+                View all trending words →
+              </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -181,17 +190,17 @@ export default function Home() {
               <span className="text-4xl">💡</span>
               <h2 className="text-2xl font-bold">Word of the Day</h2>
             </div>
-            
+
             <div className="space-y-4">
               <div>
                 <h3 className="text-4xl font-bold mb-2">nyumbani</h3>
                 <p className="text-green-100">Swahili • noun</p>
               </div>
-              
+
               <p className="text-xl text-green-50 leading-relaxed">
                 At home, homeward. From <span className="font-semibold">nyumba</span> (house) + <span className="font-semibold">-ni</span> (locative suffix).
               </p>
-              
+
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                 <p className="text-green-50 italic">
                   &quot;Naenda nyumbani&quot; - I&apos;m going home
