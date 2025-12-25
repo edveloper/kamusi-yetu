@@ -18,17 +18,17 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-700 to-primary-500 text-white py-24">
+      <section className="bg-gradient-to-br from-primary-700 to-primary-500 text-white py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="mb-6">
-            <span className="text-6xl">🇰🇪</span>
+          <div className="mb-4 md:mb-6">
+            <span className="text-5xl md:text-6xl">🇰🇪</span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight font-logo">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 md:mb-6 leading-tight font-logo px-4">
             Every Kenyan Language,
             <br />
             <span className="text-primary-100">Equal and Alive</span>
           </h1>
-          <p className="text-xl md:text-2xl mb-10 text-green-50 max-w-3xl mx-auto">
+          <p className="text-lg sm:text-xl md:text-2xl mb-8 md:mb-10 text-green-50 max-w-3xl mx-auto px-4">
             A collaborative dictionary built by Kenyans, for Kenyans
           </p>
 
