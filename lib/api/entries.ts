@@ -124,7 +124,8 @@ export async function searchEntries(query: string, languageId?: string) {
       *,
       language:languages(*)
     `)
-    .eq('validation_status', 'verified')
+    // CHANGED: Remove the verified-only filter for now
+    // .eq('validation_status', 'verified')
     .or(`headword.ilike.%${query}%,primary_definition.ilike.%${query}%`)
     .limit(20)
 
@@ -134,6 +135,11 @@ export async function searchEntries(query: string, languageId?: string) {
 
   const { data, error } = await searchQuery
 
-  if (error) throw error
+  if (error) {
+    console.error('Search error:', error)
+    throw error
+  }
+  
+  console.log('Search results:', data) // Debug log
   return data
 }
