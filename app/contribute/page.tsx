@@ -3,13 +3,17 @@
 import { useAuth } from '@/lib/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { mockLanguages } from '@/lib/mockData'
+import { createEntry } from '@/lib/api/entries'
+import { getLanguages } from '@/lib/api/languages'
 
 export default function ContributePage() {
   const { user, loading } = useAuth()
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [showOptional, setShowOptional] = useState(false)
+  const [languages, setLanguages] = useState<any[]>([])
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
   
   // Form state
   const [formData, setFormData] = useState({
@@ -31,11 +35,47 @@ export default function ContributePage() {
     }
   }, [user, loading, router])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Load languages from database
+    async function loadLanguages() {
+      try {
+        const langs = await getLanguages()
+        setLanguages(langs)
+      } catch (err) {
+        console.error('Failed to load languages:', err)
+      }
+    }
+    loadLanguages()
+  }, [])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Connect to Supabase
-    alert('Word submitted! (Will connect to database soon)')
-    router.push('/profile')
+    if (!user) return
+
+    setSubmitting(true)
+    setError('')
+
+    try {
+      // Create the entry
+      await createEntry({
+        language_id: formData.language,
+        headword: formData.word,
+        primary_definition: formData.definition,
+        part_of_speech: formData.partOfSpeech || undefined,
+        dialect_variant: formData.dialect || undefined,
+        register: formData.usage,
+        created_by: user.id
+      })
+
+      // TODO: Add translations and example sentence
+
+      alert('Word submitted successfully! It will be reviewed by moderators.')
+      router.push('/profile')
+    } catch (err: any) {
+      setError(err.message || 'Failed to submit word')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (!mounted || loading || !user) {
@@ -64,6 +104,12 @@ export default function ContributePage() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+              {error}
+            </div>
+          )}
+
           {/* Required Section */}
           <div className="space-y-6">
             <div className="border-b border-gray-200 pb-4">
@@ -83,8 +129,8 @@ export default function ContributePage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
               >
                 <option value="">Select a language...</option>
-                {mockLanguages.map(lang => (
-                  <option key={lang.id} value={lang.code}>{lang.name}</option>
+                {languages.map(lang => (
+                  <option key={lang.id} value={lang.id}>{lang.name}</option>
                 ))}
               </select>
             </div>
@@ -243,9 +289,10 @@ export default function ContributePage() {
           <div className="mt-8 pt-6 border-t border-gray-200">
             <button
               type="submit"
-              className="w-full bg-primary-500 text-white px-6 py-4 rounded-xl hover:bg-primary-600 transition font-bold text-base md:text-lg shadow-lg"
+              disabled={submitting}
+              className="w-full bg-primary-500 text-white px-6 py-4 rounded-xl hover:bg-primary-600 transition font-bold text-base md:text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Submit for Review
+              {submitting ? 'Submitting...' : 'Submit for Review'}
             </button>
             <p className="text-xs md:text-sm text-gray-600 text-center mt-4">
               💡 Your submission will be reviewed by native speakers within 48 hours
