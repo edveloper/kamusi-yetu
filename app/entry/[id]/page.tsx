@@ -2,16 +2,44 @@
 
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { mockEntries, mockLanguages } from '@/lib/mockData'
+import { useEffect, useState } from 'react'
+import { getEntryById } from '@/lib/api/entries'
 
 export default function EntryPage() {
   const params = useParams()
   const id = params.id as string
   
-  const entry = mockEntries.find(e => e.id === id)
-  const language = entry ? mockLanguages.find(l => l.id === entry.language_id) : null
+  const [entry, setEntry] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
-  if (!entry || !language) {
+  useEffect(() => {
+    async function loadEntry() {
+      try {
+        const data = await getEntryById(id)
+        setEntry(data)
+      } catch (err) {
+        console.error('Failed to load entry:', err)
+        setError(true)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadEntry()
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !entry) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center">
@@ -44,30 +72,49 @@ export default function EntryPage() {
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
-        {/* Header - Mobile optimized */}
+        {/* Header */}
         <div className="bg-white rounded-2xl shadow-lg p-4 md:p-8 mb-4 md:mb-6">
           <div className="mb-4 md:mb-6">
             <div className="flex items-start gap-2 md:gap-3 mb-2">
               <h1 className="text-3xl md:text-5xl font-bold text-gray-900 flex-1 break-words">
                 {entry.headword}
               </h1>
-              <button className="text-primary-600 hover:text-primary-700 text-xl md:text-2xl flex-shrink-0 mt-1">
-                🔊
-              </button>
+              {entry.audio_url && (
+                <button className="text-primary-600 hover:text-primary-700 text-xl md:text-2xl flex-shrink-0 mt-1">
+                  🔊
+                </button>
+              )}
             </div>
             <p className="text-sm md:text-lg text-gray-600">
-              {language.name} • {entry.part_of_speech}
+              {entry.language?.name || 'Unknown'} {entry.part_of_speech && `• ${entry.part_of_speech}`}
             </p>
           </div>
 
-          {/* Badges - Stacked on mobile */}
+          {/* Badges */}
           <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
-            <span className="bg-green-100 text-green-700 px-3 py-1.5 rounded-full text-xs md:text-sm font-bold whitespace-nowrap">
-              ✓ Verified
-            </span>
+            {entry.validation_status === 'verified' && (
+              <span className="bg-green-100 text-green-700 px-3 py-1.5 rounded-full text-xs md:text-sm font-bold whitespace-nowrap">
+                ✓ Verified
+              </span>
+            )}
+            {entry.validation_status === 'pending' && (
+              <span className="bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-full text-xs md:text-sm font-bold whitespace-nowrap">
+                ⏳ Pending Review
+              </span>
+            )}
+            {entry.validation_status === 'flagged' && (
+              <span className="bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs md:text-sm font-bold whitespace-nowrap">
+                🚩 Flagged
+              </span>
+            )}
             <span className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-xs md:text-sm font-medium whitespace-nowrap">
               {entry.trust_score}% trust
             </span>
+            {entry.dialect_variant && (
+              <span className="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full text-xs md:text-sm font-medium whitespace-nowrap">
+                {entry.dialect_variant}
+              </span>
+            )}
           </div>
 
           {/* Primary Definition */}
@@ -88,7 +135,7 @@ export default function EntryPage() {
               🌍 Translations
             </h2>
             <div className="space-y-3 md:space-y-4">
-              {entry.translations.map((trans, idx) => (
+              {entry.translations.map((trans: any, idx: number) => (
                 <div key={idx} className="flex items-start gap-3 md:gap-4 pb-3 md:pb-4 border-b border-gray-100 last:border-0">
                   <div className="flex-1 min-w-0">
                     <p className="text-xs md:text-sm font-medium text-gray-500 mb-1">{trans.language}</p>
@@ -107,33 +154,36 @@ export default function EntryPage() {
         )}
 
         {/* Usage & Context */}
-        {entry.contexts && entry.contexts.length > 0 && (
+        {entry.usage_contexts && entry.usage_contexts.length > 0 && (
           <div className="bg-white rounded-2xl shadow-lg p-4 md:p-8 mb-4 md:mb-6">
             <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6 flex items-center gap-2">
               💬 Usage & Context
             </h2>
             <div className="space-y-4 md:space-y-6">
-              {entry.contexts.map((context, idx) => (
-                <div key={idx} className="border border-gray-200 rounded-xl p-4 md:p-6 hover:border-primary-300 transition">
+              {entry.usage_contexts.map((context: any, idx: number) => (
+                <div key={context.id || idx} className="border border-gray-200 rounded-xl p-4 md:p-6 hover:border-primary-300 transition">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3 md:mb-4">
-                    <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-xs font-bold uppercase w-fit">
-                      {context.type}
-                    </span>
+                    {context.context_type && (
+                      <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-xs font-bold uppercase w-fit">
+                        {context.context_type}
+                      </span>
+                    )}
                     <div className="flex items-center gap-3 md:gap-4">
                       <button className="flex items-center gap-1 text-gray-600 hover:text-primary-600">
                         <span>👍</span>
-                        <span className="font-medium text-sm">{context.upvotes}</span>
+                        <span className="font-medium text-sm">{context.upvotes || 0}</span>
                       </button>
                       <button className="flex items-center gap-1 text-gray-600 hover:text-gray-700">
                         <span>👎</span>
+                        <span className="font-medium text-sm">{context.downvotes || 0}</span>
                       </button>
                     </div>
                   </div>
-                  <p className="text-sm md:text-base text-gray-700 mb-3 leading-relaxed">{context.text}</p>
-                  {context.example && (
+                  <p className="text-sm md:text-base text-gray-700 mb-3 leading-relaxed">{context.usage_text}</p>
+                  {context.example_sentence && (
                     <div className="bg-gray-50 rounded-lg p-3 md:p-4 border-l-4 border-primary-500">
                       <p className="text-sm md:text-base text-gray-800 italic break-words">
-                        &quot;{context.example}&quot;
+                        &quot;{context.example_sentence}&quot;
                       </p>
                     </div>
                   )}
@@ -146,7 +196,17 @@ export default function EntryPage() {
           </div>
         )}
 
-        {/* Actions - Mobile optimized */}
+        {/* Etymology */}
+        {entry.etymology && (
+          <div className="bg-white rounded-2xl shadow-lg p-4 md:p-8 mb-4 md:mb-6">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              📚 Etymology
+            </h2>
+            <p className="text-sm md:text-base text-gray-700 leading-relaxed">{entry.etymology}</p>
+          </div>
+        )}
+
+        {/* Actions */}
         <div className="grid grid-cols-2 md:flex md:items-center gap-2 md:gap-4">
           <button className="col-span-2 md:col-span-1 md:flex-1 bg-primary-500 text-white px-4 py-3 rounded-xl hover:bg-primary-600 transition font-medium text-sm md:text-base">
             ✏️ Suggest Edit
