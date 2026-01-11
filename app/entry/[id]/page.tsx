@@ -3,30 +3,61 @@
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { useAuth } from '@/lib/contexts/AuthContext'
 import { getEntryById } from '@/lib/api/entries'
+import { voteOnContext } from '@/lib/api/users'
+import UsageContextForm from '@/components/UsageContextForm'
 
 export default function EntryPage() {
   const params = useParams()
   const id = params.id as string
+  const { user } = useAuth()
   
   const [entry, setEntry] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [showUsageForm, setShowUsageForm] = useState(false)
+  const [votingId, setVotingId] = useState<string | null>(null)
 
   useEffect(() => {
-    async function loadEntry() {
-      try {
-        const data = await getEntryById(id)
-        setEntry(data)
-      } catch (err) {
-        console.error('Failed to load entry:', err)
-        setError(true)
-      } finally {
-        setLoading(false)
-      }
-    }
     loadEntry()
   }, [id])
+
+  async function loadEntry() {
+    try {
+      const data = await getEntryById(id)
+      setEntry(data)
+    } catch (err) {
+      console.error('Failed to load entry:', err)
+      setError(true)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleVote = async (contextId: string, voteType: 'upvote' | 'downvote') => {
+    if (!user) {
+      alert('Please sign in to vote')
+      return
+    }
+
+    setVotingId(contextId)
+    try {
+      await voteOnContext(contextId, voteType)
+      // Reload entry to get updated votes
+      await loadEntry()
+    } catch (err) {
+      console.error('Vote failed:', err)
+      alert('Failed to record vote. Please try again.')
+    } finally {
+      setVotingId(null)
+    }
+  }
+
+  const handleUsageAdded = () => {
+    setShowUsageForm(false)
+    loadEntry() // Refresh to show new usage context
+  }
 
   if (loading) {
     return (
@@ -154,14 +185,15 @@ export default function EntryPage() {
         )}
 
         {/* Usage & Context */}
-        {entry.usage_contexts && entry.usage_contexts.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-lg p-4 md:p-8 mb-4 md:mb-6">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6 flex items-center gap-2">
-              💬 Usage & Context
-            </h2>
+        <div className="bg-white rounded-2xl shadow-lg p-4 md:p-8 mb-4 md:mb-6">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6 flex items-center gap-2">
+            💬 Usage & Context
+          </h2>
+          
+          {entry.usage_contexts && entry.usage_contexts.length > 0 ? (
             <div className="space-y-4 md:space-y-6">
-              {entry.usage_contexts.map((context: any, idx: number) => (
-                <div key={context.id || idx} className="border border-gray-200 rounded-xl p-4 md:p-6 hover:border-primary-300 transition">
+              {entry.usage_contexts.map((context: any) => (
+                <div key={context.id} className="border border-gray-200 rounded-xl p-4 md:p-6 hover:border-primary-300 transition">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3 md:mb-4">
                     {context.context_type && (
                       <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-xs font-bold uppercase w-fit">
@@ -169,11 +201,19 @@ export default function EntryPage() {
                       </span>
                     )}
                     <div className="flex items-center gap-3 md:gap-4">
-                      <button className="flex items-center gap-1 text-gray-600 hover:text-primary-600">
+                      <button 
+                        onClick={() => handleVote(context.id, 'upvote')}
+                        disabled={votingId === context.id}
+                        className="flex items-center gap-1 text-gray-600 hover:text-primary-600 disabled:opacity-50"
+                      >
                         <span>👍</span>
                         <span className="font-medium text-sm">{context.upvotes || 0}</span>
                       </button>
-                      <button className="flex items-center gap-1 text-gray-600 hover:text-gray-700">
+                      <button 
+                        onClick={() => handleVote(context.id, 'downvote')}
+                        disabled={votingId === context.id}
+                        className="flex items-center gap-1 text-gray-600 hover:text-gray-700 disabled:opacity-50"
+                      >
                         <span>👎</span>
                         <span className="font-medium text-sm">{context.downvotes || 0}</span>
                       </button>
@@ -190,11 +230,19 @@ export default function EntryPage() {
                 </div>
               ))}
             </div>
-            <button className="mt-4 md:mt-6 text-primary-600 hover:text-primary-700 font-medium text-sm">
-              + Add your usage example
-            </button>
-          </div>
-        )}
+          ) : (
+            <div className="text-center py-8 text-gray-600">
+              <p className="mb-4">No usage examples yet. Be the first to add one!</p>
+            </div>
+          )}
+          
+          <button 
+            onClick={() => user ? setShowUsageForm(true) : alert('Please sign in to add examples')}
+            className="mt-4 md:mt-6 text-primary-600 hover:text-primary-700 font-medium text-sm"
+          >
+            + Add your usage example
+          </button>
+        </div>
 
         {/* Etymology */}
         {entry.etymology && (
@@ -222,6 +270,16 @@ export default function EntryPage() {
           </button>
         </div>
       </div>
+
+      {/* Usage Context Form Modal */}
+      {showUsageForm && user && (
+        <UsageContextForm
+          entryId={id}
+          userId={user.id}
+          onSuccess={handleUsageAdded}
+          onCancel={() => setShowUsageForm(false)}
+        />
+      )}
     </div>
   )
 }

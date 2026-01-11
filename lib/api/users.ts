@@ -151,3 +151,57 @@ export async function getModeratorStats(userId: string) {
     score: totalValidations || 0
   }
 }
+
+// ==================== USAGE CONTEXTS ====================
+
+export interface CreateUsageContextData {
+  entry_id: string
+  context_type?: string
+  usage_text: string
+  example_sentence?: string
+  created_by: string
+}
+
+// Create a new usage context
+export async function createUsageContext(data: CreateUsageContextData) {
+  const { data: context, error } = await supabase
+    .from('usage_contexts')
+    .insert({
+      entry_id: data.entry_id,
+      context_type: data.context_type || null,
+      usage_text: data.usage_text,
+      example_sentence: data.example_sentence || null,
+      upvotes: 0,
+      downvotes: 0,
+      created_by: data.created_by
+    })
+    .select()
+    .single()
+
+  if (error) throw error
+  return context
+}
+
+// Vote on a usage context
+export async function voteOnContext(contextId: string, voteType: 'upvote' | 'downvote') {
+  // Get current votes
+  const { data: context, error: fetchError } = await supabase
+    .from('usage_contexts')
+    .select('upvotes, downvotes')
+    .eq('id', contextId)
+    .single()
+
+  if (fetchError) throw fetchError
+
+  // Update votes
+  const updates = voteType === 'upvote'
+    ? { upvotes: (context.upvotes || 0) + 1 }
+    : { downvotes: (context.downvotes || 0) + 1 }
+
+  const { error: updateError } = await supabase
+    .from('usage_contexts')
+    .update(updates)
+    .eq('id', contextId)
+
+  if (updateError) throw updateError
+}
