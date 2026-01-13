@@ -40,45 +40,31 @@ export default function ProfilePage() {
   useEffect(() => {
     async function loadUserData() {
       if (!user) return
-
       try {
-        // Get all languages first
-        const langs = await getLanguages()
-        setAllLanguages(langs)
+        const [langs, userProfile, userStats, modStatus, allEntries] = await Promise.all([
+          getLanguages(),
+          getUserProfile(user.id),
+          getUserStats(user.id),
+          isModerator(user.id),
+          getEntries({})
+        ])
         
-        // Get user profile
-        const userProfile = await getUserProfile(user.id)
+        setAllLanguages(langs)
         setProfile(userProfile)
         setUserLanguages(userProfile.languages || [])
-        
-        // Get user stats
-        const userStats = await getUserStats(user.id)
-        
-        // Check moderator status
-        const modStatus = await isModerator(user.id)
         setIsUserModerator(modStatus)
         
-        // Get recent contributions (entries created by this user)
-        const allEntries = await getEntries({})
         const userEntries = allEntries?.filter((e: any) => e.created_by === user.id) || []
-        
-        // Calculate reputation (10 points per word, 5 per validation, 2 per example)
-        const reputation = (userStats.wordsAdded * 10) + 
-                          (userStats.validated * 5) + 
-                          (userStats.usageExamples * 2)
+        const reputation = (userStats.wordsAdded * 10) + (userStats.validated * 5) + (userStats.usageExamples * 2)
         
         setStats({
           wordsAdded: userStats.wordsAdded,
           validated: userStats.validated,
           usageExamples: userStats.usageExamples,
           reputation: reputation,
-          joinedDate: new Date(user.created_at).toLocaleDateString('en-US', { 
-            month: 'long', 
-            year: 'numeric' 
-          }),
-          streak: 0 // TODO: Calculate streak from contribution dates
+          joinedDate: new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+          streak: 0
         })
-        
         setRecentContributions(userEntries.slice(0, 5))
       } catch (err) {
         console.error('Failed to load user data:', err)
@@ -86,15 +72,11 @@ export default function ProfilePage() {
         setLoadingData(false)
       }
     }
-
-    if (user) {
-      loadUserData()
-    }
+    if (user) loadUserData()
   }, [user])
 
   const handleLanguagesChange = async (newLanguages: string[]) => {
     if (!user) return
-    
     setSavingLanguages(true)
     try {
       await updateUserProfile(user.id, { languages: newLanguages })
@@ -102,7 +84,6 @@ export default function ProfilePage() {
       setProfile({ ...profile, languages: newLanguages })
     } catch (err) {
       console.error('Failed to save languages:', err)
-      alert('Failed to save languages. Please try again.')
     } finally {
       setSavingLanguages(false)
       setShowLanguageSelector(false)
@@ -116,11 +97,8 @@ export default function ProfilePage() {
 
   if (!mounted || loading || !user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
       </div>
     )
   }
@@ -128,174 +106,152 @@ export default function ProfilePage() {
   const displayName = profile?.display_name || profile?.username || user.email?.split('@')[0] || 'User'
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-primary-700 to-primary-500 text-white py-12 md:py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-            {/* Avatar */}
-            <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-white/20 flex items-center justify-center text-4xl md:text-5xl font-bold border-4 border-white shadow-lg">
+    <div className="min-h-screen bg-stone-50 pb-24 font-sans">
+      {/* Hero Header: Mirroring About/Team Hero DNA */}
+      <div className="bg-emerald-900 text-white py-24 relative overflow-hidden border-b border-emerald-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="flex flex-col md:flex-row items-center gap-12">
+            {/* Avatar: Stylized block mirrored from Team Page Founder block */}
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-[2.5rem] bg-white text-emerald-900 flex items-center justify-center text-6xl font-black font-logo border border-white/20 shadow-2xl">
               {displayName[0].toUpperCase()}
             </div>
             
-            {/* Info */}
-            <div className="flex-1 text-center md:text-left">
-              <h1 className="text-2xl md:text-4xl font-bold mb-2">
+            <div className="text-center md:text-left">
+              <h1 className="text-5xl md:text-7xl font-black font-logo tracking-tight mb-4">
                 {displayName}
               </h1>
-              <p className="text-green-100 mb-4 text-sm md:text-base">{user.email}</p>
-              <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs md:text-sm font-medium">
-                  ⭐ Contributor
+              <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                <span className="bg-emerald-500/20 text-emerald-300 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border border-emerald-500/30">
+                  Contributor
                 </span>
                 {isUserModerator && (
-                  <span className="bg-yellow-400/30 backdrop-blur-sm px-3 py-1 rounded-full text-xs md:text-sm font-medium border border-yellow-300">
-                    🛡️ Moderator
+                  <span className="bg-amber-500/20 text-amber-300 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border border-amber-500/30">
+                    Moderator
                   </span>
                 )}
-                <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs md:text-sm font-medium">
+                <span className="text-emerald-100/40 px-2 py-2 text-[10px] font-black uppercase tracking-[0.2em]">
                   Joined {stats.joinedDate}
                 </span>
               </div>
             </div>
           </div>
         </div>
+        
+        {/* Signature Decorative Circles */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] border-[50px] border-white/5 rounded-full -mr-32 -mt-32"></div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 text-center">
-            <div className="text-2xl md:text-4xl font-bold text-primary-600">
-              {loadingData ? '...' : stats.wordsAdded}
-            </div>
-            <div className="text-xs md:text-sm text-gray-600 mt-1">Words Added</div>
-          </div>
-          <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 text-center">
-            <div className="text-2xl md:text-4xl font-bold text-primary-600">
-              {loadingData ? '...' : stats.validated}
-            </div>
-            <div className="text-xs md:text-sm text-gray-600 mt-1">Validated</div>
-          </div>
-          <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 text-center">
-            <div className="text-2xl md:text-4xl font-bold text-primary-600">
-              {loadingData ? '...' : stats.usageExamples}
-            </div>
-            <div className="text-xs md:text-sm text-gray-600 mt-1">Examples</div>
-          </div>
-          <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 text-center">
-            <div className="text-2xl md:text-4xl font-bold text-primary-600">
-              {loadingData ? '...' : stats.reputation}
-            </div>
-            <div className="text-xs md:text-sm text-gray-600 mt-1">Reputation</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        {/* Recent Contributions */}
-        <div className="bg-white rounded-2xl shadow-lg p-4 md:p-8 mb-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900">Recent Contributions</h2>
-            <Link href="/contribute">
-              <button className="text-primary-600 hover:text-primary-700 font-medium text-sm">
-                + Add More
-              </button>
-            </Link>
-          </div>
-          
-          {loadingData ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto mb-2"></div>
-              <p className="text-sm text-gray-600">Loading contributions...</p>
-            </div>
-          ) : recentContributions.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-600 mb-4">You haven&apos;t contributed any words yet.</p>
-              <Link href="/contribute">
-                <button className="bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition font-medium">
-                  Contribute Your First Word
-                </button>
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-3 md:space-y-4">
-              {recentContributions.map((contrib) => (
-                <Link href={`/entry/${contrib.id}`} key={contrib.id}>
-                  <div className="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition cursor-pointer">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                      <div className="flex-1">
-                        <h3 className="text-base md:text-lg font-bold text-gray-900">{contrib.headword}</h3>
-                        <p className="text-xs md:text-sm text-gray-600">{contrib.language?.name || 'Unknown language'}</p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          contrib.validation_status === 'verified' 
-                            ? 'bg-green-100 text-green-700' 
-                            : contrib.validation_status === 'pending'
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : 'bg-red-100 text-red-700'
-                        }`}>
-                          {contrib.validation_status === 'verified' ? '✓ Verified' : 
-                           contrib.validation_status === 'pending' ? '⏳ Pending' : '🚩 Flagged'}
-                        </span>
-                        <span className="text-xs md:text-sm text-gray-500">
-                          {new Date(contrib.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* My Languages */}
-        <div className="bg-white rounded-2xl shadow-lg p-4 md:p-8 mb-6">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">My Languages</h2>
-          <div className="flex flex-wrap gap-3">
-            {userLanguages.length > 0 ? (
-              userLanguages.map((langId) => (
-                <div key={langId} className="bg-green-50 text-green-800 px-4 py-2 rounded-full font-medium flex items-center gap-2 border-2 border-green-200 text-sm">
-                  <span className="w-2 h-2 bg-green-600 rounded-full"></span>
-                  {getLanguageName(langId)}
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-600 text-sm">No languages selected yet</p>
-            )}
-            <button 
-              onClick={() => setShowLanguageSelector(true)}
-              disabled={savingLanguages}
-              className="border-2 border-dashed border-gray-300 text-gray-600 px-4 py-2 rounded-full font-medium hover:border-green-600 hover:text-green-700 hover:bg-green-50 transition text-sm disabled:opacity-50"
-            >
-              {savingLanguages ? 'Saving...' : userLanguages.length > 0 ? '+ Add More' : '+ Add Language'}
-            </button>
-          </div>
-        </div>
-
-        {/* Moderator Tools - Only show if user is moderator */}
-        {isUserModerator && (
-          <div className="bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl shadow-lg p-4 md:p-8 text-white">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-3xl">🛡️</span>
-              <div>
-                <h2 className="text-xl md:text-2xl font-bold">Moderator Tools</h2>
-                <p className="text-sm text-green-100">Help keep Kamusi Yetu accurate and respectful</p>
+      {/* Stats Grid: Overlapping the Hero just like About/Team cards */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-30">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {[
+            { label: 'Words Added', value: stats.wordsAdded, color: 'text-stone-900' },
+            { label: 'Validated', value: stats.validated, color: 'text-stone-900' },
+            { label: 'Examples', value: stats.usageExamples, color: 'text-stone-900' },
+            { label: 'Reputation', value: stats.reputation, color: 'text-emerald-600' }
+          ].map((stat, i) => (
+            <div key={i} className="bg-white rounded-[2.5rem] p-10 border border-stone-200 shadow-2xl shadow-emerald-900/5 text-center transition-all hover:scale-[1.02]">
+              <div className={`text-4xl md:text-5xl font-black font-logo mb-2 ${stat.color}`}>
+                {loadingData ? '...' : stat.value}
+              </div>
+              <div className="text-[10px] font-black text-stone-400 uppercase tracking-[0.3em] whitespace-nowrap">
+                {stat.label}
               </div>
             </div>
-            <Link href="/moderate">
-              <button className="bg-white text-primary-700 px-6 py-3 rounded-lg hover:bg-green-50 transition font-bold text-sm md:text-base w-full md:w-auto">
-                Open Moderation Dashboard →
-              </button>
-            </Link>
-          </div>
-        )}
+          ))}
+        </div>
       </div>
 
-      {/* Language Selector Modal */}
+      {/* Content Layout Grid */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20 grid lg:grid-cols-3 gap-12">
+        
+        {/* Activity Section: Mirrored from About "How it Works" list */}
+        <div className="lg:col-span-2">
+          <section className="bg-white rounded-[3rem] border border-stone-200 p-12 shadow-sm">
+            <div className="flex items-center justify-between mb-12">
+              <h2 className="text-3xl font-black text-stone-900 font-logo uppercase tracking-tight">Archive Contributions</h2>
+              <Link href="/contribute" className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.3em] border-b-2 border-emerald-100 hover:border-emerald-600 transition-all pb-1">
+                + New Record
+              </Link>
+            </div>
+
+            {loadingData ? (
+              <div className="py-20 text-center text-stone-300 font-black uppercase tracking-[0.3em] text-[10px] animate-pulse">Syncing...</div>
+            ) : recentContributions.length === 0 ? (
+              <div className="text-center py-20 bg-stone-50 rounded-[2.5rem] border border-stone-100">
+                <p className="text-stone-400 font-medium mb-10 italic">The contribution log is currently empty.</p>
+                <Link href="/contribute" className="bg-emerald-900 text-white px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] hover:bg-stone-900 transition-all">
+                  Archive First Word
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {recentContributions.map((contrib) => (
+                  <Link href={`/entry/${contrib.id}`} key={contrib.id} className="block group">
+                    <div className="flex items-center justify-between p-8 rounded-[2.5rem] border border-stone-50 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all duration-300">
+                      <div>
+                        <h3 className="text-2xl font-black text-stone-900 group-hover:text-emerald-900 transition-colors font-logo uppercase tracking-tight">{contrib.headword}</h3>
+                        <p className="text-[10px] text-stone-400 font-black uppercase tracking-widest mt-1">{contrib.language?.name}</p>
+                      </div>
+                      <div className="flex items-center gap-8">
+                        <span className={`text-[9px] font-black px-5 py-2 rounded-xl uppercase tracking-[0.2em] border ${
+                          contrib.validation_status === 'verified' 
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
+                            : 'bg-amber-50 text-amber-700 border-amber-100'
+                        }`}>
+                          {contrib.validation_status}
+                        </span>
+                        <span className="text-emerald-500 font-black group-hover:translate-x-2 transition-transform opacity-0 group-hover:opacity-100">→</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+
+        {/* Sidebar Meta: Mirrored from Team Pillar design */}
+        <div className="space-y-12">
+          {/* Languages Sidebar Card */}
+          <section className="bg-white rounded-[3rem] border border-stone-200 p-12 shadow-sm">
+            <h2 className="text-xl font-black text-stone-900 font-logo mb-10 uppercase tracking-tight">Focus Languages</h2>
+            <div className="flex flex-wrap gap-4 mb-12">
+              {userLanguages.length > 0 ? (
+                userLanguages.map((langId) => (
+                  <div key={langId} className="bg-stone-50 border border-stone-100 px-6 py-3 rounded-2xl text-[10px] font-black text-stone-600 uppercase tracking-widest">
+                    {getLanguageName(langId)}
+                  </div>
+                ))
+              ) : (
+                <p className="text-stone-400 text-sm font-medium italic">No languages selected.</p>
+              )}
+            </div>
+            <button 
+              onClick={() => setShowLanguageSelector(true)}
+              className="w-full py-6 border-2 border-dashed border-stone-200 rounded-3xl text-[10px] font-black text-stone-400 uppercase tracking-[0.3em] hover:border-emerald-500 hover:text-emerald-600 transition-all bg-stone-50/50"
+            >
+              {savingLanguages ? 'UPDATING...' : 'Manage Focus'}
+            </button>
+          </section>
+
+          {/* Moderator Dashboard: Mirrored from Team/About CTA DNA */}
+          {isUserModerator && (
+            <section className="bg-emerald-900 rounded-[3rem] p-12 text-white relative overflow-hidden group shadow-2xl shadow-emerald-900/30">
+              <div className="relative z-10">
+                <h2 className="text-3xl font-black font-logo mb-4 uppercase tracking-tight">Authority</h2>
+                <p className="text-emerald-100/50 text-sm mb-12 font-medium leading-relaxed italic">Validation tools active. Your contributions carry cultural weight.</p>
+                <Link href="/moderate" className="block text-center bg-white text-emerald-900 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:bg-emerald-50 transition-all shadow-lg">
+                  Launch Suite
+                </Link>
+              </div>
+              <div className="absolute -bottom-10 -left-10 w-40 h-40 border-[30px] border-white/5 rounded-full group-hover:scale-125 transition-transform duration-700"></div>
+            </section>
+          )}
+        </div>
+      </div>
+      
+      {/* Selector Modal Overlay */}
       {showLanguageSelector && (
         <LanguageSelector
           selectedLanguages={userLanguages}

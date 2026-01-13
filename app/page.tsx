@@ -2,54 +2,72 @@
 
 import { useAuth } from '@/lib/contexts/AuthContext'
 import { useState, useEffect } from 'react'
-import { getUserProfile } from '@/lib/api/users'
+import { getUserProfile, updateUserProfile } from '@/lib/api/users'
 import { getLanguages } from '@/lib/api/languages'
+import { getEntries } from '@/lib/api/entries' // REAL DATA FETCH
+import { useRouter, useSearchParams } from 'next/navigation' 
 import Link from 'next/link'
 import LanguageSelector from '@/components/LanguageSelector'
-import { updateUserProfile } from '@/lib/api/users'
 
 export default function HomePage() {
   const { user } = useAuth()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '')
   const [userLanguages, setUserLanguages] = useState<string[]>([])
   const [allLanguages, setAllLanguages] = useState<any[]>([])
   const [showLanguageSelector, setShowLanguageSelector] = useState(false)
   const [loading, setLoading] = useState(true)
+  
+  // Real counts state
+  const [languageCounts, setLanguageCounts] = useState<Record<string, number>>({})
+  const [totalWordCount, setTotalWordCount] = useState(0)
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        // Load all languages
-        const langs = await getLanguages()
-        setAllLanguages(langs)
-
-        // If user is logged in, load their language preferences
-        if (user) {
-          const profile = await getUserProfile(user.id)
-          setUserLanguages(profile.languages || [])
-        }
-      } catch (err) {
-        console.error('Failed to load languages:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadData()
-  }, [user])
-
-  const handleLanguagesChange = async (newLanguages: string[]) => {
-    if (!user) return
-    
-    try {
-      await updateUserProfile(user.id, { languages: newLanguages })
-      setUserLanguages(newLanguages)
-    } catch (err) {
-      console.error('Failed to save languages:', err)
-      alert('Failed to save languages. Please try again.')
-    } finally {
-      setShowLanguageSelector(false)
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
     }
   }
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadData() {
+      try {
+        const [langs, entries] = await Promise.all([
+          getLanguages(),
+          getEntries({}) // REAL DATA
+        ])
+        
+        if (isMounted) {
+          setAllLanguages(langs)
+          setTotalWordCount(entries?.length || 0)
+
+          // Calculate REAL counts exactly like your Explore page
+          const counts: Record<string, number> = {}
+          entries?.forEach((entry: any) => {
+            if (entry.language_id) {
+              counts[entry.language_id] = (counts[entry.language_id] || 0) + 1
+            }
+          })
+          setLanguageCounts(counts)
+
+          if (user) {
+            const profile = await getUserProfile(user.id)
+            setUserLanguages(profile.languages || [])
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load data:', err)
+      } finally {
+        if (isMounted) setLoading(false)
+      }
+    }
+    loadData()
+    return () => { isMounted = false }
+  }, [user])
 
   const getLanguageName = (languageId: string) => {
     const lang = allLanguages.find(l => l.id === languageId)
@@ -57,32 +75,26 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-primary-700 to-primary-500 text-white py-16 md:py-24">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 break-words">
+    <div className="min-h-screen bg-stone-50">
+      {/* Hero */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-emerald-900 to-emerald-700 text-white py-20 md:py-32">
+        <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
+          <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight font-logo">
             Kamusi Yetu
           </h1>
-          <p className="text-lg md:text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-            Our Dictionary. Built by Kenyans, for Kenyans.
+          <p className="text-xl md:text-2xl text-emerald-100 mb-12 opacity-90 font-medium max-w-2xl mx-auto">
+            Kenya&apos;s Living Dictionary. Built by you.
           </p>
-          
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto relative z-10">
-            <form action="/search" method="GET" className="relative">
+          <div className="max-w-2xl mx-auto">
+            <form onSubmit={handleSearch} className="relative md:scale-110 transform transition-transform duration-300">
               <input
                 type="text"
-                name="q"
-                placeholder="Search for a word..."
-                // Added pr-32 to prevent text going under the button on mobile
-                // Added bg-white to fix the green background issue
-                className="w-full px-6 py-4 pr-32 rounded-full bg-white text-gray-900 text-lg placeholder-gray-500 shadow-xl focus:outline-none focus:ring-4 focus:ring-white/30"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search a word in any language..."
+                className="w-full px-8 py-5 rounded-2xl bg-white text-gray-900 text-lg shadow-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/30"
               />
-              <button
-                type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary-600 text-white px-4 md:px-6 py-2 rounded-full hover:bg-primary-700 transition font-medium text-sm md:text-base"
-              >
+              <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 bg-emerald-600 text-white px-8 py-3 rounded-xl hover:bg-emerald-500 font-bold shadow-lg">
                 Search
               </button>
             </form>
@@ -90,133 +102,44 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow w-full">
-        
-        {/* My Languages Section */}
-        {user && (
-          <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
-              <h2 className="text-2xl font-bold text-gray-900">My Languages</h2>
-              <Link href="/profile" className="text-sm text-primary-600 hover:text-primary-700 font-medium whitespace-nowrap">
-                View Profile →
-              </Link>
-            </div>
-            
-            {loading ? (
-              <div className="flex items-center gap-2 text-gray-600">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-500"></div>
-                <span>Loading...</span>
-              </div>
-            ) : userLanguages.length > 0 ? (
-              // GRID LAYOUT: Ensures equal sizing for language buttons
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {userLanguages.map((langId) => (
-                  <div key={langId} className="bg-green-50 text-green-800 px-3 py-3 rounded-xl font-medium flex items-center justify-center gap-2 border-2 border-green-200 h-full w-full text-center">
-                    <span className="w-2 h-2 bg-green-600 rounded-full flex-shrink-0"></span>
-                    <span className="truncate text-sm md:text-base">{getLanguageName(langId)}</span>
-                  </div>
-                ))}
-                <button 
-                  onClick={() => setShowLanguageSelector(true)}
-                  className="border-2 border-dashed border-gray-300 text-gray-600 px-3 py-3 rounded-xl font-medium hover:border-green-600 hover:text-green-700 hover:bg-green-50 transition h-full w-full flex items-center justify-center text-sm md:text-base"
-                >
-                  + Edit List
-                </button>
-              </div>
-            ) : (
-              <div>
-                <p className="text-gray-600 mb-4">
-                  Select the languages you speak to personalize your experience
-                </p>
-                <button 
-                  onClick={() => setShowLanguageSelector(true)}
-                  className="bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition font-medium w-full sm:w-auto"
-                >
-                  Select Languages
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Quick Actions - Equal Height Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          <Link href="/contribute" className="block h-full group">
-            <div className="bg-white rounded-2xl shadow-lg p-8 h-full flex flex-col justify-center border-2 border-transparent group-hover:border-primary-300 group-hover:shadow-xl transition relative overflow-hidden">
-              <div className="text-4xl mb-4">✍️</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Contribute a Word</h3>
-              <p className="text-gray-600 flex-grow">
-                Share your knowledge and help build Kenya's linguistic heritage
-              </p>
-            </div>
-          </Link>
-
-          <Link href="/explore" className="block h-full group">
-            <div className="bg-white rounded-2xl shadow-lg p-8 h-full flex flex-col justify-center border-2 border-transparent group-hover:border-primary-300 group-hover:shadow-xl transition relative overflow-hidden">
-              <div className="text-4xl mb-4">🔍</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Explore Languages</h3>
-              <p className="text-gray-600 flex-grow">
-                Discover words and phrases from Kenya's 40+ languages
-              </p>
-            </div>
-          </Link>
+      <div className="max-w-7xl mx-auto px-4 py-16">
+        {/* Quick Actions */}
+        <div className="grid md:grid-cols-2 gap-8 mb-20">
+           <Link href="/contribute" className="group bg-white rounded-3xl p-10 shadow-sm border border-gray-200 hover:border-emerald-500 hover:shadow-2xl transition-all">
+              <div className="text-4xl mb-6">✍️</div>
+              <h3 className="text-3xl font-black text-gray-900 mb-3">Add a Word</h3>
+              <p className="text-gray-500 text-lg leading-relaxed">Preserve your heritage. Contribute definitions and usage examples.</p>
+           </Link>
+           <Link href="/categories" className="group bg-white rounded-3xl p-10 shadow-sm border border-gray-200 hover:border-emerald-500 hover:shadow-2xl transition-all">
+              <div className="text-4xl mb-6">🌍</div>
+              <h3 className="text-3xl font-black text-gray-900 mb-3">Explore Topics</h3>
+              <p className="text-gray-500 text-lg leading-relaxed">Discover the richness of Kenya through organized categories.</p>
+           </Link>
         </div>
 
-        {/* Stats Section */}
-        <div className="bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl shadow-lg p-8 text-white mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">Community Impact</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center divide-y sm:divide-y-0 sm:divide-x divide-white/20">
-            <div className="pt-4 sm:pt-0">
-              <div className="text-4xl md:text-5xl font-bold mb-2">40+</div>
-              <div className="text-green-100 text-sm md:text-base">Languages</div>
+        {/* Real Data Featured Languages */}
+        <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-200 p-8 md:p-12">
+          <div className="flex justify-between items-end mb-10">
+            <div>
+              <h2 className="text-3xl font-black text-gray-900 font-logo">Featured Languages</h2>
+              <div className="h-1.5 w-12 bg-emerald-500 mt-2 rounded-full"></div>
             </div>
-            <div className="pt-4 sm:pt-0 pl-0 sm:pl-4">
-              <div className="text-4xl md:text-5xl font-bold mb-2">1K+</div>
-              <div className="text-green-100 text-sm md:text-base">Words</div>
-            </div>
-            <div className="pt-4 sm:pt-0 pl-0 sm:pl-4">
-              <div className="text-4xl md:text-5xl font-bold mb-2">100+</div>
-              <div className="text-green-100 text-sm md:text-base">Contributors</div>
-            </div>
+            <Link href="/languages" className="text-emerald-700 font-bold hover:underline">View All →</Link>
           </div>
-        </div>
-
-        {/* Featured Languages - Equal Grid */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Browse by Language</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {allLanguages.slice(0, 8).map((lang) => (
-              <Link key={lang.id} href={`/explore?language=${lang.id}`} className="block h-full">
-                <div className="p-4 border-2 border-gray-200 rounded-xl hover:border-primary-300 hover:bg-primary-50 transition text-center cursor-pointer h-full flex flex-col items-center justify-center min-h-[100px]">
-                  <p className="font-bold text-gray-900 line-clamp-1">{lang.name}</p>
-                  {lang.native_name && lang.native_name !== lang.name && (
-                    <p className="text-sm text-gray-600 mt-1 line-clamp-1">{lang.native_name}</p>
-                  )}
+              <Link key={lang.id} href={`/search?language=${lang.id}`} className="group">
+                <div className="p-6 border border-gray-100 rounded-2xl bg-stone-50/50 hover:bg-white hover:border-emerald-500 hover:shadow-xl transition-all text-center">
+                  <p className="text-xl font-bold text-gray-900 group-hover:text-emerald-700">{lang.name}</p>
+                  <p className="text-emerald-600 text-sm font-bold mt-2 uppercase tracking-tight">
+                    {languageCounts[lang.id] || 0} words
+                  </p>
                 </div>
               </Link>
             ))}
           </div>
-          {allLanguages.length > 8 && (
-            <div className="text-center mt-8">
-              <Link href="/explore">
-                <button className="text-primary-600 hover:text-primary-700 font-medium px-4 py-2 rounded-lg hover:bg-primary-50 transition">
-                  View All Languages →
-                </button>
-              </Link>
-            </div>
-          )}
         </div>
       </div>
-
-      {/* Language Selector Modal */}
-      {showLanguageSelector && (
-        <LanguageSelector
-          selectedLanguages={userLanguages}
-          onLanguagesChange={handleLanguagesChange}
-          onClose={() => setShowLanguageSelector(false)}
-        />
-      )}
     </div>
   )
 }

@@ -4,6 +4,7 @@ export interface CreateEntryData {
     language_id: string
     headword: string
     primary_definition: string
+    category?: string // ADDED
     part_of_speech?: string
     dialect_variant?: string
     register?: string
@@ -24,6 +25,7 @@ export async function createEntry(data: CreateEntryData) {
             language_id: data.language_id,
             headword: data.headword,
             primary_definition: data.primary_definition,
+            category: data.category || null, // ADDED
             part_of_speech: data.part_of_speech || null,
             dialect_variant: data.dialect_variant || null,
             register: data.register || 'both',
@@ -38,10 +40,11 @@ export async function createEntry(data: CreateEntryData) {
     return entry
 }
 
-// Get all entries
+// Get all entries (used in admin or lists)
 export async function getEntries(filters?: {
     language_id?: string
     validation_status?: string
+    category?: string // ADDED
     search?: string
 }) {
     let query = supabase
@@ -54,6 +57,10 @@ export async function getEntries(filters?: {
 
     if (filters?.language_id) {
         query = query.eq('language_id', filters.language_id)
+    }
+
+    if (filters?.category) {
+        query = query.eq('category', filters.category) // ADDED
     }
 
     if (filters?.validation_status) {
@@ -89,7 +96,6 @@ export async function getEntryById(id: string) {
         throw error
     }
 
-    console.log('Entry data:', data)
     return data
 }
 
@@ -99,7 +105,6 @@ export async function updateEntryStatus(
     status: 'pending' | 'verified' | 'disputed' | 'flagged',
     validatorId: string
 ) {
-    // Update entry
     const { error: entryError } = await supabase
         .from('entries')
         .update({
@@ -110,7 +115,6 @@ export async function updateEntryStatus(
 
     if (entryError) throw entryError
 
-    // Log validation
     const { error: validationError } = await supabase
         .from('validations')
         .insert({
@@ -122,21 +126,29 @@ export async function updateEntryStatus(
     if (validationError) throw validationError
 }
 
-// Search entries
-export async function searchEntries(query: string, languageId?: string) {
+// Search entries (The main function for your Search UI)
+export async function searchEntries(query: string, languageId?: string, categoryId?: string) {
     let searchQuery = supabase
         .from('entries')
         .select(`
       *,
       language:languages(*)
     `)
-        // CHANGED: Remove the verified-only filter for now
-        // .eq('validation_status', 'verified')
-        .or(`headword.ilike.%${query}%,primary_definition.ilike.%${query}%`)
         .limit(20)
 
-    if (languageId) {
+    // Handle Text Filter
+    if (query && query.trim() !== '') {
+        searchQuery = searchQuery.or(`headword.ilike.%${query}%,primary_definition.ilike.%${query}%`)
+    }
+
+    // Handle Language Filter
+    if (languageId && languageId !== 'all') {
         searchQuery = searchQuery.eq('language_id', languageId)
+    }
+
+    // Handle Category Filter (NEW)
+    if (categoryId && categoryId !== 'all') {
+        searchQuery = searchQuery.eq('category', categoryId)
     }
 
     const { data, error } = await searchQuery
@@ -146,6 +158,5 @@ export async function searchEntries(query: string, languageId?: string) {
         throw error
     }
 
-    console.log('Search results:', data) // Debug log
     return data
 }

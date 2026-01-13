@@ -4,7 +4,6 @@ import { Inter, Playfair_Display } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-// 1. Import your AuthProvider
 import { AuthProvider } from '@/lib/contexts/AuthContext' 
 
 const inter = Inter({ subsets: ['latin'] })

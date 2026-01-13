@@ -5,44 +5,50 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createEntry } from '@/lib/api/entries'
 import { getLanguages } from '@/lib/api/languages'
+import { CATEGORIES } from '@/lib/constants'
+import Link from 'next/link'
+
+interface ContributionForm {
+  language: string
+  word: string
+  definition: string
+  category: string 
+  englishTranslation: string
+  swahiliTranslation: string
+  usage: string
+}
 
 export default function ContributePage() {
   const { user, loading } = useAuth()
   const router = useRouter()
-  const [mounted, setMounted] = useState(false)
-  const [showOptional, setShowOptional] = useState(false)
   const [languages, setLanguages] = useState<any[]>([])
-  const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState('')
   
-  // Form state
-  const [formData, setFormData] = useState({
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
+  const [errorMessage, setErrorMessage] = useState('')
+  
+  const initialForm: ContributionForm = {
     language: '',
     word: '',
     definition: '',
+    category: '', 
     englishTranslation: '',
     swahiliTranslation: '',
-    exampleSentence: '',
-    dialect: '',
-    partOfSpeech: '',
     usage: 'both'
-  })
+  }
+
+  const [formData, setFormData] = useState<ContributionForm>(initialForm)
 
   useEffect(() => {
-    setMounted(true)
-    if (!loading && !user) {
-      router.push('/login')
-    }
+    if (!loading && !user) router.push('/login')
   }, [user, loading, router])
 
   useEffect(() => {
-    // Load languages from database
     async function loadLanguages() {
       try {
         const langs = await getLanguages()
         setLanguages(langs)
       } catch (err) {
-        console.error('Failed to load languages:', err)
+        console.error('Failed to fetch languages')
       }
     }
     loadLanguages()
@@ -51,252 +57,199 @@ export default function ContributePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user) return
-
-    setSubmitting(true)
-    setError('')
+    setStatus('submitting')
+    setErrorMessage('')
 
     try {
-      // Create the entry
       await createEntry({
         language_id: formData.language,
         headword: formData.word,
         primary_definition: formData.definition,
-        part_of_speech: formData.partOfSpeech || undefined,
-        dialect_variant: formData.dialect || undefined,
+        category: formData.category || undefined,
         register: formData.usage,
-        created_by: user.id
+        created_by: user.id,
       })
 
-      // TODO: Add translations and example sentence
-
-      alert('Word submitted successfully! It will be reviewed by moderators.')
-      router.push('/profile')
+      setStatus('success')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (err: any) {
-      setError(err.message || 'Failed to submit word')
-    } finally {
-      setSubmitting(false)
+      setErrorMessage(err.message || 'Failed to submit word')
+      setStatus('error')
     }
   }
 
-  if (!mounted || loading || !user) {
+  const resetForm = () => {
+    setFormData(initialForm)
+    setStatus('idle')
+  }
+
+  if (loading || !user) return null
+
+  // --- SUCCESS VIEW ---
+  if (status === 'success') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center p-6">
+        <div className="bg-white rounded-[3rem] p-12 max-w-xl w-full text-center shadow-2xl border border-stone-100">
+          <div className="w-24 h-24 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center text-5xl mx-auto mb-8 animate-bounce">
+            🎊
+          </div>
+          <h2 className="text-4xl font-black text-gray-900 mb-4 font-logo tracking-tight">Asante Sana!</h2>
+          <p className="text-stone-500 mb-10 text-xl font-medium leading-relaxed">
+            Your contribution of <span className="text-emerald-600 font-black italic">"{formData.word}"</span> has been recorded for review. You are now a Guardian of Culture.
+          </p>
+          <div className="grid gap-4">
+            <button 
+              onClick={resetForm}
+              className="w-full bg-emerald-600 text-white py-5 rounded-2xl font-black text-lg hover:bg-emerald-700 transition shadow-xl shadow-emerald-900/10"
+            >
+              Add Another Word
+            </button>
+            <Link href="/" className="block w-full py-4 text-stone-400 font-bold hover:text-emerald-600 transition-colors uppercase tracking-widest text-xs">
+              Return Home
+            </Link>
+          </div>
         </div>
       </div>
     )
   }
 
+  // --- FORM VIEW ---
   return (
-    <div className="min-h-screen bg-gray-50 py-8 md:py-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
-            Contribute a Word
-          </h1>
-          <p className="text-base md:text-lg text-gray-600">
-            Help preserve Kenyan languages for future generations
-          </p>
+    <div className="min-h-screen bg-stone-50 py-16">
+      <div className="max-w-3xl mx-auto px-4">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl md:text-6xl font-black text-gray-900 mb-4 tracking-tight font-logo">Contribute</h1>
+          <p className="text-stone-500 text-xl font-medium">Record a word, preserve a legacy.</p>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-              {error}
-            </div>
-          )}
-
-          {/* Required Section */}
-          <div className="space-y-6">
-            <div className="border-b border-gray-200 pb-4">
-              <h2 className="text-lg md:text-xl font-bold text-gray-900">Basic Information</h2>
-              <p className="text-xs md:text-sm text-gray-600 mt-1">All fields are required</p>
-            </div>
-
-            {/* Language */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                What language is this word in? <span className="text-red-500">*</span>
-              </label>
-              <select
-                required
-                value={formData.language}
-                onChange={(e) => setFormData({...formData, language: e.target.value})}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
-              >
-                <option value="">Select a language...</option>
-                {languages.map(lang => (
-                  <option key={lang.id} value={lang.id}>{lang.name}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Word */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Write the word <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.word}
-                onChange={(e) => setFormData({...formData, word: e.target.value})}
-                placeholder="e.g., mtoto, kaana, nyathi"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
-              />
-            </div>
-
-            {/* Definition */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                What does it mean? <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                required
-                rows={3}
-                value={formData.definition}
-                onChange={(e) => setFormData({...formData, definition: e.target.value})}
-                placeholder="Provide a clear definition..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
-              />
-            </div>
-
-            {/* Translations */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  English translation <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.englishTranslation}
-                  onChange={(e) => setFormData({...formData, englishTranslation: e.target.value})}
-                  placeholder="e.g., child"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
-                />
+        <form onSubmit={handleSubmit} className="bg-white rounded-[2.5rem] shadow-xl border border-stone-200 overflow-hidden">
+          {/* Header Accent */}
+          <div className="h-2 bg-emerald-600 w-full"></div>
+          
+          <div className="p-8 md:p-14">
+            {status === 'error' && (
+              <div className="bg-red-50 text-red-700 p-5 rounded-2xl mb-10 flex items-center gap-4 border border-red-100 font-bold italic">
+                <span>⚠️</span> {errorMessage}
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Swahili translation <span className="text-red-500">*</span>
+            )}
+
+            <div className="space-y-10">
+              {/* Language Selection */}
+              <div className="group">
+                <label className="block text-xs font-black text-stone-400 uppercase tracking-widest mb-4 ml-1 group-focus-within:text-emerald-600 transition-colors">
+                  1. Choose Language *
                 </label>
-                <input
-                  type="text"
+                <select
                   required
-                  value={formData.swahiliTranslation}
-                  onChange={(e) => setFormData({...formData, swahiliTranslation: e.target.value})}
-                  placeholder="e.g., mtoto"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
-                />
+                  value={formData.language}
+                  onChange={(e) => setFormData({...formData, language: e.target.value})}
+                  className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 transition-all outline-none font-bold text-gray-900 appearance-none cursor-pointer"
+                >
+                  <option value="">Select language...</option>
+                  {languages.map(lang => (
+                    <option key={lang.id} value={lang.id}>{lang.name}</option>
+                  ))}
+                </select>
               </div>
-            </div>
-          </div>
 
-          {/* Optional Section */}
-          <div className="mt-8">
-            <button
-              type="button"
-              onClick={() => setShowOptional(!showOptional)}
-              className="flex items-center justify-between w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition text-sm md:text-base"
-            >
-              <span className="font-medium text-gray-700">
-                📝 Optional details (helps us verify)
-              </span>
-              <span className="text-gray-500">{showOptional ? '▲' : '▼'}</span>
-            </button>
-
-            {showOptional && (
-              <div className="mt-6 space-y-6">
-                {/* Example Sentence */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Use it in a sentence
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={formData.exampleSentence}
-                    onChange={(e) => setFormData({...formData, exampleSentence: e.target.value})}
-                    placeholder="Show how the word is used..."
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
-                  />
-                </div>
-
-                {/* Dialect */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Which dialect?
+              {/* Word & Category */}
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="group">
+                  <label className="block text-xs font-black text-stone-400 uppercase tracking-widest mb-4 ml-1 group-focus-within:text-emerald-600 transition-colors">
+                    2. The Word *
                   </label>
                   <input
                     type="text"
-                    value={formData.dialect}
-                    onChange={(e) => setFormData({...formData, dialect: e.target.value})}
-                    placeholder="e.g., Gĩgĩcũgũ, Maragoli, etc."
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
+                    required
+                    placeholder="e.g. Amani"
+                    value={formData.word}
+                    onChange={(e) => setFormData({...formData, word: e.target.value})}
+                    className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 transition-all outline-none font-black text-2xl text-gray-900 font-logo"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Leave blank if not sure or standard</p>
                 </div>
-
-                {/* Part of Speech */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Part of speech
+                
+                <div className="group">
+                  <label className="block text-xs font-black text-stone-400 uppercase tracking-widest mb-4 ml-1 group-focus-within:text-emerald-600 transition-colors">
+                    3. Category
                   </label>
                   <select
-                    value={formData.partOfSpeech}
-                    onChange={(e) => setFormData({...formData, partOfSpeech: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
+                    value={formData.category}
+                    onChange={(e) => setFormData({...formData, category: e.target.value})}
+                    className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 transition-all outline-none font-bold text-gray-900 appearance-none cursor-pointer"
                   >
-                    <option value="">Select...</option>
-                    <option value="noun">Noun</option>
-                    <option value="verb">Verb</option>
-                    <option value="adjective">Adjective</option>
-                    <option value="adverb">Adverb</option>
-                    <option value="other">Other</option>
+                    <option value="">Select topic...</option>
+                    {CATEGORIES.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
+                    ))}
                   </select>
                 </div>
+              </div>
 
-                {/* Usage Type */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Usage type
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {['formal', 'informal', 'both', 'slang', 'archaic'].map(type => (
-                      <button
-                        key={type}
-                        type="button"
-                        onClick={() => setFormData({...formData, usage: type})}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-                          formData.usage === type
-                            ? 'bg-primary-500 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                      </button>
-                    ))}
+              {/* Definition */}
+              <div className="group">
+                <label className="block text-xs font-black text-stone-400 uppercase tracking-widest mb-4 ml-1 group-focus-within:text-emerald-600 transition-colors">
+                  4. Meaning & Definition *
+                </label>
+                <textarea
+                  required
+                  rows={4}
+                  placeholder="What does this word mean in its deepest sense?"
+                  value={formData.definition}
+                  onChange={(e) => setFormData({...formData, definition: e.target.value})}
+                  className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 transition-all outline-none font-medium text-gray-800 resize-none leading-relaxed"
+                />
+              </div>
+
+              {/* Translation Box */}
+              <div className="bg-emerald-50/30 p-8 rounded-[2rem] border border-emerald-100/50">
+                <h3 className="text-emerald-900 font-black text-xs uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                  <span className="text-lg">🔄</span> Cross-Translations
+                </h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-emerald-800/50 uppercase ml-1">English equivalent</label>
+                    <input 
+                      type="text" 
+                      value={formData.englishTranslation} 
+                      onChange={(e) => setFormData({...formData, englishTranslation: e.target.value})} 
+                      className="w-full px-5 py-4 bg-white border border-emerald-100 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none font-bold" 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-emerald-800/50 uppercase ml-1">Swahili equivalent</label>
+                    <input 
+                      type="text" 
+                      value={formData.swahiliTranslation} 
+                      onChange={(e) => setFormData({...formData, swahiliTranslation: e.target.value})} 
+                      className="w-full px-5 py-4 bg-white border border-emerald-100 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none font-bold" 
+                    />
                   </div>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
 
-          {/* Submit */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full bg-primary-500 text-white px-6 py-4 rounded-xl hover:bg-primary-600 transition font-bold text-base md:text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {submitting ? 'Submitting...' : 'Submit for Review'}
-            </button>
-            <p className="text-xs md:text-sm text-gray-600 text-center mt-4">
-              💡 Your submission will be reviewed by native speakers within 48 hours
-            </p>
+            <div className="mt-14 pt-10 border-t border-stone-100">
+              <button
+                type="submit"
+                disabled={status === 'submitting'}
+                className="w-full bg-emerald-600 text-white px-8 py-6 rounded-[1.5rem] hover:bg-emerald-700 transition-all font-black text-xl shadow-2xl shadow-emerald-900/20 disabled:opacity-70 flex items-center justify-center gap-4 group"
+              >
+                {status === 'submitting' ? (
+                  <>
+                    <div className="animate-spin h-6 w-6 border-4 border-white border-t-transparent rounded-full"></div>
+                    Recording...
+                  </>
+                ) : (
+                  <>
+                    Submit for Review 
+                    <span className="group-hover:translate-x-2 transition-transform">→</span>
+                  </>
+                )}
+              </button>
+              <p className="text-center text-stone-400 text-sm mt-6 font-medium italic">
+                Your entry will be reviewed by community elders and verified for accuracy.
+              </p>
+            </div>
           </div>
         </form>
       </div>

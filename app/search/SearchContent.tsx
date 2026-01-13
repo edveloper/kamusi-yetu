@@ -1,16 +1,35 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { searchEntries } from '@/lib/api/entries'
 import { getLanguages } from '@/lib/api/languages'
 
+const CATEGORIES = [
+  { id: 'family', name: 'Family', icon: '👨‍👩‍👧‍👦' },
+  { id: 'food', name: 'Food', icon: '🍲' },
+  { id: 'home', name: 'Home', icon: '🏠' },
+  { id: 'nature', name: 'Nature', icon: '🌾' },
+  { id: 'culture', name: 'Culture', icon: '🏛️' },
+  { id: 'business', name: 'Work', icon: '💼' },
+  { id: 'tech', name: 'Tech', icon: '📱' },
+  { id: 'health', name: 'Health', icon: '🏥' },
+  { id: 'education', name: 'Education', icon: '🎓' },
+  { id: 'law', name: 'Law', icon: '⚖️' },
+]
+
 export default function SearchContent() {
   const searchParams = useSearchParams()
-  const query = searchParams.get('q') || ''
-  const [searchQuery, setSearchQuery] = useState(query)
-  const [selectedLanguage, setSelectedLanguage] = useState('all')
+  const router = useRouter()
+  
+  const queryParam = searchParams.get('q') || ''
+  const langParam = searchParams.get('language') || 'all'
+  const catParam = searchParams.get('category') || 'all'
+
+  const [searchQuery, setSearchQuery] = useState(queryParam)
+  const [selectedLanguage, setSelectedLanguage] = useState(langParam)
+  const [selectedCategory, setSelectedCategory] = useState(catParam)
   const [results, setResults] = useState<any[]>([])
   const [languages, setLanguages] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
@@ -28,8 +47,14 @@ export default function SearchContent() {
   }, [])
 
   useEffect(() => {
+    setSearchQuery(searchParams.get('q') || '')
+    setSelectedLanguage(searchParams.get('language') || 'all')
+    setSelectedCategory(searchParams.get('category') || 'all')
+  }, [searchParams])
+
+  useEffect(() => {
     async function search() {
-      if (!searchQuery.trim()) {
+      if (!searchQuery.trim() && selectedLanguage === 'all' && selectedCategory === 'all') {
         setResults([])
         return
       }
@@ -38,7 +63,8 @@ export default function SearchContent() {
       try {
         const data = await searchEntries(
           searchQuery,
-          selectedLanguage !== 'all' ? selectedLanguage : undefined
+          selectedLanguage !== 'all' ? selectedLanguage : undefined,
+          selectedCategory !== 'all' ? selectedCategory : undefined
         )
         setResults(data || [])
       } catch (err) {
@@ -48,121 +74,195 @@ export default function SearchContent() {
         setLoading(false)
       }
     }
-
     search()
-  }, [searchQuery, selectedLanguage])
+  }, [searchQuery, selectedLanguage, selectedCategory])
+
+  const updateUrl = (newParams: Record<string, string | null>) => {
+    const params = new URLSearchParams(searchParams)
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (!value || value === 'all') {
+        params.delete(key)
+      } else {
+        params.set(key, value)
+      }
+    })
+    router.push(`/search?${params.toString()}`)
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Search Header */}
-      <div className="bg-white border-b border-gray-200 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Search Bar */}
-          <div className="max-w-3xl mx-auto mb-6">
+    <div className="min-h-screen bg-stone-50 pb-20 font-sans">
+      {/* Search Hero: Professional, Deep Header */}
+      <div className="bg-emerald-900 text-white py-24 md:py-32 relative overflow-hidden border-b border-emerald-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+          <h1 className="text-5xl md:text-8xl font-black font-logo tracking-tight mb-8">
+            Search Archive
+          </h1>
+          
+          <div className="max-w-3xl mx-auto relative group">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search in any language..."
-              className="w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              autoFocus
+              placeholder="Search by word or definition..."
+              className="w-full bg-white text-stone-900 px-8 py-6 text-xl rounded-2xl shadow-2xl focus:outline-none transition-all font-bold placeholder:text-stone-300 placeholder:font-medium"
             />
+            <div className="absolute right-6 top-1/2 -translate-y-1/2 text-stone-300 group-focus-within:text-emerald-600 transition-colors text-2xl">
+              🔍
+            </div>
           </div>
+        </div>
+        
+        {/* Signature Circle DNA */}
+        <div className="absolute top-0 right-0 opacity-10 translate-x-1/4 -translate-y-1/4 pointer-events-none">
+          <div className="w-[500px] h-[500px] border-[50px] border-white rounded-full"></div>
+        </div>
+      </div>
 
-          {/* Language Filter */}
-          <div className="flex flex-wrap gap-2 justify-center">
+      {/* Filters Bar: Architectural backdrop */}
+      <div className="sticky top-20 z-20 bg-white/90 backdrop-blur-md border-b border-stone-100 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          {/* Language Selection */}
+          <div className="flex items-center gap-4 overflow-x-auto no-scrollbar">
+            <span className="text-[10px] font-black text-stone-400 uppercase tracking-[0.3em] shrink-0">Communities</span>
             <button
-              onClick={() => setSelectedLanguage('all')}
-              className={`px-4 py-2 rounded-full font-medium transition text-sm ${
-                selectedLanguage === 'all'
-                  ? 'bg-primary-500 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              onClick={() => updateUrl({ language: 'all' })}
+              className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                selectedLanguage === 'all' ? 'bg-emerald-900 text-white shadow-lg shadow-emerald-900/20' : 'bg-stone-50 text-stone-500 border border-stone-200 hover:border-emerald-300'
               }`}
             >
-              All Languages
+              All
             </button>
             {languages.map((lang) => (
               <button
                 key={lang.id}
-                onClick={() => setSelectedLanguage(lang.id)}
-                className={`px-4 py-2 rounded-full font-medium transition text-sm ${
-                  selectedLanguage === lang.id
-                    ? 'bg-primary-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                onClick={() => updateUrl({ language: lang.id })}
+                className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${
+                  selectedLanguage === lang.id ? 'bg-emerald-900 text-white shadow-lg shadow-emerald-900/20' : 'bg-stone-50 text-stone-500 border border-stone-200 hover:border-emerald-300'
                 }`}
               >
                 {lang.name}
               </button>
             ))}
           </div>
+
+          {/* Category Selection */}
+          <div className="flex items-center gap-4 overflow-x-auto no-scrollbar border-t border-stone-50 pt-6">
+            <span className="text-[10px] font-black text-stone-400 uppercase tracking-[0.3em] shrink-0">Categories</span>
+            <button
+              onClick={() => updateUrl({ category: 'all' })}
+              className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                selectedCategory === 'all' ? 'bg-stone-900 text-white shadow-lg shadow-stone-900/20' : 'bg-stone-50 text-stone-500 border border-stone-200 hover:border-stone-300'
+              }`}
+            >
+              Any
+            </button>
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => updateUrl({ category: cat.id })}
+                className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all flex items-center gap-2 ${
+                  selectedCategory === cat.id ? 'bg-stone-900 text-white shadow-lg shadow-stone-900/20' : 'bg-stone-50 text-stone-500 border border-stone-200 hover:border-stone-300'
+                }`}
+              >
+                <span>{cat.icon}</span>
+                {cat.name}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Results */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Results Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">Searching...</p>
+          <div className="text-center py-32">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-900 mx-auto mb-6"></div>
+            <p className="text-stone-400 font-black uppercase tracking-[0.2em] text-[10px]">Processing Archive...</p>
           </div>
         ) : (
-          <>
-            <div className="mb-6">
-              <p className="text-gray-600 text-sm md:text-base">
-                {results.length === 0 ? 'No results found' : `${results.length} result${results.length !== 1 ? 's' : ''} for "${searchQuery}"`}
-              </p>
-            </div>
-
-            <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-16">
+            <div className="lg:col-span-3 space-y-8">
+              <div className="flex items-center gap-6 mb-12">
+                <h2 className="text-[11px] font-black text-stone-400 uppercase tracking-[0.4em] whitespace-nowrap">
+                  Showing {results.length} Archive {results.length === 1 ? 'Record' : 'Records'}
+                </h2>
+                <div className="h-px w-full bg-stone-100"></div>
+              </div>
+              
               {results.map((entry) => (
-                <Link href={`/entry/${entry.id}`} key={entry.id}>
-                  <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-4 md:p-6 border border-gray-100 cursor-pointer">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
-                      <div className="flex-1">
-                        <h3 className="text-xl md:text-2xl font-bold text-gray-900 hover:text-primary-600 transition break-words">
+                <Link href={`/entry/${entry.id}`} key={entry.id} className="block group">
+                  <div className="bg-white rounded-[2.5rem] p-10 border border-stone-100 shadow-sm group-hover:shadow-2xl group-hover:border-emerald-200 group-hover:-translate-y-1 transition-all duration-500">
+                    <div className="flex justify-between items-start mb-6">
+                      <div>
+                        <h3 className="text-3xl font-black text-stone-900 font-logo group-hover:text-emerald-900 transition-colors tracking-tight">
                           {entry.headword}
                         </h3>
-                        <p className="text-xs md:text-sm text-gray-500 mt-1">
-                          {entry.language?.name} • {entry.part_of_speech || 'word'}
+                        <p className="text-[10px] text-emerald-600 font-black uppercase tracking-[0.2em] mt-2">
+                          {entry.language?.name}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {entry.validation_status === 'verified' && (
-                          <span className="bg-green-100 text-green-700 px-2 md:px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
-                            ✓ Verified
-                          </span>
-                        )}
-                        {entry.validation_status === 'pending' && (
-                          <span className="bg-yellow-100 text-yellow-700 px-2 md:px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
-                            ⏳ Pending
-                          </span>
-                        )}
-                        <span className="text-xs md:text-sm text-gray-500 whitespace-nowrap">
-                          {entry.trust_score}%
-                        </span>
-                      </div>
+                      <span className="text-[9px] font-black bg-stone-50 text-stone-400 px-4 py-2 rounded-xl border border-stone-100 uppercase tracking-widest">
+                        Trust Score: {entry.trust_score}%
+                      </span>
                     </div>
-
-                    <p className="text-sm md:text-base text-gray-700 line-clamp-2">
+                    
+                    <p className="text-stone-700 text-lg leading-relaxed font-medium mb-8">
                       {entry.primary_definition}
                     </p>
+                    
+                    <div className="flex items-center justify-between pt-8 border-t border-stone-50">
+                       <div className="flex gap-2">
+                        {entry.category && (
+                          <span className="text-[9px] font-black bg-emerald-50 text-emerald-700 px-4 py-1.5 rounded-lg uppercase tracking-widest border border-emerald-100">
+                            {entry.category}
+                          </span>
+                        )}
+                       </div>
+                       <span className="text-emerald-600 font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">
+                         View Full Record →
+                       </span>
+                    </div>
                   </div>
                 </Link>
               ))}
-            </div>
 
-            {results.length === 0 && searchQuery && !loading && (
-              <div className="text-center py-12">
-                <p className="text-lg md:text-xl text-gray-600 mb-4">No results found for &quot;{searchQuery}&quot;</p>
-                <p className="text-sm md:text-base text-gray-500 mb-6">Try a different search term or</p>
-                <Link href="/contribute">
-                  <button className="bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition font-medium text-sm md:text-base">
-                    + Add this word
-                  </button>
-                </Link>
-              </div>
-            )}
-          </>
+              {results.length === 0 && !loading && (
+                <div className="bg-white rounded-[3rem] p-24 text-center border border-stone-100 shadow-sm">
+                  <p className="text-stone-400 text-xl font-medium mb-10 leading-relaxed max-w-sm mx-auto">No archive entries match your specific search criteria.</p>
+                  <Link href="/contribute">
+                    <button className="bg-stone-900 text-white px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] hover:bg-emerald-900 transition-all shadow-xl">
+                      + Add New Word
+                    </button>
+                  </Link>
+                </div>
+              )}
+            </div>
+            
+            {/* Sidebar Context */}
+            <div className="hidden lg:block">
+               <div className="sticky top-64 space-y-8">
+                  <div className="bg-stone-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl">
+                    <div className="relative z-10">
+                      <h4 className="font-black font-logo text-2xl mb-4 tracking-tight leading-tight">Digital Preservation</h4>
+                      <p className="text-sm text-stone-400 leading-relaxed font-medium mb-10">
+                        The archive is powered by the community. Every entry helps bridge the gap between oral history and the digital world.
+                      </p>
+                      <Link href="/contribute" className="block text-center bg-white text-stone-900 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:bg-emerald-50 transition-all">
+                        Contribute Entry
+                      </Link>
+                    </div>
+                    <div className="absolute top-0 right-0 w-32 h-32 border-[20px] border-white/5 rounded-full -mr-16 -mt-16"></div>
+                  </div>
+
+                  <div className="bg-white rounded-[2.5rem] p-10 border border-stone-100">
+                    <h5 className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-6 border-b border-stone-50 pb-4">Search System</h5>
+                    <p className="text-xs text-stone-500 leading-relaxed font-medium">
+                      Queries are processed against headwords and primary definitions. Filter by language community or topical category for precise archival records.
+                    </p>
+                  </div>
+               </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

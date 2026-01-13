@@ -16,7 +16,6 @@ export default function LanguagesPage() {
         const langs = await getLanguages()
         setLanguages(langs)
 
-        // Get entry counts for each language
         const entries = await getEntries({})
         const counts: Record<string, number> = {}
         entries?.forEach((entry: any) => {
@@ -33,65 +32,75 @@ export default function LanguagesPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <div className="bg-gradient-to-br from-primary-700 to-primary-500 text-white py-16">
+    <div className="min-h-screen bg-stone-50 pb-20">
+      {/* Hero Section */}
+      <div className="bg-emerald-900 text-white py-24 border-b border-emerald-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Browse Languages</h1>
-          <p className="text-xl text-green-100">
-            Explore Kenya's 40+ languages and dialects
+          <h1 className="text-5xl md:text-7xl font-black mb-6 font-logo tracking-tight">
+            Our Languages
+          </h1>
+          <p className="text-xl text-emerald-100 max-w-2xl mx-auto font-medium opacity-90">
+            Explore the rich tapestry of Kenya's 40+ linguistic traditions, 
+            preserved by the community.
           </p>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Content Area */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10">
         {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading languages...</p>
+          <div className="bg-white rounded-[2.5rem] shadow-xl p-20 text-center border border-stone-200">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-emerald-600 mx-auto mb-6"></div>
+            <p className="text-stone-500 font-black uppercase tracking-widest text-xs">Gathering Dialects...</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {languages.map((lang) => (
-              <Link key={lang.id} href={`/search?language=${lang.id}`}>
-                <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6 cursor-pointer border-2 border-transparent hover:border-primary-300">
-                  <div className="flex items-start justify-between mb-4">
+              <Link key={lang.id} href={`/search?language=${lang.id}`} className="group">
+                <div className="bg-white rounded-[2rem] shadow-sm border border-stone-200 p-8 h-full flex flex-col hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                  <div className="flex items-start justify-between mb-8">
                     <div className="flex-1">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-1">
+                      <h3 className="text-3xl font-black text-gray-900 mb-2 font-logo group-hover:text-emerald-600 transition-colors">
                         {lang.name}
                       </h3>
                       {lang.native_name && lang.native_name !== lang.name && (
-                        <p className="text-gray-600">{lang.native_name}</p>
+                        <p className="text-stone-400 font-bold italic text-sm">
+                          &ldquo;{lang.native_name}&rdquo;
+                        </p>
                       )}
                     </div>
-                    <span className="text-3xl">🗣️</span>
-                  </div>
-                  
-                  <div className="border-t border-gray-200 pt-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Words</span>
-                      <span className="font-bold text-primary-600">
-                        {languageCounts[lang.id] || 0}
-                      </span>
+                    <div className="w-14 h-14 bg-stone-50 rounded-2xl flex items-center justify-center text-3xl group-hover:bg-emerald-50 transition-colors">
+                      🗣️
                     </div>
                   </div>
                   
-                  <button className="mt-4 w-full bg-primary-50 text-primary-600 py-2 rounded-lg hover:bg-primary-100 transition font-medium text-sm">
-                    Explore →
-                  </button>
+                  <div className="mt-auto">
+                    <div className="flex items-center justify-between py-4 border-t border-stone-100">
+                      <span className="text-xs font-black text-stone-400 uppercase tracking-widest">Database</span>
+                      <span className="font-logo font-black text-emerald-600 text-xl">
+                        {languageCounts[lang.id] || 0} <span className="text-xs text-stone-400 tracking-normal font-sans">words</span>
+                      </span>
+                    </div>
+                    
+                    <div className="mt-4 flex items-center gap-2 text-emerald-600 font-black text-sm uppercase tracking-tighter group-hover:gap-4 transition-all">
+                      Open Dictionary <span>→</span>
+                    </div>
+                  </div>
                 </div>
               </Link>
             ))}
           </div>
         )}
 
+        {/* Empty State */}
         {!loading && languages.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-600 mb-4">No languages found yet.</p>
+          <div className="text-center py-20 bg-white rounded-[2.5rem] border-2 border-dashed border-stone-200">
+            <div className="text-6xl mb-6">🌍</div>
+            <h3 className="text-2xl font-black text-gray-900 font-logo mb-2">No Languages Found</h3>
+            <p className="text-stone-500 mb-8 max-w-xs mx-auto">Be the pioneer who adds the first linguistic data for your community.</p>
             <Link href="/contribute">
-              <button className="bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition">
-                Be the First to Contribute
+              <button className="bg-emerald-600 text-white px-10 py-4 rounded-2xl font-black hover:bg-emerald-700 transition shadow-lg">
+                Add a New Language
               </button>
             </Link>
           </div>

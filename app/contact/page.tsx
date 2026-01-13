@@ -1,144 +1,99 @@
+'use client'
+
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <div className="bg-gradient-to-br from-primary-700 to-primary-500 text-white py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Get in Touch</h1>
-          <p className="text-xl text-green-100">
-            We'd love to hear from you
+    <div className="min-h-screen bg-stone-50 pb-20">
+      {/* Hero Header */}
+      <div className="bg-emerald-900 text-white py-24 border-b border-emerald-800 relative overflow-hidden">
+        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
+          <h1 className="text-5xl md:text-7xl font-black mb-6 font-logo tracking-tight">
+            Tuwasiliane
+          </h1>
+          <p className="text-xl md:text-2xl text-emerald-100 opacity-90 leading-relaxed font-medium">
+            Have a suggestion, a correction, or want to partner with us? <br className="hidden md:block"/> Our ears are open to the community.
           </p>
         </div>
+        {/* Background Decorative Graphic */}
+        <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-emerald-800 rounded-full blur-3xl opacity-50"></div>
       </div>
 
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Contact Info */}
-          <div>
-            <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Contact Information</h2>
-              <div className="space-y-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
+      <div className="max-w-6xl mx-auto px-4 -mt-12 relative z-20">
+        <div className="grid lg:grid-cols-3 gap-8">
+          
+          {/* Info Side */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="bg-white rounded-[2.5rem] p-10 shadow-xl border border-stone-200">
+              <h2 className="text-3xl font-black mb-8 font-logo text-gray-900">Get in Touch</h2>
+              
+              <div className="space-y-8">
+                <div className="group flex items-center gap-5">
+                  <div className="w-14 h-14 bg-stone-50 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-sm">
                     📧
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 mb-1">Email</h3>
-                    <a href="mailto:info@kamusi-yetu.ke" className="text-primary-600 hover:text-primary-700">
-                      info@kamusi-yetu.ke
-                    </a>
+                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Email Us</p>
+                    <p className="font-bold text-gray-900 text-lg break-all">habari@kamusiyetu.ke</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    🐦
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900 mb-1">Twitter</h3>
-                    <a href="https://twitter.com/kamusi_yetu" className="text-primary-600 hover:text-primary-700">
-                      @kamusi_yetu
-                    </a>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
+
+                <div className="group flex items-center gap-5">
+                  <div className="w-14 h-14 bg-stone-50 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-sm">
                     📍
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 mb-1">Location</h3>
-                    <p className="text-gray-700">Nairobi, Kenya</p>
+                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Our Base</p>
+                    <p className="font-bold text-gray-900 text-lg">Nairobi, Kenya</p>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* FAQ Quick Links */}
-            <div className="bg-white rounded-2xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Quick Help</h2>
-              <div className="space-y-3">
-                <a href="/about" className="block text-primary-600 hover:text-primary-700 font-medium">
-                  → About Kamusi Yetu
-                </a>
-                <a href="/guidelines" className="block text-primary-600 hover:text-primary-700 font-medium">
-                  → Contribution Guidelines
-                </a>
-                <a href="/contribute" className="block text-primary-600 hover:text-primary-700 font-medium">
-                  → Start Contributing
-                </a>
+              <div className="mt-12 pt-10 border-t border-stone-100">
+                <p className="text-stone-500 font-medium text-sm leading-relaxed">
+                  We aim to respond to all community inquiries within <span className="text-emerald-600 font-bold">48 hours</span>.
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Contact Form */}
-          <div className="bg-white rounded-2xl shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Send Us a Message</h2>
-            <form className="space-y-4">
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="Your name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="your@email.com"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Subject
-                </label>
-                <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                  <option>General Inquiry</option>
-                  <option>Partnership Opportunity</option>
-                  <option>Technical Support</option>
-                  <option>Report an Issue</option>
-                  <option>Media Request</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Message
-                </label>
-                <textarea
-                  rows={5}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="Tell us how we can help..."
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition font-bold"
-              >
-                Send Message
-              </button>
-            </form>
-            <p className="text-xs text-gray-500 mt-4">
-              We typically respond within 48 hours
-            </p>
-          </div>
-        </div>
+          {/* Form Side */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-[3rem] p-10 md:p-14 shadow-xl border border-stone-100">
+              <form className="space-y-8">
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-stone-400 uppercase tracking-widest ml-1">Your Name</label>
+                    <input 
+                      type="text" 
+                      className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 focus:ring-0 transition-all font-medium text-gray-900 outline-none" 
+                      placeholder="Jina lako" 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-stone-400 uppercase tracking-widest ml-1">Email Address</label>
+                    <input 
+                      type="email" 
+                      className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 focus:ring-0 transition-all font-medium text-gray-900 outline-none" 
+                      placeholder="email@address.com" 
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-stone-400 uppercase tracking-widest ml-1">How can we help?</label>
+                  <textarea 
+                    rows={6} 
+                    className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 focus:ring-0 transition-all font-medium text-gray-900 outline-none resize-none" 
+                    placeholder="Tell us about your suggestion, partnership idea, or feedback..."
+                  ></textarea>
+                </div>
 
-        {/* Partnership CTA */}
-        <div className="bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl shadow-lg p-8 text-white text-center mt-8">
-          <h2 className="text-3xl font-bold mb-4">Interested in Partnering?</h2>
-          <p className="text-lg text-green-100 mb-6">
-            We're always looking for organizations, universities, and cultural institutions to collaborate with.
-          </p>
-          <button className="bg-white text-primary-700 px-8 py-3 rounded-lg hover:bg-green-50 transition font-bold">
-            Partnership Inquiries →
-          </button>
+                <button className="group w-full bg-emerald-600 text-white py-6 rounded-2xl font-black text-xl hover:bg-emerald-700 shadow-2xl shadow-emerald-900/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                  Send Message
+                  <span className="group-hover:translate-x-2 transition-transform">→</span>
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
     </div>

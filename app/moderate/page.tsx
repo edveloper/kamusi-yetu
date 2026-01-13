@@ -25,41 +25,28 @@ export default function ModeratePage() {
   const [processing, setProcessing] = useState(false)
   const [isUserModerator, setIsUserModerator] = useState(false)
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  useEffect(() => { setMounted(true) }, [])
 
   useEffect(() => {
     async function checkAccess() {
       if (loading || !user) return
-      
       const modStatus = await isModerator(user.id)
       setIsUserModerator(modStatus)
-      
-      if (!modStatus) {
-        router.push('/profile')
-      }
+      if (!modStatus) router.push('/profile')
     }
-    
-    if (!loading) {
-      checkAccess()
-    }
+    if (!loading) checkAccess()
   }, [user, loading, router])
 
   useEffect(() => {
     async function loadData() {
       if (!user) return
-      
       try {
         const langs = await getLanguages()
         setLanguages(langs)
-
         const pending = await getEntries({ validation_status: 'pending' })
         setPendingSubmissions(pending || [])
-
         const flagged = await getEntries({ validation_status: 'flagged' })
         setFlaggedEntries(flagged || [])
-        
         const stats = await getModeratorStats(user.id)
         setModStats(stats)
       } catch (err) {
@@ -68,329 +55,233 @@ export default function ModeratePage() {
         setLoadingData(false)
       }
     }
-
-    if (user && isUserModerator) {
-      loadData()
-    }
+    if (user && isUserModerator) loadData()
   }, [user, isUserModerator])
 
   const handleAction = async (entryId: string, action: 'approve' | 'reject' | 'flag') => {
     if (!user) return
-
     setProcessing(true)
     try {
       let newStatus: 'verified' | 'flagged' | 'disputed' = 'disputed'
-      
-      if (action === 'approve') {
-        newStatus = 'verified'
-      } else if (action === 'flag') {
-        newStatus = 'flagged'
-      } else {
-        newStatus = 'disputed'
-      }
+      if (action === 'approve') newStatus = 'verified'
+      else if (action === 'flag') newStatus = 'flagged'
+      else newStatus = 'disputed'
 
       await updateEntryStatus(entryId, newStatus, user.id)
 
-      // Refresh the lists
       const pending = await getEntries({ validation_status: 'pending' })
       setPendingSubmissions(pending || [])
-
       const flagged = await getEntries({ validation_status: 'flagged' })
       setFlaggedEntries(flagged || [])
-      
-      // Refresh moderator stats
       const stats = await getModeratorStats(user.id)
       setModStats(stats)
 
       setReviewingId(null)
       setActionNote('')
-      
-      // Simple success feedback
-      const actionText = action === 'approve' ? 'approved' : action === 'flag' ? 'flagged' : 'rejected'
-      alert(`Entry ${actionText} successfully!`)
     } catch (err) {
       console.error('Action failed:', err)
-      alert('Failed to process action. Please try again.')
+      alert('Failed to process action.')
     } finally {
       setProcessing(false)
     }
   }
 
-  if (!mounted || loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
+  if (!mounted || loading) return (
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-4 border-emerald-200 border-t-emerald-600"></div>
+    </div>
+  )
+
+  if (!isUserModerator) return (
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
+      <div className="bg-white p-12 rounded-[2.5rem] shadow-xl text-center max-w-md border border-stone-200">
+        <div className="text-6xl mb-6">🚫</div>
+        <h2 className="text-3xl font-black text-gray-900 mb-4 font-logo">Access Denied</h2>
+        <p className="text-stone-500 font-medium mb-8">This chamber is reserved for community elders and moderators.</p>
+        <Link href="/profile" className="inline-block bg-stone-900 text-white px-8 py-4 rounded-2xl font-black">Return to Profile</Link>
       </div>
-    )
-  }
+    </div>
+  )
 
-  if (!isUserModerator) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-6xl mb-4">🚫</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-gray-600 mb-4">You need moderator privileges to access this page.</p>
-          <Link href="/profile">
-            <button className="bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition">
-              Back to Profile
-            </button>
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
-  const displayedSubmissions = selectedLanguage === 'all' 
-    ? pendingSubmissions 
-    : pendingSubmissions.filter(s => s.language_id === selectedLanguage)
-
-  const displayedFlagged = selectedLanguage === 'all'
-    ? flaggedEntries
-    : flaggedEntries.filter(e => e.language_id === selectedLanguage)
+  const displayedSubmissions = selectedLanguage === 'all' ? pendingSubmissions : pendingSubmissions.filter(s => s.language_id === selectedLanguage)
+  const displayedFlagged = selectedLanguage === 'all' ? flaggedEntries : flaggedEntries.filter(e => e.language_id === selectedLanguage)
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Moderation Dashboard</h1>
-              <p className="text-sm md:text-base text-gray-600 mt-1">
-                Review and validate community contributions
-              </p>
+    <div className="min-h-screen bg-stone-50">
+      {/* Moderation Header */}
+      <div className="bg-emerald-900 text-white pt-20 pb-24 border-b border-emerald-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+            <div className="max-w-2xl">
+              <h1 className="text-4xl md:text-5xl font-black font-logo tracking-tight mb-4">Council Chamber</h1>
+              <p className="text-emerald-100/70 text-lg font-medium italic">Reviewing and validating the community's collective wisdom.</p>
             </div>
-            <div className="flex items-center gap-3">
-              <select 
+            
+            <div className="flex flex-wrap gap-4">
+               <div className="bg-emerald-800/50 backdrop-blur-md p-4 rounded-2xl border border-emerald-700/50 min-w-[140px]">
+                  <div className="text-xs font-black text-emerald-400 uppercase tracking-widest mb-1">Weekly Reviews</div>
+                  <div className="text-3xl font-black">{loadingData ? '...' : modStats.thisWeek}</div>
+               </div>
+               <div className="bg-emerald-800/50 backdrop-blur-md p-4 rounded-2xl border border-emerald-700/50 min-w-[140px]">
+                  <div className="text-xs font-black text-emerald-400 uppercase tracking-widest mb-1">Guardian Score</div>
+                  <div className="text-3xl font-black">{loadingData ? '...' : modStats.score}</div>
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10">
+        <div className="grid lg:grid-cols-4 gap-8">
+          
+          {/* Controls Sidebar */}
+          <div className="lg:col-span-1 space-y-4">
+            <div className="bg-white p-6 rounded-3xl shadow-xl border border-stone-200">
+               <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-3 ml-1">Filter by Language</label>
+               <select 
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-4 py-3 bg-stone-50 border-2 border-stone-50 rounded-xl focus:bg-white focus:border-emerald-500 transition-all outline-none font-bold text-gray-900 appearance-none cursor-pointer"
               >
-                <option value="all">All Languages</option>
+                <option value="all">All Dialects</option>
                 {languages.map(lang => (
                   <option key={lang.id} value={lang.id}>{lang.name}</option>
                 ))}
               </select>
             </div>
+
+            <nav className="flex flex-col gap-2">
+              <button
+                onClick={() => setSelectedTab('pending')}
+                className={`flex items-center justify-between p-5 rounded-2xl font-black transition-all ${selectedTab === 'pending' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/20' : 'bg-white text-stone-500 hover:bg-stone-100 border border-stone-200'}`}
+              >
+                <span>🔔 Pending Review</span>
+                <span className={`px-2 py-1 rounded-lg text-xs ${selectedTab === 'pending' ? 'bg-emerald-500' : 'bg-stone-100'}`}>{pendingSubmissions.length}</span>
+              </button>
+              <button
+                onClick={() => setSelectedTab('flagged')}
+                className={`flex items-center justify-between p-5 rounded-2xl font-black transition-all ${selectedTab === 'flagged' ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'bg-white text-stone-500 hover:bg-stone-100 border border-stone-200'}`}
+              >
+                <span>🚨 Flagged Entries</span>
+                <span className={`px-2 py-1 rounded-lg text-xs ${selectedTab === 'flagged' ? 'bg-red-500' : 'bg-stone-100'}`}>{flaggedEntries.length}</span>
+              </button>
+            </nav>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-6">
-            <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-3 md:p-4">
-              <div className="text-2xl md:text-3xl font-bold text-yellow-700">
-                {loadingData ? '...' : pendingSubmissions.length}
+          {/* Submissions List */}
+          <div className="lg:col-span-3 pb-20">
+            {loadingData ? (
+              <div className="bg-white p-20 rounded-[2.5rem] border border-stone-200 text-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-stone-100 border-t-emerald-600 mx-auto"></div>
               </div>
-              <div className="text-xs md:text-sm text-yellow-600 mt-1">Pending Review</div>
-            </div>
-            <div className="bg-red-50 border-2 border-red-200 rounded-xl p-3 md:p-4">
-              <div className="text-2xl md:text-3xl font-bold text-red-700">
-                {loadingData ? '...' : flaggedEntries.length}
-              </div>
-              <div className="text-xs md:text-sm text-red-600 mt-1">Flagged</div>
-            </div>
-            <div className="bg-green-50 border-2 border-green-200 rounded-xl p-3 md:p-4">
-              <div className="text-2xl md:text-3xl font-bold text-green-700">
-                {loadingData ? '...' : modStats.thisWeek}
-              </div>
-              <div className="text-xs md:text-sm text-green-600 mt-1">This Week</div>
-            </div>
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-3 md:p-4">
-              <div className="text-2xl md:text-3xl font-bold text-blue-700">
-                {loadingData ? '...' : modStats.score}
-              </div>
-              <div className="text-xs md:text-sm text-blue-600 mt-1">Your Score</div>
-            </div>
-          </div>
-        </div>
-      </div>
+            ) : (
+              <div className="space-y-6">
+                {(selectedTab === 'pending' ? displayedSubmissions : displayedFlagged).map((submission) => (
+                  <div key={submission.id} className={`bg-white rounded-[2.5rem] border-2 transition-all overflow-hidden ${reviewingId === submission.id ? 'border-emerald-500 shadow-2xl scale-[1.01]' : 'border-white shadow-sm hover:shadow-md'}`}>
+                    <div className="p-8 md:p-10">
+                      <div className="flex flex-wrap items-center gap-4 mb-6">
+                        <span className="bg-stone-100 text-stone-600 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest">
+                          {submission.language?.name || 'Unknown'}
+                        </span>
+                        <span className="text-xs font-bold text-stone-400">
+                          Submitted {new Date(submission.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
 
-      {/* Tabs */}
-      <div className="bg-white border-b border-gray-200 sticky top-16 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-1 overflow-x-auto">
-            <button
-              onClick={() => setSelectedTab('pending')}
-              className={`px-4 md:px-6 py-3 md:py-4 font-medium text-sm md:text-base whitespace-nowrap transition ${
-                selectedTab === 'pending'
-                  ? 'text-primary-600 border-b-2 border-primary-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              🔔 Pending ({displayedSubmissions.length})
-            </button>
-            <button
-              onClick={() => setSelectedTab('flagged')}
-              className={`px-4 md:px-6 py-3 md:py-4 font-medium text-sm md:text-base whitespace-nowrap transition ${
-                selectedTab === 'flagged'
-                  ? 'text-primary-600 border-b-2 border-primary-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              🚨 Flagged ({displayedFlagged.length})
-            </button>
-          </div>
-        </div>
-      </div>
+                      <h3 className="text-4xl font-black text-gray-900 mb-6 font-logo leading-tight">
+                        {submission.headword}
+                      </h3>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-        {loadingData ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading submissions...</p>
-          </div>
-        ) : selectedTab === 'pending' ? (
-          <div className="space-y-4 md:space-y-6">
-            {displayedSubmissions.map((submission) => (
-              <div key={submission.id} className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
-                {/* Header */}
-                <div className="bg-gray-50 px-4 md:px-6 py-3 md:py-4 border-b border-gray-200">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div className="flex items-center gap-3">
-                      <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold">
-                        NEW
-                      </span>
-                      <span className="text-xs md:text-sm text-gray-600">{submission.language?.name || 'Unknown'}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
-                      <span>{new Date(submission.created_at).toLocaleDateString()}</span>
+                      <div className="grid md:grid-cols-2 gap-8 mb-8">
+                        <div>
+                          <p className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3">Definition</p>
+                          <p className="text-lg text-stone-700 leading-relaxed font-medium bg-stone-50 p-5 rounded-2xl border border-stone-100 italic">
+                            "{submission.primary_definition}"
+                          </p>
+                        </div>
+                        <div className="space-y-4">
+                          {submission.part_of_speech && (
+                            <div>
+                              <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Part of Speech</p>
+                              <p className="font-bold text-gray-900">{submission.part_of_speech}</p>
+                            </div>
+                          )}
+                          {submission.dialect_variant && (
+                            <div>
+                              <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Dialect Context</p>
+                              <p className="font-bold text-gray-900">{submission.dialect_variant}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Review Interface */}
+                      <div className="pt-8 border-t border-stone-100">
+                        {reviewingId === submission.id ? (
+                          <div className="space-y-6 animate-in slide-in-from-top-4 duration-300">
+                            <textarea
+                              value={actionNote}
+                              onChange={(e) => setActionNote(e.target.value)}
+                              placeholder="Internal moderator notes (optional)..."
+                              className="w-full px-6 py-4 bg-stone-50 border-2 border-emerald-100 rounded-2xl focus:bg-white focus:border-emerald-500 transition-all outline-none font-medium text-stone-600 italic"
+                              rows={2}
+                            />
+                            <div className="flex flex-wrap gap-3">
+                              <button
+                                onClick={() => handleAction(submission.id, 'approve')}
+                                disabled={processing}
+                                className="flex-1 min-w-[140px] bg-emerald-600 text-white px-6 py-4 rounded-xl hover:bg-emerald-700 transition font-black flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/10 disabled:opacity-50"
+                              >
+                                {processing ? '...' : '✓ Approve Entry'}
+                              </button>
+                              <button
+                                onClick={() => handleAction(submission.id, 'reject')}
+                                disabled={processing}
+                                className="flex-1 min-w-[140px] bg-red-600 text-white px-6 py-4 rounded-xl hover:bg-red-700 transition font-black flex items-center justify-center gap-2 shadow-lg shadow-red-900/10 disabled:opacity-50"
+                              >
+                                {processing ? '...' : '✗ Discard'}
+                              </button>
+                              <button
+                                onClick={() => { setReviewingId(null); setActionNote(''); }}
+                                className="px-6 py-4 text-stone-400 font-black hover:text-stone-600 transition tracking-widest text-xs"
+                              >
+                                CANCEL
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between">
+                             <button
+                                onClick={() => setReviewingId(submission.id)}
+                                className="bg-stone-900 text-white px-8 py-3.5 rounded-xl hover:bg-stone-800 transition font-black text-sm tracking-wide"
+                              >
+                                Review Submission
+                              </button>
+                              <button
+                                onClick={() => handleAction(submission.id, 'flag')}
+                                className="p-3 text-stone-300 hover:text-red-500 transition-colors"
+                                title="Flag for discussion"
+                              >
+                                🚩
+                              </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                ))}
 
-                {/* Content */}
-                <div className="p-4 md:p-6">
-                  <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">{submission.headword}</h3>
-                  
-                  <div className="space-y-3 md:space-y-4">
-                    <div>
-                      <p className="text-xs font-bold text-gray-500 uppercase mb-1">Definition</p>
-                      <p className="text-sm md:text-base text-gray-800">{submission.primary_definition}</p>
-                    </div>
-
-                    {submission.part_of_speech && (
-                      <div>
-                        <p className="text-xs font-bold text-gray-500 uppercase mb-1">Part of Speech</p>
-                        <p className="text-sm md:text-base text-gray-800">{submission.part_of_speech}</p>
-                      </div>
-                    )}
-
-                    {submission.dialect_variant && (
-                      <div>
-                        <p className="text-xs font-bold text-gray-500 uppercase mb-1">Dialect</p>
-                        <p className="text-sm md:text-base text-gray-800">{submission.dialect_variant}</p>
-                      </div>
-                    )}
+                {(selectedTab === 'pending' ? displayedSubmissions : displayedFlagged).length === 0 && (
+                  <div className="bg-white p-24 rounded-[3rem] border border-stone-200 text-center shadow-sm">
+                    <div className="text-6xl mb-6">✨</div>
+                    <h3 className="text-2xl font-black text-gray-900 mb-2 font-logo">Clear Horizon</h3>
+                    <p className="text-stone-500 font-medium">No {selectedTab} submissions to review right now.</p>
                   </div>
-                </div>
-
-                {/* Actions */}
-                <div className="bg-gray-50 px-4 md:px-6 py-3 md:py-4 border-t border-gray-200">
-                  {reviewingId === submission.id ? (
-                    <div className="space-y-3">
-                      <textarea
-                        value={actionNote}
-                        onChange={(e) => setActionNote(e.target.value)}
-                        placeholder="Add notes or corrections (optional)..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        rows={2}
-                      />
-                      <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2">
-                        <button
-                          onClick={() => handleAction(submission.id, 'approve')}
-                          disabled={processing}
-                          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition font-medium text-sm disabled:opacity-50"
-                        >
-                          {processing ? '...' : '✓ Approve'}
-                        </button>
-                        <button
-                          onClick={() => handleAction(submission.id, 'reject')}
-                          disabled={processing}
-                          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition font-medium text-sm disabled:opacity-50"
-                        >
-                          {processing ? '...' : '✗ Reject'}
-                        </button>
-                        <button
-                          onClick={() => handleAction(submission.id, 'flag')}
-                          disabled={processing}
-                          className="border-2 border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-yellow-500 hover:text-yellow-600 transition font-medium text-sm"
-                        >
-                          🚩 Flag
-                        </button>
-                        <button
-                          onClick={() => {
-                            setReviewingId(null)
-                            setActionNote('')
-                          }}
-                          className="col-span-2 md:col-span-1 text-gray-600 hover:text-gray-800 transition font-medium text-sm"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setReviewingId(submission.id)}
-                      className="w-full md:w-auto bg-primary-500 text-white px-6 py-2 rounded-lg hover:bg-primary-600 transition font-medium text-sm md:text-base"
-                    >
-                      Review
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-
-            {displayedSubmissions.length === 0 && (
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">🎉</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">All caught up!</h3>
-                <p className="text-gray-600">No pending submissions to review</p>
+                )}
               </div>
             )}
           </div>
-        ) : (
-          <div className="space-y-4">
-            {displayedFlagged.map((entry) => (
-              <div key={entry.id} className="bg-white rounded-xl shadow-md border-2 border-red-200 p-4 md:p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="text-xl md:text-2xl font-bold text-gray-900">{entry.headword}</h3>
-                    <p className="text-sm text-gray-600">{entry.language?.name || 'Unknown'}</p>
-                  </div>
-                  <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">
-                    🚩 FLAGGED
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Link href={`/entry/${entry.id}`}>
-                    <button className="bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition font-medium text-sm">
-                      Review Entry
-                    </button>
-                  </Link>
-                  <button 
-                    onClick={() => handleAction(entry.id, 'approve')}
-                    disabled={processing}
-                    className="border-2 border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:border-primary-500 transition font-medium text-sm disabled:opacity-50"
-                  >
-                    Approve Anyway
-                  </button>
-                </div>
-              </div>
-            ))}
-            
-            {displayedFlagged.length === 0 && (
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">✨</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">No flagged entries</h3>
-                <p className="text-gray-600">Everything looks good!</p>
-              </div>
-            )}
-          </div>
-        )}
+        </div>
       </div>
     </div>
   )

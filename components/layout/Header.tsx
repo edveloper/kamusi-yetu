@@ -13,26 +13,30 @@ export default function Header() {
     setMounted(true)
   }, [])
 
+  const Logo = () => (
+    <div className="flex items-center space-x-3 group">
+      <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-md flex-shrink-0 ring-1 ring-stone-200">
+        <div className="absolute inset-0 flex flex-col">
+          <div className="h-[28%] bg-stone-900"></div>
+          <div className="h-[6%] bg-white"></div>
+          <div className="h-[32%] bg-red-600"></div>
+          <div className="h-[6%] bg-white"></div>
+          <div className="h-[28%] bg-emerald-700"></div>
+        </div>
+      </div>
+      <span className="text-xl font-black text-stone-900 font-logo tracking-tighter uppercase group-hover:text-emerald-800 transition-colors">
+        Kamusi Yetu
+      </span>
+    </div>
+  )
+
   if (!mounted || loading) {
     return (
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center space-x-2 group">
-              <div className="relative w-10 h-10 rounded-full overflow-hidden shadow-lg flex-shrink-0 ring-2 ring-white">
-                <div className="absolute inset-0 flex flex-col">
-                  <div className="h-[28%] bg-black"></div>
-                  <div className="h-[6%] bg-white"></div>
-                  <div className="h-[32%] bg-red-600"></div>
-                  <div className="h-[6%] bg-white"></div>
-                  <div className="h-[28%] bg-green-700"></div>
-                </div>
-              </div>
-              <span className="text-base md:text-xl font-bold text-gray-900 font-logo hidden xs:inline">
-                Kamusi Yetu
-              </span>
-            </Link>
-            <div className="w-20 h-8 bg-gray-100 animate-pulse rounded-lg"></div>
+      <header className="bg-white border-b border-stone-100 sticky top-0 z-50 h-20 flex items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="flex items-center justify-between">
+            <Logo />
+            <div className="w-24 h-8 bg-stone-100 animate-pulse rounded-xl"></div>
           </div>
         </div>
       </header>
@@ -40,127 +44,78 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo - CHOOSE YOUR OPTION ABOVE */}
-          <Link href="/" className="flex items-center space-x-2 group">
-            <div className="relative w-10 h-10 rounded-full overflow-hidden shadow-lg flex-shrink-0 ring-2 ring-white">
-              <div className="absolute inset-0 flex flex-col">
-                <div className="h-[28%] bg-black"></div>
-                <div className="h-[6%] bg-white"></div>
-                <div className="h-[32%] bg-red-600"></div>
-                <div className="h-[6%] bg-white"></div>
-                <div className="h-[28%] bg-green-700"></div>
-              </div>
-              {/* Shield overlay */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-5 h-5 text-white opacity-40">
-                  <path fill="currentColor" d="M12,2L4,8V14L12,22L20,14V8L12,2Z" />
-                </svg>
-              </div>
-            </div>
-            <span className="text-base md:text-xl font-bold text-gray-900 group-hover:text-green-700 transition font-logo hidden xs:inline">
-              Kamusi Yetu
-            </span>
+    <header className="bg-white/90 backdrop-blur-md border-b border-stone-100 sticky top-0 z-50 h-20 flex items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="flex items-center justify-between">
+          <Link href="/">
+            <Logo />
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/explore" className="text-gray-700 hover:text-green-700 transition font-medium">
-              Explore
-            </Link>
-            <Link href="/about" className="text-gray-700 hover:text-green-700 transition font-medium">
-              About
-            </Link>
+          <nav className="hidden md:flex items-center space-x-10">
+            {[
+              { name: 'Explore', href: '/explore' },
+              { name: 'Trending', href: '/trending' },
+              { name: 'About', href: '/about' },
+              { name: 'Team', href: '/team' }
+            ].map((link) => (
+              <Link 
+                key={link.name} 
+                href={link.href} 
+                className="text-[10px] font-black text-stone-500 hover:text-emerald-800 uppercase tracking-[0.3em] transition-all"
+              >
+                {link.name}
+              </Link>
+            ))}
           </nav>
 
-          {/* Auth Buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             {user ? (
               <>
-                {/* Desktop - Full buttons */}
-                <div className="hidden md:flex items-center gap-3">
+                <div className="hidden md:flex items-center gap-6">
                   <Link href="/contribute">
-                    <button className="bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800 transition font-medium text-sm">
+                    <button className="bg-emerald-900 text-white px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-stone-900 transition-all">
                       + Add Word
                     </button>
                   </Link>
-                  <Link href="/profile">
-                    <button className="text-gray-700 hover:text-green-700 transition font-medium px-4 py-2 text-sm">
-                      Profile
-                    </button>
+                  <Link href="/profile" className="text-[10px] font-black text-stone-900 uppercase tracking-[0.2em] border-b-2 border-transparent hover:border-emerald-600 transition-all">
+                    Profile
                   </Link>
-                  <button 
-                    onClick={() => signOut()}
-                    className="text-gray-700 hover:text-red-600 transition font-medium px-4 py-2 text-sm"
-                  >
+                  <button onClick={() => signOut()} className="text-[10px] font-black text-red-500 uppercase tracking-[0.2em] opacity-60 hover:opacity-100">
                     Logout
                   </button>
                 </div>
-
-                {/* Mobile - Compact */}
-                <div className="md:hidden flex items-center gap-2">
+                <div className="md:hidden flex items-center gap-3">
                   <Link href="/contribute">
-                    <button className="bg-green-700 text-white p-2 rounded-lg hover:bg-green-800 transition">
-                      <span className="text-xl">+</span>
+                    <button className="bg-emerald-900 text-white w-10 h-10 rounded-xl flex items-center justify-center font-black">
+                      +
                     </button>
                   </Link>
-                  <button 
-                    onClick={() => setMenuOpen(!menuOpen)}
-                    className="text-gray-700 p-2"
-                  >
+                  <button onClick={() => setMenuOpen(!menuOpen)} className="text-stone-900 p-2 bg-stone-50 rounded-xl border border-stone-200">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={menuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
                     </svg>
                   </button>
                 </div>
               </>
             ) : (
-              <>
-                {/* FIXED: Show both Login and Sign Up */}
-                <Link href="/login">
-                  <button className="text-gray-700 hover:text-green-700 transition font-medium px-3 py-2 text-sm whitespace-nowrap">
-                    Login
-                  </button>
-                </Link>
+              <div className="flex items-center gap-2">
+                <Link href="/login" className="text-stone-900 font-black text-[10px] uppercase tracking-[0.2em] px-4">Login</Link>
                 <Link href="/signup">
-                  <button className="bg-green-700 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg hover:bg-green-800 transition font-medium text-sm whitespace-nowrap">
-                    Sign Up
-                  </button>
+                  <button className="bg-stone-900 text-white px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-emerald-900 transition-all">Join</button>
                 </Link>
-              </>
+              </div>
             )}
           </div>
         </div>
 
-        {/* Mobile Menu Dropdown */}
-        {menuOpen && user && (
-          <div className="md:hidden border-t border-gray-200 py-3 space-y-2">
-            <Link href="/explore" onClick={() => setMenuOpen(false)}>
-              <div className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded">
-                Explore
-              </div>
-            </Link>
-            <Link href="/profile" onClick={() => setMenuOpen(false)}>
-              <div className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded">
-                Profile
-              </div>
-            </Link>
-            <Link href="/about" onClick={() => setMenuOpen(false)}>
-              <div className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded">
-                About
-              </div>
-            </Link>
-            <button 
-              onClick={() => {
-                signOut()
-                setMenuOpen(false)
-              }}
-              className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded"
-            >
-              Logout
-            </button>
+        {/* Mobile Dropdown */}
+        {menuOpen && (
+          <div className="absolute top-20 left-0 w-full bg-white border-b border-stone-200 p-6 md:hidden flex flex-col space-y-4 shadow-2xl animate-in fade-in slide-in-from-top-4">
+             {['Explore', 'Trending', 'About', 'Team', 'Profile'].map((item) => (
+                <Link key={item} href={`/${item.toLowerCase()}`} onClick={() => setMenuOpen(false)} className="text-xs font-black text-stone-900 uppercase tracking-[0.3em]">
+                  {item}
+                </Link>
+             ))}
           </div>
         )}
       </div>
