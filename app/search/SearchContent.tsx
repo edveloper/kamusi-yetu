@@ -19,6 +19,8 @@ const CATEGORIES = [
   { id: 'law', name: 'Law', icon: '⚖️' },
 ]
 
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")
+
 export default function SearchContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -26,10 +28,9 @@ export default function SearchContent() {
   const queryParam = searchParams.get('q') || ''
   const langParam = searchParams.get('language') || 'all'
   const catParam = searchParams.get('category') || 'all'
+  const letterParam = searchParams.get('letter') || 'all'
 
   const [searchQuery, setSearchQuery] = useState(queryParam)
-  const [selectedLanguage, setSelectedLanguage] = useState(langParam)
-  const [selectedCategory, setSelectedCategory] = useState(catParam)
   const [results, setResults] = useState<any[]>([])
   const [languages, setLanguages] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
@@ -47,221 +48,142 @@ export default function SearchContent() {
   }, [])
 
   useEffect(() => {
-    setSearchQuery(searchParams.get('q') || '')
-    setSelectedLanguage(searchParams.get('language') || 'all')
-    setSelectedCategory(searchParams.get('category') || 'all')
-  }, [searchParams])
-
-  useEffect(() => {
     async function search() {
-      if (!searchQuery.trim() && selectedLanguage === 'all' && selectedCategory === 'all') {
-        setResults([])
-        return
-      }
-
       setLoading(true)
       try {
         const data = await searchEntries(
-          searchQuery,
-          selectedLanguage !== 'all' ? selectedLanguage : undefined,
-          selectedCategory !== 'all' ? selectedCategory : undefined
+          queryParam,
+          langParam !== 'all' ? langParam : undefined,
+          catParam !== 'all' ? catParam : undefined,
+          letterParam !== 'all' ? letterParam : undefined
         )
         setResults(data || [])
       } catch (err) {
         console.error('Search failed:', err)
-        setResults([])
       } finally {
         setLoading(false)
       }
     }
     search()
-  }, [searchQuery, selectedLanguage, selectedCategory])
+  }, [queryParam, langParam, catParam, letterParam])
 
   const updateUrl = (newParams: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams)
     Object.entries(newParams).forEach(([key, value]) => {
-      if (!value || value === 'all') {
-        params.delete(key)
-      } else {
-        params.set(key, value)
-      }
+      if (!value || value === 'all') params.delete(key)
+      else params.set(key, value)
     })
     router.push(`/search?${params.toString()}`)
   }
 
   return (
     <div className="min-h-screen bg-stone-50 pb-20 font-sans">
-      {/* Search Hero: Professional, Deep Header */}
-      <div className="bg-emerald-900 text-white py-24 md:py-32 relative overflow-hidden border-b border-emerald-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <h1 className="text-5xl md:text-8xl font-black font-logo tracking-tight mb-8">
-            Search Archive
-          </h1>
-          
-          <div className="max-w-3xl mx-auto relative group">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by word or definition..."
-              className="w-full bg-white text-stone-900 px-8 py-6 text-xl rounded-2xl shadow-2xl focus:outline-none transition-all font-bold placeholder:text-stone-300 placeholder:font-medium"
-            />
-            <div className="absolute right-6 top-1/2 -translate-y-1/2 text-stone-300 group-focus-within:text-emerald-600 transition-colors text-2xl">
-              🔍
+      {/* Search Hero */}
+      <div className="bg-emerald-900 text-white py-20 relative overflow-hidden border-b border-emerald-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-3xl">
+            <h1 className="text-4xl md:text-6xl font-black font-logo tracking-tight mb-6 uppercase">
+              {langParam !== 'all' 
+                ? `${languages.find(l => l.id === langParam)?.name} Lexicon` 
+                : 'The Archive'}
+            </h1>
+            <div className="relative group">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && updateUrl({ q: searchQuery })}
+                placeholder="Search words..."
+                className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white px-6 py-4 rounded-xl focus:bg-white focus:text-stone-900 transition-all font-bold placeholder:text-emerald-100/30"
+              />
             </div>
           </div>
         </div>
-        
-        {/* Signature Circle DNA */}
-        <div className="absolute top-0 right-0 opacity-10 translate-x-1/4 -translate-y-1/4 pointer-events-none">
-          <div className="w-[500px] h-[500px] border-[50px] border-white rounded-full"></div>
-        </div>
       </div>
 
-      {/* Filters Bar: Architectural backdrop */}
-      <div className="sticky top-20 z-20 bg-white/90 backdrop-blur-md border-b border-stone-100 py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          {/* Language Selection */}
-          <div className="flex items-center gap-4 overflow-x-auto no-scrollbar">
-            <span className="text-[10px] font-black text-stone-400 uppercase tracking-[0.3em] shrink-0">Communities</span>
-            <button
-              onClick={() => updateUrl({ language: 'all' })}
-              className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                selectedLanguage === 'all' ? 'bg-emerald-900 text-white shadow-lg shadow-emerald-900/20' : 'bg-stone-50 text-stone-500 border border-stone-200 hover:border-emerald-300'
-              }`}
-            >
-              All
-            </button>
-            {languages.map((lang) => (
+      {/* COMPACT Filter Bar */}
+      <div className="sticky top-20 z-20 bg-white border-b border-stone-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between py-4 gap-4">
+            
+            {/* 1. Alphabet Ribbon - Now more compact */}
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 flex-1">
               <button
-                key={lang.id}
-                onClick={() => updateUrl({ language: lang.id })}
-                className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${
-                  selectedLanguage === lang.id ? 'bg-emerald-900 text-white shadow-lg shadow-emerald-900/20' : 'bg-stone-50 text-stone-500 border border-stone-200 hover:border-emerald-300'
+                onClick={() => updateUrl({ letter: 'all' })}
+                className={`px-3 py-2 rounded-lg text-[9px] font-black uppercase shrink-0 transition-all ${
+                  letterParam === 'all' ? 'bg-emerald-900 text-white' : 'bg-stone-100 text-stone-400'
                 }`}
               >
-                {lang.name}
+                A-Z
               </button>
-            ))}
-          </div>
+              {ALPHABET.map((letter) => (
+                <button
+                  key={letter}
+                  onClick={() => updateUrl({ letter: letter })}
+                  className={`w-8 h-8 flex items-center justify-center rounded-lg text-[10px] font-black shrink-0 transition-all ${
+                    letterParam === letter ? 'bg-emerald-900 text-white' : 'hover:bg-emerald-50 text-stone-400'
+                  }`}
+                >
+                  {letter}
+                </button>
+              ))}
+            </div>
 
-          {/* Category Selection */}
-          <div className="flex items-center gap-4 overflow-x-auto no-scrollbar border-t border-stone-50 pt-6">
-            <span className="text-[10px] font-black text-stone-400 uppercase tracking-[0.3em] shrink-0">Categories</span>
-            <button
-              onClick={() => updateUrl({ category: 'all' })}
-              className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                selectedCategory === 'all' ? 'bg-stone-900 text-white shadow-lg shadow-stone-900/20' : 'bg-stone-50 text-stone-500 border border-stone-200 hover:border-stone-300'
-              }`}
-            >
-              Any
-            </button>
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => updateUrl({ category: cat.id })}
-                className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all flex items-center gap-2 ${
-                  selectedCategory === cat.id ? 'bg-stone-900 text-white shadow-lg shadow-stone-900/20' : 'bg-stone-50 text-stone-500 border border-stone-200 hover:border-stone-300'
-                }`}
+            {/* 2. Consolidated Selectors */}
+            <div className="flex items-center gap-3 shrink-0 border-t md:border-t-0 pt-3 md:pt-0">
+              <select 
+                value={langParam}
+                onChange={(e) => updateUrl({ language: e.target.value })}
+                className="bg-stone-50 border border-stone-200 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
-                <span>{cat.icon}</span>
-                {cat.name}
-              </button>
-            ))}
+                <option value="all">All Communities</option>
+                {languages.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+              </select>
+
+              <select 
+                value={catParam}
+                onChange={(e) => updateUrl({ category: e.target.value })}
+                className="bg-stone-50 border border-stone-200 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="all">Any Category</option>
+                {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Results Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {loading ? (
-          <div className="text-center py-32">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-900 mx-auto mb-6"></div>
-            <p className="text-stone-400 font-black uppercase tracking-[0.2em] text-[10px]">Processing Archive...</p>
-          </div>
+          <div className="py-20 text-center animate-pulse font-black text-stone-300 uppercase tracking-[0.4em] text-[10px]">Filtering...</div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-16">
-            <div className="lg:col-span-3 space-y-8">
-              <div className="flex items-center gap-6 mb-12">
-                <h2 className="text-[11px] font-black text-stone-400 uppercase tracking-[0.4em] whitespace-nowrap">
-                  Showing {results.length} Archive {results.length === 1 ? 'Record' : 'Records'}
-                </h2>
-                <div className="h-px w-full bg-stone-100"></div>
-              </div>
-              
-              {results.map((entry) => (
-                <Link href={`/entry/${entry.id}`} key={entry.id} className="block group">
-                  <div className="bg-white rounded-[2.5rem] p-10 border border-stone-100 shadow-sm group-hover:shadow-2xl group-hover:border-emerald-200 group-hover:-translate-y-1 transition-all duration-500">
-                    <div className="flex justify-between items-start mb-6">
-                      <div>
-                        <h3 className="text-3xl font-black text-stone-900 font-logo group-hover:text-emerald-900 transition-colors tracking-tight">
-                          {entry.headword}
-                        </h3>
-                        <p className="text-[10px] text-emerald-600 font-black uppercase tracking-[0.2em] mt-2">
-                          {entry.language?.name}
-                        </p>
-                      </div>
-                      <span className="text-[9px] font-black bg-stone-50 text-stone-400 px-4 py-2 rounded-xl border border-stone-100 uppercase tracking-widest">
-                        Trust Score: {entry.trust_score}%
-                      </span>
-                    </div>
-                    
-                    <p className="text-stone-700 text-lg leading-relaxed font-medium mb-8">
-                      {entry.primary_definition}
-                    </p>
-                    
-                    <div className="flex items-center justify-between pt-8 border-t border-stone-50">
-                       <div className="flex gap-2">
-                        {entry.category && (
-                          <span className="text-[9px] font-black bg-emerald-50 text-emerald-700 px-4 py-1.5 rounded-lg uppercase tracking-widest border border-emerald-100">
-                            {entry.category}
-                          </span>
-                        )}
-                       </div>
-                       <span className="text-emerald-600 font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">
-                         View Full Record →
-                       </span>
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {results.map((entry) => (
+              <Link href={`/entry/${entry.id}`} key={entry.id} className="group">
+                <div className="bg-white p-8 rounded-[2rem] border border-stone-200 hover:border-emerald-600 transition-all h-full flex flex-col shadow-sm hover:shadow-xl">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-2xl font-black font-logo text-stone-900 group-hover:text-emerald-700 truncate mr-2">{entry.headword}</h3>
+                    <span className="text-[8px] font-black bg-emerald-50 text-emerald-700 px-2 py-1 rounded-md uppercase tracking-tighter shrink-0 border border-emerald-100">
+                      {entry.language?.name}
+                    </span>
                   </div>
-                </Link>
-              ))}
-
-              {results.length === 0 && !loading && (
-                <div className="bg-white rounded-[3rem] p-24 text-center border border-stone-100 shadow-sm">
-                  <p className="text-stone-400 text-xl font-medium mb-10 leading-relaxed max-w-sm mx-auto">No archive entries match your specific search criteria.</p>
-                  <Link href="/contribute">
-                    <button className="bg-stone-900 text-white px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] hover:bg-emerald-900 transition-all shadow-xl">
-                      + Add New Word
-                    </button>
-                  </Link>
+                  <p className="text-stone-500 text-sm font-medium line-clamp-3 mb-6 flex-grow leading-relaxed">
+                    {entry.primary_definition}
+                  </p>
+                  <div className="pt-4 border-t border-stone-50 flex justify-between items-center">
+                    <span className="text-[9px] font-black text-stone-300 uppercase tracking-widest">Score: {entry.trust_score}%</span>
+                    <span className="text-emerald-600 text-xs font-black group-hover:translate-x-1 transition-transform">→</span>
+                  </div>
                 </div>
-              )}
-            </div>
-            
-            {/* Sidebar Context */}
-            <div className="hidden lg:block">
-               <div className="sticky top-64 space-y-8">
-                  <div className="bg-stone-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl">
-                    <div className="relative z-10">
-                      <h4 className="font-black font-logo text-2xl mb-4 tracking-tight leading-tight">Digital Preservation</h4>
-                      <p className="text-sm text-stone-400 leading-relaxed font-medium mb-10">
-                        The archive is powered by the community. Every entry helps bridge the gap between oral history and the digital world.
-                      </p>
-                      <Link href="/contribute" className="block text-center bg-white text-stone-900 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:bg-emerald-50 transition-all">
-                        Contribute Entry
-                      </Link>
-                    </div>
-                    <div className="absolute top-0 right-0 w-32 h-32 border-[20px] border-white/5 rounded-full -mr-16 -mt-16"></div>
-                  </div>
+              </Link>
+            ))}
+          </div>
+        )}
 
-                  <div className="bg-white rounded-[2.5rem] p-10 border border-stone-100">
-                    <h5 className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-6 border-b border-stone-50 pb-4">Search System</h5>
-                    <p className="text-xs text-stone-500 leading-relaxed font-medium">
-                      Queries are processed against headwords and primary definitions. Filter by language community or topical category for precise archival records.
-                    </p>
-                  </div>
-               </div>
-            </div>
+        {!loading && results.length === 0 && (
+          <div className="text-center py-40 border-2 border-dashed border-stone-200 rounded-[3rem]">
+             <p className="text-stone-400 font-bold uppercase tracking-widest text-xs">No records found in this section</p>
           </div>
         )}
       </div>

@@ -2,21 +2,18 @@
 
 import { useAuth } from '@/lib/contexts/AuthContext'
 import { useState, useEffect, Suspense } from 'react'
-import { getUserProfile } from '@/lib/api/users'
 import { getLanguages } from '@/lib/api/languages'
-import { getEntries } from '@/lib/api/entries'
-import { useRouter, useSearchParams } from 'next/navigation' 
+import { getLatestEntries, getWordOfTheDay } from '@/lib/api/entries'
+import { useRouter } from 'next/navigation' 
 import Link from 'next/link'
 
 function HomeContent() {
-  const { user } = useAuth()
   const router = useRouter()
-  const searchParams = useSearchParams()
-  
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '')
-  const [allLanguages, setAllLanguages] = useState<any[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(true)
-  const [languageCounts, setLanguageCounts] = useState<Record<string, number>>({})
+  const [wotd, setWotd] = useState<any>(null)
+  const [latest, setLatest] = useState<any[]>([])
+  const [languages, setLanguages] = useState<any[]>([])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,100 +23,118 @@ function HomeContent() {
   }
 
   useEffect(() => {
-    let isMounted = true
-    async function loadData() {
+    async function loadPulse() {
       try {
-        const [langs, entries] = await Promise.all([
-          getLanguages(),
-          getEntries({})
+        const [word, recent, langs] = await Promise.all([
+          getWordOfTheDay(),
+          getLatestEntries(),
+          getLanguages()
         ])
-        
-        if (isMounted) {
-          setAllLanguages(langs)
-          const counts: Record<string, number> = {}
-          entries?.forEach((entry: any) => {
-            if (entry.language_id) {
-              counts[entry.language_id] = (counts[entry.language_id] || 0) + 1
-            }
-          })
-          setLanguageCounts(counts)
-        }
+        setWotd(word)
+        setLatest(recent)
+        setLanguages(langs)
       } catch (err) {
-        console.error('Failed to load data:', err)
+        console.error('Pulse load failed:', err)
       } finally {
-        if (isMounted) setLoading(false)
+        setLoading(false)
       }
     }
-    loadData()
-    return () => { isMounted = false }
-  }, [user])
+    loadPulse()
+  }, [])
+
+  if (loading) return (
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-900"></div>
+    </div>
+  )
 
   return (
-    <div className="min-h-screen bg-stone-50 font-sans">
-      {/* Hero: Matches Archive Header DNA */}
+    <div className="min-h-screen bg-stone-50 font-sans pb-20">
+      {/* Hero Section */}
       <div className="relative overflow-hidden bg-emerald-900 text-white py-24 md:py-32 border-b border-emerald-800">
         <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
-          <h1 className="text-6xl md:text-8xl font-black mb-8 tracking-tight font-logo">
+          <h1 className="text-6xl md:text-8xl font-black mb-8 tracking-tight font-logo uppercase">
             Kamusi Yetu
           </h1>
-          <p className="text-xl md:text-2xl text-emerald-100 mb-12 opacity-90 font-medium max-w-2xl mx-auto">
-            Kenya&apos;s Living Dictionary. Built by the community.
+          <p className="text-xl md:text-2xl text-emerald-100 mb-12 opacity-80 font-medium max-w-2xl mx-auto">
+            Kenya’s community-powered linguistic archive.
           </p>
-          <div className="max-w-2xl mx-auto">
-            <form onSubmit={handleSearch} className="relative group">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search a word in any language..."
-                className="w-full px-8 py-6 rounded-2xl bg-white text-stone-900 text-lg shadow-2xl focus:outline-none transition-all font-bold placeholder:text-stone-300 placeholder:font-medium"
-              />
-              <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 bg-emerald-700 text-white px-8 py-3.5 rounded-xl hover:bg-emerald-600 font-black text-xs uppercase tracking-widest transition-all shadow-lg">
-                Search
-              </button>
-            </form>
-          </div>
-        </div>
-        
-        {/* Decorative DNA */}
-        <div className="absolute top-0 right-0 opacity-10 translate-x-1/4 -translate-y-1/4 pointer-events-none">
-          <div className="w-[600px] h-[600px] border-[60px] border-white rounded-full"></div>
+          <form onSubmit={handleSearch} className="max-w-2xl mx-auto relative group">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search the archive..."
+              className="w-full px-8 py-6 rounded-2xl bg-white text-stone-900 text-lg shadow-2xl focus:outline-none font-bold placeholder:text-stone-300"
+            />
+            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 bg-emerald-800 text-white px-8 py-3.5 rounded-xl hover:bg-black font-black text-xs uppercase tracking-widest transition-all">
+              Search
+            </button>
+          </form>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        {/* Quick Actions */}
-        <div className="grid md:grid-cols-2 gap-8 mb-24">
-           <Link href="/contribute" className="group bg-white rounded-[2.5rem] p-12 shadow-sm border border-stone-200 hover:border-emerald-500 hover:shadow-2xl transition-all duration-500">
-              <div className="text-4xl mb-8 group-hover:scale-110 transition-transform duration-500">✍️</div>
-              <h3 className="text-3xl font-black text-stone-900 mb-4 font-logo">Add Word</h3>
-              <p className="text-stone-500 text-lg leading-relaxed font-medium">Preserve your heritage. Contribute definitions and usage examples to the archive.</p>
-           </Link>
-           <Link href="/categories" className="group bg-white rounded-[2.5rem] p-12 shadow-sm border border-stone-200 hover:border-emerald-500 hover:shadow-2xl transition-all duration-500">
-              <div className="text-4xl mb-8 group-hover:scale-110 transition-transform duration-500">🌍</div>
-              <h3 className="text-3xl font-black text-stone-900 mb-4 font-logo">Explore Topics</h3>
-              <p className="text-stone-500 text-lg leading-relaxed font-medium">Discover the richness of Kenya through professionally organized linguistic categories.</p>
-           </Link>
+      <div className="max-w-7xl mx-auto px-4 -mt-12 relative z-20">
+        <div className="grid lg:grid-cols-3 gap-8">
+          
+          {/* Word of the Day - The "Big Feature" */}
+          <div className="lg:col-span-2">
+            <Link href={wotd ? `/entry/${wotd.id}` : '#'}>
+              <div className="bg-white rounded-[3rem] p-10 md:p-16 shadow-xl border border-stone-100 hover:border-emerald-500 transition-all group h-full">
+                <div className="flex items-center gap-4 mb-8">
+                  <span className="bg-emerald-100 text-emerald-700 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                    Word of the Day
+                  </span>
+                  <div className="h-px flex-1 bg-stone-100"></div>
+                </div>
+                <h2 className="text-5xl md:text-7xl font-black text-stone-900 mb-6 font-logo group-hover:text-emerald-900 transition-colors">
+                  {wotd?.headword || 'Salama'}
+                </h2>
+                <p className="text-emerald-600 font-black uppercase tracking-widest text-sm mb-8">
+                  {wotd?.language?.name || 'Swahili'}
+                </p>
+                <p className="text-stone-500 text-xl md:text-2xl leading-relaxed font-medium line-clamp-3">
+                  {wotd?.primary_definition || 'A state of peace, safety, and well-being.'}
+                </p>
+              </div>
+            </Link>
+          </div>
+
+          {/* Latest Additions - "The Ledger" */}
+          <div className="space-y-6">
+            <div className="bg-stone-900 rounded-[3rem] p-10 text-white shadow-xl h-full">
+              <h3 className="text-xs font-black uppercase tracking-[0.3em] mb-8 text-emerald-400">Latest Additions</h3>
+              <div className="space-y-8">
+                {latest.map((entry) => (
+                  <Link key={entry.id} href={`/entry/${entry.id}`} className="block group">
+                    <div className="border-b border-white/10 pb-6 group-last:border-0">
+                      <p className="text-xl font-bold mb-1 group-hover:text-emerald-400 transition-colors">{entry.headword}</p>
+                      <p className="text-[10px] font-black text-stone-500 uppercase tracking-widest mb-3">
+                        {entry.language?.name}
+                      </p>
+                      <p className="text-sm text-stone-400 line-clamp-1 opacity-70 italic">
+                        &ldquo;{entry.primary_definition}&rdquo;
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Featured Languages */}
-        <div className="bg-white rounded-[3rem] shadow-sm border border-stone-200 p-10 md:p-16">
-          <div className="flex justify-between items-end mb-12">
-            <div>
-              <h2 className="text-4xl font-black text-stone-900 font-logo tracking-tight">Featured Languages</h2>
-              <div className="h-1.5 w-12 bg-emerald-500 mt-4 rounded-full"></div>
-            </div>
-            <Link href="/languages" className="text-emerald-700 font-black text-xs uppercase tracking-[0.2em] hover:text-emerald-500 transition-colors">View All →</Link>
+        {/* Explore Gateway */}
+        <div className="mt-24">
+          <div className="flex items-center gap-6 mb-12">
+            <h2 className="text-2xl font-black text-stone-900 font-logo uppercase tracking-tight">Communities</h2>
+            <div className="h-px flex-1 bg-stone-200"></div>
+            <Link href="/explore" className="text-[10px] font-black uppercase tracking-widest text-emerald-600">View All</Link>
           </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {allLanguages.slice(0, 8).map((lang) => (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {languages.slice(0, 6).map((lang) => (
               <Link key={lang.id} href={`/search?language=${lang.id}`} className="group">
-                <div className="p-8 border border-stone-100 rounded-[2rem] bg-stone-50/50 hover:bg-white hover:border-emerald-500 hover:shadow-xl transition-all duration-500 text-center">
-                  <p className="text-xl font-black text-stone-900 group-hover:text-emerald-900 transition-colors">{lang.name}</p>
-                  <p className="text-emerald-600 text-[10px] font-black mt-3 uppercase tracking-widest">
-                    {languageCounts[lang.id] || 0} Records
-                  </p>
+                <div className="bg-white border border-stone-200 p-6 rounded-2xl text-center hover:border-emerald-500 hover:shadow-lg transition-all">
+                  <p className="font-black text-stone-800 group-hover:text-emerald-700">{lang.name}</p>
                 </div>
               </Link>
             ))}
@@ -130,14 +145,9 @@ function HomeContent() {
   )
 }
 
-// Final Export with Suspense to fix Vercel Build Error
 export default function HomePage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-900"></div>
-      </div>
-    }>
+    <Suspense fallback={<div className="min-h-screen bg-stone-50" />}>
       <HomeContent />
     </Suspense>
   )

@@ -4,7 +4,7 @@ export interface CreateEntryData {
     language_id: string
     headword: string
     primary_definition: string
-    category?: string // ADDED
+    category?: string 
     part_of_speech?: string
     dialect_variant?: string
     register?: string
@@ -17,7 +17,9 @@ export interface CreateTranslationData {
     translation: string
 }
 
-// Create a new entry
+/**
+ * 1. Create a new entry
+ */
 export async function createEntry(data: CreateEntryData) {
     const { data: entry, error } = await supabase
         .from('entries')
@@ -25,7 +27,7 @@ export async function createEntry(data: CreateEntryData) {
             language_id: data.language_id,
             headword: data.headword,
             primary_definition: data.primary_definition,
-            category: data.category || null, // ADDED
+            category: data.category || null,
             part_of_speech: data.part_of_speech || null,
             dialect_variant: data.dialect_variant || null,
             register: data.register || 'both',
@@ -40,12 +42,17 @@ export async function createEntry(data: CreateEntryData) {
     return entry
 }
 
-// Get all entries (used in admin or lists)
+/**
+ * 2. Get all entries
+ * Used for admin lists or general browsing.
+ * Defaulted to alphabetical order by headword.
+ */
 export async function getEntries(filters?: {
     language_id?: string
     validation_status?: string
-    category?: string // ADDED
+    category?: string
     search?: string
+    letter?: string
 }) {
     let query = supabase
         .from('entries')
@@ -53,18 +60,22 @@ export async function getEntries(filters?: {
       *,
       language:languages(*)
     `)
-        .order('created_at', { ascending: false })
+    .order('headword', { ascending: true })
 
     if (filters?.language_id) {
         query = query.eq('language_id', filters.language_id)
     }
 
     if (filters?.category) {
-        query = query.eq('category', filters.category) // ADDED
+        query = query.eq('category', filters.category)
     }
 
     if (filters?.validation_status) {
         query = query.eq('validation_status', filters.validation_status)
+    }
+
+    if (filters?.letter && filters.letter !== 'all') {
+        query = query.ilike('headword', `${filters.letter}%`)
     }
 
     if (filters?.search) {
@@ -77,7 +88,9 @@ export async function getEntries(filters?: {
     return data
 }
 
-// Get single entry by ID - with explicit translation relationship
+/**
+ * 3. Get single entry by ID
+ */
 export async function getEntryById(id: string) {
     const { data, error } = await supabase
         .from('entries')
@@ -99,7 +112,9 @@ export async function getEntryById(id: string) {
     return data
 }
 
-// Update entry validation status
+/**
+ * 4. Update entry validation status
+ */
 export async function updateEntryStatus(
     entryId: string,
     status: 'pending' | 'verified' | 'disputed' | 'flagged',
@@ -126,29 +141,39 @@ export async function updateEntryStatus(
     if (validationError) throw validationError
 }
 
-// Search entries (The main function for your Search UI)
-export async function searchEntries(query: string, languageId?: string, categoryId?: string) {
+/**
+ * 5. Search entries
+ * Main function for the Search UI with A-Z sorting and letter filtering.
+ */
+export async function searchEntries(
+    query: string, 
+    languageId?: string, 
+    categoryId?: string, 
+    letter?: string
+) {
     let searchQuery = supabase
         .from('entries')
         .select(`
       *,
       language:languages(*)
     `)
-        .limit(20)
+    .order('headword', { ascending: true }) 
+    .limit(100) 
 
-    // Handle Text Filter
     if (query && query.trim() !== '') {
         searchQuery = searchQuery.or(`headword.ilike.%${query}%,primary_definition.ilike.%${query}%`)
     }
 
-    // Handle Language Filter
     if (languageId && languageId !== 'all') {
         searchQuery = searchQuery.eq('language_id', languageId)
     }
 
-    // Handle Category Filter (NEW)
     if (categoryId && categoryId !== 'all') {
         searchQuery = searchQuery.eq('category', categoryId)
+    }
+
+    if (letter && letter !== 'all') {
+        searchQuery = searchQuery.ilike('headword', `${letter}%`)
     }
 
     const { data, error } = await searchQuery
@@ -159,4 +184,46 @@ export async function searchEntries(query: string, languageId?: string, category
     }
 
     return data
+}
+
+/**
+ * 6. Get the 3 most recently added entries
+ * Used for the "Latest Additions" section on the Home Page.
+ */
+export async function getLatestEntries() {
+    const { data, error } = await supabase
+        .from('entries')
+        .select(`
+            *,
+            language:languages(*)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(3)
+
+    if (error) throw error
+    return data
+}
+
+/**
+ * 7. Get a "Word of the Day"
+ * Uses a deterministic seed based on the date so every user sees the same word daily.
+ */
+export async function getWordOfTheDay() {
+    // Get IDs of all verified (or all) entries to pick from
+    const { data: allIds, error } = await supabase
+        .from('entries')
+        .select('id')
+    
+    if (error || !allIds || allIds.length === 0) return null
+
+    // Create a seed based on the year, month, and day
+    const today = new Date()
+    const seed = today.getFullYear() + today.getMonth() + today.getDate()
+    
+    // Pick an index based on the seed
+    const index = seed % allIds.length
+    const selectedId = allIds[index].id
+
+    // Return the full entry data
+    return await getEntryById(selectedId)
 }
