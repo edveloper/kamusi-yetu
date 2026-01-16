@@ -32,22 +32,25 @@ export default function ModeratePage() {
       if (loading || !user) return
       const modStatus = await isModerator(user.id)
       setIsUserModerator(modStatus)
-      if (!modStatus) router.push('/profile')
+      if (!modStatus && mounted) router.push('/profile')
     }
-    if (!loading) checkAccess()
-  }, [user, loading, router])
+    checkAccess()
+  }, [user, loading, router, mounted])
 
   useEffect(() => {
     async function loadData() {
-      if (!user) return
+      if (!user || !isUserModerator) return
+      setLoadingData(true)
       try {
-        const langs = await getLanguages()
-        setLanguages(langs)
-        const pending = await getEntries({ validation_status: 'pending' })
+        const [langs, pending, flagged, stats] = await Promise.all([
+          getLanguages(),
+          getEntries({ validation_status: 'pending' }),
+          getEntries({ validation_status: 'flagged' }),
+          getModeratorStats(user.id)
+        ])
+        setLanguages(langs || [])
         setPendingSubmissions(pending || [])
-        const flagged = await getEntries({ validation_status: 'flagged' })
         setFlaggedEntries(flagged || [])
-        const stats = await getModeratorStats(user.id)
         setModStats(stats)
       } catch (err) {
         console.error('Failed to load moderation data:', err)
@@ -55,7 +58,7 @@ export default function ModeratePage() {
         setLoadingData(false)
       }
     }
-    if (user && isUserModerator) loadData()
+    loadData()
   }, [user, isUserModerator])
 
   const handleAction = async (entryId: string, action: 'approve' | 'reject' | 'flag') => {
@@ -65,22 +68,23 @@ export default function ModeratePage() {
       let newStatus: 'verified' | 'flagged' | 'disputed' = 'disputed'
       if (action === 'approve') newStatus = 'verified'
       else if (action === 'flag') newStatus = 'flagged'
-      else newStatus = 'disputed'
 
       await updateEntryStatus(entryId, newStatus, user.id)
 
-      const pending = await getEntries({ validation_status: 'pending' })
+      // Refresh Data
+      const [pending, flagged, stats] = await Promise.all([
+        getEntries({ validation_status: 'pending' }),
+        getEntries({ validation_status: 'flagged' }),
+        getModeratorStats(user.id)
+      ])
+      
       setPendingSubmissions(pending || [])
-      const flagged = await getEntries({ validation_status: 'flagged' })
       setFlaggedEntries(flagged || [])
-      const stats = await getModeratorStats(user.id)
       setModStats(stats)
-
       setReviewingId(null)
       setActionNote('')
     } catch (err) {
-      console.error('Action failed:', err)
-      alert('Failed to process action.')
+      alert('Action failed. Check console for details.')
     } finally {
       setProcessing(false)
     }
@@ -96,34 +100,34 @@ export default function ModeratePage() {
     <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
       <div className="bg-white p-12 rounded-[2.5rem] shadow-xl text-center max-w-md border border-stone-200">
         <div className="text-6xl mb-6">🚫</div>
-        <h2 className="text-3xl font-black text-gray-900 mb-4 font-logo">Access Denied</h2>
-        <p className="text-stone-500 font-medium mb-8">This chamber is reserved for community elders and moderators.</p>
-        <Link href="/profile" className="inline-block bg-stone-900 text-white px-8 py-4 rounded-2xl font-black">Return to Profile</Link>
+        <h2 className="text-3xl font-black text-gray-900 mb-4 font-logo tracking-tighter uppercase">Access Denied</h2>
+        <p className="text-stone-500 font-medium mb-8">This chamber is reserved for community elders and guardians.</p>
+        <Link href="/profile" className="inline-block bg-stone-900 text-white px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest">Return to Profile</Link>
       </div>
     </div>
   )
 
-  const displayedSubmissions = selectedLanguage === 'all' ? pendingSubmissions : pendingSubmissions.filter(s => s.language_id === selectedLanguage)
-  const displayedFlagged = selectedLanguage === 'all' ? flaggedEntries : flaggedEntries.filter(e => e.language_id === selectedLanguage)
+  const displayedList = selectedTab === 'pending' 
+    ? (selectedLanguage === 'all' ? pendingSubmissions : pendingSubmissions.filter(s => s.language_id === selectedLanguage))
+    : (selectedLanguage === 'all' ? flaggedEntries : flaggedEntries.filter(e => e.language_id === selectedLanguage))
 
   return (
     <div className="min-h-screen bg-stone-50">
-      {/* Moderation Header */}
       <div className="bg-emerald-900 text-white pt-20 pb-24 border-b border-emerald-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
             <div className="max-w-2xl">
-              <h1 className="text-4xl md:text-5xl font-black font-logo tracking-tight mb-4">Council Chamber</h1>
-              <p className="text-emerald-100/70 text-lg font-medium italic">Reviewing and validating the community's collective wisdom.</p>
+              <h1 className="text-4xl md:text-5xl font-black font-logo tracking-tight mb-4 uppercase">Moderator Dashboard</h1>
+              <p className="text-emerald-100/70 text-lg font-medium italic font-serif">Reviewing and validating the community's collective wisdom.</p>
             </div>
             
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 font-logo">
                <div className="bg-emerald-800/50 backdrop-blur-md p-4 rounded-2xl border border-emerald-700/50 min-w-[140px]">
-                  <div className="text-xs font-black text-emerald-400 uppercase tracking-widest mb-1">Weekly Reviews</div>
+                  <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">Weekly Reviews</div>
                   <div className="text-3xl font-black">{loadingData ? '...' : modStats.thisWeek}</div>
                </div>
                <div className="bg-emerald-800/50 backdrop-blur-md p-4 rounded-2xl border border-emerald-700/50 min-w-[140px]">
-                  <div className="text-xs font-black text-emerald-400 uppercase tracking-widest mb-1">Guardian Score</div>
+                  <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">Guardian Score</div>
                   <div className="text-3xl font-black">{loadingData ? '...' : modStats.score}</div>
                </div>
             </div>
@@ -133,8 +137,6 @@ export default function ModeratePage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10">
         <div className="grid lg:grid-cols-4 gap-8">
-          
-          {/* Controls Sidebar */}
           <div className="lg:col-span-1 space-y-4">
             <div className="bg-white p-6 rounded-3xl shadow-xl border border-stone-200">
                <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-3 ml-1">Filter by Language</label>
@@ -150,25 +152,24 @@ export default function ModeratePage() {
               </select>
             </div>
 
-            <nav className="flex flex-col gap-2">
+            <nav className="flex flex-col gap-2 font-logo">
               <button
                 onClick={() => setSelectedTab('pending')}
-                className={`flex items-center justify-between p-5 rounded-2xl font-black transition-all ${selectedTab === 'pending' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/20' : 'bg-white text-stone-500 hover:bg-stone-100 border border-stone-200'}`}
+                className={`flex items-center justify-between p-5 rounded-2xl font-black transition-all uppercase text-[11px] tracking-widest ${selectedTab === 'pending' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/20' : 'bg-white text-stone-500 hover:bg-stone-100 border border-stone-200'}`}
               >
                 <span>🔔 Pending Review</span>
-                <span className={`px-2 py-1 rounded-lg text-xs ${selectedTab === 'pending' ? 'bg-emerald-500' : 'bg-stone-100'}`}>{pendingSubmissions.length}</span>
+                <span className={`px-2 py-1 rounded-lg text-[10px] ${selectedTab === 'pending' ? 'bg-emerald-500' : 'bg-stone-100'}`}>{pendingSubmissions.length}</span>
               </button>
               <button
                 onClick={() => setSelectedTab('flagged')}
-                className={`flex items-center justify-between p-5 rounded-2xl font-black transition-all ${selectedTab === 'flagged' ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'bg-white text-stone-500 hover:bg-stone-100 border border-stone-200'}`}
+                className={`flex items-center justify-between p-5 rounded-2xl font-black transition-all uppercase text-[11px] tracking-widest ${selectedTab === 'flagged' ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'bg-white text-stone-500 hover:bg-stone-100 border border-stone-200'}`}
               >
                 <span>🚨 Flagged Entries</span>
-                <span className={`px-2 py-1 rounded-lg text-xs ${selectedTab === 'flagged' ? 'bg-red-500' : 'bg-stone-100'}`}>{flaggedEntries.length}</span>
+                <span className={`px-2 py-1 rounded-lg text-[10px] ${selectedTab === 'flagged' ? 'bg-red-500' : 'bg-stone-100'}`}>{flaggedEntries.length}</span>
               </button>
             </nav>
           </div>
 
-          {/* Submissions List */}
           <div className="lg:col-span-3 pb-20">
             {loadingData ? (
               <div className="bg-white p-20 rounded-[2.5rem] border border-stone-200 text-center">
@@ -176,26 +177,26 @@ export default function ModeratePage() {
               </div>
             ) : (
               <div className="space-y-6">
-                {(selectedTab === 'pending' ? displayedSubmissions : displayedFlagged).map((submission) => (
+                {displayedList.map((submission) => (
                   <div key={submission.id} className={`bg-white rounded-[2.5rem] border-2 transition-all overflow-hidden ${reviewingId === submission.id ? 'border-emerald-500 shadow-2xl scale-[1.01]' : 'border-white shadow-sm hover:shadow-md'}`}>
                     <div className="p-8 md:p-10">
                       <div className="flex flex-wrap items-center gap-4 mb-6">
-                        <span className="bg-stone-100 text-stone-600 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest">
+                        <span className="bg-stone-100 text-stone-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
                           {submission.language?.name || 'Unknown'}
                         </span>
-                        <span className="text-xs font-bold text-stone-400">
-                          Submitted {new Date(submission.created_at).toLocaleDateString()}
+                        <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">
+                          By {submission.contributor?.display_name || 'Anonymous'} • {new Date(submission.created_at).toLocaleDateString()}
                         </span>
                       </div>
 
-                      <h3 className="text-4xl font-black text-gray-900 mb-6 font-logo leading-tight">
+                      <h3 className="text-4xl font-black text-gray-900 mb-6 font-logo leading-tight uppercase tracking-tighter">
                         {submission.headword}
                       </h3>
 
                       <div className="grid md:grid-cols-2 gap-8 mb-8">
                         <div>
                           <p className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3">Definition</p>
-                          <p className="text-lg text-stone-700 leading-relaxed font-medium bg-stone-50 p-5 rounded-2xl border border-stone-100 italic">
+                          <p className="text-lg text-stone-700 leading-relaxed font-medium bg-stone-50 p-6 rounded-2xl border border-stone-100 italic font-serif">
                             "{submission.primary_definition}"
                           </p>
                         </div>
@@ -203,19 +204,18 @@ export default function ModeratePage() {
                           {submission.part_of_speech && (
                             <div>
                               <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Part of Speech</p>
-                              <p className="font-bold text-gray-900">{submission.part_of_speech}</p>
+                              <p className="font-bold text-gray-900 uppercase text-sm">{submission.part_of_speech}</p>
                             </div>
                           )}
                           {submission.dialect_variant && (
                             <div>
                               <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Dialect Context</p>
-                              <p className="font-bold text-gray-900">{submission.dialect_variant}</p>
+                              <p className="font-bold text-gray-900 uppercase text-sm">{submission.dialect_variant}</p>
                             </div>
                           )}
                         </div>
                       </div>
 
-                      {/* Review Interface */}
                       <div className="pt-8 border-t border-stone-100">
                         {reviewingId === submission.id ? (
                           <div className="space-y-6 animate-in slide-in-from-top-4 duration-300">
@@ -223,27 +223,27 @@ export default function ModeratePage() {
                               value={actionNote}
                               onChange={(e) => setActionNote(e.target.value)}
                               placeholder="Internal moderator notes (optional)..."
-                              className="w-full px-6 py-4 bg-stone-50 border-2 border-emerald-100 rounded-2xl focus:bg-white focus:border-emerald-500 transition-all outline-none font-medium text-stone-600 italic"
+                              className="w-full px-6 py-4 bg-stone-50 border-2 border-emerald-100 rounded-2xl focus:bg-white focus:border-emerald-500 transition-all outline-none font-medium text-stone-600 italic font-serif"
                               rows={2}
                             />
-                            <div className="flex flex-wrap gap-3">
+                            <div className="flex flex-wrap gap-3 font-logo">
                               <button
                                 onClick={() => handleAction(submission.id, 'approve')}
                                 disabled={processing}
-                                className="flex-1 min-w-[140px] bg-emerald-600 text-white px-6 py-4 rounded-xl hover:bg-emerald-700 transition font-black flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/10 disabled:opacity-50"
+                                className="flex-1 min-w-[140px] bg-emerald-600 text-white px-6 py-4 rounded-xl hover:bg-emerald-700 transition font-black flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/10 disabled:opacity-50 uppercase text-[10px] tracking-widest"
                               >
                                 {processing ? '...' : '✓ Approve Entry'}
                               </button>
                               <button
                                 onClick={() => handleAction(submission.id, 'reject')}
                                 disabled={processing}
-                                className="flex-1 min-w-[140px] bg-red-600 text-white px-6 py-4 rounded-xl hover:bg-red-700 transition font-black flex items-center justify-center gap-2 shadow-lg shadow-red-900/10 disabled:opacity-50"
+                                className="flex-1 min-w-[140px] bg-red-600 text-white px-6 py-4 rounded-xl hover:bg-red-700 transition font-black flex items-center justify-center gap-2 shadow-lg shadow-red-900/10 disabled:opacity-50 uppercase text-[10px] tracking-widest"
                               >
                                 {processing ? '...' : '✗ Discard'}
                               </button>
                               <button
                                 onClick={() => { setReviewingId(null); setActionNote(''); }}
-                                className="px-6 py-4 text-stone-400 font-black hover:text-stone-600 transition tracking-widest text-xs"
+                                className="px-6 py-4 text-stone-400 font-black hover:text-stone-600 transition tracking-widest text-[10px] uppercase"
                               >
                                 CANCEL
                               </button>
@@ -253,7 +253,7 @@ export default function ModeratePage() {
                           <div className="flex items-center justify-between">
                              <button
                                 onClick={() => setReviewingId(submission.id)}
-                                className="bg-stone-900 text-white px-8 py-3.5 rounded-xl hover:bg-stone-800 transition font-black text-sm tracking-wide"
+                                className="bg-stone-900 text-white px-8 py-3.5 rounded-xl hover:bg-stone-800 transition font-black text-[11px] tracking-widest uppercase font-logo"
                               >
                                 Review Submission
                               </button>
@@ -271,11 +271,11 @@ export default function ModeratePage() {
                   </div>
                 ))}
 
-                {(selectedTab === 'pending' ? displayedSubmissions : displayedFlagged).length === 0 && (
+                {displayedList.length === 0 && (
                   <div className="bg-white p-24 rounded-[3rem] border border-stone-200 text-center shadow-sm">
                     <div className="text-6xl mb-6">✨</div>
-                    <h3 className="text-2xl font-black text-gray-900 mb-2 font-logo">Clear Horizon</h3>
-                    <p className="text-stone-500 font-medium">No {selectedTab} submissions to review right now.</p>
+                    <h3 className="text-2xl font-black text-gray-900 mb-2 font-logo uppercase tracking-tighter">Clear Horizon</h3>
+                    <p className="text-stone-500 font-medium font-serif italic">No {selectedTab} submissions to review right now.</p>
                   </div>
                 )}
               </div>

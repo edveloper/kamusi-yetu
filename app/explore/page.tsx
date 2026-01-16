@@ -66,10 +66,10 @@ export default function ExplorePage() {
       <div className="bg-emerald-900 text-white py-24 border-b border-emerald-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl md:text-7xl font-black mb-6 font-logo tracking-tight">
-            Explore Heritage
+            Explore Dictionary
           </h1>
           <p className="text-xl text-emerald-100 max-w-2xl mx-auto font-medium opacity-90 leading-relaxed">
-            Preserving the soul of Kenya, one word at a time. Browse by community or cultural topic.
+            Preserving the languages of Kenya, one word at a time. Browse by community or cultural topic.
           </p>
         </div>
       </div>
@@ -149,7 +149,7 @@ export default function ExplorePage() {
           <div className="bg-emerald-900 rounded-[3rem] p-12 md:p-20 text-white shadow-2xl relative overflow-hidden text-center">
             <div className="relative z-10">
               <h2 className="text-4xl md:text-6xl font-black mb-8 font-logo tracking-tight">
-                Be a Guardian <br className="hidden md:block"/> of Culture
+                Be a Custodian <br className="hidden md:block"/> of Culture
               </h2>
               <p className="text-emerald-100 mb-12 text-xl font-medium opacity-90 max-w-2xl mx-auto leading-relaxed">
                 Our languages are only as alive as our willingness to share them. 

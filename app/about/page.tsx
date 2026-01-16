@@ -12,7 +12,7 @@ export default function AboutPage() {
             Our Story
           </h1>
           <p className="text-xl md:text-2xl text-emerald-100 opacity-90 leading-relaxed font-medium">
-            Every Kenyan language is a treasure. We are here to ensure <br className="hidden md:block"/> the voices of our ancestors remain audible tomorrow.
+            Every Kenyan language is a treasure. We are here to ensure <br className="hidden md:block"/> our voices remain audible tomorrow.
           </p>
         </div>
         {/* Subtle Decorative Element */}
@@ -30,7 +30,7 @@ export default function AboutPage() {
           </div>
           <div className="space-y-8">
             <p className="text-xl text-stone-700 leading-relaxed font-medium">
-              <span className="text-emerald-600 font-black">Kamusi Yetu</span> is more than a dictionary—it is a community-driven sanctuary for Kenya's linguistic diversity. From the rhythmic dialects of the Lake Victoria shores to the tonal heritage of the Taita hills.
+              <span className="text-emerald-600 font-black">Kamusi Yetu</span> is more than a dictionary, it is a community-driven sanctuary for Kenya's linguistic diversity. From the dialects of the Lake Victoria shores to the heritage of the Taita hills.
             </p>
             <p className="text-xl text-stone-600 leading-relaxed italic border-l-4 border-emerald-100 pl-8 py-2">
               &ldquo;We believe that technology should serve heritage. By building a digital home for our mother tongues, we empower the next generation to speak with pride and precision.&rdquo;

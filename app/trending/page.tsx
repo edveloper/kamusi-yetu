@@ -35,7 +35,7 @@ export default function TrendingPage() {
             
             <div className="space-y-8 max-w-xl">
               <p className="text-xl text-stone-700 leading-relaxed font-medium">
-                We are currently building <span className="text-emerald-600 font-black">Archive Analytics</span>—a sophisticated engine to track which dialects and phrases are gaining momentum across the digital landscape.
+                We are currently building <span className="text-emerald-600 font-black">Archive Analytics</span>; a sophisticated engine to track which dialects and phrases are gaining momentum across the digital landscape.
               </p>
               
               <p className="text-xl text-stone-600 leading-relaxed italic border-l-4 border-emerald-100 pl-8 py-2">

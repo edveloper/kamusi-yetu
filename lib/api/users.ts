@@ -8,7 +8,6 @@ export async function getUserProfile(userId: string) {
     .single()
 
   if (error) {
-    // Profile doesn't exist, create it
     const { data: newProfile, error: createError } = await supabase
       .from('user_profiles')
       .insert({
@@ -26,11 +25,16 @@ export async function getUserProfile(userId: string) {
   return data
 }
 
-export async function updateUserProfile(userId: string, updates: {
-  username?: string
-  display_name?: string
-  languages?: string[]
-}) {
+export async function updateUserProfile(
+  userId: string,
+  updates: {
+    username?: string
+    display_name?: string
+    languages?: string[]
+    bio?: string
+    avatar_url?: string
+  }
+) {
   const { data, error } = await supabase
     .from('user_profiles')
     .update(updates)
@@ -42,44 +46,53 @@ export async function updateUserProfile(userId: string, updates: {
   return data
 }
 
-// Add a language to user's language list
+export async function uploadAvatar(userId: string, file: File) {
+  const fileExt = file.name.split('.').pop();
+  // We put the userId FIRST so the policy can check it: folder/filename
+  const filePath = `${userId}/${Math.random()}.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('avatars')
+    .upload(filePath, file);
+
+  if (uploadError) throw uploadError;
+
+  const { data } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(filePath);
+
+  return data.publicUrl;
+}
+
 export async function addUserLanguage(userId: string, languageId: string) {
-  // Get current profile
   const profile = await getUserProfile(userId)
   const currentLanguages = profile.languages || []
-  
-  // Add language if not already present
+
   if (!currentLanguages.includes(languageId)) {
     const updatedLanguages = [...currentLanguages, languageId]
     return await updateUserProfile(userId, { languages: updatedLanguages })
   }
-  
   return profile
 }
 
-// Remove a language from user's language list
 export async function removeUserLanguage(userId: string, languageId: string) {
   const profile = await getUserProfile(userId)
   const currentLanguages = profile.languages || []
-  
   const updatedLanguages = currentLanguages.filter((id: string) => id !== languageId)
   return await updateUserProfile(userId, { languages: updatedLanguages })
 }
 
 export async function getUserStats(userId: string) {
-  // Get entries created by user
   const { count: wordsAdded } = await supabase
     .from('entries')
     .select('*', { count: 'exact', head: true })
     .eq('created_by', userId)
 
-  // Get validations by user
   const { count: validated } = await supabase
     .from('validations')
     .select('*', { count: 'exact', head: true })
     .eq('validator_id', userId)
 
-  // Get usage contexts by user
   const { count: usageExamples } = await supabase
     .from('usage_contexts')
     .select('*', { count: 'exact', head: true })
@@ -92,45 +105,29 @@ export async function getUserStats(userId: string) {
   }
 }
 
-// Check if user has moderator or admin role
+/**
+ * Enhanced Moderator Check
+ */
 export async function isModerator(userId: string): Promise<boolean> {
   try {
-    // First try to get the profile
     const { data, error } = await supabase
       .from('user_profiles')
       .select('role')
       .eq('id', userId)
-      .limit(1)
+      .single()
 
-    if (error) {
-      console.error('isModerator error:', error)
-      // If profile doesn't exist, create it
-      const { data: newProfile, error: createError } = await supabase
-        .from('user_profiles')
-        .insert({ id: userId, reputation: 0, role: 'user' })
-        .select('role')
-        .single()
-      
-      if (createError) {
-        console.error('Failed to create profile:', createError)
-        return false
-      }
-      
-      return newProfile?.role === 'moderator' || newProfile?.role === 'admin'
-    }
-    
-    if (!data || data.length === 0) return false
-    
-    return data[0].role === 'moderator' || data[0].role === 'admin'
+    if (error || !data) return false
+    const role = data.role?.toLowerCase()
+    return ['moderator', 'admin', 'guardian'].includes(role)
   } catch (err) {
-    console.error('isModerator exception:', err)
     return false
   }
 }
 
-// Get moderator stats
+/**
+ * Enhanced Moderator Stats
+ */
 export async function getModeratorStats(userId: string) {
-  // Get validations this week
   const oneWeekAgo = new Date()
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
 
@@ -140,7 +137,6 @@ export async function getModeratorStats(userId: string) {
     .eq('validator_id', userId)
     .gte('created_at', oneWeekAgo.toISOString())
 
-  // Get total validations (moderator score)
   const { count: totalValidations } = await supabase
     .from('validations')
     .select('*', { count: 'exact', head: true })
@@ -148,7 +144,7 @@ export async function getModeratorStats(userId: string) {
 
   return {
     thisWeek: thisWeek || 0,
-    score: totalValidations || 0
+    score: (totalValidations || 0) * 10
   }
 }
 
@@ -162,7 +158,6 @@ export interface CreateUsageContextData {
   created_by: string
 }
 
-// Create a new usage context
 export async function createUsageContext(data: CreateUsageContextData) {
   const { data: context, error } = await supabase
     .from('usage_contexts')
@@ -182,9 +177,7 @@ export async function createUsageContext(data: CreateUsageContextData) {
   return context
 }
 
-// Vote on a usage context
 export async function voteOnContext(contextId: string, voteType: 'upvote' | 'downvote') {
-  // Get current votes
   const { data: context, error: fetchError } = await supabase
     .from('usage_contexts')
     .select('upvotes, downvotes')
@@ -193,7 +186,6 @@ export async function voteOnContext(contextId: string, voteType: 'upvote' | 'dow
 
   if (fetchError) throw fetchError
 
-  // Update votes
   const updates = voteType === 'upvote'
     ? { upvotes: (context.upvotes || 0) + 1 }
     : { downvotes: (context.downvotes || 0) + 1 }
@@ -204,4 +196,13 @@ export async function voteOnContext(contextId: string, voteType: 'upvote' | 'dow
     .eq('id', contextId)
 
   if (updateError) throw updateError
+}
+
+export async function deleteAvatar(path: string) {
+  // Path usually looks like "userId/random-id.png"
+  const { error } = await supabase.storage
+    .from('avatars')
+    .remove([path])
+
+  if (error) throw error
 }

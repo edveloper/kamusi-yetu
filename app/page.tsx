@@ -57,7 +57,7 @@ function HomeContent() {
             Kamusi Yetu
           </h1>
           <p className="text-xl md:text-2xl text-emerald-100 mb-12 opacity-80 font-medium max-w-2xl mx-auto">
-            Kenya’s community-powered linguistic archive.
+            Every Kenyan language, equal and alive.
           </p>
           <form onSubmit={handleSearch} className="max-w-2xl mx-auto relative group">
             <input
