@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { createEntry } from '@/lib/api/entries'
 import { getLanguages } from '@/lib/api/languages'
 import { CATEGORIES } from '@/lib/constants'
-import { supabase } from '@/lib/supabase' // Added for duplicate check
+import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
 interface ContributionForm {
@@ -15,7 +15,9 @@ interface ContributionForm {
   definition: string
   category: string 
   usage: string
-  usage_example: string // Added
+  usage_example: string 
+  english_translation: string
+  swahili_translation: string
 }
 
 export default function ContributePage() {
@@ -32,7 +34,9 @@ export default function ContributePage() {
     definition: '',
     category: '', 
     usage: 'both',
-    usage_example: ''
+    usage_example: '',
+    english_translation: '',
+    swahili_translation: ''
   }
 
   const [formData, setFormData] = useState<ContributionForm>(initialForm)
@@ -84,13 +88,14 @@ export default function ContributePage() {
         category: formData.category || undefined,
         register: formData.usage,
         created_by: user.id,
-        usage_example: formData.usage_example // Passed to API
+        usage_example: formData.usage_example,
+        english_translation: formData.english_translation,
+        swahili_translation: formData.swahili_translation
       })
 
       setStatus('success')
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (err: any) {
-      // Handle the specific Postgres unique constraint error
       if (err.code === '23505') {
         setErrorMessage('This word already exists in the selected language.')
       } else {
@@ -147,39 +152,39 @@ export default function ContributePage() {
             )}
 
             <div className="space-y-10">
-              {/* 1. Language */}
+              {/* Language */}
               <div className="group">
-                <label className="block text-xs font-black text-stone-400 uppercase tracking-widest mb-4 ml-1 group-focus-within:text-emerald-600 transition-colors">1. Choose Language *</label>
+                <label className="block text-xs font-black text-stone-400 uppercase mb-4">Choose Language *</label>
                 <select
                   required
                   value={formData.language}
                   onChange={(e) => setFormData({...formData, language: e.target.value})}
-                  className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 transition-all outline-none font-bold text-gray-900 appearance-none cursor-pointer"
+                  className="w-full px-6 py-5 bg-stone-50 border-2 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none"
                 >
                   <option value="">Select language...</option>
                   {languages.map(lang => (<option key={lang.id} value={lang.id}>{lang.name}</option>))}
                 </select>
               </div>
 
-              {/* 2 & 3. Word & Category */}
+              {/* Word & Category */}
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="group">
-                  <label className="block text-xs font-black text-stone-400 uppercase tracking-widest mb-4 ml-1 group-focus-within:text-emerald-600 transition-colors">2. The Word *</label>
+                  <label className="block text-xs font-black text-stone-400 uppercase mb-4">The Word *</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Amani"
                     value={formData.word}
                     onChange={(e) => setFormData({...formData, word: e.target.value})}
-                    className={`w-full px-6 py-5 bg-stone-50 border-2 rounded-2xl focus:bg-white transition-all outline-none font-black text-2xl text-gray-900 font-logo ${isDuplicate ? 'border-red-200 focus:border-red-500' : 'border-stone-50 focus:border-emerald-500'}`}
+                    className="w-full px-6 py-5 bg-stone-50 border-2 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none"
                   />
                 </div>
                 <div className="group">
-                  <label className="block text-xs font-black text-stone-400 uppercase tracking-widest mb-4 ml-1 group-focus-within:text-emerald-600 transition-colors">3. Category</label>
+                  <label className="block text-xs font-black text-stone-400 uppercase mb-4">Category</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({...formData, category: e.target.value})}
-                    className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 transition-all outline-none font-bold text-gray-900 appearance-none cursor-pointer"
+                    className="w-full px-6 py-5 bg-stone-50 border-2 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none"
                   >
                     <option value="">Select topic...</option>
                     {CATEGORIES.map(cat => (<option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>))}
@@ -187,28 +192,74 @@ export default function ContributePage() {
                 </div>
               </div>
 
-              {/* 4. Definition */}
+                            {/* Definition */}
               <div className="group">
-                <label className="block text-xs font-black text-stone-400 uppercase tracking-widest mb-4 ml-1 group-focus-within:text-emerald-600 transition-colors">4. Meaning & Definition *</label>
+                <label className="block text-xs font-black text-stone-400 uppercase mb-4">
+                  Meaning & Definition *
+                </label>
                 <textarea
                   required
                   rows={3}
                   placeholder="What does this word mean?"
                   value={formData.definition}
-                  onChange={(e) => setFormData({...formData, definition: e.target.value})}
-                  className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 transition-all outline-none font-medium text-gray-800 resize-none leading-relaxed"
+                  onChange={(e) =>
+                    setFormData({ ...formData, definition: e.target.value })
+                  }
+                  className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none font-medium text-gray-800 resize-none leading-relaxed"
                 />
               </div>
 
-              {/* 5. Usage Example (NEW) */}
+              {/* English Translation */}
               <div className="group">
-                <label className="block text-xs font-black text-stone-400 uppercase tracking-widest mb-4 ml-1 group-focus-within:text-emerald-600 transition-colors">5. Usage Example (Optional)</label>
+                <label className="block text-xs font-black text-stone-400 uppercase mb-4">
+                  English Translation (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter English equivalent..."
+                  value={formData.english_translation}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      english_translation: e.target.value,
+                    })
+                  }
+                  className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none font-medium text-gray-800"
+                />
+              </div>
+
+              {/* Swahili Translation */}
+              <div className="group">
+                <label className="block text-xs font-black text-stone-400 uppercase mb-4">
+                  Swahili Translation (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter Swahili equivalent..."
+                  value={formData.swahili_translation}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      swahili_translation: e.target.value,
+                    })
+                  }
+                  className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none font-medium text-gray-800"
+                />
+              </div>
+
+              {/* Usage Example */}
+              <div className="group">
+                <label className="block text-xs font-black text-stone-400 uppercase mb-4">
+                  Usage Example (Optional)
+                </label>
                 <textarea
                   rows={2}
                   placeholder="Use the word in a sentence or explain its cultural context..."
                   value={formData.usage_example}
-                  onChange={(e) => setFormData({...formData, usage_example: e.target.value})}
-                  className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 transition-all outline-none font-medium text-gray-800 resize-none leading-relaxed italic"
+                  onChange={(e) =>
+                    setFormData({ ...formData, usage_example: e.target.value })
+                  }
+                  className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none font-medium text-gray-800 resize-none leading-relaxed italic"
                 />
               </div>
             </div>
@@ -219,7 +270,7 @@ export default function ContributePage() {
                 disabled={status === 'submitting' || isDuplicate}
                 className="w-full bg-emerald-600 text-white px-8 py-6 rounded-[1.5rem] hover:bg-emerald-700 transition-all font-black text-xl shadow-2xl shadow-emerald-900/20 disabled:opacity-50 flex items-center justify-center gap-4 group"
               >
-                {status === 'submitting' ? "Recording..." : "Submit for Review →"}
+                {status === 'submitting' ? 'Recording...' : 'Submit for Review →'}
               </button>
             </div>
           </div>
