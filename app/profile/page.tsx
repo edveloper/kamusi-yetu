@@ -12,9 +12,10 @@ import {
   uploadAvatar,
   deleteAvatar 
 } from '@/lib/api/users'
-import { getEntries } from '@/lib/api/entries'
+import { getEntries, getSavedWords, removeSavedWord } from '@/lib/api/entries'
 import { getLanguages } from '@/lib/api/languages'
 import LanguageSelector from '@/components/LanguageSelector'
+import SavedWordsList from '@/components/SavedWordsList'
 
 export default function ProfilePage() {
   const { user, loading } = useAuth()
@@ -35,6 +36,13 @@ export default function ProfilePage() {
   const [userLanguages, setUserLanguages] = useState<string[]>([])
   const [allLanguages, setAllLanguages] = useState<any[]>([])
   const [isUserModerator, setIsUserModerator] = useState(false)
+
+  // Saved words states
+  const [savedWords, setSavedWords] = useState<any[]>([])
+  const [savedLoading, setSavedLoading] = useState(true)
+  const [savedPage, setSavedPage] = useState(0)
+  const SAVED_PAGE_SIZE = 12
+  const [savedFilterLang, setSavedFilterLang] = useState<string | null>(null)
 
   // Identicon Logic
   const identiconBg = useMemo(() => {
@@ -80,10 +88,15 @@ export default function ProfilePage() {
           joinedDate: new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
         })
         setRecentContributions(userEntries.slice(0, 5))
+
+        // Fetch saved words (first page)
+        const saved = await getSavedWords(user.id, { limit: SAVED_PAGE_SIZE, page: 0 })
+        setSavedWords(saved)
       } catch (err) {
         console.error('Failed to sync archive data:', err)
       } finally {
         setLoadingData(false)
+        setSavedLoading(false)
       }
     }
     if (user) loadUserData()
@@ -138,6 +151,31 @@ export default function ProfilePage() {
 
   const getLanguageName = (id: string) => allLanguages.find(l => l.id === id)?.name || id
   const displayName = profile?.display_name || user?.email?.split('@')[0] || 'Contributor'
+
+  // Saved words helpers
+  const loadMoreSaved = async () => {
+    if (!user) return
+    const nextPage = savedPage + 1
+    try {
+      const more = await getSavedWords(user.id, { limit: SAVED_PAGE_SIZE, page: nextPage, language: savedFilterLang ?? undefined })
+      setSavedWords(prev => [...prev, ...more])
+      setSavedPage(nextPage)
+    } catch (err) {
+      console.error('Failed to load more saved words:', err)
+    }
+  }
+
+  const handleUnsave = async (entryId: string) => {
+    if (!user) return
+    const prev = savedWords
+    setSavedWords(prev => prev.filter(s => s.entry?.id !== entryId))
+    try {
+      await removeSavedWord(user.id, entryId)
+    } catch (err) {
+      setSavedWords(prev)
+      alert('Could not remove saved word.')
+    }
+  }
 
   if (!mounted || loading || !user) return (
     <div className="min-h-screen bg-stone-50 flex items-center justify-center">
@@ -278,6 +316,34 @@ export default function ProfilePage() {
             <button onClick={() => setShowLanguageSelector(true)} className="w-full py-4 border-2 border-dashed border-stone-200 rounded-xl text-[9px] font-black text-stone-400 uppercase tracking-widest hover:border-emerald-500 hover:text-emerald-600 transition-all">
               Manage My Languages
             </button>
+
+            {/* Saved words list inserted here */}
+            <div className="mt-6">
+              <SavedWordsList
+                items={savedWords}
+                loading={savedLoading}
+                onUnsave={handleUnsave}
+                onLoadMore={loadMoreSaved}
+                showLoadMore={savedWords.length >= SAVED_PAGE_SIZE}
+                languages={allLanguages}
+                filterLang={savedFilterLang}
+                onFilterChange={(lang) => {
+                  setSavedFilterLang(lang)
+                  ;(async () => {
+                    setSavedLoading(true)
+                    try {
+                      const data = await getSavedWords(user!.id, { limit: SAVED_PAGE_SIZE, page: 0, language: lang ?? undefined })
+                      setSavedWords(data)
+                      setSavedPage(0)
+                    } catch (err) {
+                      console.error(err)
+                    } finally {
+                      setSavedLoading(false)
+                    }
+                  })()
+                }}
+              />
+            </div>
           </section>
         </div>
       </div>

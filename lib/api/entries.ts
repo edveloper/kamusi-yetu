@@ -263,21 +263,36 @@ export async function reportEntry(report: {
 }
 
 export async function toggleSaveWord(userId: string, entryId: string) {
-  const { data: existing } = await supabase
+  // Check if already saved
+  const { data: existing, error: fetchErr } = await supabase
     .from('saved_words')
-    .select()
-    .eq('user_id', userId)
-    .eq('entry_id', entryId)
+    .select('id')
+    .match({ user_id: userId, entry_id: entryId })
     .single()
 
-  if (existing) {
-    await supabase.from('saved_words').delete().eq('id', existing.id)
+  // If fetchErr is present and it's not "no rows", rethrow
+  if (fetchErr && fetchErr.code && fetchErr.code !== 'PGRST116') {
+    // Some Supabase clients return different error codes; if unsure, log and continue
+    console.error('toggleSaveWord fetch error:', fetchErr)
+  }
+
+  if (existing && existing.id) {
+    // already saved -> remove
+    const { error } = await supabase
+      .from('saved_words')
+      .delete()
+      .eq('id', existing.id)
+    if (error) throw error
     return false
   } else {
-    await supabase.from('saved_words').insert([{ user_id: userId, entry_id: entryId }])
+    const { error } = await supabase
+      .from('saved_words')
+      .insert([{ user_id: userId, entry_id: entryId }])
+    if (error) throw error
     return true
   }
 }
+
 export async function toggleLike(entryId: string, userId: string) {
   const { data: existing } = await supabase
     .from('entry_likes')
@@ -404,4 +419,61 @@ export async function getCommentVotes(commentId: string) {
   return { likes, dislikes }
 }
 
+/**
+ * Saved words helpers
+ *
+ * getSavedWords: uses page-based pagination (page, limit) and .range for Supabase/PostgREST.
+ * removeSavedWord: deletes a saved_words row for the given user and entry.
+ *
+ * Note: Some Supabase setups do not support filtering on nested selected fields (e.g., entry.language_id).
+ * If your instance errors when using eq('entry.language_id', ...), remove that server-side filter and filter client-side.
+ */
+export async function getSavedWords(userId: string, opts?: { limit?: number; page?: number; language?: string }) {
+  const limit = opts?.limit ?? 12
+  const page = opts?.page ?? 0
+  const start = page * limit
+  const end = start + limit - 1
 
+  let query = supabase
+    .from('saved_words')
+    .select(`
+      id,
+      created_at,
+      entry:entries (
+        id,
+        headword,
+        language_id,
+        part_of_speech,
+        validation_status,
+        contributor_name,
+        contributor_avatar
+      )
+    `)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .range(start, end)
+
+  // Attempt server-side nested filter; if unsupported in your setup, remove and filter client-side.
+  if (opts?.language) {
+    try {
+      query = query.eq('entry.language_id', opts.language)
+    } catch (e) {
+      // If nested filtering fails, ignore here; caller can filter client-side.
+      console.warn('Nested filter on entry.language_id not supported; filter client-side instead.')
+    }
+  }
+
+  const { data, error } = await query
+  if (error) throw error
+  return data || []
+}
+
+export async function removeSavedWord(userId: string, entryId: string) {
+  const { error } = await supabase
+    .from('saved_words')
+    .delete()
+    .match({ user_id: userId, entry_id: entryId })
+
+  if (error) throw error
+  return true
+}

@@ -47,3 +47,16 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+
+/* Prevent accidental horizontal scroll on narrow screens */
+.entry-root {
+  overflow-x: hidden;
+}
+
+/* Ensure images never overflow their containers */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}

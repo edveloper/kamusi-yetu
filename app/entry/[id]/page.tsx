@@ -198,7 +198,7 @@ export default function EntryPage() {
             href={part}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-emerald-600 underline"
+            className="text-emerald-600 underline break-words"
           >
             {part}
           </a>
@@ -211,10 +211,16 @@ export default function EntryPage() {
     const children = comments.filter(c => c.parent_id === parentId)
     return children.map(c => (
       <div key={c.id} className="ml-0 md:ml-6 mt-4">
-        <div className="bg-stone-50 p-4 rounded-xl border border-stone-200">
+        <div className="bg-stone-50 p-4 md:p-6 rounded-xl border border-stone-200 max-w-full break-words">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-6 h-6 rounded-full bg-stone-200 overflow-hidden">
-              {c.user?.avatar_url && <img src={c.user.avatar_url} alt="" />}
+              {c.user?.avatar_url && (
+                <img
+                  src={c.user.avatar_url}
+                  alt=""
+                  className="w-full h-full object-cover"
+                  />
+                )}
             </div>
             <span className="text-xs font-bold">
               {c.user?.display_name || 'Anonymous'}
@@ -227,7 +233,7 @@ export default function EntryPage() {
                 type="text"
                 value={editText}
                 onChange={(e) => setEditText(e.target.value)}
-                className="flex-1 px-3 py-2 border rounded-lg text-sm"
+                className="flex-1 min-w-0 px-3 py-2 border rounded-lg text-sm"
               />
               <button
                 onClick={() => handleEdit(c.id)}
@@ -246,7 +252,9 @@ export default function EntryPage() {
               </button>
             </div>
           ) : (
-            <p className="text-stone-700">{renderContent(c.content)}</p>
+            <p className="text-stone-700 break-words whitespace-pre-wrap">
+              {renderContent(c.content)}
+            </p>
           )}
 
           <div className="flex gap-3 mt-2 text-xs items-center">
@@ -324,7 +332,7 @@ export default function EntryPage() {
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 placeholder="Write a reply..."
-                className="flex-1 px-3 py-2 border rounded-lg text-sm"
+                className="flex-1 min-w-0 px-3 py-2 border rounded-lg text-sm"
               />
               <button
                 onClick={() => handleReply(c.id)}
@@ -335,8 +343,8 @@ export default function EntryPage() {
             </div>
           )}
         </div>
-        {/* Render nested replies */}
-        <div className="ml-6">{renderComments(c.id)}</div>
+        {/* Render nested replies (only indent on md+) */}
+        <div className="md:ml-6">{renderComments(c.id)}</div>
       </div>
     ))
   }
@@ -356,7 +364,7 @@ export default function EntryPage() {
     )
 
   return (
-    <div className="min-h-screen bg-stone-50 pb-20 font-sans">
+    <div className="entry-root min-h-screen bg-stone-50 pb-20 font-sans">
       {/* Header Navigation */}
       <div className="max-w-7xl mx-auto px-4 py-8 flex justify-between items-center">
         <button
@@ -463,7 +471,7 @@ export default function EntryPage() {
                   {entry.usage_examples.map((ex: any, i: number) => (
                     <div
                       key={i}
-                      className="bg-stone-50 p-8 rounded-[2rem] border-l-4 border-emerald-500 italic text-stone-600 text-lg"
+                      className="bg-stone-50 p-4 md:p-8 rounded-[2rem] border-l-4 border-emerald-500 italic text-stone-600 text-lg break-words"
                     >
                       "{ex.context_text}"
                     </div>
@@ -492,17 +500,17 @@ export default function EntryPage() {
               </h2>
               <div className="space-y-4">{renderComments(null)}</div>
               {user && (
-                <div className="mt-4 flex gap-2">
+                <div className="mt-4 flex gap-2 min-w-0">
                   <input
                     type="text"
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="Add a comment..."
-                    className="flex-1 px-4 py-2 border rounded-lg"
+                    className="flex-1 min-w-0 px-3 py-2 border rounded-lg"
                   />
                   <button
                     onClick={handleAddComment}
-                    className="bg-emerald-600 text-white px-4 py-2 rounded-lg"
+                    className="bg-emerald-600 text-white px-3 py-2 rounded-lg flex-shrink-0 whitespace-nowrap"
                   >
                     Post
                   </button>
@@ -521,7 +529,7 @@ export default function EntryPage() {
                     <Link
                       key={word.id}
                       href={`/entry/${word.id}`}
-                      className="group p-5 bg-stone-50 rounded-2xl hover:bg-emerald-50 transition-all border border-transparent hover:border-emerald-200"
+                      className="group p-4 md:p-5 bg-stone-50 rounded-2xl hover:bg-emerald-50 transition-all border border-transparent hover:border-emerald-200 max-w-full min-w-0"
                     >
                       <p className="font-logo font-black text-stone-900 group-hover:text-emerald-700 uppercase text-sm mb-1">
                         {word.headword}
