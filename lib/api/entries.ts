@@ -428,45 +428,256 @@ export async function getCommentVotes(commentId: string) {
  * Note: Some Supabase setups do not support filtering on nested selected fields (e.g., entry.language_id).
  * If your instance errors when using eq('entry.language_id', ...), remove that server-side filter and filter client-side.
  */
+
+
 export async function getSavedWords(userId: string, opts?: { limit?: number; page?: number; language?: string }) {
   const limit = opts?.limit ?? 12
   const page = opts?.page ?? 0
   const start = page * limit
   const end = start + limit - 1
 
-  let query = supabase
-    .from('saved_words')
-    .select(`
-      id,
-      created_at,
-      entry:entries (
+  // 1) Try nested select with contributor join
+  try {
+    let query = supabase
+      .from('saved_words')
+      .select(`
         id,
-        headword,
-        language_id,
-        part_of_speech,
-        validation_status,
-        contributor_name,
-        contributor_avatar
-      )
-    `)
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .range(start, end)
+        created_at,
+        entry:entries (
+          id,
+          headword,
+          language_id,
+          part_of_speech,
+          validation_status,
+          created_by,
+          contributor:user_profiles!created_by (
+            display_name,
+            avatar_url
+          )
+        )
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .range(start, end)
 
-  // Attempt server-side nested filter; if unsupported in your setup, remove and filter client-side.
-  if (opts?.language) {
-    try {
-      query = query.eq('entry.language_id', opts.language)
-    } catch (e) {
-      // If nested filtering fails, ignore here; caller can filter client-side.
-      console.warn('Nested filter on entry.language_id not supported; filter client-side instead.')
+    if (opts?.language) {
+      try {
+        query = query.eq('entry.language_id', opts.language)
+      } catch (e) {
+        // ignore nested filter failure; fallback will handle filtering client-side
+      }
     }
+
+    const { data, error } = await query
+    if (error) throw error
+
+    // If nested entries are present, return them
+    const hasEntries = (data || []).some((r: any) => r.entry && r.entry.id)
+    if (hasEntries) return data || []
+    // otherwise fall through to fallback
+  } catch (err) {
+    console.warn('Nested getSavedWords with contributor failed, falling back:', err)
   }
 
-  const { data, error } = await query
-  if (error) throw error
-  return data || []
+  // 2) Fallback: two-step fetch + contributor fetch
+  try {
+    const { data: savedRows, error: savedErr } = await supabase
+      .from('saved_words')
+      .select('id, created_at, entry_id')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .range(start, end)
+
+    if (savedErr) throw savedErr
+    if (!savedRows || savedRows.length === 0) return []
+
+    const entryIds = savedRows.map((r: any) => r.entry_id)
+
+    // fetch entries (no contributor join)
+    const { data: entries, error: entriesErr } = await supabase
+      .from('entries')
+      .select('id, headword, language_id, part_of_speech, validation_status, created_by')
+      .in('id', entryIds)
+
+    if (entriesErr) throw entriesErr
+
+    // fetch contributors by created_by (unique list)
+    const creatorIds = Array.from(new Set(entries.map((e: any) => e.created_by).filter(Boolean)))
+    let contributors: any[] = []
+    if (creatorIds.length > 0) {
+      const { data: contribData, error: contribErr } = await supabase
+        .from('user_profiles')
+        .select('id, display_name, avatar_url')
+        .in('id', creatorIds)
+      if (contribErr) throw contribErr
+      contributors = contribData || []
+    }
+
+    // Map savedRows -> { id, created_at, entry: {..., contributor: {...}} }
+    const mapped = savedRows.map((r: any) => {
+      const entry = entries.find((e: any) => e.id === r.entry_id) || null
+      if (entry) {
+        const contributor = contributors.find((c: any) => c.id === entry.created_by) || null
+        return {
+          id: r.id,
+          created_at: r.created_at,
+          entry: {
+            ...entry,
+            contributor: contributor ? { display_name: contributor.display_name, avatar_url: contributor.avatar_url } : null
+          },
+          entry_id: r.entry_id
+        }
+      }
+      return { id: r.id, created_at: r.created_at, entry: null, entry_id: r.entry_id }
+    })
+
+    // client-side language filter if requested
+    if (opts?.language) {
+      return mapped.filter((m: any) => m.entry && m.entry.language_id === opts.language)
+    }
+
+    return mapped
+  } catch (fallbackErr) {
+    throw { message: 'getSavedWords fallback failed', original: fallbackErr }
+  }
 }
+
+
+/**
+ * Fetch saved words using cursor pagination.
+ *
+ * - `userId`: id of the current user
+ * - `opts.limit`: number of items to return (default 12)
+ * - `opts.before`: ISO timestamp string; returns rows with created_at < before (descending order)
+ * - `opts.language`: optional language id to filter entries client-side if nested filter unsupported
+ *
+ * Returns: Array of saved rows with shape:
+ * { id, created_at, entry: { id, headword, language_id, part_of_speech, validation_status, created_by, contributor?: { display_name, avatar_url } } | null, entry_id }
+ */
+export async function getSavedWordsCursor(
+  userId: string,
+  opts?: { limit?: number; before?: string; language?: string }
+) {
+  const limit = opts?.limit ?? 12
+  const before = opts?.before // ISO timestamp string or null
+
+  // Attempt nested select with contributor join (best-case single request)
+  try {
+    let query = supabase
+      .from('saved_words')
+      .select(`
+        id,
+        created_at,
+        entry:entries (
+          id,
+          headword,
+          language_id,
+          part_of_speech,
+          validation_status,
+          created_by,
+          contributor:user_profiles!created_by (
+            display_name,
+            avatar_url
+          )
+        )
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (before) query = query.lt('created_at', before)
+
+    // best-effort nested filter (may throw in some setups)
+    if (opts?.language) {
+      try {
+        query = query.eq('entry.language_id', opts.language)
+      } catch (e) {
+        // ignore nested filter failure; fallback will handle filtering client-side
+      }
+    }
+
+    const { data, error } = await query
+    if (error) throw error
+
+    // If nested entries are present, return them
+    const hasEntries = (data || []).some((r: any) => r.entry && r.entry.id)
+    if (hasEntries) {
+      // Ensure each row includes entry_id for compatibility
+      return (data || []).map((r: any) => ({ ...r, entry_id: r.entry?.id ?? null }))
+    }
+    // otherwise fall through to fallback
+  } catch (err) {
+    console.warn('Nested getSavedWordsCursor failed, falling back:', err)
+  }
+
+  // Fallback: two-step fetch (robust)
+  try {
+    // 1) fetch saved rows (no nested select)
+    let savedQuery = supabase
+      .from('saved_words')
+      .select('id, created_at, entry_id')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (before) savedQuery = savedQuery.lt('created_at', before)
+
+    const { data: savedRows, error: savedErr } = await savedQuery
+    if (savedErr) throw savedErr
+    if (!savedRows || savedRows.length === 0) return []
+
+    const entryIds = savedRows.map((r: any) => r.entry_id)
+
+    // 2) fetch entries (only real columns)
+    const { data: entries, error: entriesErr } = await supabase
+      .from('entries')
+      .select('id, headword, language_id, part_of_speech, validation_status, created_by')
+      .in('id', entryIds)
+
+    if (entriesErr) throw entriesErr
+
+    // 3) fetch contributors for those entries (unique created_by)
+    const creatorIds = Array.from(new Set(entries.map((e: any) => e.created_by).filter(Boolean)))
+    let contributors: any[] = []
+    if (creatorIds.length > 0) {
+      const { data: contribData, error: contribErr } = await supabase
+        .from('user_profiles')
+        .select('id, display_name, avatar_url')
+        .in('id', creatorIds)
+      if (contribErr) throw contribErr
+      contributors = contribData || []
+    }
+
+    // Map savedRows -> { id, created_at, entry: {..., contributor: {...}}, entry_id }
+    const mapped = savedRows.map((r: any) => {
+      const entry = entries.find((e: any) => e.id === r.entry_id) || null
+      if (entry) {
+        const contributor = contributors.find((c: any) => c.id === entry.created_by) || null
+        return {
+          id: r.id,
+          created_at: r.created_at,
+          entry: {
+            ...entry,
+            contributor: contributor ? { display_name: contributor.display_name, avatar_url: contributor.avatar_url } : null
+          },
+          entry_id: r.entry_id
+        }
+      }
+      return { id: r.id, created_at: r.created_at, entry: null, entry_id: r.entry_id }
+    })
+
+    // client-side language filter if requested
+    if (opts?.language) {
+      return mapped.filter((m: any) => m.entry && m.entry.language_id === opts.language)
+    }
+
+    return mapped
+  } catch (fallbackErr) {
+    // Provide context for caller to log/handle
+    throw { message: 'getSavedWordsCursor fallback failed', original: fallbackErr }
+  }
+}
+
 
 export async function removeSavedWord(userId: string, entryId: string) {
   const { error } = await supabase

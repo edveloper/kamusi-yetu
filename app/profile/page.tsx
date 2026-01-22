@@ -12,10 +12,11 @@ import {
   uploadAvatar,
   deleteAvatar 
 } from '@/lib/api/users'
-import { getEntries, getSavedWords, removeSavedWord } from '@/lib/api/entries'
+import { getEntries, getSavedWords, getSavedWordsCursor, removeSavedWord } from '@/lib/api/entries'
 import { getLanguages } from '@/lib/api/languages'
 import LanguageSelector from '@/components/LanguageSelector'
 import SavedWordsList from '@/components/SavedWordsList'
+import { supabase } from '@/lib/supabase'
 
 export default function ProfilePage() {
   const { user, loading } = useAuth()
@@ -37,20 +38,22 @@ export default function ProfilePage() {
   const [allLanguages, setAllLanguages] = useState<any[]>([])
   const [isUserModerator, setIsUserModerator] = useState(false)
 
-  // Saved words states
+  // Saved words states (cursor pagination)
   const [savedWords, setSavedWords] = useState<any[]>([])
   const [savedLoading, setSavedLoading] = useState(true)
-  const [savedPage, setSavedPage] = useState(0)
+  const [savedCursor, setSavedCursor] = useState<string | null>(null) // ISO timestamp of last item
   const SAVED_PAGE_SIZE = 12
   const [savedFilterLang, setSavedFilterLang] = useState<string | null>(null)
+  const [savedCount, setSavedCount] = useState<number | null>(null)
 
-  // Identicon Logic
+  // Identicon Logic (defensive)
   const identiconBg = useMemo(() => {
-    const colors = ['bg-amber-500', 'bg-emerald-600', 'bg-blue-600', 'bg-rose-600', 'bg-violet-600', 'bg-teal-600'];
-    const name = profile?.display_name || user?.email || 'A';
-    const charCode = name.charCodeAt(0);
-    return colors[charCode % colors.length];
-  }, [profile?.display_name, user?.email]);
+    const colors = ['bg-amber-500', 'bg-emerald-600', 'bg-blue-600', 'bg-rose-600', 'bg-violet-600', 'bg-teal-600']
+    const rawName = profile?.display_name || user?.email || 'A'
+    const firstChar = (typeof rawName === 'string' && rawName.length > 0) ? rawName[0] : 'A'
+    const charCode = firstChar.charCodeAt(0)
+    return colors[charCode % colors.length]
+  }, [profile?.display_name, user?.email])
 
   useEffect(() => {
     setMounted(true)
@@ -89,11 +92,34 @@ export default function ProfilePage() {
         })
         setRecentContributions(userEntries.slice(0, 5))
 
-        // Fetch saved words (first page)
-        const saved = await getSavedWords(user.id, { limit: SAVED_PAGE_SIZE, page: 0 })
-        setSavedWords(saved)
-      } catch (err) {
-        console.error('Failed to sync archive data:', err)
+        // Fetch saved words first page using cursor API
+        setSavedLoading(true)
+        const firstPage = await getSavedWordsCursor(user.id, { limit: SAVED_PAGE_SIZE })
+        setSavedWords(firstPage)
+        setSavedCursor(firstPage.length ? firstPage[firstPage.length - 1].created_at : null)
+        console.debug('savedWords loaded (cursor):', firstPage)
+
+        // Fetch saved count (safe direct count)
+        try {
+          const { count, error } = await supabase
+            .from('saved_words')
+            .select('id', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+          if (!error) setSavedCount(count ?? 0)
+        } catch (e) {
+          setSavedCount(null)
+        }
+
+      } catch (err: any) {
+        console.error('Failed to sync archive data:', {
+          message: err?.message ?? String(err),
+          code: err?.code ?? null,
+          details: err?.details ?? null,
+          hint: err?.hint ?? null,
+          original: err?.original ?? null,
+          stack: err?.stack ?? null,
+          raw: err
+        })
       } finally {
         setLoadingData(false)
         setSavedLoading(false)
@@ -152,26 +178,42 @@ export default function ProfilePage() {
   const getLanguageName = (id: string) => allLanguages.find(l => l.id === id)?.name || id
   const displayName = profile?.display_name || user?.email?.split('@')[0] || 'Contributor'
 
-  // Saved words helpers
+  // Cursor-based load more
   const loadMoreSaved = async () => {
     if (!user) return
-    const nextPage = savedPage + 1
+    // if savedCursor is null, there is no more data
+    if (!savedCursor) return
     try {
-      const more = await getSavedWords(user.id, { limit: SAVED_PAGE_SIZE, page: nextPage, language: savedFilterLang ?? undefined })
+      setSavedLoading(true)
+      const more = await getSavedWordsCursor(user.id, { limit: SAVED_PAGE_SIZE, before: savedCursor, language: savedFilterLang ?? undefined })
       setSavedWords(prev => [...prev, ...more])
-      setSavedPage(nextPage)
+      setSavedCursor(more.length ? more[more.length - 1].created_at : null)
     } catch (err) {
       console.error('Failed to load more saved words:', err)
+    } finally {
+      setSavedLoading(false)
     }
   }
 
-  const handleUnsave = async (entryId: string) => {
+  const handleUnsave = async (entryOrSavedId: string) => {
     if (!user) return
     const prev = savedWords
-    setSavedWords(prev => prev.filter(s => s.entry?.id !== entryId))
+    // optimistic remove by matching entry.id, saved row id, or entry_id
+    setSavedWords(prev => prev.filter(s => s.entry?.id !== entryOrSavedId && s.id !== entryOrSavedId && s.entry_id !== entryOrSavedId))
     try {
-      await removeSavedWord(user.id, entryId)
+      const savedRow = prev.find(s => s.id === entryOrSavedId)
+      if (savedRow) {
+        // delete by entry_id using existing API
+        await removeSavedWord(user.id, savedRow.entry_id)
+      } else {
+        // assume it's an entry id
+        await removeSavedWord(user.id, entryOrSavedId)
+      }
+
+      // update savedCount if present
+      setSavedCount((c) => (typeof c === 'number' ? Math.max(0, c - 1) : c))
     } catch (err) {
+      // rollback
       setSavedWords(prev)
       alert('Could not remove saved word.')
     }
@@ -190,7 +232,7 @@ export default function ProfilePage() {
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
             
-            {/* Profile Avatar Section - NO OVERLAPPING BUTTONS */}
+            {/* Profile Avatar Section */}
             <div className="flex flex-col items-center gap-5">
               <div className="w-32 h-32 md:w-44 md:h-44 rounded-[2.5rem] bg-white overflow-hidden border-4 border-emerald-800 shadow-2xl flex items-center justify-center">
                 {profile?.avatar_url ? (
@@ -204,7 +246,7 @@ export default function ProfilePage() {
                 )}
               </div>
               
-              {/* Action Buttons are clearly below the image */}
+              {/* Action Buttons */}
               <div className="flex gap-2">
                 <button 
                   onClick={() => setIsEditing(true)}
@@ -228,7 +270,7 @@ export default function ProfilePage() {
               <p className="text-emerald-200/60 max-w-xl text-lg font-medium mb-6 italic leading-relaxed">
                 {profile?.bio || "Preserving the echoes of our ancestors, one word at a time."}
               </p>
-              <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+              <div className="flex flex-wrap gap-3 justify-center md:justify-start items-center">
                 <span className="bg-emerald-500/20 text-emerald-300 px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-emerald-500/30">Contributor</span>
                 {isUserModerator && (
                   <span className="bg-amber-500/20 text-amber-300 px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-amber-500/30 shadow-lg shadow-amber-900/20">
@@ -236,6 +278,13 @@ export default function ProfilePage() {
                   </span>
                 )}
                 <span className="text-emerald-100/40 py-1.5 text-[9px] font-black uppercase tracking-widest">Since {stats.joinedDate}</span>
+
+                {/* Saved count badge */}
+                {savedCount !== null && (
+                  <span className="bg-white/5 text-emerald-100 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-emerald-200/10">
+                    Saved {savedCount}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -324,23 +373,24 @@ export default function ProfilePage() {
                 loading={savedLoading}
                 onUnsave={handleUnsave}
                 onLoadMore={loadMoreSaved}
-                showLoadMore={savedWords.length >= SAVED_PAGE_SIZE}
+                showLoadMore={!!savedCursor}
                 languages={allLanguages}
                 filterLang={savedFilterLang}
                 onFilterChange={(lang) => {
                   setSavedFilterLang(lang)
-                  ;(async () => {
-                    setSavedLoading(true)
-                    try {
-                      const data = await getSavedWords(user!.id, { limit: SAVED_PAGE_SIZE, page: 0, language: lang ?? undefined })
-                      setSavedWords(data)
-                      setSavedPage(0)
-                    } catch (err) {
-                      console.error(err)
-                    } finally {
-                      setSavedLoading(false)
-                    }
-                  })()
+                    ; (async () => {
+                      setSavedLoading(true)
+                      try {
+                        // When filter changes, reload first page using cursor API
+                        const data = await getSavedWordsCursor(user!.id, { limit: SAVED_PAGE_SIZE, language: lang ?? undefined })
+                        setSavedWords(data)
+                        setSavedCursor(data.length ? data[data.length - 1].created_at : null)
+                      } catch (err) {
+                        console.error(err)
+                      } finally {
+                        setSavedLoading(false)
+                      }
+                    })()
                 }}
               />
             </div>
