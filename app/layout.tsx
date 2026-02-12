@@ -24,13 +24,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={playfair.variable}>
+    <html lang="en" className={playfair.variable} data-scroll-behavior="smooth">
       <body className={inter.className}>
         {/* 2. Wrap the layout content in the Provider */}
         <AuthProvider>
           <div className="flex flex-col min-h-screen">
             <Header />
-            <main className="flex-1">
+            <main className="flex-1 overflow-x-hidden">
               {children}
             </main>
             <Footer />

@@ -130,11 +130,11 @@ export default function SearchContent() {
             </div>
 
             {/* 2. Consolidated Selectors */}
-            <div className="flex items-center gap-3 shrink-0 border-t md:border-t-0 pt-3 md:pt-0">
+            <div className="flex flex-wrap items-center gap-3 shrink-0 border-t md:border-t-0 pt-3 md:pt-0">
               <select 
                 value={langParam}
                 onChange={(e) => updateUrl({ language: e.target.value })}
-                className="bg-stone-50 border border-stone-200 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="bg-stone-50 border border-stone-200 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 min-w-0"
               >
                 <option value="all">All Communities</option>
                 {languages.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
@@ -143,7 +143,7 @@ export default function SearchContent() {
               <select 
                 value={catParam}
                 onChange={(e) => updateUrl({ category: e.target.value })}
-                className="bg-stone-50 border border-stone-200 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="bg-stone-50 border border-stone-200 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 min-w-0"
               >
                 <option value="all">Any Category</option>
                 {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}

@@ -7,6 +7,16 @@ import { getLatestEntries, getWordOfTheDay } from '@/lib/api/entries'
 import { useRouter } from 'next/navigation' 
 import Link from 'next/link'
 
+const LANGUAGE_NOTES: Record<string, string> = {
+  sw: 'Kenya’s national language and a bridge across communities.',
+  en: 'Widely used in education, administration, and global exchange.',
+  luo: 'A Nilotic language with rich oral poetry and storytelling.',
+  ki: 'A major Bantu language of central Kenya with deep proverbs.',
+  kam: 'A vibrant Eastern Bantu language with strong oral traditions.',
+  luy: 'A language cluster with distinct dialects across western Kenya.',
+  kal: 'A Nilotic language group with strong cultural identity and idioms.'
+}
+
 function HomeContent() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
@@ -133,8 +143,16 @@ function HomeContent() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {languages.slice(0, 6).map((lang) => (
               <Link key={lang.id} href={`/search?language=${lang.id}`} className="group">
-                <div className="bg-white border border-stone-200 p-6 rounded-2xl text-center hover:border-emerald-500 hover:shadow-lg transition-all">
-                  <p className="font-black text-stone-800 group-hover:text-emerald-700">{lang.name}</p>
+                <div className="bg-white border border-stone-200 p-6 rounded-2xl hover:border-emerald-500 hover:shadow-lg transition-all h-full flex flex-col">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="font-black text-stone-800 group-hover:text-emerald-700">{lang.name}</p>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-md">
+                      {(lang.code || 'KE').toUpperCase()}
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-500 leading-relaxed line-clamp-3 flex-grow">
+                    {LANGUAGE_NOTES[String(lang.code || '').toLowerCase()] || 'A living Kenyan language community preserved by its speakers.'}
+                  </p>
                 </div>
               </Link>
             ))}

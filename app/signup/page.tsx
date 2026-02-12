@@ -1,9 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/contexts/AuthContext'
+import { getLanguages } from '@/lib/api/languages'
+import { uploadAvatar } from '@/lib/api/users'
+import { supabase } from '@/lib/supabase'
+
+type LanguageOption = { id: string; name: string; native_name?: string | null }
 
 export default function SignupPage() {
   const router = useRouter()
@@ -11,13 +16,43 @@ export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [username, setUsername] = useState('')
+  const [bio, setBio] = useState('')
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([])
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [languages, setLanguages] = useState<LanguageOption[]>([])
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+
+  useEffect(() => {
+    async function loadLanguages() {
+      try {
+        const langs = await getLanguages()
+        setLanguages(langs || [])
+      } catch {
+        setLanguages([])
+      }
+    }
+    loadLanguages()
+  }, [])
+
+  const toggleLanguage = (id: string) => {
+    setSelectedLanguages((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    )
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setInfo('')
+
+    if (!username.trim()) {
+      setError('Username is required')
+      return
+    }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match')
@@ -30,13 +65,44 @@ export default function SignupPage() {
     }
 
     setLoading(true)
-
     try {
-      await signUp(email, password)
+      const metadata = {
+        username: username.trim(),
+        display_name: username.trim(),
+        bio: bio.trim() || null,
+        languages: selectedLanguages
+      }
+
+      const { user: createdUser, session } = await signUp(email, password, metadata)
+      if (!createdUser) throw new Error('Signup succeeded but no user was returned.')
+
+      let avatarUrl: string | null = null
+      if (avatarFile && session) {
+        avatarUrl = await uploadAvatar(createdUser.id, avatarFile)
+      } else if (avatarFile && !session) {
+        setInfo('Account created. Verify your email, then upload your profile photo from Profile.')
+      }
+
+      try {
+        await supabase.from('user_profiles').upsert({
+          id: createdUser.id,
+          username: username.trim(),
+          display_name: username.trim(),
+          bio: bio.trim() || null,
+          languages: selectedLanguages,
+          avatar_url: avatarUrl,
+          reputation: 0,
+          role: 'user'
+        })
+      } catch {
+        // Profile hydration fallback will use auth metadata on first login.
+      }
+
       setSuccess(true)
-      setTimeout(() => router.push('/'), 2000)
-    } catch (err: any) {
-      setError(err.message || 'Failed to create account')
+      setTimeout(() => router.push('/'), 2200)
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to create account'
+      setError(message)
     } finally {
       setLoading(false)
     }
@@ -47,12 +113,13 @@ export default function SignupPage() {
       <div className="min-h-screen bg-stone-50 flex items-center justify-center py-12 px-4">
         <div className="max-w-md w-full text-center bg-white rounded-[3rem] border border-stone-200 shadow-2xl p-12">
           <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-6">
-            ✓
+            *
           </div>
-          <h2 className="text-3xl font-black text-stone-900 font-logo uppercase tracking-tight mb-4">Account created!</h2>
+          <h2 className="text-3xl font-black text-stone-900 font-logo uppercase tracking-tight mb-4">Account created</h2>
           <p className="text-stone-500 font-medium leading-relaxed">
             Check your email to verify your account. Redirecting you to the archive...
           </p>
+          {info && <p className="text-xs text-amber-700 mt-4 font-bold">{info}</p>}
         </div>
       </div>
     )
@@ -60,70 +127,135 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Decorative Branding Elements */}
       <div className="absolute top-0 left-0 w-full h-64 bg-emerald-900 -translate-y-1/2 rounded-b-[5rem] z-0"></div>
-      
-      <div className="max-w-md w-full mx-auto relative z-10">
+
+      <div className="max-w-2xl w-full mx-auto relative z-10">
         <div className="text-center mb-10">
-          <h2 className="text-4xl font-black text-white font-logo tracking-tight mb-3 italic">
-            Kamusi Yetu
-          </h2>
+          <h2 className="text-4xl font-black text-white font-logo tracking-tight mb-3 italic">Kamusi Yetu</h2>
           <p className="text-emerald-100/60 font-black text-[10px] uppercase tracking-[0.3em]">
             Join the Cultural Archive
           </p>
         </div>
 
-        <div className="bg-white rounded-[3rem] border border-stone-200 shadow-2xl shadow-emerald-900/10 p-10 md:p-12">
+        <div className="bg-white rounded-[3rem] border border-stone-200 shadow-2xl shadow-emerald-900/10 p-8 md:p-12">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <div className="bg-amber-50 border border-amber-200 text-amber-800 px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-wide">
-                ⚠️ {error}
+                {error}
+              </div>
+            )}
+            {info && (
+              <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl text-xs font-bold">
+                {info}
               </div>
             )}
 
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="email" className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium text-stone-900 placeholder:text-stone-300"
+                  placeholder="you@heritage.com"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="username" className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                  Username
+                </label>
+                <input
+                  id="username"
+                  type="text"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium text-stone-900 placeholder:text-stone-300"
+                  placeholder="e.g. nyambura"
+                />
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="password" className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium text-stone-900 placeholder:text-stone-300"
+                  placeholder="********"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                  Confirm Password
+                </label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium text-stone-900 placeholder:text-stone-300"
+                  placeholder="********"
+                />
+              </div>
+            </div>
+
             <div>
-              <label htmlFor="email" className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3 ml-1">
-                Identity (Email)
-              </label>
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium text-stone-900 placeholder:text-stone-300"
-                placeholder="you@heritage.com"
+              <label className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3 ml-1">Bio</label>
+              <textarea
+                rows={3}
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium text-stone-900 placeholder:text-stone-300 resize-none"
+                placeholder="Tell the community about your language journey..."
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3 ml-1">
-                Access Key (Password)
-              </label>
+              <label className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3 ml-1">Profile Photo (Optional)</label>
               <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium text-stone-900 placeholder:text-stone-300"
-                placeholder="••••••••"
+                type="file"
+                accept="image/*"
+                onChange={(e) => setAvatarFile(e.target.files?.[0] || null)}
+                className="w-full text-xs text-stone-500 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-600 file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
               />
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3 ml-1">
-                Verify Access Key
-              </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium text-stone-900 placeholder:text-stone-300"
-                placeholder="••••••••"
-              />
+              <label className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3 ml-1">Languages (Optional)</label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {languages.map((lang) => {
+                  const selected = selectedLanguages.includes(lang.id)
+                  return (
+                    <button
+                      key={lang.id}
+                      type="button"
+                      onClick={() => toggleLanguage(lang.id)}
+                      className={`px-3 py-2 rounded-xl text-xs font-black border transition ${
+                        selected
+                          ? 'bg-emerald-600 text-white border-emerald-600'
+                          : 'bg-stone-50 text-stone-600 border-stone-200 hover:border-emerald-400'
+                      }`}
+                    >
+                      {lang.name}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
             <button
@@ -134,7 +266,7 @@ export default function SignupPage() {
               {loading ? (
                 <span className="flex items-center justify-center gap-3">
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                  ENROLLING...
+                  Enrolling...
                 </span>
               ) : (
                 'Create Profile'
@@ -151,14 +283,8 @@ export default function SignupPage() {
             </p>
           </div>
         </div>
-        
-        {/* Social Proof / Trust Line */}
-        <p className="mt-8 text-center text-[9px] font-black text-stone-400 uppercase tracking-[0.4em] px-4 leading-relaxed">
-          Your contributions are archived under Kenyan Linguistic Preservation Standards.
-        </p>
       </div>
 
-      {/* Background decoration */}
       <div className="absolute bottom-0 right-0 w-64 h-64 border-[40px] border-emerald-900/5 rounded-full -mr-32 -mb-32"></div>
     </div>
   )

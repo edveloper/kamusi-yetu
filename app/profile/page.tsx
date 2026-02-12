@@ -12,7 +12,7 @@ import {
   uploadAvatar,
   deleteAvatar 
 } from '@/lib/api/users'
-import { getEntries, getSavedWords, getSavedWordsCursor, removeSavedWord } from '@/lib/api/entries'
+import { getEntries, getSavedWordsCursor, removeSavedWord } from '@/lib/api/entries'
 import { getLanguages } from '@/lib/api/languages'
 import LanguageSelector from '@/components/LanguageSelector'
 import SavedWordsList from '@/components/SavedWordsList'
@@ -28,6 +28,7 @@ export default function ProfilePage() {
   const [uploading, setUploading] = useState(false)
   const [loadingData, setLoadingData] = useState(true)
   const [showLanguageSelector, setShowLanguageSelector] = useState(false)
+  const [syncWarning, setSyncWarning] = useState<string | null>(null)
 
   // Data States
   const [profile, setProfile] = useState<any>(null)
@@ -63,26 +64,43 @@ export default function ProfilePage() {
   useEffect(() => {
     async function loadUserData() {
       if (!user) return
+      setSyncWarning(null)
       try {
-        const [langs, userProfile, userStats, modStatus, allEntries] = await Promise.all([
+        const [langsRes, userProfileRes, userStatsRes, modStatusRes, allEntriesRes] = await Promise.allSettled([
           getLanguages(),
           getUserProfile(user.id),
           getUserStats(user.id),
           isModerator(user.id),
           getEntries({})
         ])
-        
-        setAllLanguages(langs)
-        setProfile(userProfile)
-        setEditData({ 
-          display_name: userProfile.display_name || '', 
-          bio: userProfile.bio || '', 
-          avatar_url: userProfile.avatar_url || '' 
-        })
-        setUserLanguages(userProfile.languages || [])
-        setIsUserModerator(modStatus)
-        
-        const userEntries = allEntries?.filter((e: any) => e.created_by === user.id) || []
+
+        const langs = langsRes.status === 'fulfilled' ? langsRes.value : []
+        const userProfile = userProfileRes.status === 'fulfilled' ? userProfileRes.value : null
+        const userStats = userStatsRes.status === 'fulfilled'
+          ? userStatsRes.value
+          : { wordsAdded: 0, validated: 0, usageExamples: 0 }
+        const modStatus = modStatusRes.status === 'fulfilled' ? modStatusRes.value : false
+        const allEntries = allEntriesRes.status === 'fulfilled' ? allEntriesRes.value : []
+
+        setAllLanguages(langs || [])
+
+        if (userProfile) {
+          setProfile(userProfile)
+          setEditData({
+            display_name: userProfile.display_name || '',
+            bio: userProfile.bio || '',
+            avatar_url: userProfile.avatar_url || ''
+          })
+          setUserLanguages(userProfile.languages || [])
+        } else {
+          setProfile(null)
+          setEditData({ display_name: '', bio: '', avatar_url: '' })
+          setUserLanguages([])
+        }
+
+        setIsUserModerator(!!modStatus)
+
+        const userEntries = (allEntries || []).filter((e: any) => e.created_by === user.id)
         setStats({
           wordsAdded: userStats.wordsAdded,
           validated: userStats.validated,
@@ -92,12 +110,23 @@ export default function ProfilePage() {
         })
         setRecentContributions(userEntries.slice(0, 5))
 
+        const hasCoreFailures = [langsRes, userProfileRes, userStatsRes, modStatusRes, allEntriesRes]
+          .some((r) => r.status === 'rejected')
+        if (hasCoreFailures) {
+          setSyncWarning('Some profile data could not be loaded right now. This may be a temporary backend outage.')
+        }
+
         // Fetch saved words first page using cursor API
         setSavedLoading(true)
-        const firstPage = await getSavedWordsCursor(user.id, { limit: SAVED_PAGE_SIZE })
-        setSavedWords(firstPage)
-        setSavedCursor(firstPage.length ? firstPage[firstPage.length - 1].created_at : null)
-        console.debug('savedWords loaded (cursor):', firstPage)
+        try {
+          const firstPage = await getSavedWordsCursor(user.id, { limit: SAVED_PAGE_SIZE })
+          setSavedWords(firstPage)
+          setSavedCursor(firstPage.length ? firstPage[firstPage.length - 1].created_at : null)
+        } catch (err) {
+          setSavedWords([])
+          setSavedCursor(null)
+          setSyncWarning('Saved words are temporarily unavailable.')
+        }
 
         // Fetch saved count (safe direct count)
         try {
@@ -120,6 +149,7 @@ export default function ProfilePage() {
           stack: err?.stack ?? null,
           raw: err
         })
+        setSyncWarning('Profile sync failed due to a temporary network/backend error.')
       } finally {
         setLoadingData(false)
         setSavedLoading(false)
@@ -230,6 +260,11 @@ export default function ProfilePage() {
       {/* Hero Header */}
       <div className="bg-emerald-900 text-white py-16 md:py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 relative z-10">
+          {syncWarning && (
+            <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50/95 px-5 py-4 text-amber-900 text-sm font-bold">
+              {syncWarning}
+            </div>
+          )}
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
             
             {/* Profile Avatar Section */}
@@ -247,7 +282,7 @@ export default function ProfilePage() {
               </div>
               
               {/* Action Buttons */}
-              <div className="flex gap-2">
+              <div className="flex flex-wrap justify-center gap-2">
                 <button 
                   onClick={() => setIsEditing(true)}
                   className="bg-emerald-500/20 hover:bg-emerald-500 border border-emerald-500/30 text-white px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
@@ -270,7 +305,7 @@ export default function ProfilePage() {
               <p className="text-emerald-200/60 max-w-xl text-lg font-medium mb-6 italic leading-relaxed">
                 {profile?.bio || "Preserving the echoes of our ancestors, one word at a time."}
               </p>
-              <div className="flex flex-wrap gap-3 justify-center md:justify-start items-center">
+              <div className="flex flex-wrap gap-3 justify-center md:justify-start items-center min-w-0">
                 <span className="bg-emerald-500/20 text-emerald-300 px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-emerald-500/30">Contributor</span>
                 {isUserModerator && (
                   <span className="bg-amber-500/20 text-amber-300 px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-amber-500/30 shadow-lg shadow-amber-900/20">

@@ -7,11 +7,27 @@ export async function getUserProfile(userId: string) {
     .eq('id', userId)
     .single()
 
-  if (error) {
+  // Only auto-create when the row truly does not exist.
+  // Do not create on network/server errors.
+  const notFoundCodes = new Set(['PGRST116'])
+  const notFound = !!error && (
+    notFoundCodes.has(error.code || '') ||
+    String(error.message || '').toLowerCase().includes('no rows')
+  )
+
+  if (notFound) {
+    const { data: authData } = await supabase.auth.getUser()
+    const metadata = authData?.user?.user_metadata || {}
+
     const { data: newProfile, error: createError } = await supabase
       .from('user_profiles')
       .insert({
         id: userId,
+        username: (metadata.username as string | undefined) || null,
+        display_name: (metadata.display_name as string | undefined) || null,
+        bio: (metadata.bio as string | undefined) || null,
+        languages: (metadata.languages as string[] | undefined) || [],
+        avatar_url: (metadata.avatar_url as string | undefined) || null,
         reputation: 0,
         role: 'user'
       })
@@ -22,6 +38,7 @@ export async function getUserProfile(userId: string) {
     return newProfile
   }
 
+  if (error) throw error
   return data
 }
 

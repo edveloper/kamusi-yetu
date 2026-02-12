@@ -2,28 +2,10 @@
 
 import Link from 'next/link'
 import { useAuth } from '@/lib/contexts/AuthContext'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
-export default function Header() {
-  const { user, signOut, loading } = useAuth()
-  const [mounted, setMounted] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // Explicit logout handler for mobile to ensure the menu closes and state clears
-  const handleSignOut = async () => {
-    try {
-      setMenuOpen(false) // Close menu first to prevent UI flickering
-      await signOut()
-    } catch (error) {
-      console.error('Logout failed:', error)
-    }
-  }
-
-  const Logo = () => (
+function Logo() {
+  return (
     <div className="flex items-center space-x-3 group">
       <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-md flex-shrink-0 ring-1 ring-stone-200">
         <div className="absolute inset-0 flex flex-col">
@@ -39,8 +21,23 @@ export default function Header() {
       </span>
     </div>
   )
+}
 
-  if (!mounted || loading) {
+export default function Header() {
+  const { user, signOut, loading } = useAuth()
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  // Explicit logout handler for mobile to ensure the menu closes and state clears
+  const handleSignOut = async () => {
+    try {
+      setMenuOpen(false) // Close menu first to prevent UI flickering
+      await signOut()
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }
+
+  if (loading) {
     return (
       <header className="bg-white border-b border-stone-100 sticky top-0 z-[60] h-20 flex items-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
@@ -128,13 +125,13 @@ export default function Header() {
 
         {/* Mobile Dropdown */}
         {menuOpen && (
-          <div className="absolute top-20 left-0 w-full bg-white border-b border-stone-200 p-8 md:hidden flex flex-col space-y-6 shadow-2xl animate-in fade-in slide-in-from-top-4 z-[55]">
+          <div className="absolute top-20 left-0 w-full max-w-full overflow-x-hidden bg-white border-b border-stone-200 p-8 md:hidden flex flex-col space-y-6 shadow-2xl animate-in fade-in slide-in-from-top-4 z-[55]">
             {navLinks.map((link) => (
               <Link 
                 key={link.name} 
                 href={link.href} 
                 onClick={() => setMenuOpen(false)} 
-                className="text-[10px] font-black text-stone-900 uppercase tracking-[0.3em]"
+                className="text-[10px] font-black text-stone-900 uppercase tracking-[0.3em] break-words"
               >
                 {link.name}
               </Link>

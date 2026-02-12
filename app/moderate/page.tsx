@@ -2,35 +2,25 @@
 
 import { useAuth } from '@/lib/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import {
-  getPendingSuggestions,
-  reviewSuggestion,
-  applySuggestionToEntry
-} from '@/lib/api/suggestions'
+import { getPendingSuggestions } from '@/lib/api/suggestions'
+import { getEntries } from '@/lib/api/entries'
 import { getLanguages } from '@/lib/api/languages'
 import { isModerator, getModeratorStats } from '@/lib/api/users'
+import { runModerationAction } from '@/lib/api/moderation'
 
-type Suggestion = {
+type ModerationItem = {
   id: string
-  entry_id?: string | undefined
-  user_id?: string | undefined
-  type?: string | undefined
-  headword?: string | undefined
-  primary_definition?: string | undefined
-  reason?: string | undefined
-  details?: string | undefined
-  source_type?: string | undefined
-  source_reference?: string | undefined
-  confidence?: string | undefined
-  status?: string | undefined
-  moderator_notes?: string | undefined
-  created_at?: string | undefined
-  contributor?: { display_name?: string | undefined; avatar_url?: string | undefined } | null
+  item_type: 'entry' | 'suggestion'
+  entry_id?: string
+  headword?: string
+  primary_definition?: string
+  part_of_speech?: string
+  dialect_variant?: string
+  created_at?: string
+  contributor?: { display_name?: string; avatar_url?: string } | null
   language?: { id?: string; name?: string } | null
-  part_of_speech?: string | undefined
-  dialect_variant?: string | undefined
 }
 
 type Language = { id: string; name: string }
@@ -38,12 +28,10 @@ type Language = { id: string; name: string }
 export default function ModeratePage() {
   const { user, loading } = useAuth()
   const router = useRouter()
-  const [mounted, setMounted] = useState(false)
-  const [selectedTab, setSelectedTab] = useState<'pending' | 'flagged'>('pending')
   const [languages, setLanguages] = useState<Language[]>([])
   const [selectedLanguage, setSelectedLanguage] = useState('all')
 
-  const [items, setItems] = useState<Suggestion[]>([])
+  const [items, setItems] = useState<ModerationItem[]>([])
   const [loadingData, setLoadingData] = useState(true)
   const [modStats, setModStats] = useState({ thisWeek: 0, score: 0 })
   const [reviewingId, setReviewingId] = useState<string | null>(null)
@@ -51,68 +39,107 @@ export default function ModeratePage() {
   const [processingMap, setProcessingMap] = useState<Record<string, boolean>>({})
   const [isUserModerator, setIsUserModerator] = useState(false)
 
-  // pagination cursor (ISO timestamp of last item)
-  const [cursor, setCursor] = useState<string | null>(null)
-  const PAGE_SIZE = 20
-  const loadMoreRef = useRef<HTMLButtonElement | null>(null)
-
-  useEffect(() => { setMounted(true) }, [])
-
   useEffect(() => {
     async function checkAccess() {
       if (loading || !user) return
       try {
         const modStatus = await isModerator(user.id)
         setIsUserModerator(modStatus)
-        if (!modStatus && mounted) router.push('/profile')
+        if (!modStatus) router.push('/profile')
       } catch (err) {
         console.error('Failed to check moderator status:', err)
-        if (mounted) router.push('/profile')
+        router.push('/profile')
       }
     }
     checkAccess()
-  }, [user, loading, router, mounted])
+  }, [user, loading, router])
 
-  // helper to normalize rows from API into Suggestion[]
-  const normalizeRows = (rows: any[] | undefined): Suggestion[] => {
-    if (!rows || !Array.isArray(rows)) return []
-    return rows.map((r: any) => ({
-      id: String(r.id),
-      entry_id: r.entry_id ?? undefined,
-      user_id: r.user_id ?? undefined,
-      type: r.type ?? undefined,
-      headword: r.headword ?? undefined,
-      primary_definition: r.primary_definition ?? undefined,
-      reason: r.reason ?? undefined,
-      details: r.details ?? undefined,
-      source_type: r.source_type ?? undefined,
-      source_reference: r.source_reference ?? undefined,
-      confidence: r.confidence ?? undefined,
-      status: r.status ?? undefined,
-      moderator_notes: r.moderator_notes ?? undefined,
-      created_at: r.created_at ?? undefined,
-      contributor: r.contributor ? { display_name: r.contributor.display_name ?? undefined, avatar_url: r.contributor.avatar_url ?? undefined } : undefined,
-      language: r.language ? { id: r.language.id ?? r.language.language_id ?? undefined, name: r.language.name ?? r.language.language_id ?? undefined } : undefined,
-      part_of_speech: r.part_of_speech ?? undefined,
-      dialect_variant: r.dialect_variant ?? undefined
-    }))
+  const normalizeSuggestionRows = (rows: unknown[]): ModerationItem[] => {
+    return rows.map((row) => {
+      const r = row as Record<string, unknown>
+      const contributor = (r.contributor ?? null) as Record<string, unknown> | null
+      const language = (r.language ?? null) as Record<string, unknown> | null
+      return {
+        id: String(r.id ?? ''),
+        item_type: 'suggestion',
+        entry_id: (r.entry_id as string | undefined) ?? undefined,
+        headword: (r.headword as string | undefined) ?? undefined,
+        primary_definition: (r.primary_definition as string | undefined) ?? undefined,
+        created_at: (r.created_at as string | undefined) ?? undefined,
+        contributor: contributor
+          ? {
+              display_name: (contributor.display_name as string | undefined) ?? undefined,
+              avatar_url: (contributor.avatar_url as string | undefined) ?? undefined
+            }
+          : undefined,
+        language: language
+          ? { id: (language.id as string | undefined) ?? undefined, name: (language.name as string | undefined) ?? undefined }
+          : undefined,
+        part_of_speech: (r.part_of_speech as string | undefined) ?? undefined,
+        dialect_variant: (r.dialect_variant as string | undefined) ?? undefined
+      }
+    })
   }
 
-  // initial load (pending suggestions)
+  const normalizeEntryRows = (rows: unknown[]): ModerationItem[] => {
+    return rows.map((row) => {
+      const r = row as Record<string, unknown>
+      const contributor = (r.contributor ?? null) as Record<string, unknown> | null
+      const language = (r.language ?? null) as Record<string, unknown> | null
+      return {
+        id: String(r.id ?? ''),
+        item_type: 'entry',
+        entry_id: String(r.id ?? ''),
+        headword: (r.headword as string | undefined) ?? undefined,
+        primary_definition: (r.primary_definition as string | undefined) ?? undefined,
+        part_of_speech: (r.part_of_speech as string | undefined) ?? undefined,
+        dialect_variant: (r.dialect_variant as string | undefined) ?? undefined,
+        created_at: (r.created_at as string | undefined) ?? undefined,
+        contributor: contributor
+          ? {
+              display_name: (contributor.display_name as string | undefined) ?? undefined,
+              avatar_url: (contributor.avatar_url as string | undefined) ?? undefined
+            }
+          : undefined,
+        language: language
+          ? { id: (language.id as string | undefined) ?? undefined, name: (language.name as string | undefined) ?? undefined }
+          : undefined
+      }
+    })
+  }
+
+  const refreshModeratorStats = async () => {
+    if (!user) return
+    try {
+      const stats = await getModeratorStats(user.id)
+      setModStats(stats || { thisWeek: 0, score: 0 })
+    } catch (err) {
+      console.warn('Failed to refresh moderator stats:', err)
+    }
+  }
+
   useEffect(() => {
     async function loadInitial() {
       if (!user || !isUserModerator) return
       setLoadingData(true)
       try {
-        const [langs, pending, stats] = await Promise.all([
+        const [langs, pendingEntries, pendingSuggestions, stats] = await Promise.all([
           getLanguages(),
-          getPendingSuggestions(PAGE_SIZE),
+          getEntries({ validation_status: 'pending' }),
+          getPendingSuggestions(100),
           getModeratorStats(user.id)
         ])
+
         setLanguages(langs || [])
-        const normalized = normalizeRows(pending)
-        setItems(normalized)
-        setCursor(normalized.length ? normalized[normalized.length - 1].created_at ?? null : null)
+        const combined = [
+          ...normalizeEntryRows(pendingEntries || []),
+          ...normalizeSuggestionRows(pendingSuggestions || [])
+        ].sort((a, b) => {
+          const aTime = a.created_at ? new Date(a.created_at).getTime() : 0
+          const bTime = b.created_at ? new Date(b.created_at).getTime() : 0
+          return bTime - aTime
+        })
+        setItems(combined)
         setModStats(stats || { thisWeek: 0, score: 0 })
       } catch (err) {
         console.error('Failed to load moderation data:', err)
@@ -124,32 +151,27 @@ export default function ModeratePage() {
     loadInitial()
   }, [user, isUserModerator])
 
-  // filtered view
   const displayedList = selectedLanguage === 'all'
     ? items
-    : items.filter(i => i.language?.id === selectedLanguage)
+    : items.filter((i) => i.language?.id === selectedLanguage)
 
-  // per-item processing helpers
   const setProcessing = (id: string, value: boolean) => {
-    setProcessingMap(prev => ({ ...prev, [id]: value }))
+    setProcessingMap((prev) => ({ ...prev, [id]: value }))
   }
 
-  // optimistic removal helper
   const removeItemOptimistic = (id: string) => {
-    setItems(prev => prev.filter(i => i.id !== id))
+    setItems((prev) => prev.filter((i) => i.id !== id))
   }
 
-  // rollback helper (re-add item)
-  const rollbackAdd = (item: Suggestion) => {
-    const normalized: Suggestion = { ...item, entry_id: item.entry_id ?? undefined }
-    setItems(prev => [normalized, ...prev])
+  const rollbackAdd = (item: ModerationItem) => {
+    setItems((prev) => [item, ...prev])
   }
 
-  // review action (accept/reject)
-  const handleReviewAction = async (suggestion: Suggestion, action: 'accept' | 'reject') => {
+  const handleReviewAction = async (item: ModerationItem, action: 'accept' | 'reject') => {
     if (!user) return
-    const id = suggestion.id
+    const id = item.id
     if (!id) return
+
     if (action === 'reject') {
       const ok = confirm('Are you sure you want to reject this suggestion? This cannot be undone here.')
       if (!ok) return
@@ -159,17 +181,24 @@ export default function ModeratePage() {
     removeItemOptimistic(id)
 
     try {
-      await reviewSuggestion(id, user.id, action, action === 'reject' ? actionNote || 'Rejected by moderator' : actionNote || 'Accepted by moderator')
-      try {
-        const stats = await getModeratorStats(user.id)
-        setModStats(stats)
-      } catch (e) {
-        console.warn('Failed to refresh moderator stats:', e)
+      if (item.item_type === 'entry') {
+        await runModerationAction({
+          action: action === 'accept' ? 'approve_entry' : 'reject_entry',
+          itemId: id
+        })
+      } else {
+        await runModerationAction({
+          action: 'review_suggestion',
+          itemId: id,
+          suggestionAction: action,
+          note: action === 'reject' ? actionNote || 'Rejected by moderator' : actionNote || 'Accepted by moderator'
+        })
       }
+      await refreshModeratorStats()
       setReviewingId(null)
       setActionNote('')
     } catch (err) {
-      rollbackAdd(suggestion)
+      rollbackAdd(item)
       console.error('Review action failed:', err)
       alert('Failed to update suggestion. See console for details.')
     } finally {
@@ -177,28 +206,33 @@ export default function ModeratePage() {
     }
   }
 
-  // apply suggestion to entry (explicit)
-  const handleApply = async (suggestion: Suggestion) => {
+  const handleApply = async (item: ModerationItem) => {
     if (!user) return
-    const id = suggestion.id
+    const id = item.id
     if (!id) return
-    const ok = confirm('Apply this suggestion to the entry? This will update the entry in the archive.')
+
+    const ok = confirm(
+      item.item_type === 'entry'
+        ? 'Approve this pending entry and publish it to the archive?'
+        : 'Apply this suggestion to the entry? This will update the entry in the archive.'
+    )
     if (!ok) return
 
     setProcessing(id, true)
     removeItemOptimistic(id)
 
     try {
-      await applySuggestionToEntry(id, user.id)
-      try {
-        const stats = await getModeratorStats(user.id)
-        setModStats(stats)
-      } catch (e) { console.warn('Failed to refresh stats:', e) }
+      if (item.item_type === 'entry') {
+        await runModerationAction({ action: 'approve_entry', itemId: id })
+      } else {
+        await runModerationAction({ action: 'apply_suggestion', itemId: id })
+      }
+      await refreshModeratorStats()
       setReviewingId(null)
       setActionNote('')
-      alert('Suggestion applied to entry.')
+      alert(item.item_type === 'entry' ? 'Entry approved and published.' : 'Suggestion applied to entry.')
     } catch (err) {
-      rollbackAdd(suggestion)
+      rollbackAdd(item)
       console.error('Apply suggestion failed:', err)
       alert('Failed to apply suggestion. See console for details.')
     } finally {
@@ -206,19 +240,24 @@ export default function ModeratePage() {
     }
   }
 
-  // flag action (quick mark)
-  const handleFlag = async (suggestion: Suggestion) => {
+  const handleFlag = async (item: ModerationItem) => {
     if (!user) return
-    const id = suggestion.id
+    const id = item.id
     if (!id) return
     setProcessing(id, true)
     try {
-      await reviewSuggestion(id, user.id, 'reject', 'Flagged for discussion')
-      setItems(prev => prev.filter(i => i.id !== id))
-      try {
-        const stats = await getModeratorStats(user.id)
-        setModStats(stats)
-      } catch (e) {}
+      if (item.item_type === 'entry') {
+        await runModerationAction({ action: 'flag_entry', itemId: id })
+      } else {
+        await runModerationAction({
+          action: 'review_suggestion',
+          itemId: id,
+          suggestionAction: 'reject',
+          note: 'Flagged for discussion'
+        })
+      }
+      setItems((prev) => prev.filter((i) => i.id !== id))
+      await refreshModeratorStats()
     } catch (err) {
       console.error('Flag failed:', err)
       alert('Failed to flag suggestion.')
@@ -227,37 +266,14 @@ export default function ModeratePage() {
     }
   }
 
-  // Load more (cursor pagination)
-  const loadMore = async () => {
-    if (!user || !isUserModerator) return
-    if (!cursor) return
-    setLoadingData(true)
-    try {
-      const more = await getPendingSuggestions(PAGE_SIZE, cursor)
-      const moreNormalized = normalizeRows(more)
-      if (moreNormalized && moreNormalized.length) {
-        setItems(prev => [...prev, ...moreNormalized])
-        setCursor(moreNormalized.length ? moreNormalized[moreNormalized.length - 1].created_at ?? null : null)
-      } else {
-        setCursor(null)
-      }
-    } catch (err) {
-      console.error('Failed to load more suggestions:', err)
-      alert('Could not load more suggestions.')
-    } finally {
-      setLoadingData(false)
-    }
-  }
-
-  // defensive date formatter
-  const formatDate = (iso?: string | null | undefined) => {
+  const formatDate = (iso?: string | null) => {
     if (!iso) return 'Unknown date'
     const d = new Date(iso)
     if (isNaN(d.getTime())) return 'Unknown date'
     return d.toLocaleDateString()
   }
 
-  if (!mounted || loading) return (
+  if (loading) return (
     <div className="min-h-screen bg-stone-50 flex items-center justify-center">
       <div className="animate-spin rounded-full h-12 w-12 border-4 border-emerald-200 border-t-emerald-600"></div>
     </div>
@@ -266,7 +282,6 @@ export default function ModeratePage() {
   if (!isUserModerator) return (
     <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
       <div className="bg-white p-12 rounded-[2.5rem] shadow-xl text-center max-w-md border border-stone-200">
-        <div className="text-6xl mb-6">🚫</div>
         <h2 className="text-3xl font-black text-gray-900 mb-4 font-logo tracking-tighter uppercase">Access Denied</h2>
         <p className="text-stone-500 font-medium mb-8">This chamber is reserved for community elders and guardians.</p>
         <Link href="/profile" className="inline-block bg-stone-900 text-white px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest">Return to Profile</Link>
@@ -281,15 +296,15 @@ export default function ModeratePage() {
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
             <div className="max-w-2xl">
               <h1 className="text-4xl md:text-5xl font-black font-logo tracking-tight mb-4 uppercase">Moderator Dashboard</h1>
-              <p className="text-emerald-100/70 text-lg font-medium italic font-serif">Reviewing and validating the community's collective wisdom.</p>
+              <p className="text-emerald-100/70 text-lg font-medium italic font-serif">Reviewing and validating the community&apos;s collective wisdom.</p>
             </div>
 
             <div className="flex flex-wrap gap-4 font-logo">
-              <div className="bg-emerald-800/50 backdrop-blur-md p-4 rounded-2xl border border-emerald-700/50 min-w-[140px]">
+              <div className="bg-emerald-800/50 backdrop-blur-md p-4 rounded-2xl border border-emerald-700/50">
                 <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">Weekly Reviews</div>
                 <div className="text-3xl font-black">{loadingData ? '...' : modStats.thisWeek}</div>
               </div>
-              <div className="bg-emerald-800/50 backdrop-blur-md p-4 rounded-2xl border border-emerald-700/50 min-w-[140px]">
+              <div className="bg-emerald-800/50 backdrop-blur-md p-4 rounded-2xl border border-emerald-700/50">
                 <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">Guardian Score</div>
                 <div className="text-3xl font-black">{loadingData ? '...' : modStats.score}</div>
               </div>
@@ -309,21 +324,16 @@ export default function ModeratePage() {
                 className="w-full px-4 py-3 bg-stone-50 border-2 border-stone-50 rounded-xl focus:bg-white focus:border-emerald-500 transition-all outline-none font-bold text-gray-900 appearance-none cursor-pointer"
               >
                 <option value="all">All Dialects</option>
-                {languages.map(lang => (
+                {languages.map((lang) => (
                   <option key={lang.id} value={lang.id}>{lang.name}</option>
                 ))}
               </select>
             </div>
 
-            <nav className="flex flex-col gap-2 font-logo">
-              <button
-                onClick={() => setSelectedTab('pending')}
-                className={`flex items-center justify-between p-5 rounded-2xl font-black transition-all uppercase text-[11px] tracking-widest ${selectedTab === 'pending' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/20' : 'bg-white text-stone-500 hover:bg-stone-100 border border-stone-200'}`}
-              >
-                <span>🔔 Pending Review</span>
-                <span className={`px-2 py-1 rounded-lg text-[10px] ${selectedTab === 'pending' ? 'bg-emerald-500' : 'bg-stone-100'}`}>{items.length}</span>
-              </button>
-            </nav>
+            <div className="flex items-center justify-between p-5 rounded-2xl font-black uppercase text-[11px] tracking-widest bg-emerald-600 text-white shadow-lg shadow-emerald-900/20">
+              <span>Pending Review</span>
+              <span className="px-2 py-1 rounded-lg text-[10px] bg-emerald-500">{items.length}</span>
+            </div>
           </div>
 
           <div className="lg:col-span-3 pb-20">
@@ -342,33 +352,36 @@ export default function ModeratePage() {
                           <span className="bg-stone-100 text-stone-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
                             {submission.language?.name || 'Unknown'}
                           </span>
+                          <span className="bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                            {submission.item_type}
+                          </span>
                           <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">
-                            By {submission.contributor?.display_name || 'Anonymous'} • {formatDate(submission.created_at)}
+                            By {submission.contributor?.display_name || 'Anonymous'} | {formatDate(submission.created_at)}
                           </span>
                         </div>
 
-                        <h3 className="text-4xl font-black text-gray-900 mb-6 font-logo leading-tight uppercase tracking-tighter">
+                        <h3 className="text-3xl md:text-4xl font-black text-gray-900 mb-6 font-logo leading-tight uppercase tracking-tighter break-words">
                           {submission.headword || '(no headword)'}
                         </h3>
 
                         <div className="grid md:grid-cols-2 gap-8 mb-8">
                           <div>
                             <p className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3">Definition</p>
-                            <p className="text-lg text-stone-700 leading-relaxed font-medium bg-stone-50 p-6 rounded-2xl border border-stone-100 italic font-serif">
-                              "{submission.primary_definition || '—'}"
+                            <p className="text-lg text-stone-700 leading-relaxed font-medium bg-stone-50 p-6 rounded-2xl border border-stone-100 italic font-serif break-words">
+                              {submission.primary_definition || '-'}
                             </p>
                           </div>
                           <div className="space-y-4">
                             {submission.part_of_speech && (
                               <div>
                                 <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Part of Speech</p>
-                                <p className="font-bold text-gray-900 uppercase text-sm">{submission.part_of_speech}</p>
+                                <p className="font-bold text-gray-900 uppercase text-sm break-words">{submission.part_of_speech}</p>
                               </div>
                             )}
                             {submission.dialect_variant && (
                               <div>
                                 <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Dialect Context</p>
-                                <p className="font-bold text-gray-900 uppercase text-sm">{submission.dialect_variant}</p>
+                                <p className="font-bold text-gray-900 uppercase text-sm break-words">{submission.dialect_variant}</p>
                               </div>
                             )}
                           </div>
@@ -376,7 +389,7 @@ export default function ModeratePage() {
 
                         <div className="pt-8 border-t border-stone-100">
                           {reviewingId === submission.id ? (
-                            <div className="space-y-6 animate-in slide-in-from-top-4 duration-300">
+                            <div className="space-y-6">
                               <textarea
                                 value={actionNote}
                                 onChange={(e) => setActionNote(e.target.value)}
@@ -384,37 +397,37 @@ export default function ModeratePage() {
                                 className="w-full px-6 py-4 bg-stone-50 border-2 border-emerald-100 rounded-2xl focus:bg-white focus:border-emerald-500 transition-all outline-none font-medium text-stone-600 italic font-serif"
                                 rows={2}
                               />
-                              <div className="flex flex-wrap gap-3 font-logo">
+                              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 font-logo">
                                 <button
                                   onClick={() => handleReviewAction(submission, 'accept')}
                                   disabled={isProcessing}
-                                  className="flex-1 min-w-[140px] bg-emerald-600 text-white px-6 py-4 rounded-xl hover:bg-emerald-700 transition font-black flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/10 disabled:opacity-50 uppercase text-[10px] tracking-widest"
+                                  className="w-full sm:flex-1 sm:min-w-[140px] bg-emerald-600 text-white px-6 py-4 rounded-xl hover:bg-emerald-700 transition font-black flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/10 disabled:opacity-50 uppercase text-[10px] tracking-widest"
                                   aria-label="Approve entry"
                                 >
-                                  {isProcessing ? '...' : '✓ Approve Entry'}
+                                  {isProcessing ? '...' : 'Approve Entry'}
                                 </button>
                                 <button
                                   onClick={() => handleReviewAction(submission, 'reject')}
                                   disabled={isProcessing}
-                                  className="flex-1 min-w-[140px] bg-red-600 text-white px-6 py-4 rounded-xl hover:bg-red-700 transition font-black flex items-center justify-center gap-2 shadow-lg shadow-red-900/10 disabled:opacity-50 uppercase text-[10px] tracking-widest"
+                                  className="w-full sm:flex-1 sm:min-w-[140px] bg-red-600 text-white px-6 py-4 rounded-xl hover:bg-red-700 transition font-black flex items-center justify-center gap-2 shadow-lg shadow-red-900/10 disabled:opacity-50 uppercase text-[10px] tracking-widest"
                                   aria-label="Discard suggestion"
                                 >
-                                  {isProcessing ? '...' : '✗ Discard'}
+                                  {isProcessing ? '...' : 'Discard'}
                                 </button>
                                 <button
-                                  onClick={() => { setReviewingId(null); setActionNote(''); }}
-                                  className="px-6 py-4 text-stone-400 font-black hover:text-stone-600 transition tracking-widest text-[10px] uppercase"
+                                  onClick={() => { setReviewingId(null); setActionNote('') }}
+                                  className="w-full sm:w-auto px-6 py-4 text-stone-400 font-black hover:text-stone-600 transition tracking-widest text-[10px] uppercase"
                                 >
-                                  CANCEL
+                                  Cancel
                                 </button>
                               </div>
                             </div>
                           ) : (
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                                 <button
-                                  onClick={() => { setReviewingId(submission.id); setActionNote(''); }}
-                                  className="bg-stone-900 text-white px-8 py-3.5 rounded-xl hover:bg-stone-800 transition font-black text-[11px] tracking-widest uppercase font-logo"
+                                  onClick={() => { setReviewingId(submission.id); setActionNote('') }}
+                                  className="w-full sm:w-auto bg-stone-900 text-white px-8 py-3.5 rounded-xl hover:bg-stone-800 transition font-black text-[11px] tracking-widest uppercase font-logo"
                                   aria-label="Open review panel"
                                 >
                                   Review Submission
@@ -422,23 +435,23 @@ export default function ModeratePage() {
 
                                 <button
                                   onClick={() => handleApply(submission)}
-                                  className="px-4 py-3 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-black uppercase tracking-widest"
+                                  className="w-full sm:w-auto px-4 py-3 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-black uppercase tracking-widest"
                                   aria-label="Apply suggestion to entry"
                                 >
                                   Apply
                                 </button>
                               </div>
 
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-3 self-start sm:self-auto">
                                 <button
                                   onClick={() => handleFlag(submission)}
-                                  className="p-3 text-stone-300 hover:text-red-500 transition-colors"
+                                  className="p-3 text-stone-400 hover:text-red-500 transition-colors font-black text-xs uppercase tracking-widest"
                                   title="Flag for discussion"
                                   aria-label="Flag suggestion"
                                 >
-                                  🚩
+                                  Flag
                                 </button>
-                                {isProcessing && <div className="text-sm text-stone-400">Processing…</div>}
+                                {isProcessing && <div className="text-sm text-stone-400">Processing...</div>}
                               </div>
                             </div>
                           )}
@@ -450,22 +463,8 @@ export default function ModeratePage() {
 
                 {displayedList.length === 0 && (
                   <div className="bg-white p-24 rounded-[3rem] border border-stone-200 text-center shadow-sm">
-                    <div className="text-6xl mb-6">✨</div>
                     <h3 className="text-2xl font-black text-gray-900 mb-2 font-logo uppercase tracking-tighter">Clear Horizon</h3>
-                    <p className="text-stone-500 font-medium font-serif italic">No {selectedTab} submissions to review right now.</p>
-                  </div>
-                )}
-
-                {/* Load more */}
-                {cursor && (
-                  <div className="text-center mt-6">
-                    <button
-                      ref={loadMoreRef}
-                      onClick={loadMore}
-                      className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-black uppercase text-[11px] tracking-widest"
-                    >
-                      Load more
-                    </button>
+                    <p className="text-stone-500 font-medium font-serif italic">No pending submissions to review right now.</p>
                   </div>
                 )}
               </div>

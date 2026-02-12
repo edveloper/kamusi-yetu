@@ -64,7 +64,7 @@ export default function EntryPage() {
             .select()
             .eq('user_id', user.id)
             .eq('entry_id', id)
-            .single()
+            .maybeSingle()
           setIsSaved(!!saved)
         }
 
@@ -366,14 +366,14 @@ export default function EntryPage() {
   return (
     <div className="entry-root min-h-screen bg-stone-50 pb-20 font-sans">
       {/* Header Navigation */}
-      <div className="max-w-7xl mx-auto px-4 py-8 flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-4 py-8 flex justify-between items-center gap-3">
         <button
           onClick={() => router.back()}
           className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-400 hover:text-emerald-600 transition-colors"
         >
           ← Back
         </button>
-        <div className="flex gap-4">
+        <div className="flex gap-2 sm:gap-4">
           <div className="relative">
             <button
               onClick={() => setShowShareMenu(!showShareMenu)}
@@ -426,6 +426,18 @@ export default function EntryPage() {
             </span>
           </div>
 
+          {entry.audio_url && (
+            <div className="mb-8 bg-emerald-50 border border-emerald-100 rounded-2xl p-4">
+              <p className="text-[10px] font-black text-emerald-700 uppercase tracking-[0.2em] mb-2">
+                Listen Pronunciation
+              </p>
+              <audio controls className="w-full">
+                <source src={entry.audio_url} />
+                Your browser does not support audio playback.
+              </audio>
+            </div>
+          )}
+
           <div className="space-y-10">
             {/* Definition */}
             <section>
@@ -436,6 +448,49 @@ export default function EntryPage() {
                 {entry.primary_definition}
               </p>
             </section>
+
+            {(entry.pronunciation_ipa || entry.dialect_variant || entry.etymology || entry.audio_url) && (
+              <section className="grid md:grid-cols-2 gap-6">
+                {entry.pronunciation_ipa && (
+                  <div className="bg-stone-50 p-5 rounded-2xl border border-stone-100">
+                    <h2 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-2">
+                      Pronunciation (IPA)
+                    </h2>
+                    <p className="text-stone-700 font-medium">{entry.pronunciation_ipa}</p>
+                  </div>
+                )}
+
+                {entry.dialect_variant && (
+                  <div className="bg-stone-50 p-5 rounded-2xl border border-stone-100">
+                    <h2 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-2">
+                      Dialect Variant
+                    </h2>
+                    <p className="text-stone-700 font-medium">{entry.dialect_variant}</p>
+                  </div>
+                )}
+
+                {entry.audio_url && (
+                  <div className="bg-stone-50 p-5 rounded-2xl border border-stone-100 md:col-span-2">
+                    <h2 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3">
+                      Audio Pronunciation
+                    </h2>
+                    <audio controls className="w-full">
+                      <source src={entry.audio_url} />
+                      Your browser does not support audio playback.
+                    </audio>
+                  </div>
+                )}
+
+                {entry.etymology && (
+                  <div className="bg-stone-50 p-5 rounded-2xl border border-stone-100 md:col-span-2">
+                    <h2 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-2">
+                      Etymology
+                    </h2>
+                    <p className="text-stone-700 font-medium leading-relaxed">{entry.etymology}</p>
+                  </div>
+                )}
+              </section>
+            )}
 
             {/* English Translation */}
             {entry.english_translation && (
@@ -562,8 +617,8 @@ export default function EntryPage() {
         </div>
 
         {/* Footer Credits */}
-        <div className="mt-8 flex items-center justify-between px-8 text-stone-400">
-          <div className="flex items-center gap-3">
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-8 text-stone-400 min-w-0">
+          <div className="flex items-center gap-3 min-w-0">
             <div className="w-8 h-8 rounded-full bg-stone-200 overflow-hidden border border-stone-300">
               {entry.contributor_avatar && (
                 <img
@@ -573,14 +628,14 @@ export default function EntryPage() {
                 />
               )}
             </div>
-            <span className="text-[9px] font-black uppercase tracking-widest">
+            <span className="text-[9px] font-black uppercase tracking-widest break-words">
               Archived by{' '}
               <span className="text-stone-600 underline cursor-pointer">
                 {entry.contributor_name}
               </span>
             </span>
           </div>
-          <span className="text-[9px] font-black uppercase tracking-widest">
+          <span className="text-[9px] font-black uppercase tracking-widest break-words">
             Status: {entry.validation_status}
           </span>
         </div>

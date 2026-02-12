@@ -1,19 +1,8 @@
 // lib/api/entries.ts
 import { supabase } from '@/lib/supabase'
+import type { CreateEntryData } from '@/lib/types/database'
 
-export interface CreateEntryData {
-  language_id: string
-  headword: string
-  primary_definition: string
-  category?: string
-  part_of_speech?: string
-  dialect_variant?: string
-  register?: string
-  created_by: string
-  usage_example?: string
-  english_translation?: string
-  swahili_translation?: string
-}
+const AUDIO_BUCKET = process.env.NEXT_PUBLIC_SUPABASE_AUDIO_BUCKET || 'entry-audio'
 
 /**
  * Normalize text for consistent matching and indexing.
@@ -38,6 +27,9 @@ export async function createEntry(data: CreateEntryData) {
       category: data.category || null,
       part_of_speech: data.part_of_speech || null,
       dialect_variant: data.dialect_variant || null,
+      pronunciation_ipa: data.pronunciation_ipa || null,
+      etymology: data.etymology || null,
+      audio_url: data.audio_url || null,
       register: data.register || 'both',
       validation_status: 'pending',
       trust_score: 0,
@@ -56,13 +48,59 @@ export async function createEntry(data: CreateEntryData) {
       .from('usage_contexts')
       .insert({
         entry_id: entry.id,
-        context_text: data.usage_example,
-        is_verified: false,
+        usage_text: data.usage_example,
+        example_sentence: null,
         created_by: data.created_by
       })
-    if (contextError) console.error('Context save failed:', contextError)
+    if (contextError) {
+      const isMissingUsageText =
+        contextError.code === 'PGRST204' &&
+        String(contextError.message || '').includes('usage_text')
+
+      if (isMissingUsageText) {
+        const fallbackPayload: Record<string, string> = {
+          entry_id: entry.id,
+          context_text: data.usage_example,
+          created_by: data.created_by
+        }
+        const { error: fallbackContextError } = await supabase
+          .from('usage_contexts')
+          .insert(fallbackPayload)
+
+        if (fallbackContextError) console.warn('Context save failed:', fallbackContextError)
+      } else {
+        console.warn('Context save failed:', contextError)
+      }
+    }
   }
   return entry
+}
+
+export async function uploadEntryAudio(userId: string, file: File) {
+  if (!file.type.startsWith('audio/')) {
+    throw new Error('Please select a valid audio file.')
+  }
+
+  const maxBytes = 15 * 1024 * 1024 // 15MB
+  if (file.size > maxBytes) {
+    throw new Error('Audio file is too large. Maximum allowed size is 15MB.')
+  }
+
+  const ext = file.name.split('.').pop() || 'mp3'
+  const safeExt = ext.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || 'mp3'
+  const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${safeExt}`
+
+  const { error: uploadError } = await supabase.storage
+    .from(AUDIO_BUCKET)
+    .upload(path, file, { upsert: false })
+
+  if (uploadError) throw uploadError
+
+  const { data } = supabase.storage
+    .from(AUDIO_BUCKET)
+    .getPublicUrl(path)
+
+  return data.publicUrl
 }
 
 export async function getEntry(id: string) {

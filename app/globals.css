@@ -37,15 +37,31 @@
 body {
   background-color: var(--color-neutral-100);
   color: var(--color-neutral-900);
+  overflow-x: hidden;
 }
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.safe-wrap {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 

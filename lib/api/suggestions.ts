@@ -167,46 +167,43 @@ export async function getPendingSuggestions(limit = 20, before?: string) {
  */
 export async function reviewSuggestion(suggestionId: string, moderatorId: string, action: 'accept' | 'reject', moderatorNotes?: string) {
   const newStatus = action === 'accept' ? 'accepted' : 'rejected'
-  // First attempt: include audit columns (if present)
-  const attemptPayload: any = {
-    status: newStatus,
-    moderator_notes: moderatorNotes ?? null,
-    reviewed_by: moderatorId,
-    reviewed_at: new Date().toISOString()
+  const { data: existing, error: fetchError } = await supabase
+    .from('entry_suggestions')
+    .select('*')
+    .eq('id', suggestionId)
+    .single()
+
+  if (fetchError) throw fetchError
+
+  const keys = new Set(Object.keys(existing || {}))
+  const statusColumn = ['status', 'review_status', 'state'].find((c) => keys.has(c))
+
+  if (!statusColumn) {
+    throw new Error('Could not determine suggestion status column in entry_suggestions.')
   }
 
-  try {
-    const { data, error } = await supabase
-      .from('entry_suggestions')
-      .update(attemptPayload)
-      .eq('id', suggestionId)
-      .select()
-      .single()
-
-    if (error) {
-      // If error is due to unknown column(s), retry without audit fields
-      const msg = String(error.message || error)
-      if (msg.includes('column') && (msg.includes('reviewed_by') || msg.includes('reviewed_at'))) {
-        const fallbackPayload = {
-          status: newStatus,
-          moderator_notes: moderatorNotes ?? null
-        }
-        const { data: d2, error: e2 } = await supabase
-          .from('entry_suggestions')
-          .update(fallbackPayload)
-          .eq('id', suggestionId)
-          .select()
-          .single()
-        if (e2) throw e2
-        return d2 as SuggestionRow
-      }
-      throw error
-    }
-
-    return data as SuggestionRow
-  } catch (err) {
-    throw err
+  const payload: Record<string, string | null> = {
+    [statusColumn]: newStatus
   }
+
+  const notesColumn = ['moderator_notes', 'review_notes', 'notes'].find((c) => keys.has(c))
+  if (notesColumn) payload[notesColumn] = moderatorNotes ?? null
+
+  const reviewedByColumn = ['reviewed_by', 'moderated_by', 'validator_id'].find((c) => keys.has(c))
+  if (reviewedByColumn) payload[reviewedByColumn] = moderatorId
+
+  const reviewedAtColumn = ['reviewed_at', 'moderated_at'].find((c) => keys.has(c))
+  if (reviewedAtColumn) payload[reviewedAtColumn] = new Date().toISOString()
+
+  const { data, error } = await supabase
+    .from('entry_suggestions')
+    .update(payload)
+    .eq('id', suggestionId)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data as SuggestionRow
 }
 
 /**
@@ -221,7 +218,7 @@ export async function applySuggestionToEntry(suggestionId: string, moderatorId: 
     // 1) fetch suggestion
     const { data: suggestion, error: fetchErr } = await supabase
       .from('entry_suggestions')
-      .select('id, entry_id, headword, primary_definition, details')
+      .select('id, entry_id, headword, primary_definition')
       .eq('id', suggestionId)
       .single()
 
