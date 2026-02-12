@@ -9,6 +9,16 @@ type ModerationAction =
   | { action: 'review_suggestion'; itemId: string; suggestionAction: 'accept' | 'reject'; note?: string }
   | { action: 'apply_suggestion'; itemId: string; note?: string }
 
+type TrustScoreEntry = {
+  part_of_speech: string | null
+  dialect_variant: string | null
+  pronunciation_ipa: string | null
+  etymology: string | null
+  audio_url: string | null
+}
+
+type LooseSupabaseClient = ReturnType<typeof createClient<any>>
+
 function getSupabaseEnv() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -18,7 +28,7 @@ function getSupabaseEnv() {
 }
 
 async function computeTrustScore(
-  admin: ReturnType<typeof createClient>,
+  admin: LooseSupabaseClient,
   entryId: string,
   status: EntryValidationStatus
 ) {
@@ -31,11 +41,12 @@ async function computeTrustScore(
 
   if (status !== 'verified') return base[status]
 
-  const { data: entry } = await admin
+  const { data: entryRow } = await admin
     .from('entries')
     .select('part_of_speech, dialect_variant, pronunciation_ipa, etymology, audio_url')
     .eq('id', entryId)
     .single()
+  const entry = (entryRow ?? null) as TrustScoreEntry | null
 
   const { count: usageCount } = await admin
     .from('usage_contexts')
@@ -61,7 +72,7 @@ async function computeTrustScore(
 }
 
 async function updateEntryStatusAdmin(
-  admin: ReturnType<typeof createClient>,
+  admin: LooseSupabaseClient,
   entryId: string,
   status: EntryValidationStatus,
   validatorId: string
@@ -95,7 +106,7 @@ async function updateEntryStatusAdmin(
 }
 
 async function reviewSuggestionAdmin(
-  admin: ReturnType<typeof createClient>,
+  admin: LooseSupabaseClient,
   suggestionId: string,
   moderatorId: string,
   action: 'accept' | 'reject',
@@ -141,7 +152,7 @@ async function reviewSuggestionAdmin(
 }
 
 async function applySuggestionAdmin(
-  admin: ReturnType<typeof createClient>,
+  admin: LooseSupabaseClient,
   suggestionId: string,
   moderatorId: string,
   note?: string
@@ -212,13 +223,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing bearer token.' }, { status: 401 })
     }
 
-    const userClient = createClient(env.url, env.anon)
+    const userClient = createClient<any>(env.url, env.anon)
     const { data: authData, error: authError } = await userClient.auth.getUser(token)
     if (authError || !authData?.user) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 })
     }
 
-    const admin = createClient(env.url, env.serviceRole, {
+    const admin = createClient<any>(env.url, env.serviceRole, {
       auth: { autoRefreshToken: false, persistSession: false }
     })
 
