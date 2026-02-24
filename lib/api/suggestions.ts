@@ -84,7 +84,13 @@ export async function submitSuggestion(payload: SuggestionPayload) {
 
     const nextEnglish = clean(basePatch.english_translation) ?? clean(entry.english_translation) ?? ''
     const nextSwahili = clean(basePatch.swahili_translation) ?? clean(entry.swahili_translation) ?? ''
-    const languageCode = String(entry.language?.code || '').toLowerCase()
+
+    const languageValue = (entry as { language?: unknown }).language
+    const languageCode = String(
+      Array.isArray(languageValue)
+        ? ((languageValue[0] as { code?: string } | undefined)?.code || '')
+        : ((languageValue as { code?: string } | null)?.code || '')
+    ).toLowerCase()
 
     if (!nextEnglish && !nextSwahili) {
       throw new Error('Edit suggestion must keep at least one bridge translation (English or Swahili).')
