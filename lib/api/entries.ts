@@ -236,13 +236,13 @@ export async function searchEntries(
   query: string,
   languageId?: string,
   categoryId?: string,
-  letter?: string
+  letter?: string,
+  sort: 'headword_asc' | 'newest' | 'trust_desc' = 'headword_asc'
 ) {
   let searchQuery = supabase
     .from('entries')
-    .select(`*, language:languages(*)`)
+    .select(`*, language:languages(*)`, { count: 'exact' })
     .eq('validation_status', 'verified')
-    .order('headword', { ascending: true })
     .limit(100)
 
   if (query && query.trim() !== '') {
@@ -256,9 +256,20 @@ export async function searchEntries(
   if (categoryId && categoryId !== 'all') searchQuery = searchQuery.eq('category', categoryId)
   if (letter && letter !== 'all') searchQuery = searchQuery.ilike('headword', `${letter}%`)
 
-  const { data, error } = await searchQuery
+  if (sort === 'newest') {
+    searchQuery = searchQuery.order('created_at', { ascending: false })
+  } else if (sort === 'trust_desc') {
+    searchQuery = searchQuery.order('trust_score', { ascending: false })
+  } else {
+    searchQuery = searchQuery.order('headword', { ascending: true })
+  }
+
+  const { data, error, count } = await searchQuery
   if (error) throw error
-  return data
+  return {
+    rows: data || [],
+    total: count || 0
+  }
 }
 
 export async function getLatestEntries() {

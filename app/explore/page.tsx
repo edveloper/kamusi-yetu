@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { getLanguages } from '@/lib/api/languages'
 import { supabase } from '@/lib/supabase'
 
@@ -25,11 +26,26 @@ const categories = [
   { id: 'law', name: 'Law & Governance', icon: 'Law' }
 ]
 
+const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+
 export default function ExplorePage() {
+  const router = useRouter()
   const [languages, setLanguages] = useState<LanguageItem[]>([])
   const [loading, setLoading] = useState(true)
   const [languageCounts, setLanguageCounts] = useState<Record<string, number>>({})
   const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({})
+  const [searchQuery, setSearchQuery] = useState('')
+  const [languageFilter, setLanguageFilter] = useState('all')
+  const [categoryFilter, setCategoryFilter] = useState('all')
+
+  const goToSearch = (params: { q?: string; language?: string; category?: string; letter?: string }) => {
+    const query = new URLSearchParams()
+    if (params.q && params.q.trim()) query.set('q', params.q.trim())
+    if (params.language && params.language !== 'all') query.set('language', params.language)
+    if (params.category && params.category !== 'all') query.set('category', params.category)
+    if (params.letter && params.letter !== 'all') query.set('letter', params.letter)
+    router.push(`/search?${query.toString()}`)
+  }
 
   useEffect(() => {
     async function loadData() {
@@ -82,8 +98,71 @@ export default function ExplorePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl md:text-7xl font-black mb-6 font-logo tracking-tight">Explore Dictionary</h1>
           <p className="text-xl text-emerald-100 max-w-2xl mx-auto font-medium opacity-90 leading-relaxed">
-            Preserving the languages of Kenya, one word at a time. Browse by community or cultural topic.
+            Dictionary mode. Search directly, then refine by language, letter, and topic.
           </p>
+          <div className="mt-10 bg-white/10 border border-white/20 rounded-2xl p-4 md:p-5 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_180px_180px_auto] gap-3">
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && goToSearch({ q: searchQuery, language: languageFilter, category: categoryFilter })}
+                placeholder="Search headword or meaning..."
+                className="px-4 py-3 rounded-xl bg-white text-stone-900 font-semibold placeholder:text-stone-400"
+              />
+              <select
+                value={languageFilter}
+                onChange={(e) => setLanguageFilter(e.target.value)}
+                className="px-4 py-3 rounded-xl bg-white text-stone-900 font-semibold"
+              >
+                <option value="all">All languages</option>
+                {languages.map((lang) => (
+                  <option key={lang.id} value={lang.id}>
+                    {lang.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="px-4 py-3 rounded-xl bg-white text-stone-900 font-semibold"
+              >
+                <option value="all">All topics</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={() => goToSearch({ q: searchQuery, language: languageFilter, category: categoryFilter })}
+                className="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 transition-colors font-black"
+              >
+                Search
+              </button>
+            </div>
+          </div>
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            {ALPHABET.map((letter) => (
+              <button
+                key={letter}
+                onClick={() => goToSearch({ letter, language: languageFilter, category: categoryFilter })}
+                className="w-8 h-8 rounded-md bg-white/10 border border-white/20 hover:bg-white/20 text-xs font-black"
+              >
+                {letter}
+              </button>
+            ))}
+          </div>
+          <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
+            <Link className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20" href="/search?language=all&category=all&letter=all">
+              Full Dictionary
+            </Link>
+            <Link className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20" href="/search?letter=a">
+              Browse A-Z
+            </Link>
+            <Link className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20" href="/translate">
+              Go to Translate
+            </Link>
+          </div>
         </div>
       </div>
 
