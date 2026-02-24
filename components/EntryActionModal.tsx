@@ -2,21 +2,27 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type React from 'react'
-import dynamic from 'next/dynamic'
-
-import { submitSuggestion } from '@/lib/api/suggestions' // server helper
-// If you keep onSubmit prop, you can call that instead; this component calls submitSuggestion directly.
+import { submitSuggestion } from '@/lib/api/suggestions'
 
 interface ActionModalProps {
   type: 'edit' | 'report'
   entry: any
   onClose: () => void
-  onSubmit?: (data: any) => Promise<void> // optional external handler
+  onSubmit?: (data: any) => Promise<void>
 }
 
 type FormState = {
   headword: string
   primary_definition: string
+  english_translation: string
+  swahili_translation: string
+  part_of_speech: string
+  dialect_variant: string
+  pronunciation_ipa: string
+  etymology: string
+  audio_url: string
+  category: string
+  register: string
   reason: string
   details: string
   source_type: string
@@ -28,9 +34,20 @@ const DRAFT_KEY = (entryId: string | undefined, type: string) => `suggestion_dra
 
 export default function EntryActionModal({ type, entry, onClose, onSubmit }: ActionModalProps) {
   const isEdit = type === 'edit'
+  const languageCode = String(entry?.language?.code || '').toLowerCase()
+
   const initial: FormState = {
     headword: entry?.headword ?? '',
     primary_definition: entry?.primary_definition ?? '',
+    english_translation: entry?.english_translation ?? '',
+    swahili_translation: entry?.swahili_translation ?? '',
+    part_of_speech: entry?.part_of_speech ?? '',
+    dialect_variant: entry?.dialect_variant ?? '',
+    pronunciation_ipa: entry?.pronunciation_ipa ?? '',
+    etymology: entry?.etymology ?? '',
+    audio_url: entry?.audio_url ?? '',
+    category: entry?.category ?? '',
+    register: entry?.register ?? '',
     reason: '',
     details: '',
     source_type: '',
@@ -44,48 +61,71 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
   const [showPreview, setShowPreview] = useState(false)
   const firstRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null)
 
-  // load draft from localStorage
   useEffect(() => {
     const key = DRAFT_KEY(entry?.id, type)
     try {
       const raw = localStorage.getItem(key)
       if (raw) {
         const parsed = JSON.parse(raw)
-        setForm(prev => ({ ...prev, ...parsed }))
+        setForm((prev) => ({ ...prev, ...parsed }))
       }
-    } catch (e) {
-      // ignore
+    } catch {
+      // ignore draft parse failures
     }
     setTimeout(() => firstRef.current?.focus(), 0)
   }, [entry?.id, type])
 
-  // autosave draft
   useEffect(() => {
     const key = DRAFT_KEY(entry?.id, type)
     const t = setTimeout(() => {
       try {
         localStorage.setItem(key, JSON.stringify(form))
-      } catch (e) {}
+      } catch {
+        // ignore localStorage failures
+      }
     }, 400)
     return () => clearTimeout(t)
   }, [form, entry?.id, type])
 
-  // ESC to close
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
+  const clean = (v: string) => v.trim()
+
   const validate = (): { ok: boolean; message?: string } => {
     if (isEdit) {
-      if (!form.headword.trim()) return { ok: false, message: 'Headword is required.' }
-      if (!form.primary_definition.trim()) return { ok: false, message: 'Corrected definition is required.' }
+      if (!clean(form.headword)) return { ok: false, message: 'Headword is required.' }
+      if (!clean(form.primary_definition)) return { ok: false, message: 'Corrected definition is required.' }
+
+      const english = clean(form.english_translation)
+      const swahili = clean(form.swahili_translation)
+      if (!english && !swahili) {
+        return { ok: false, message: 'Keep at least one bridge translation (English or Swahili).' }
+      }
+      if (languageCode === 'en' && !swahili) {
+        return { ok: false, message: 'English entries require a Swahili translation.' }
+      }
+      if (languageCode === 'sw' && !english) {
+        return { ok: false, message: 'Swahili entries require an English translation.' }
+      }
     }
-    if (!form.reason.trim()) return { ok: false, message: 'Please select a reason.' }
-    if (form.source_reference && form.source_type === 'url') {
+
+    if (!clean(form.reason)) return { ok: false, message: 'Please select a reason.' }
+    if (clean(form.audio_url)) {
       try {
-        new URL(form.source_reference)
+        new URL(clean(form.audio_url))
+      } catch {
+        return { ok: false, message: 'Audio URL is not valid.' }
+      }
+    }
+    if (clean(form.source_reference) && form.source_type === 'url') {
+      try {
+        new URL(clean(form.source_reference))
       } catch {
         return { ok: false, message: 'Source URL is not valid.' }
       }
@@ -96,7 +136,9 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
   const clearDraft = () => {
     try {
       localStorage.removeItem(DRAFT_KEY(entry?.id, type))
-    } catch {}
+    } catch {
+      // ignore
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -106,25 +148,35 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
       alert(v.message)
       return
     }
+
     setLoading(true)
+
     const payload = {
       entry_id: entry?.id,
-      user_id: undefined, // server helper will use auth; if not, pass user id from context
+      user_id: entry?.currentUserId,
       type,
-      headword: form.headword || undefined,
-      primary_definition: form.primary_definition || undefined,
-      reason: form.reason,
-      details: form.details || undefined,
-      source_type: form.source_type || undefined,
-      source_reference: form.source_reference || undefined,
-      confidence: form.confidence || undefined
+      headword: clean(form.headword) || undefined,
+      primary_definition: clean(form.primary_definition) || undefined,
+      english_translation: clean(form.english_translation) || undefined,
+      swahili_translation: clean(form.swahili_translation) || undefined,
+      part_of_speech: clean(form.part_of_speech) || undefined,
+      dialect_variant: clean(form.dialect_variant) || undefined,
+      pronunciation_ipa: clean(form.pronunciation_ipa) || undefined,
+      etymology: clean(form.etymology) || undefined,
+      audio_url: clean(form.audio_url) || undefined,
+      category: clean(form.category) || undefined,
+      register: clean(form.register) || undefined,
+      reason: clean(form.reason),
+      details: clean(form.details) || undefined,
+      source_type: clean(form.source_type) || undefined,
+      source_reference: clean(form.source_reference) || undefined,
+      confidence: clean(form.confidence) || undefined
     }
 
     try {
       if (onSubmit) {
         await onSubmit(payload)
       } else {
-        // call server helper directly
         await submitSuggestion(payload as any)
       }
       clearDraft()
@@ -141,14 +193,13 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
     }
   }
 
-  // small helpers
-  const update = (patch: Partial<FormState>) => setForm(prev => ({ ...prev, ...patch }))
+  const update = (patch: Partial<FormState>) => setForm((prev) => ({ ...prev, ...patch }))
 
   return (
     <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true">
-      <div className="bg-white rounded-[2.5rem] max-w-2xl w-full p-6 md:p-10 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-[2.5rem] max-w-3xl w-full p-6 md:p-10 shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-4 z-20 flex justify-end">
-          <button onClick={onClose} aria-label="Close" className="text-stone-400 hover:text-stone-900 font-black text-xl p-2">✕</button>
+          <button onClick={onClose} aria-label="Close" className="text-stone-400 hover:text-stone-900 font-black text-xl p-2">x</button>
         </div>
 
         <h2 className="text-3xl font-black mb-2 uppercase tracking-tight">{isEdit ? 'Suggest an Amendment' : 'Report an Issue'}</h2>
@@ -174,7 +225,6 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                     aria-required
                     maxLength={120}
                   />
-                  <div className="text-[11px] text-stone-400 mt-1">{form.headword.length}/120</div>
                 </div>
 
                 <div>
@@ -187,7 +237,99 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                     maxLength={2000}
                     aria-required
                   />
-                  <div className="text-[11px] text-stone-400 mt-1">{form.primary_definition.length}/2000</div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">English Translation</label>
+                    <input
+                      type="text"
+                      value={form.english_translation}
+                      onChange={(e) => update({ english_translation: e.target.value })}
+                      className="w-full p-3 bg-stone-50 border-2 border-stone-100 rounded-2xl"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">Swahili Translation</label>
+                    <input
+                      type="text"
+                      value={form.swahili_translation}
+                      onChange={(e) => update({ swahili_translation: e.target.value })}
+                      className="w-full p-3 bg-stone-50 border-2 border-stone-100 rounded-2xl"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">Part of Speech</label>
+                    <input
+                      type="text"
+                      value={form.part_of_speech}
+                      onChange={(e) => update({ part_of_speech: e.target.value })}
+                      className="w-full p-3 bg-stone-50 border-2 border-stone-100 rounded-2xl"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">Dialect Variant</label>
+                    <input
+                      type="text"
+                      value={form.dialect_variant}
+                      onChange={(e) => update({ dialect_variant: e.target.value })}
+                      className="w-full p-3 bg-stone-50 border-2 border-stone-100 rounded-2xl"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">Pronunciation (IPA)</label>
+                    <input
+                      type="text"
+                      value={form.pronunciation_ipa}
+                      onChange={(e) => update({ pronunciation_ipa: e.target.value })}
+                      className="w-full p-3 bg-stone-50 border-2 border-stone-100 rounded-2xl"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">Category</label>
+                    <input
+                      type="text"
+                      value={form.category}
+                      onChange={(e) => update({ category: e.target.value })}
+                      className="w-full p-3 bg-stone-50 border-2 border-stone-100 rounded-2xl"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">Register</label>
+                    <input
+                      type="text"
+                      value={form.register}
+                      onChange={(e) => update({ register: e.target.value })}
+                      className="w-full p-3 bg-stone-50 border-2 border-stone-100 rounded-2xl"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">Audio URL</label>
+                  <input
+                    type="url"
+                    value={form.audio_url}
+                    onChange={(e) => update({ audio_url: e.target.value })}
+                    placeholder="https://..."
+                    className="w-full p-3 bg-stone-50 border-2 border-stone-100 rounded-2xl"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">Etymology</label>
+                  <textarea
+                    rows={3}
+                    value={form.etymology}
+                    onChange={(e) => update({ etymology: e.target.value })}
+                    className="w-full p-4 bg-stone-50 border-2 border-stone-100 rounded-2xl"
+                  />
                 </div>
               </>
             )}
@@ -206,6 +348,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                     <option value="typo">Spelling / grammar correction</option>
                     <option value="accuracy">Factually incorrect definition</option>
                     <option value="missing">Missing critical context</option>
+                    <option value="enrichment">Add lexical metadata</option>
                   </>
                 ) : (
                   <>
@@ -227,7 +370,6 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                 className="w-full p-4 bg-stone-50 border-2 border-stone-100 rounded-2xl focus:border-emerald-500 outline-none font-medium text-sm"
                 maxLength={3000}
               />
-              <div className="text-[11px] text-stone-400 mt-1">{form.details.length}/3000</div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -264,12 +406,12 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
             </div>
 
             <div className="flex gap-3">
-              <button type="button" onClick={() => setShowPreview(s => !s)} className="flex-1 py-4 font-black text-[10px] uppercase tracking-widest text-stone-600 rounded-2xl border border-stone-200">
+              <button type="button" onClick={() => setShowPreview((s) => !s)} className="flex-1 py-4 font-black text-[10px] uppercase tracking-widest text-stone-600 rounded-2xl border border-stone-200">
                 {showPreview ? 'Hide Preview' : 'Preview'}
               </button>
 
               <button type="submit" disabled={loading} className="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:bg-emerald-700 transition-all disabled:opacity-50">
-                {loading ? 'Submitting…' : isEdit ? 'Send Suggestion' : 'Report Issue'}
+                {loading ? 'Submitting...' : isEdit ? 'Send Suggestion' : 'Report Issue'}
               </button>
             </div>
 
@@ -280,27 +422,13 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                   <>
                     <div className="text-sm font-bold">{form.headword || entry?.headword}</div>
                     <div className="text-sm text-stone-700 mt-2">{form.primary_definition || entry?.primary_definition}</div>
+                    {form.english_translation && <div className="text-sm mt-2">EN: {form.english_translation}</div>}
+                    {form.swahili_translation && <div className="text-sm">SW: {form.swahili_translation}</div>}
                   </>
                 )}
                 <div className="mt-3 text-[13px]">
                   <div className="font-black">Reason</div>
                   <div className="text-stone-700">{form.reason}</div>
-                </div>
-                {form.details && (
-                  <div className="mt-3">
-                    <div className="font-black">Details</div>
-                    <div className="text-stone-700">{form.details}</div>
-                  </div>
-                )}
-                {form.source_type && (
-                  <div className="mt-3 text-[13px]">
-                    <div className="font-black">Source</div>
-                    <div className="text-stone-700">{form.source_type}{form.source_reference ? ` — ${form.source_reference}` : ''}</div>
-                  </div>
-                )}
-                <div className="mt-3 text-[13px]">
-                  <div className="font-black">Confidence</div>
-                  <div className="text-stone-700">{form.confidence}</div>
                 </div>
               </div>
             )}

@@ -59,6 +59,10 @@ export default function ContributePage() {
   }
 
   const [formData, setFormData] = useState<ContributionForm>(initialForm)
+  const selectedLanguage = languages.find((l: any) => l.id === formData.language)
+  const selectedLanguageCode = String(selectedLanguage?.code || '').toLowerCase()
+  const englishRequired = selectedLanguageCode === 'sw'
+  const swahiliRequired = selectedLanguageCode === 'en'
 
   useEffect(() => {
     if (!loading && !user) router.push('/login')
@@ -112,6 +116,26 @@ export default function ContributePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user || isDuplicate) return
+
+    const english = formData.english_translation.trim()
+    const swahili = formData.swahili_translation.trim()
+
+    if (!english && !swahili) {
+      setStatus('error')
+      setErrorMessage('Add at least one bridge translation: English or Swahili.')
+      return
+    }
+    if (swahiliRequired && !swahili) {
+      setStatus('error')
+      setErrorMessage('English entries require a Swahili translation.')
+      return
+    }
+    if (englishRequired && !english) {
+      setStatus('error')
+      setErrorMessage('Swahili entries require an English translation.')
+      return
+    }
+
     setStatus('submitting')
     setErrorMessage('')
 
@@ -129,8 +153,8 @@ export default function ContributePage() {
         register: formData.usage,
         created_by: user.id,
         usage_example: formData.usage_example,
-        english_translation: formData.english_translation,
-        swahili_translation: formData.swahili_translation
+        english_translation: english,
+        swahili_translation: swahili
       })
 
       setStatus('success')
@@ -482,7 +506,7 @@ export default function ContributePage() {
               {/* English Translation */}
               <div className="group">
                 <label className="block text-xs font-black text-stone-400 uppercase mb-4">
-                  English Translation (Optional)
+                  English Translation {englishRequired ? '*' : '(Optional)'}
                 </label>
                 <input
                   type="text"
@@ -501,7 +525,7 @@ export default function ContributePage() {
               {/* Swahili Translation */}
               <div className="group">
                 <label className="block text-xs font-black text-stone-400 uppercase mb-4">
-                  Swahili Translation (Optional)
+                  Swahili Translation {swahiliRequired ? '*' : '(Optional)'}
                 </label>
                 <input
                   type="text"
@@ -531,6 +555,17 @@ export default function ContributePage() {
                   }
                   className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none font-medium text-gray-800 resize-none leading-relaxed italic"
                 />
+              </div>
+
+              <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+                <p className="text-[11px] font-black text-emerald-800 uppercase tracking-widest mb-1">
+                  Bridge Rule
+                </p>
+                <p className="text-sm text-emerald-900">
+                  Every entry must include at least one bridge translation (English or Swahili).
+                  {swahiliRequired && ' English entries require Swahili translation.'}
+                  {englishRequired && ' Swahili entries require English translation.'}
+                </p>
               </div>
 
               {/* Etymology */}

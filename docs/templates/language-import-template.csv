@@ -1,0 +1,4 @@
+batch_label,source_row_no,language_code,headword,primary_definition,english_translation,swahili_translation,part_of_speech,dialect_variant,register,pronunciation_ipa,etymology,audio_url,category,created_by,source_name,source_license,source_url,source_note
+BATCH_2026_02_24_01,1,x-sheng,msee,An older man or respected elder,elder,mzee,noun,,both,,,,family,,community,community,,
+BATCH_2026_02_24_01,2,x-ke-hin,roti,A flatbread commonly eaten in Kenyan Indian homes,flatbread,chapati,noun,,both,,,,food,,community,community,,
+BATCH_2026_02_24_01,3,guz,amache,Water,water,maji,noun,,both,,,,nature,,community,community,,

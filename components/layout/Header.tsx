@@ -52,6 +52,7 @@ export default function Header() {
 
   const navLinks = [
     { name: 'Explore', href: '/explore' },
+    { name: 'Translate', href: '/translate' },
     { name: 'Trending', href: '/trending' },
     { name: 'About', href: '/about' },
     { name: 'Team', href: '/team' }
@@ -165,3 +166,4 @@ export default function Header() {
     </header>
   )
 }
+

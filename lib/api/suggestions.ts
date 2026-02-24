@@ -7,6 +7,15 @@ export type SuggestionPayload = {
   type: 'edit' | 'report'
   headword?: string
   primary_definition?: string
+  part_of_speech?: string
+  dialect_variant?: string
+  pronunciation_ipa?: string
+  etymology?: string
+  audio_url?: string
+  category?: string
+  register?: string
+  english_translation?: string
+  swahili_translation?: string
   reason: string
   details?: string
   source_type?: string
@@ -38,19 +47,74 @@ export type SuggestionRow = {
  * Submit a suggestion (existing behavior)
  */
 export async function submitSuggestion(payload: SuggestionPayload) {
+  const clean = (v?: string) => {
+    const s = String(v || '').trim()
+    return s.length > 0 ? s : undefined
+  }
+
+  const basePatch: Record<string, string> = {}
+  const put = (k: string, v?: string) => {
+    const c = clean(v)
+    if (c) basePatch[k] = c
+  }
+
+  put('headword', payload.headword)
+  put('primary_definition', payload.primary_definition)
+  put('part_of_speech', payload.part_of_speech)
+  put('dialect_variant', payload.dialect_variant)
+  put('pronunciation_ipa', payload.pronunciation_ipa)
+  put('etymology', payload.etymology)
+  put('audio_url', payload.audio_url)
+  put('category', payload.category)
+  put('register', payload.register)
+  put('english_translation', payload.english_translation)
+  put('swahili_translation', payload.swahili_translation)
+
+  if (payload.type === 'edit') {
+    // Validate bridge requirements against the projected entry state.
+    const { data: entry, error: entryErr } = await supabase
+      .from('entries')
+      .select('english_translation, swahili_translation, language:languages(code)')
+      .eq('id', payload.entry_id)
+      .single()
+
+    if (entryErr || !entry) {
+      throw new Error('Could not validate suggestion target entry.')
+    }
+
+    const nextEnglish = clean(basePatch.english_translation) ?? clean(entry.english_translation) ?? ''
+    const nextSwahili = clean(basePatch.swahili_translation) ?? clean(entry.swahili_translation) ?? ''
+    const languageCode = String(entry.language?.code || '').toLowerCase()
+
+    if (!nextEnglish && !nextSwahili) {
+      throw new Error('Edit suggestion must keep at least one bridge translation (English or Swahili).')
+    }
+    if (languageCode === 'en' && !nextSwahili) {
+      throw new Error('English entries must keep a Swahili translation.')
+    }
+    if (languageCode === 'sw' && !nextEnglish) {
+      throw new Error('Swahili entries must keep an English translation.')
+    }
+  }
+
+  const detailsPayload = {
+    note: clean(payload.details) || null,
+    patch: Object.keys(basePatch).length > 0 ? basePatch : null
+  }
+
   const { data, error } = await supabase
     .from('entry_suggestions')
     .insert([{
       entry_id: payload.entry_id,
       user_id: payload.user_id,
       type: payload.type,
-      headword: payload.headword || null,
-      primary_definition: payload.primary_definition || null,
+      headword: clean(payload.headword) || null,
+      primary_definition: clean(payload.primary_definition) || null,
       reason: payload.reason,
-      details: payload.details || null,
-      source_type: payload.source_type || null,
-      source_reference: payload.source_reference || null,
-      confidence: payload.confidence || null
+      details: JSON.stringify(detailsPayload),
+      source_type: clean(payload.source_type) || null,
+      source_reference: clean(payload.source_reference) || null,
+      confidence: clean(payload.confidence) || null
     }])
     .select()
     .single()

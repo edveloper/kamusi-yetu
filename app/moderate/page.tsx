@@ -8,7 +8,7 @@ import { getPendingSuggestions } from '@/lib/api/suggestions'
 import { getEntries } from '@/lib/api/entries'
 import { getLanguages } from '@/lib/api/languages'
 import { isModerator, getModeratorStats } from '@/lib/api/users'
-import { runModerationAction } from '@/lib/api/moderation'
+import { runModerationAction, getBridgeHealth, type BridgeHealthResponse } from '@/lib/api/moderation'
 
 type ModerationItem = {
   id: string
@@ -34,6 +34,8 @@ export default function ModeratePage() {
   const [items, setItems] = useState<ModerationItem[]>([])
   const [loadingData, setLoadingData] = useState(true)
   const [modStats, setModStats] = useState({ thisWeek: 0, score: 0 })
+  const [bridgeHealth, setBridgeHealth] = useState<BridgeHealthResponse['summary'] | null>(null)
+  const [bridgeByLanguage, setBridgeByLanguage] = useState<BridgeHealthResponse['by_language']>([])
   const [reviewingId, setReviewingId] = useState<string | null>(null)
   const [actionNote, setActionNote] = useState('')
   const [processingMap, setProcessingMap] = useState<Record<string, boolean>>({})
@@ -118,16 +120,27 @@ export default function ModeratePage() {
     }
   }
 
+  const refreshBridgeHealth = async () => {
+    try {
+      const health = await getBridgeHealth()
+      setBridgeHealth(health?.summary || null)
+      setBridgeByLanguage(health?.by_language || [])
+    } catch (err) {
+      console.warn('Failed to refresh bridge health:', err)
+    }
+  }
+
   useEffect(() => {
     async function loadInitial() {
       if (!user || !isUserModerator) return
       setLoadingData(true)
       try {
-        const [langs, pendingEntries, pendingSuggestions, stats] = await Promise.all([
+        const [langs, pendingEntries, pendingSuggestions, stats, health] = await Promise.all([
           getLanguages(),
           getEntries({ validation_status: 'pending' }),
           getPendingSuggestions(100),
-          getModeratorStats(user.id)
+          getModeratorStats(user.id),
+          getBridgeHealth()
         ])
 
         setLanguages(langs || [])
@@ -141,6 +154,8 @@ export default function ModeratePage() {
         })
         setItems(combined)
         setModStats(stats || { thisWeek: 0, score: 0 })
+        setBridgeHealth(health?.summary || null)
+        setBridgeByLanguage(health?.by_language || [])
       } catch (err) {
         console.error('Failed to load moderation data:', err)
         alert('Could not load moderation data. Check console for details.')
@@ -194,7 +209,7 @@ export default function ModeratePage() {
           note: action === 'reject' ? actionNote || 'Rejected by moderator' : actionNote || 'Accepted by moderator'
         })
       }
-      await refreshModeratorStats()
+      await Promise.all([refreshModeratorStats(), refreshBridgeHealth()])
       setReviewingId(null)
       setActionNote('')
     } catch (err) {
@@ -227,7 +242,7 @@ export default function ModeratePage() {
       } else {
         await runModerationAction({ action: 'apply_suggestion', itemId: id })
       }
-      await refreshModeratorStats()
+      await Promise.all([refreshModeratorStats(), refreshBridgeHealth()])
       setReviewingId(null)
       setActionNote('')
       alert(item.item_type === 'entry' ? 'Entry approved and published.' : 'Suggestion applied to entry.')
@@ -257,7 +272,7 @@ export default function ModeratePage() {
         })
       }
       setItems((prev) => prev.filter((i) => i.id !== id))
-      await refreshModeratorStats()
+      await Promise.all([refreshModeratorStats(), refreshBridgeHealth()])
     } catch (err) {
       console.error('Flag failed:', err)
       alert('Failed to flag suggestion.')
@@ -333,6 +348,65 @@ export default function ModeratePage() {
             <div className="flex items-center justify-between p-5 rounded-2xl font-black uppercase text-[11px] tracking-widest bg-emerald-600 text-white shadow-lg shadow-emerald-900/20">
               <span>Pending Review</span>
               <span className="px-2 py-1 rounded-lg text-[10px] bg-emerald-500">{items.length}</span>
+            </div>
+
+            <div className="bg-white p-6 rounded-3xl shadow-xl border border-stone-200">
+              <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-4">Bridge Health</p>
+              {bridgeHealth ? (
+                <div className="space-y-3 text-[11px]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-stone-500 font-bold uppercase tracking-wide">Total</span>
+                    <span className="font-black text-stone-900">{bridgeHealth.total}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-stone-500 font-bold uppercase tracking-wide">With Bridge</span>
+                    <span className="font-black text-emerald-700">{bridgeHealth.with_bridge}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-stone-500 font-bold uppercase tracking-wide">Missing Both</span>
+                    <span className="font-black text-red-600">{bridgeHealth.missing_both}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-stone-500 font-bold uppercase tracking-wide">EN w/o SW</span>
+                    <span className="font-black text-amber-700">{bridgeHealth.english_without_swahili}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-stone-500 font-bold uppercase tracking-wide">SW w/o EN</span>
+                    <span className="font-black text-amber-700">{bridgeHealth.swahili_without_english}</span>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-stone-400">Bridge metrics unavailable.</p>
+              )}
+            </div>
+
+            <div className="bg-white p-6 rounded-3xl shadow-xl border border-stone-200">
+              <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-4">Language Risk</p>
+              {bridgeByLanguage.length > 0 ? (
+                <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+                  {bridgeByLanguage.slice(0, 12).map((lang) => {
+                    const risk = lang.missing_both + lang.english_without_swahili + lang.swahili_without_english
+                    return (
+                      <div key={lang.language_id} className="rounded-xl border border-stone-100 bg-stone-50 p-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-xs font-black text-stone-800 truncate">{lang.language_name}</p>
+                          <span className={`text-[10px] font-black px-2 py-1 rounded-md ${
+                            risk > 0 ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'
+                          }`}>
+                            Risk {risk}
+                          </span>
+                        </div>
+                        <div className="mt-2 text-[10px] text-stone-500 font-bold uppercase tracking-wide flex items-center justify-between">
+                          <span>Total {lang.total}</span>
+                          <span>Bridge {lang.with_bridge}</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <p className="text-xs text-stone-400">No language metrics yet.</p>
+              )}
             </div>
           </div>
 

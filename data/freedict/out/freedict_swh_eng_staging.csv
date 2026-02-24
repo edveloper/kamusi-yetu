@@ -1,0 +1,608 @@
+batch_label,source_row_no,language_code,headword,primary_definition,english_translation,swahili_translation,part_of_speech,dialect_variant,register,pronunciation_ipa,etymology,audio_url,category,created_by,source_name,source_license,source_url,source_note
+BATCH_SWEN_FREEDICT_2026_02_24_A,1,sw,abiria,passenger; passenger,maabiria,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,2,sw,achilio,forgiveness; forgiveness,maachilio,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,3,sw,adili,"ethics, morals, good conduct; ethics, morals, good conduct",maadili,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,4,sw,adui,enemy; opponent; enemy; opponent,maadui,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,5,sw,afisa,officer; officer,maafisa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,6,sw,afisa,officer; officer,maofisa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,7,sw,agano,"promise; agreement, contract; promise; agreement, contract",maagano,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,8,sw,agano,"promise; agreement, contract; promise; agreement, contract",ahadi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,9,sw,ahadi,"promise, pledge, vow; promise, pledge, vow",agano,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,10,sw,ajabu,"wonder, marvel, miracle; surprise; awe, amazement, astonishment; wonder, marvel, miracle; surprise; awe, amazement, astonishment",maajabu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,11,sw,ana,he has; she has; it has; he has; she has; it has,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,12,sw,andazi,"doughnut, pastry; doughnut, pastry",maandazi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,13,sw,andiko,writing; writing,maandiko,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,14,sw,anza,"begin, initiate, launch; begin, initiate, launch",anzisha,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,15,sw,anzisha,"start up, begin, initiate, launch; start up, begin, initiate, launch",anza,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,16,sw,azimio,declaration; declaration,maazimio,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,17,sw,baharia,sailor; sailor,mabaharia,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,18,sw,bakuli,bowl; bowl,mabakuli,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,19,sw,balozi,ambassador; ambassador,mabalozi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,20,sw,balungi,grapefruit; grapefruit,mabalungi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,21,sw,banda,shed; shed,mabanda,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,22,sw,bao,board; board,mabao,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,23,sw,bara,"continent, land; continent, land",mabara,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,24,sw,bata,duck; duck,mabata,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,25,sw,bega,shoulder; shoulder,mabega,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,26,sw,begi,bag; bag,mabegi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,27,sw,behewa,train carriage; train carriage,mabehewa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,28,sw,benki,bank; bank,mabenki,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,29,sw,biarusi,bride; bride,mabiarusi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,30,sw,bibi,lady; lady,mabibi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,31,sw,bingwa,"specialist, expert; clever person; champion; specialist, expert; clever person; champion",mabingwa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,32,sw,binti,daughter; miss; young lady; daughter; miss; young lady,mabinti,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,33,sw,birika,kettle; kettle,mabirika,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,34,sw,bisha hodi,ask permission to enter; knock at the door; ask permission to enter; knock at the door,piga hodi,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,35,sw,bomba,pump; pump,mabomba,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,36,sw,bonde,valley; depression; valley; depression,mabonde,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,37,sw,bosi,boss; boss,mabosi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,38,sw,bufuu,shell; shell,mabufuu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,39,sw,buibui,spider; purdah; spider; purdah,mabuibui,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,40,sw,buli,teapot; teapot,mabuli,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,41,sw,bustani,garden; garden,mabustani,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,42,sw,bwana,gentleman; gentleman,mabwana,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,43,sw,bwanaarusi,groom; groom,mabwanaarusi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,44,sw,bweni,dormitory; dormitory,mabweni,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,45,sw,chaguo,choice; choice,machaguo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,46,sw,chakula,food; meal; food; meal,vyakula,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,47,sw,chama,association; party; association; party,vyama,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,48,sw,chandarua,mosquito net; mosquito net,vyandarua,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,49,sw,changamano,"mixture, blend; cooperation; association, union; mixture, blend; cooperation; association, union",machangamano,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,50,sw,cheleo,delay; delay,macheleo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,51,sw,cheo,"measure; grade, rank, rate; measure; grade, rank, rate",vyeo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,52,sw,cheti,certificate; testimony; certificate; testimony,vyeti,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,53,sw,chombo,"jug, box, container; vase, vessel; jug, box, container; vase, vessel",vyombo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,54,sw,choo,"dung, excrement; latrine; dung, excrement; latrine",vyoo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,55,sw,chuma,"iron, metal; iron, metal",vyuma,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,56,sw,chumba,"room, chamber; room, chamber",vyumba,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,57,sw,chungu,cooking pot; jug; cooking pot; jug,vyungu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,58,sw,chungwa,orange; orange,machungwa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,59,sw,chuo,school; school,vyuo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,60,sw,chura,frog; frog,vyura,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,61,sw,daftari,notebook; notebook,madaftari,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,62,sw,dafu,coconut; coconut,madafu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,63,sw,daktari,"doctor, physician; doctor, physician",madaktari,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,64,sw,daladala,local minibus in Tanzania; local minibus in Tanzania,madaladala,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,65,sw,daladala,local minibus in Tanzania; local minibus in Tanzania,matatu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,66,sw,daraja,"stairs; bridge; rank, position; stairs; bridge; rank, position",madaraja,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,67,sw,darasa,class; class,madarasa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,68,sw,dawa,"drug, medicine, pharmaceutical; drug, medicine, pharmaceutical",madawa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,69,sw,deni,"debt, loan; debt, loan",madeni,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,70,sw,deski,desk; desk,madeski,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,71,sw,dirisha,window; window,madirisha,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,72,sw,doa,spot; spot,madoa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,73,sw,dobi,"launderer, laundryman, laundrywoman; washer, washerman, washerwoman; launderer, laundryman, laundrywoman; washer, washerman, washerwoman",madobi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,74,sw,duka,"shop, store, boutique; shop, store, boutique",maduka,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,75,sw,dunia,world; world,ulimwengu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,76,sw,elezo,explanation; explanation,maelezo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,77,sw,embe,mango; mango,maembe,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,78,sw,enda,go; go,nenda,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,79,sw,eneo,area; area,maeneo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,80,sw,eropleni,"airplane, plane; airplane, plane",ndege,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,81,sw,fanikio,"success, achievement; success, achievement",mafanikio,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,82,sw,fedha,money; silver; money; silver,hela,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,83,sw,fedha,money; silver; money; silver,pesa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,84,sw,figo,kidney; kidney,mafigo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,85,sw,fujo,chaos; chaos,mafujo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,86,sw,fundi,craftsman; craftsman,mafundi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,87,sw,fundisho,lesson; lesson,mafundisho,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,88,sw,fundo,knot; knot,mafundo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,89,sw,furushi,bundle; bundle,mafurushi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,90,sw,ganda,"bark, husk, peel, shell; bark, husk, peel, shell",maganda,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,91,sw,gari,wheeled vehicle; wheeled vehicle,magari,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,92,sw,gauni,"dress, gown; dress, gown",magauni,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,93,sw,gazeti,newspaper; newspaper,magazeti,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,94,sw,gego,molar; molar,magego,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,95,sw,gereza,"prison, jail; prison, jail",magereza,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,96,sw,goti,knee; knee,magoti,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,97,sw,gunia,sack; sack,magunia,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,98,sw,gurudumu,wheel; wheel,magurudumu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,99,sw,haina,it does not have; it does not have,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,100,sw,hakina,it does not have; it does not have,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,101,sw,hakuna,there is not; there are not; there is not; there are not,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,102,sw,halina,it does not have; it does not have,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,103,sw,hamna,you; you,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,104,sw,hamna,is not inside; are not inside; is not inside; are not inside,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,105,sw,hana,he does not have; she does not have; it does not have; he does not have; she does not have; it does not have,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,106,sw,hapana,there is not; there are not; there is not; there are not,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,107,sw,hapana,no; no,la,,interj,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,108,sw,hatibu,speaker; speaker,mahatibu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,109,sw,hatuna,we do not have; we do not have,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,110,sw,hauna,it does not have; it does not have,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,111,sw,havina,it does not have; it does not have,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,112,sw,hawana,they do not have; they do not have,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,113,sw,hayana,it does not have; it does not have,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,114,sw,hazina,it does not have; it does not have,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,115,sw,hekalu,temple; temple,mahekalu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,116,sw,hela,money; money,fedha,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,117,sw,hela,money; money,pesa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,118,sw,hema,tent; tent,mahema,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,119,sw,hindi,maize; maize,mahindi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,120,sw,hodi,May I come in?; Hello!; May I come in?; Hello!,karibu,,interj,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,121,sw,hongera,congratulations; congratulations,pongezi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,122,sw,huna,you; you,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,123,sw,huria,"free, independent; free, independent",huru,,adj,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,124,sw,huru,"free, independent; free, independent",huria,,adj,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,125,sw,ibilisi,"lucifer, satan; lucifer, satan",maibilisi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,126,sw,ina,it has; it has,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,127,sw,ini,liver; liver,maini,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,128,sw,ja,come; come,njoo,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,129,sw,jahazi,dhow; dhow,majahazi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,130,sw,jambo,"affair, business, case, matter; affair, business, case, matter",mambo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,131,sw,jani,leaf; blade of grass; leaf; blade of grass,majani,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,132,sw,jasho,sweat; sweat,majasho,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,133,sw,jawabu,answer; answer,majawabu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,134,sw,jembe,hoe; hoe,majembe,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,135,sw,jengo,building; building,majengo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,136,sw,jeraha,wound; wound,majeraha,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,137,sw,jeshi,army; army,majeshi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,138,sw,jibu,answer; answer,majibu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,139,sw,jicho,eye; eye,macho,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,140,sw,jiji,city; city,majiji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,141,sw,jiko,kitchen; fireplace; kitchen; fireplace,majiko,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,142,sw,jina,name; name,majina,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,143,sw,jino,tooth; tooth,meno,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,144,sw,jipu,boil; abscess; boil; abscess,majipu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,145,sw,jirani,neighbour; neighbour,majirani,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,146,sw,jitu,giant; giant,majitu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,147,sw,jivu,ash; ash,majivu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,148,sw,jiwe,stone; stone,mawe,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,149,sw,jogoo,"cock, rooster; cock, rooster",majogoo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,150,sw,joka,serpent; serpent,majoka,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,151,sw,jua,sun; sun,majua,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,152,sw,jukwaa,stage; stage,majukwaa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,153,sw,juma,week; week,majuma,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,154,sw,jumba,"mansion, palace; mansion, palace",majumba,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,155,sw,jumbe,"chief, boos, leader; chief, boos, leader",majumbe,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,156,sw,kaa,charcoal; ember; charcoal; ember,makaa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,157,sw,kabila,tribe; tribe,makabila,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,158,sw,kaburi,grave; grave,makaburi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,159,sw,kafara,sacrifice; sacrifice,makafara,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,160,sw,kafiri,infidel; heathen; atheist; pagan; infidel; heathen; atheist; pagan,makafiri,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,161,sw,kahini,soothsayer; witch; deceiver; soothsayer; witch; deceiver,makahini,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,162,sw,kampuni,company; company,makampuni,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,163,sw,kanisa,church; church,makanisa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,164,sw,kapu,large basket; large basket,makapu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,165,sw,karakana,factory; workshop; factory; workshop,kiwanda,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,166,sw,karani,clerk; clerk,makarani,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,167,sw,kasisi,minister; minister,makasisi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,168,sw,katazo,"objection, prohibition; objection, prohibition",makatazo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,169,sw,kiangazi,hot season; hot season,viangazi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,170,sw,kiasi,amount; amount,viasi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,171,sw,kiatu,shoe; shoe,viatu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,172,sw,kiazi,potato; potato,viazi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,173,sw,kibaba,pint; pint,vibaba,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,174,sw,kibanda,hut; hut,vibanda,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,175,sw,kibiriti,match; match,vibiriti,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,176,sw,kiboko,hippo; hippo,viboko,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,177,sw,kichefuchefu,nausea; nausea,vichefuchefu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,178,sw,kicheko,laugh; laugh,vicheko,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,179,sw,kichwa,head; head,vichwa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,180,sw,kidani,necklace; necklace,vidani,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,181,sw,kidevu,chin; chin,videvu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,182,sw,kidole,finger; toe; finger; toe,vidole,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,183,sw,kidonda,"sore, ulcer; sore, ulcer",vidonda,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,184,sw,kidonge,pill; pill,vidonge,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,185,sw,kidude,"thingamajig, whatchamacallit; trifle; valueless thing; gadget, gizmo; thingamajig, whatchamacallit; trifle; valueless thing; gadget, gizmo",vidude,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,186,sw,kielezi,beginning; introduction; beginning; introduction,vielezi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,187,sw,kifaa,implement; implement,vifaa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,188,sw,kifaru,rhino; rhino,vifaru,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,189,sw,kifo,death; death,vifo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,190,sw,kifua,"chest, breast; chest, breast",vifua,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,191,sw,kifungo,fastening; fastening,vifungo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,192,sw,kifuniko,"lid, hood, cover; lid, hood, cover",vifuniko,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,193,sw,kifurushi,package; package,vifurushi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,194,sw,kiingilio,entry fee; admission fee; entry fee; admission fee,viingilio,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,195,sw,kijana,"youth, youngster; youth, youngster",vijana,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,196,sw,kijembe,penknife; penknife,vijembe,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,197,sw,kijiji,village; village,vijiji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,198,sw,kijiko,spoon; spoon,vijiko,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,199,sw,kijito,stream; stream,vijito,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,200,sw,kikapu,basket; basket,vikapu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,201,sw,kiko,pipe; pipe,viko,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,202,sw,kikohozi,cough; cough,vikohozi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,203,sw,kikombe,cup; cup,vikombe,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,204,sw,kikuku,bracelet; bracelet,vikuku,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,205,sw,kikuto,roll; roll,vikuto,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,206,sw,kilima,hill; hill,vilima,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,207,sw,kilimo,agriculture; agriculture,vilimo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,208,sw,kilio,cry; shout; cry; shout,vilio,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,209,sw,kima,"amount, price, value; amount, price, value",vima,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,210,sw,kimeta,anthrax; anthrax,vimeta,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,211,sw,kimetameta,brightness; shine; glitter; brightness; shine; glitter,vimetameta,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,212,sw,kina,it has; it has,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,213,sw,kinyozi,barber; barber,vinyozi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,214,sw,kinywa,mouth; mouth,vinywa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,215,sw,kinywaji,beverage; beverage,vinywaji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,216,sw,kiogeo,bathing suit; bathing suit,viogeo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,217,sw,kiongozi,"guide, leader; guide, leader",viongozi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,218,sw,kioo,mirror; glass; mirror; glass,vioo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,219,sw,kiota,nest; nest,viota,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,220,sw,kipande,"fragment, piece; part, share; bit, lump, piece; fragment, piece; part, share; bit, lump, piece",vipande,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,221,sw,kipeo,top; climax; top; climax,vipeo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,222,sw,kipimo,measurement; measure; measurement; measure,vipimo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,223,sw,kipindi,period; extent of time; period; extent of time,vipindi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,224,sw,kipofu,blind person; blind person,vipofu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,225,sw,kipunguzo,discount; discount,vipunguzo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,226,sw,kipupwe,cool season; cool season,vipupwe,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,227,sw,kiriba,water bottle; water skin; water bottle; water skin,viriba,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,228,sw,kisigino,heel; heel,visigino,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,229,sw,kisima,well; well,visima,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,230,sw,kisiwa,island; island,visiwa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,231,sw,kisongo,tourniquet; tourniquet,visongo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,232,sw,kisu,knife; knife,visu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,233,sw,kitabu,book; book,vitabu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,234,sw,kitako,"buttock, buttocks, butt; buttock, buttocks, butt",vitako,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,235,sw,kitambaa,"cloth, fabric; cloth, fabric",vitambaa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,236,sw,kitambo,while; moment; while; moment,vitambo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,237,sw,kitana,comb; comb,vitana,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,238,sw,kitanda,bed; bed,vitanda,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,239,sw,kitano,5c coin; 5c coin,vitano,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,240,sw,kitasa,lock; lock,vitasa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,241,sw,kithibitisho,"guarantee, proof, document; guarantee, proof, document",vithibitisho,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,242,sw,kiti,chair; chair,viti,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,243,sw,kito,gem; gem,vito,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,244,sw,kitu,"thing; article, object; thing; article, object",vitu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,245,sw,kitunguu,onion; onion,vitunguu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,246,sw,kituo,"stop, stopping place; station; stop, stopping place; station",vituo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,247,sw,kiungo,"connection, link; spice, seasoning; connection, link; spice, seasoning",viungo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,248,sw,kiuno,waist; waist,viuno,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,249,sw,kivuko,bridge; crossing; ferry; bridge; crossing; ferry,vivuko,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,250,sw,kivuli,shadow; shadow,vivuli,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,251,sw,kiwanda,factory; factory,viwanda,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,252,sw,kiwanda,factory; factory,karakana,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,253,sw,kiwanja,"open field; earth, land, soil,; open field; earth, land, soil,",viwanja,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,254,sw,kiwiko,wrist; wrist,viwiko,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,255,sw,kizibo,cork; cork,vizibo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,256,sw,kiziwi,deaf person; deaf person,viziwi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,257,sw,kofi,palm; applause; palm; applause,makofi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,258,sw,koleo,tongs; tongs,makoleo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,259,sw,konde,fist; fist,makonde,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,260,sw,koo,throat; throat,makoo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,261,sw,kopo,tin can; tin can,makopo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,262,sw,kosa,fault; fault,makosa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,263,sw,koti,coat; coat,makoti,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,264,sw,kuna,there is; there are; there is; there are,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,265,sw,kusudi,intention; intention,makusudi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,266,sw,la,no; no,hapana,,interj,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,267,sw,lengelenge,blister; blister,malengelenge,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,268,sw,limau,lemon; lemon,malimau,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,269,sw,lina,it has; it has,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,270,sw,lipo,payment; payment,malipo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,271,sw,marahaba,"reply to ""shikamoo""; reply to ""shikamoo""",shikamoo,,interj,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,272,sw,matatu,local minibus in Kenya; local minibus in Kenya,daladala,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,273,sw,mbali,different; different,mbalimbali,,adj,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,274,sw,mbalimbali,"various, different; various, different",mbali,,adj,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,275,sw,mbili,two; two,wili,,num,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,276,sw,mchanganyiko,mixture; mixture,michanganyiko,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,277,sw,mchawi,"sorceror, magician; witch; sorceror, magician; witch",wachawi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,278,sw,mchele,"rice, husked rice; rice, husked rice",michele,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,279,sw,mcheza,actor; actor,wacheza,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,280,sw,mchezo,game; game,michezo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,281,sw,mchukuzi,porter; porter,wachukuzi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,282,sw,mchumba,"fiancée, fiancé; fiancée, fiancé",wachumba,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,283,sw,mchungaji,"herdsman, shepherd; herdsman, shepherd",wachungaji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,284,sw,mchungwa,orange tree; orange tree,michungwa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,285,sw,mchwa,termite; termite,michwa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,286,sw,mdomo,lip; lip,midomo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,287,sw,mdudu,"insect, bug; insect, bug",wadudu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,288,sw,mfalme,king; king,wafalme,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,289,sw,mfano,example; example,mifano,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,290,sw,mfanyakazi,worker; worker,wafanyakazi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,291,sw,Mfaransa,Frenchman; Frenchman,Wafaransa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,292,sw,mfereji,water-channel; water-channel,mifereji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,293,sw,mfugo,English equivalent of mfugo,mifugo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,294,sw,mfuko,bag; bag,mifuko,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,295,sw,mfupa,bone; bone,mifupa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,296,sw,mganga,traditional healer; doctor; traditional healer; doctor,waganga,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,297,sw,mgeni,"stranger, foreigner; guest; stranger, foreigner; guest",wageni,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,298,sw,Mgiriki,Greek; Greek,Wagiriki,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,299,sw,mgomba,banana plant; banana plant,migomba,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,300,sw,mgongo,back; back,migongo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,301,sw,mgonjwa,sick person; patient; sick person; patient,wagonjwa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,302,sw,mguu,leg; leg,miguu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,303,sw,Mhabeshi,Ethiopian; Ethiopian,Wahabeshi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,304,sw,mhandisi,engineer; engineer,wahandisi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,305,sw,mhariri,editor; editor,wahariri,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,306,sw,Mhindi,Indian; Indian,Wahindi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,307,sw,mhudumu,"waiter, attendant; waiter, attendant",wahudumu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,308,sw,mjane,"widow, widower; widow, widower",wajane,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,309,sw,Mjapani,Japanese; Japanese,Wajapani,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,310,sw,Mjerumani,German; German,Wajerumani,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,311,sw,mji,"town, city; town, city",miji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,312,sw,mjinga,fool; fool,wajinga,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,313,sw,mjomba,English equivalent of mjomba,wajomba,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,314,sw,mjukuu,grandchild; grandchild,wajukuu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,315,sw,mjumbe,messenger; messenger,wajumbe,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,316,sw,mkahawa,cafe; cafe,mikahawa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,317,sw,mkasi,scissors; scissors,mikasi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,318,sw,mkate,bread; bread,mikate,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,319,sw,mkato,shortcut; amputation; shortcut; amputation,mikato,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,320,sw,mke,wife; wife,wake,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,321,sw,mkebe,can; can,mikebe,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,322,sw,mkeka,plaited mat; plaited mat,mikeka,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,323,sw,Mkenya,Kenyan; Kenyan,Wakenya,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,324,sw,mkia,tail; tail,mikia,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,325,sw,mkimbiaji,runner; runner,wakimbiaji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,326,sw,mkimbizi,refugee; fugitive; refugee; fugitive,wakimbizi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,327,sw,mkoa,"state, province; state, province",mikoa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,328,sw,mkoba,bag; bag,mikoba,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,329,sw,mkono,arm; arm,mikono,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,330,sw,mkopo,loan; loan,mikopo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,331,sw,Mkristo,Christian; Christian,Wakristo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,332,sw,mkulima,farmer; farmer,wakulima,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,333,sw,mkurugenzi,"leader, manager; leader, manager",wakurugenzi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,334,sw,mkusanya,collector; collector,wakusanya,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,335,sw,mkutano,meeting; meeting,mikutano,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,336,sw,mkwe,in-law; in-law,wakwe,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,337,sw,mlango,"door; gate, portal; door; gate, portal",milango,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,338,sw,mlawatu,cannibal; cannibal,walawatu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,339,sw,mlima,mountain; mountain,milima,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,340,sw,mlimaji,farmer; farmer,walimaji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,341,sw,mlinzi,guard; guard,walinzi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,342,sw,mlio,"shout, cry; shout, cry",milio,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,343,sw,Mmarekani,American; American,Wamarekani,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,344,sw,mmea,plant; plant,mimea,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,345,sw,mna,you; you,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,346,sw,mna,is inside; are inside; is inside; are inside,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,347,sw,mnara,tower; tower,minara,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,348,sw,mnazi,coconut palm; coconut palm,minazi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,349,sw,mnyama,animal; beast; animal; beast,wanyama,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,350,sw,mnyororo,chain; chain,minyororo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,351,sw,moto,fire; heat; fire; heat,myoto,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,352,sw,moyo,heart; heart,mioyo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,353,sw,moyo,heart; heart,nyoyo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,354,sw,mpaka,border; border,mipaka,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,355,sw,mpango,"plan, arrangement, schedule; plan, arrangement, schedule",mipango,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,356,sw,mpendwa,"dear, beloved; dear, beloved",wapendwa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,357,sw,mpishi,cook; cook,wapishi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,358,sw,mpunga,rice plant; rice plant,mipunga,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,359,sw,mpwa,"nephew, niece; nephew, niece",wapwa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,360,sw,mradi,intention; intention,miradi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,361,sw,Mreno,Portuguese; Portuguese,Wareno,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,362,sw,mrithi,inheritor; inheritor,warithi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,363,sw,Mrumi,Roman; Roman,Warumi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,364,sw,Mrusi,Russian; Russian,Warusi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,365,sw,msaada,"help, aid; help, aid",misaada,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,366,sw,msafiri,traveller; traveller,wasafiri,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,367,sw,Msahafu,Koran; Koran,Kurani,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,368,sw,msahafu,book; book,misahafu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,369,sw,msahafu,book; book,Msahafu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,370,sw,msaidizi,assistant; assistant,wasaidizi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,371,sw,msalaba,cross; cross,misalaba,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,372,sw,msamaha,forgiveness; forgiveness,misamaha,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,373,sw,msanii,artist; artist,wasanii,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,374,sw,msemaji,speaker; orator; speaker; orator,wasemaji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,375,sw,mshahara,"wage, salary; wage, salary",mishahara,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,376,sw,mshairi,poet; poet,washairi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,377,sw,mshale,arrow; arrow,mishale,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,378,sw,mshangao,amazement; amazement,mishangao,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,379,sw,mshauri,"consultant, advisor; consultant, advisor",washauri,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,380,sw,mshika,holder; holder,washika,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,381,sw,mshindani,competitor; competitor,washindani,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,382,sw,mshinde,loser; loser,washinde,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,383,sw,mshindi,winner; winner,washindi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,384,sw,mshipa,nerve; vessel; nerve; vessel,mishipa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,385,sw,mshirika,"partner, associate; partner, associate",washirika,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,386,sw,mshiriki,participant; participant,washiriki,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,387,sw,mshonaji,tailor; tailor,washonaji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,388,sw,mshonaji,tailor; tailor,mshoni,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,389,sw,mshoni,tailor; tailor,washoni,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,390,sw,mshoni,tailor; tailor,mshonaji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,391,sw,msichana,girl; girl,wasichana,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,392,sw,msikiti,mosque; mosque,misikiti,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,393,sw,msimamizi,"overseer, supervisor; overseer, supervisor",wasimamizi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,394,sw,msitu,"forest, wood; forest, wood",misitu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,395,sw,msomaji,reader; reader,wasomaji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,396,sw,mstari,line; line,mistari,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,397,sw,msumari,nail; nail,misumari,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,398,sw,Msumbiji,Mozambican; Mozambican,Wasumbiji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,399,sw,Mswahili,Swahili person; Swahili person,Waswahili,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,400,sw,mswaki,toothbrush; toothbrush,miswaki,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,401,sw,Msweden,Swede; Swede,Wasweden,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,402,sw,Msweden,Swede; Swede,Mswidi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,403,sw,Mswidi,Swede; Swede,Waswidi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,404,sw,Mswidi,Swede; Swede,Msweden,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,405,sw,mtaa,street; street,mitaa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,406,sw,mtalaka,divorcee; divorcee,watalaka,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,407,sw,mtalii,tourist; tourist,watalii,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,408,sw,mtalimbo,crowbar; crowbar,mitalimbo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,409,sw,mtama,millet; millet,mitama,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,410,sw,mtambo,"spring-mechanism, machine; spring-mechanism, machine",mitambo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,411,sw,Mtanzania,Tanzanian; Tanzanian,Watanzania,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,412,sw,mtazamaji,observer; observer,watazamaji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,413,sw,mtazamo,viewpoint; attitude; viewpoint; attitude,mitazamo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,414,sw,mtelemko,descent; descent,mitelemko,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,415,sw,mtende,date-palm; date-palm,mitende,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,416,sw,mtende,date-palm; date-palm,tende,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,417,sw,mti,"tree; pole, post, stanchion, stake; timber, wood; tree; pole, post, stanchion, stake; timber, wood",miti,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,418,sw,mtihani,"exam, test; exam, test",mitihani,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,419,sw,mtini,fig tree; fig tree,mitini,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,420,sw,mto,river; pillow; river; pillow,mito,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,421,sw,mtoto,child; child,watoto,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,422,sw,mtu,person; person,watu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,423,sw,mtulinga,collarbone; collarbone,mitulinga,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,424,sw,mtume,"prophet, apostle; prophet, apostle",watume,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,425,sw,mtumishi,"servant, boy; servant, boy",watumishi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,426,sw,mtumwa,slave; slave,watumwa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,427,sw,mtunza,caretaker; caretaker,watunza,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,428,sw,muhindi,maize plant; maize plant,mihindi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,429,sw,muhogo,cassava; cassava,mihogo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,430,sw,mume,husband; husband,waume,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,431,sw,mundu,sickle; sickle,miundu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,432,sw,musuli,muscle; muscle,misuli,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,433,sw,muwa,sugar cane; sugar cane,miwa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,434,sw,muziki,music; music,miuziki,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,435,sw,mvinyo,wine; wine,mivinyo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,436,sw,mvulana,boy; boy,wavulana,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,437,sw,mvuvi,fisherman; fisherman,wavuvi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,438,sw,Mwafrika,African; African,Waafrika,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,439,sw,mwaka,year; year,miaka,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,440,sw,mwali,maiden; maiden,wali,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,441,sw,mwalimu,"teacher, instructor; teacher, instructor",walimu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,442,sw,mwana,"child, offspring, son, daughter; child, offspring, son, daughter",wana,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,443,sw,mwanafunzi,pupil; student; pupil; student,wanafunzi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,444,sw,mwanamke,woman; woman,wanawake,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,445,sw,mwanamume,man; man,wanaume,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,446,sw,mwandishi,waiter; waiter,waandishi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,447,sw,mwangalifu,careful person; careful person,waangalifu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,448,sw,mwangaza,brightness; brightness,miangaza,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,449,sw,mwanzo,"beginning, start; beginning, start",mianzo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,450,sw,Mwarabu,Arab; Arab,Waarabu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,451,sw,mwavuli,umbrella; umbrella,miavuli,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,452,sw,mwembe,mango tree; mango tree,miembe,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,453,sw,mwendo,"distance, offset; journey, trip, voyage; distance, offset; journey, trip, voyage",miendo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,454,sw,mwenendo,behavior; behavior,mienendo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,455,sw,mwenyeji,inhabitant; inhabitant,wenyeji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,456,sw,mwenzi,companion; companion,wenzi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,457,sw,mwerevu,clever person; clever person,waerevu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,458,sw,mwezi,moon; month; moon; month,miezi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,459,sw,mwiba,thorn; thorn,miba,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,460,sw,mwili,body; body,miili,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,461,sw,mwimbaji,singer; singer,waimbaji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,462,sw,Mwingereza,Englishman; Englishman,Waingereza,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,463,sw,mwisho,end; end,miisho,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,464,sw,mwizi,thief; thief,wezi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,465,sw,mwombaji,beggar; beggar,waombaji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,466,sw,mwuguzi,nurse; nurse,wauguzi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,467,sw,Myahudi,Jew; Jew,Wayahudi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,468,sw,Myunani,"Hellene, ancient Greek; Hellene, ancient Greek",Wayunani,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,469,sw,mzabibu,grape vine; grape vine,mizabibu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,470,sw,mzazi,parent; parent,wazazi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,471,sw,mzee,elder; elder,wazee,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,472,sw,mzigo,load; load,mizigo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,473,sw,mzizi,root; root,mizizi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,474,sw,Mzungu,European; European,Wazungu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,475,sw,mzungu,rarity; cleverness; rarity; cleverness,mizungu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,476,sw,mzunguko,"cycle, circuit; cycle, circuit",mizunguko,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,477,sw,nabii,prophet; prophet,manabii,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,478,sw,nahodha,captain; captain,manahodha,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,479,sw,nakshi,"ornament, ornamentation; ornament, ornamentation",pambo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,480,sw,nanasi,pineapple; pineapple,mananasi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,481,sw,ndege,"bird; airplane, plane; bird; airplane, plane",eropleni,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,482,sw,ndovu,elephant; elephant,tembo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,483,sw,nenda,go; go,enda,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,484,sw,neno,word; word,maneno,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,485,sw,ni,am; are; is; am; are; is,wa,,cop,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,486,sw,nina,I have; I have,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,487,sw,njoo,come; come,ja,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,488,sw,pacha,twin; twin,mapacha,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,489,sw,pafu,lung; lung,mapafu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,490,sw,paja,thigh; thigh,mapaja,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,491,sw,paji,forehead; forehead,mapaji,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,492,sw,pambo,"ornament, decoration; ornament, decoration",mapambo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,493,sw,pambo,"ornament, decoration; ornament, decoration",nakshi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,494,sw,pana,there is; there are; there is; there are,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,495,sw,panga,machete; machete,mapanga,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,496,sw,papai,papaya; papaya,mapapai,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,497,sw,pera,guava; guava,mapera,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,498,sw,pesa,money; money,hela,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,499,sw,pesa,money; money,fedha,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,500,sw,piga hodi,ask permission to enter; knock at the door; ask permission to enter; knock at the door,bisha hodi,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,501,sw,pindi,"bend, turn; bend, turn",mapindi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,502,sw,pole,slowly; slowly,polepole,,adv,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,503,sw,polepole,slowly; slowly,pole,,adv,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,504,sw,pongezi,congratulation; congratulation,hongera,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,505,sw,pumziko,pause; breake; pause; breake,mapumziko,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,506,sw,rafiki,friend; friend,marafiki,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,507,sw,sanduku,box; box,masanduku,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,508,sw,seremala,carpenter; carpenter,maseremala,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,509,sw,shada,bunch; bunch,mashada,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,510,sw,shairi,poem; poem,mashairi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,511,sw,shaka,doubt; doubt,mashaka,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,512,sw,shamba,field; field,mashamba,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,513,sw,shangazi,English equivalent of shangazi,mashangazi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,514,sw,shati,shirt; shirt,mashati,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,515,sw,shauri,"advice, counsel; design, diagram, plan, plane; plan, project, scheme; advice, counsel; design, diagram, plan, plane; plan, project, scheme",mashauri,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,516,sw,shavu,cheek; cheek,mashavu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,517,sw,shikamoo,my respects!; my respects!,marahaba,,interj,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,518,sw,shimo,"pit, well; pit, well",mashimo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,519,sw,shindano,competition; competition,mashindano,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,520,sw,shoka,axe; axe,mashoka,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,521,sw,si,am not; is not; are not; am not; is not; are not,wa,,cop,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,522,sw,sikio,ear; ear,masikio,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,523,sw,simulizi,"story, tale, narrative; story, tale, narrative",masimulizi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,524,sw,sina,I do not have; I do not have,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,525,sw,soko,"market, bazaar, fair; market, bazaar, fair",masoko,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,526,sw,sokwe,ape; ape,masokwe,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,527,sw,somo,lesson; study; reading; lesson; study; reading,masomo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,528,sw,sonara,jeweller; jeweller,masonara,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,529,sw,swali,question; question,maswali,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,530,sw,taifa,nation; nation,mataifa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,531,sw,tamasha,show; show,matamasha,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,532,sw,tangazo,"ad, advertisement, announcement; ad, advertisement, announcement",matangazo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,533,sw,tangi,tank; tank,matangi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,534,sw,tangi,tank; tank,matanki,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,535,sw,tango,cucumber; cucumber,matango,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,536,sw,tatizo,"difficulty, problem; difficulty, problem",matatizo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,537,sw,taya,jaw; jaw,mataya,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,538,sw,tembo,elephant; elephant,ndovu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,539,sw,tende,date; date,mtende,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,540,sw,tendo,"accomplishment, achievement, act, action; accomplishment, achievement, act, action",matendo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,541,sw,tita,bundle; bundle,matita,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,542,sw,titi,"breast, teat; breast, teat",matiti,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,543,sw,tone,drop; drop,matone,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,544,sw,tope,mud; mud,matope,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,545,sw,tumbo,stomach; stomach,matumbo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,546,sw,tuna,we have; we have,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,547,sw,tunda,fruit; fruit,matunda,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,548,sw,tundu,hole; hole,matundu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,549,sw,tungule,tomato; tomato,matungule,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,550,sw,tusi,insult; abuse; insult; abuse,matusi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,551,sw,ua,"flower, bloom; flower, bloom",maua,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,552,sw,ua,"court, yard, courtyard; court, yard, courtyard",nyua,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,553,sw,ubao,"plank, board; plank, board",mbao,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,554,sw,ubavu,rib; rib,mbavu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,555,sw,ubawa,wing; wing,mbawa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,556,sw,ubongo,brain; brain,mbongo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,557,sw,udevu,beard; beard,ndevu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,558,sw,ufa,crack; crack,nyufa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,559,sw,ufagio,broom; broom,fagio,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,560,sw,ufalme,kingdom; kingdom,falme,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,561,sw,ufizi,"gum, gingiva; gum, gingiva",fizi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,562,sw,ufunguo,"key, wrench; key, wrench",funguo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,563,sw,ugomvi,"quarrel, dispute; quarrel, dispute",magomvi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,564,sw,ugonjwa,sickness; sickness,magonjwa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,565,sw,ukanda,leather strap; leather strap,kanda,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,566,sw,ukope,eyelid; eyelash; eyelid; eyelash,kope,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,567,sw,ukucha,fingernail; fingernail,kucha,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,568,sw,ukunde,bean; bean,kunde,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,569,sw,ukurasa,"page, leaf; leaflet; page, leaf; leaflet",kurasa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,570,sw,ukuta,wall; wall,kuta,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,571,sw,ulimi,tongue; tongue,ndimi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,572,sw,ulimwengu,world; world,dunia,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,573,sw,uma,fork; fork,nyuma,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,574,sw,umivu,pain; pain,maumivu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,575,sw,una,you; you,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,576,sw,una,it has; it has,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,577,sw,unyayo,"sole, footprint; sole, footprint",nyayo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,578,sw,unywele,"hair, single thread of hair; hair, single thread of hair",nywele,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,579,sw,upande,"side, direction; side, direction",pande,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,580,sw,upanga,sword; sword,panga,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,581,sw,upepo,wind; wind,pepo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,582,sw,uso,face; face,nyuso,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,583,sw,usukani,steering-gear; steering-gear,sukani,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,584,sw,utaratibu,"program, procedure, method; program, procedure, method",taratibu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,585,sw,utepe,tape; tape,tepe,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,586,sw,uti,trunk; trunk,nyuti,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,587,sw,utingo,conductor; conductor,matingo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,588,sw,uyoga,mushroom; mushroom,nyoga,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,589,sw,uzi,"cord, rope, string; cord, rope, string",nyuzi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,590,sw,vina,it has; it has,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,591,sw,vumbi,dust; dust,mavumbi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,592,sw,wakati,"time, period of time; season; time, period of time; season",nyakati,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,593,sw,wana,they have; they have,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,594,sw,wavu,"net, network; net, network",nyavu,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,595,sw,wazo,thought; thought,mawazo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,596,sw,wembe,razor; razor,nyembe,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,597,sw,wili,two; two,mbili,,num,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,598,sw,wimbi,wave; wave,mawimbi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,599,sw,wimbo,song; song,nyimbo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,600,sw,yai,egg; egg,mayai,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,601,sw,yana,it has; it has,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,602,sw,zao,"product, harvest, produce; product, harvest, produce",mazao,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,603,sw,zina,it has; it has,wa na,,v,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,604,sw,ziwa,lake; breast; lake; breast,maziwa,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,605,sw,zoezi,exercise; exercise,mazoezi,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,606,sw,zulia,"rug, carpet; rug, carpet",mazulia,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei
+BATCH_SWEN_FREEDICT_2026_02_24_A,607,sw,zungumzo,"discussion, discourse; discussion, discourse",mazungumzo,,n,,both,,,,,,FreeDict,See COPYING (swh-eng package),https://freedict.org/downloads/,swh-eng.tei

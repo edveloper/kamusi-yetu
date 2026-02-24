@@ -17,7 +17,43 @@ function normalizeText(s: string) {
     .trim()
 }
 
+type LanguageCodeRow = {
+  code: string | null
+}
+
+async function validateBridgeRequirements(data: CreateEntryData) {
+  const english = String(data.english_translation || '').trim()
+  const swahili = String(data.swahili_translation || '').trim()
+
+  if (!english && !swahili) {
+    throw new Error('At least one bridge translation is required: English or Swahili.')
+  }
+
+  const { data: language, error: languageErr } = await supabase
+    .from('languages')
+    .select('code')
+    .eq('id', data.language_id)
+    .single()
+
+  if (languageErr || !language) {
+    throw new Error('Could not validate language bridge requirements.')
+  }
+
+  const code = String((language as LanguageCodeRow).code || '').toLowerCase()
+  if (code === 'en' && !swahili) {
+    throw new Error('English entries must include a Swahili translation.')
+  }
+  if (code === 'sw' && !english) {
+    throw new Error('Swahili entries must include an English translation.')
+  }
+}
+
 export async function createEntry(data: CreateEntryData) {
+  await validateBridgeRequirements(data)
+
+  const english = String(data.english_translation || '').trim()
+  const swahili = String(data.swahili_translation || '').trim()
+
   const { data: entry, error: entryError } = await supabase
     .from('entries')
     .insert({
@@ -35,8 +71,8 @@ export async function createEntry(data: CreateEntryData) {
       trust_score: 0,
       created_by: data.created_by,
       normalized_headword: normalizeText(data.headword),
-      english_translation: data.english_translation || null,
-      swahili_translation: data.swahili_translation || null
+      english_translation: english || null,
+      swahili_translation: swahili || null
     })
     .select()
     .single()

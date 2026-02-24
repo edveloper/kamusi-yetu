@@ -9,7 +9,6 @@ import { getCommentVotes } from '@/lib/api/entries'
 import {
   getEntry,
   getRelatedEntries,
-  submitEditSuggestion,
   reportEntry,
   toggleSaveWord,
   toggleLike,
@@ -20,6 +19,7 @@ import {
   deleteComment,
   toggleCommentVote
 } from '@/lib/api/entries'
+import { submitSuggestion } from '@/lib/api/suggestions'
 import { supabase } from '@/lib/supabase'
 import EntryActionModal from '@/components/EntryActionModal'
 
@@ -129,12 +129,26 @@ export default function EntryPage() {
     if (!user || !id) return
     try {
       if (activeModal === 'edit') {
-        await submitEditSuggestion({
+        await submitSuggestion({
           entry_id: id,
-          suggested_by: user.id,
+          user_id: user.id,
+          type: 'edit',
           headword: data.headword,
           primary_definition: data.primary_definition,
-          reason_for_change: `${data.reason}: ${data.details}`
+          english_translation: data.english_translation,
+          swahili_translation: data.swahili_translation,
+          part_of_speech: data.part_of_speech,
+          dialect_variant: data.dialect_variant,
+          pronunciation_ipa: data.pronunciation_ipa,
+          etymology: data.etymology,
+          audio_url: data.audio_url,
+          category: data.category,
+          register: data.register,
+          reason: data.reason,
+          details: data.details,
+          source_type: data.source_type,
+          source_reference: data.source_reference,
+          confidence: data.confidence
         })
       } else {
         await reportEntry({
@@ -644,7 +658,7 @@ export default function EntryPage() {
       {activeModal && (
         <EntryActionModal
           type={activeModal}
-          entry={entry}
+          entry={{ ...entry, currentUserId: user?.id }}
           onClose={() => setActiveModal(null)}
           onSubmit={onActionSubmit}
         />

@@ -19,6 +19,67 @@ type TrustScoreEntry = {
 
 type LooseSupabaseClient = ReturnType<typeof createClient<any>>
 
+type EntryBridgeRow = {
+  language_id: string
+  english_translation: string | null
+  swahili_translation: string | null
+}
+
+function cleanText(value: unknown) {
+  const s = String(value ?? '').trim()
+  return s.length > 0 ? s : null
+}
+
+function parseSuggestionDetailsPatch(details: unknown) {
+  if (typeof details !== 'string' || details.trim() === '') return null
+  try {
+    const parsed = JSON.parse(details)
+    if (parsed && typeof parsed === 'object' && parsed.patch && typeof parsed.patch === 'object') {
+      return parsed.patch as Record<string, unknown>
+    }
+    return null
+  } catch {
+    return null
+  }
+}
+
+async function validateBridgeAfterUpdate(
+  admin: LooseSupabaseClient,
+  entryId: string,
+  updates: Record<string, string>
+) {
+  const { data: entryRow, error: entryErr } = await admin
+    .from('entries')
+    .select('language_id, english_translation, swahili_translation')
+    .eq('id', entryId)
+    .single()
+
+  if (entryErr || !entryRow) throw new Error('Failed to validate entry bridge requirements.')
+  const entry = entryRow as EntryBridgeRow
+
+  const { data: langRow, error: langErr } = await admin
+    .from('languages')
+    .select('code')
+    .eq('id', entry.language_id)
+    .single()
+
+  if (langErr || !langRow) throw new Error('Failed to resolve entry language for validation.')
+
+  const code = String((langRow as { code: string | null }).code || '').toLowerCase()
+  const nextEnglish = cleanText(updates.english_translation ?? entry.english_translation)
+  const nextSwahili = cleanText(updates.swahili_translation ?? entry.swahili_translation)
+
+  if (!nextEnglish && !nextSwahili) {
+    throw new Error('Suggestion would remove both bridge translations. At least one is required.')
+  }
+  if (code === 'en' && !nextSwahili) {
+    throw new Error('Suggestion invalid for English entry: Swahili translation is required.')
+  }
+  if (code === 'sw' && !nextEnglish) {
+    throw new Error('Suggestion invalid for Swahili entry: English translation is required.')
+  }
+}
+
 function getSupabaseEnv() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -190,9 +251,22 @@ async function applySuggestionAdmin(
     }
   }
 
+  // Backward-compatible patch support from details JSON payload.
+  // Expected shape in details: { note: string|null, patch: { ...entry fields... } }
+  const patch = parseSuggestionDetailsPatch(suggestion?.details)
+  if (patch) {
+    for (const field of updatableFields) {
+      if (!updates[field] && typeof patch[field] === 'string' && String(patch[field]).trim() !== '') {
+        updates[field] = String(patch[field]).trim()
+      }
+    }
+  }
+
   if (Object.keys(updates).length === 0) {
     throw new Error('No updatable fields found on suggestion')
   }
+
+  await validateBridgeAfterUpdate(admin, entryId, updates)
 
   const { data: updatedEntry, error: updateErr } = await admin
     .from('entries')
