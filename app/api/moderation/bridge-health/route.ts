@@ -58,16 +58,35 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Forbidden.' }, { status: 403 })
     }
 
-    const { data: rows, error } = await admin
-      .from('entries')
-      .select(`
-        language_id,
-        english_translation,
-        swahili_translation,
-        language:languages(name, code)
-      `)
+    const rows: Array<{
+      language_id: string | null
+      english_translation: string | null
+      swahili_translation: string | null
+      language?: { name?: string | null; code?: string | null } | Array<{ name?: string | null; code?: string | null }> | null
+    }> = []
 
-    if (error) throw error
+    const pageSize = 1000
+    let from = 0
+
+    while (true) {
+      const to = from + pageSize - 1
+      const { data: chunk, error } = await admin
+        .from('entries')
+        .select(`
+          language_id,
+          english_translation,
+          swahili_translation,
+          language:languages(name, code)
+        `)
+        .range(from, to)
+
+      if (error) throw error
+      if (!chunk || chunk.length === 0) break
+
+      rows.push(...(chunk as typeof rows))
+      if (chunk.length < pageSize) break
+      from += pageSize
+    }
 
     const byLanguage = new Map<string, {
       language_id: string
@@ -88,7 +107,8 @@ export async function GET(req: Request) {
 
     for (const row of rows || []) {
       const languageId = String(row.language_id || '')
-      const languageInfo = (row as { language?: { name?: string | null; code?: string | null } | null }).language
+      const rawLanguage = row.language
+      const languageInfo = Array.isArray(rawLanguage) ? rawLanguage[0] : rawLanguage
       const languageName = String(languageInfo?.name || 'Unknown')
       const languageCode = String(languageInfo?.code || '').toLowerCase()
       const en = clean(row.english_translation)

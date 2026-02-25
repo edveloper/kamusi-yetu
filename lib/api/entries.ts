@@ -199,6 +199,18 @@ export async function getEntries(filters?: {
   return data
 }
 
+export async function getRecentEntriesByUser(userId: string, limit = 5) {
+  const { data, error } = await supabase
+    .from('entries')
+    .select('id, headword, language_id, validation_status, created_at')
+    .eq('created_by', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error) throw error
+  return data || []
+}
+
 export async function updateEntryStatus(
   entryId: string,
   status: 'pending' | 'verified' | 'disputed' | 'flagged',

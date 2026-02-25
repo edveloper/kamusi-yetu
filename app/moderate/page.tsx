@@ -384,8 +384,9 @@ export default function ModeratePage() {
               <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-4">Language Risk</p>
               {bridgeByLanguage.length > 0 ? (
                 <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
-                  {bridgeByLanguage.slice(0, 12).map((lang) => {
+                  {bridgeByLanguage.map((lang) => {
                     const risk = lang.missing_both + lang.english_without_swahili + lang.swahili_without_english
+                    const gapPct = lang.total > 0 ? Math.round((risk / lang.total) * 100) : 0
                     return (
                       <div key={lang.language_id} className="rounded-xl border border-stone-100 bg-stone-50 p-3">
                         <div className="flex items-center justify-between gap-2">
@@ -393,12 +394,12 @@ export default function ModeratePage() {
                           <span className={`text-[10px] font-black px-2 py-1 rounded-md ${
                             risk > 0 ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'
                           }`}>
-                            Risk {risk}
+                            Issues {risk}
                           </span>
                         </div>
                         <div className="mt-2 text-[10px] text-stone-500 font-bold uppercase tracking-wide flex items-center justify-between">
                           <span>Total {lang.total}</span>
-                          <span>Bridge {lang.with_bridge}</span>
+                          <span>Gap {gapPct}%</span>
                         </div>
                       </div>
                     )

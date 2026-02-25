@@ -12,7 +12,7 @@ import {
   uploadAvatar,
   deleteAvatar 
 } from '@/lib/api/users'
-import { getEntries, getSavedWordsCursor, removeSavedWord } from '@/lib/api/entries'
+import { getRecentEntriesByUser, getSavedWordsCursor, removeSavedWord } from '@/lib/api/entries'
 import { getLanguages } from '@/lib/api/languages'
 import LanguageSelector from '@/components/LanguageSelector'
 import SavedWordsList from '@/components/SavedWordsList'
@@ -66,12 +66,12 @@ export default function ProfilePage() {
       if (!user) return
       setSyncWarning(null)
       try {
-        const [langsRes, userProfileRes, userStatsRes, modStatusRes, allEntriesRes] = await Promise.allSettled([
+        const [langsRes, userProfileRes, userStatsRes, modStatusRes, recentContribsRes] = await Promise.allSettled([
           getLanguages(),
           getUserProfile(user.id),
           getUserStats(user.id),
           isModerator(user.id),
-          getEntries({})
+          getRecentEntriesByUser(user.id, 5)
         ])
 
         const langs = langsRes.status === 'fulfilled' ? langsRes.value : []
@@ -80,7 +80,7 @@ export default function ProfilePage() {
           ? userStatsRes.value
           : { wordsAdded: 0, validated: 0, usageExamples: 0 }
         const modStatus = modStatusRes.status === 'fulfilled' ? modStatusRes.value : false
-        const allEntries = allEntriesRes.status === 'fulfilled' ? allEntriesRes.value : []
+        const recentContribs = recentContribsRes.status === 'fulfilled' ? recentContribsRes.value : []
 
         setAllLanguages(langs || [])
 
@@ -100,7 +100,6 @@ export default function ProfilePage() {
 
         setIsUserModerator(!!modStatus)
 
-        const userEntries = (allEntries || []).filter((e: any) => e.created_by === user.id)
         setStats({
           wordsAdded: userStats.wordsAdded,
           validated: userStats.validated,
@@ -108,9 +107,9 @@ export default function ProfilePage() {
           reputation: (userStats.wordsAdded * 10) + (userStats.validated * 5),
           joinedDate: new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
         })
-        setRecentContributions(userEntries.slice(0, 5))
+        setRecentContributions(recentContribs || [])
 
-        const hasCoreFailures = [langsRes, userProfileRes, userStatsRes, modStatusRes, allEntriesRes]
+        const hasCoreFailures = [langsRes, userProfileRes, userStatsRes, modStatusRes, recentContribsRes]
           .some((r) => r.status === 'rejected')
         if (hasCoreFailures) {
           setSyncWarning('Some profile data could not be loaded right now. This may be a temporary backend outage.')

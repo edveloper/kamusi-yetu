@@ -73,12 +73,22 @@ export default function ContributePage() {
       try {
         const langs = await getLanguages()
         setLanguages(langs)
+
+        const requestedCode = typeof window !== 'undefined'
+          ? String(new URLSearchParams(window.location.search).get('lang') || '').toLowerCase()
+          : ''
+        if (requestedCode && !formData.language) {
+          const matched = (langs || []).find((l: any) => String(l.code || '').toLowerCase() === requestedCode)
+          if (matched?.id) {
+            setFormData((prev) => ({ ...prev, language: matched.id }))
+          }
+        }
       } catch (err) {
         console.error('Failed to fetch languages')
       }
     }
     loadLanguages()
-  }, [])
+  }, [formData.language])
 
   useEffect(() => {
     const hasSupport =
