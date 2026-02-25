@@ -1,21 +1,11 @@
 'use client'
 
-import { useAuth } from '@/lib/contexts/AuthContext'
 import { useState, useEffect, Suspense } from 'react'
 import { getLanguages } from '@/lib/api/languages'
 import { getLatestEntries, getWordOfTheDay } from '@/lib/api/entries'
-import { useRouter } from 'next/navigation' 
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-
-const LANGUAGE_NOTES: Record<string, string> = {
-  sw: 'Kenya’s national language and a bridge across communities.',
-  en: 'Widely used in education, administration, and global exchange.',
-  luo: 'A Nilotic language with rich oral poetry and storytelling.',
-  ki: 'A major Bantu language of central Kenya with deep proverbs.',
-  kam: 'A vibrant Eastern Bantu language with strong oral traditions.',
-  luy: 'A language cluster with distinct dialects across western Kenya.',
-  kal: 'A Nilotic language group with strong cultural identity and idioms.'
-}
+import { getLanguageNote } from '@/lib/constants/languageNotes'
 
 function HomeContent() {
   const router = useRouter()
@@ -38,7 +28,7 @@ function HomeContent() {
         const [word, recent, langs] = await Promise.all([
           getWordOfTheDay(),
           getLatestEntries(),
-          getLanguages()
+          getLanguages(),
         ])
         setWotd(word)
         setLatest(recent)
@@ -52,22 +42,20 @@ function HomeContent() {
     loadPulse()
   }, [])
 
-  if (loading) return (
-    <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-900"></div>
-    </div>
-  )
+  if (loading)
+    return (
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-900"></div>
+      </div>
+    )
 
   return (
     <div className="min-h-screen bg-stone-50 font-sans pb-20">
-      {/* Hero Section */}
       <div className="relative overflow-hidden bg-emerald-900 text-white py-24 md:py-32 border-b border-emerald-800">
         <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
-          <h1 className="text-6xl md:text-8xl font-black mb-8 tracking-tight font-logo uppercase">
-            Kamusi Yetu
-          </h1>
+          <h1 className="text-6xl md:text-8xl font-black mb-8 tracking-tight font-logo uppercase">Kamusi Yetu</h1>
           <p className="text-xl md:text-2xl text-emerald-100 mb-12 opacity-80 font-medium max-w-2xl mx-auto">
-            Every Kenyan language, equal and alive.
+            Every Kenyan language, equal and alive. More languages are being onboarded continuously.
           </p>
           <form onSubmit={handleSearch} className="max-w-2xl mx-auto relative group">
             <input
@@ -77,7 +65,10 @@ function HomeContent() {
               placeholder="Search the archive..."
               className="w-full px-8 py-6 rounded-2xl bg-white text-stone-900 text-lg shadow-2xl focus:outline-none font-bold placeholder:text-stone-300"
             />
-            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 bg-emerald-800 text-white px-8 py-3.5 rounded-xl hover:bg-black font-black text-xs uppercase tracking-widest transition-all">
+            <button
+              type="submit"
+              className="absolute right-3 top-1/2 -translate-y-1/2 bg-emerald-800 text-white px-8 py-3.5 rounded-xl hover:bg-black font-black text-xs uppercase tracking-widest transition-all"
+            >
               Search
             </button>
           </form>
@@ -86,8 +77,6 @@ function HomeContent() {
 
       <div className="max-w-7xl mx-auto px-4 -mt-12 relative z-20">
         <div className="grid lg:grid-cols-3 gap-8">
-          
-          {/* Word of the Day - The "Big Feature" */}
           <div className="lg:col-span-2">
             <Link href={wotd ? `/entry/${wotd.id}` : '#'}>
               <div className="bg-white rounded-[3rem] p-10 md:p-16 shadow-xl border border-stone-100 hover:border-emerald-500 transition-all group h-full">
@@ -100,9 +89,7 @@ function HomeContent() {
                 <h2 className="text-5xl md:text-7xl font-black text-stone-900 mb-6 font-logo group-hover:text-emerald-900 transition-colors">
                   {wotd?.headword || 'Salama'}
                 </h2>
-                <p className="text-emerald-600 font-black uppercase tracking-widest text-sm mb-8">
-                  {wotd?.language?.name || 'Swahili'}
-                </p>
+                <p className="text-emerald-600 font-black uppercase tracking-widest text-sm mb-8">{wotd?.language?.name || 'Swahili'}</p>
                 <p className="text-stone-500 text-xl md:text-2xl leading-relaxed font-medium line-clamp-3">
                   {wotd?.primary_definition || 'A state of peace, safety, and well-being.'}
                 </p>
@@ -110,7 +97,6 @@ function HomeContent() {
             </Link>
           </div>
 
-          {/* Latest Additions - "The Ledger" */}
           <div className="space-y-6">
             <div className="bg-stone-900 rounded-[3rem] p-10 text-white shadow-xl h-full">
               <h3 className="text-xs font-black uppercase tracking-[0.3em] mb-8 text-emerald-400">Latest Additions</h3>
@@ -119,12 +105,8 @@ function HomeContent() {
                   <Link key={entry.id} href={`/entry/${entry.id}`} className="block group">
                     <div className="border-b border-white/10 pb-6 group-last:border-0">
                       <p className="text-xl font-bold mb-1 group-hover:text-emerald-400 transition-colors">{entry.headword}</p>
-                      <p className="text-[10px] font-black text-stone-500 uppercase tracking-widest mb-3">
-                        {entry.language?.name}
-                      </p>
-                      <p className="text-sm text-stone-400 line-clamp-1 opacity-70 italic">
-                        &ldquo;{entry.primary_definition}&rdquo;
-                      </p>
+                      <p className="text-[10px] font-black text-stone-500 uppercase tracking-widest mb-3">{entry.language?.name}</p>
+                      <p className="text-sm text-stone-400 line-clamp-1 opacity-70 italic">&ldquo;{entry.primary_definition}&rdquo;</p>
                     </div>
                   </Link>
                 ))}
@@ -133,12 +115,18 @@ function HomeContent() {
           </div>
         </div>
 
-        {/* Explore Gateway */}
         <div className="mt-24">
           <div className="flex items-center gap-6 mb-12">
             <h2 className="text-2xl font-black text-stone-900 font-logo uppercase tracking-tight">Communities</h2>
             <div className="h-px flex-1 bg-stone-200"></div>
-            <Link href="/explore" className="text-[10px] font-black uppercase tracking-widest text-emerald-600">View All</Link>
+            <Link href="/explore" className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
+              View All
+            </Link>
+          </div>
+          <div className="mb-6 rounded-2xl border border-emerald-100 bg-emerald-50 px-5 py-4">
+            <p className="text-sm text-emerald-900 font-semibold">
+              Language expansion is in progress. If your language has fewer entries, your contributions have immediate impact.
+            </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {languages.slice(0, 6).map((lang) => (
@@ -150,12 +138,31 @@ function HomeContent() {
                       {(lang.code || 'KE').toUpperCase()}
                     </span>
                   </div>
-                  <p className="text-xs text-stone-500 leading-relaxed line-clamp-3 flex-grow">
-                    {LANGUAGE_NOTES[String(lang.code || '').toLowerCase()] || 'A living Kenyan language community preserved by its speakers.'}
-                  </p>
+                  <p className="text-xs text-stone-500 leading-relaxed line-clamp-3 flex-grow">{getLanguageNote(lang.code)}</p>
                 </div>
               </Link>
             ))}
+          </div>
+        </div>
+
+        <div className="mt-16 bg-white border border-emerald-200 rounded-3xl p-8 md:p-10">
+          <h3 className="text-2xl font-black text-stone-900 font-logo uppercase tracking-tight mb-3">Help Expand The Dictionary</h3>
+          <p className="text-stone-600 font-medium mb-6 max-w-3xl">
+            Contribute a word or phrase in your language and help close translation gaps across Kenyan communities.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/contribute"
+              className="px-5 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs uppercase tracking-widest"
+            >
+              Contribute a Word
+            </Link>
+            <Link
+              href="/contribute?type=phrase"
+              className="px-5 py-3 rounded-xl border border-emerald-200 text-emerald-800 hover:bg-emerald-50 font-black text-xs uppercase tracking-widest"
+            >
+              Contribute a Phrase
+            </Link>
           </div>
         </div>
       </div>

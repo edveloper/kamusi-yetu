@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { searchEntries } from '@/lib/api/entries'
 import { getLanguages } from '@/lib/api/languages'
+import { getLanguageNote } from '@/lib/constants/languageNotes'
 
 const CATEGORIES = [
   { id: 'family', name: 'Family' },
@@ -16,7 +17,7 @@ const CATEGORIES = [
   { id: 'tech', name: 'Tech' },
   { id: 'health', name: 'Health' },
   { id: 'education', name: 'Education' },
-  { id: 'law', name: 'Law' }
+  { id: 'law', name: 'Law' },
 ]
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
@@ -95,9 +96,12 @@ export default function SearchContent() {
       <div className="bg-emerald-900 text-white py-20 relative overflow-hidden border-b border-emerald-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-6xl font-black font-logo tracking-tight mb-6 uppercase">
+            <h1 className="text-4xl md:text-6xl font-black font-logo tracking-tight mb-3 uppercase">
               {langParam !== 'all' && activeLanguage ? `${activeLanguage.name} Dictionary` : 'Dictionary Search'}
             </h1>
+            {langParam !== 'all' && activeLanguage && (
+              <p className="text-emerald-100/90 mb-6 text-sm md:text-base max-w-2xl">{getLanguageNote(activeLanguage.code)}</p>
+            )}
             <div className="relative group">
               <input
                 type="text"
@@ -205,20 +209,14 @@ export default function SearchContent() {
               <Link href={`/entry/${entry.id}`} key={entry.id} className="group">
                 <div className="bg-white p-8 rounded-[2rem] border border-stone-200 hover:border-emerald-600 transition-all h-full flex flex-col shadow-sm hover:shadow-xl">
                   <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-2xl font-black font-logo text-stone-900 group-hover:text-emerald-700 truncate mr-2">
-                      {entry.headword}
-                    </h3>
+                    <h3 className="text-2xl font-black font-logo text-stone-900 group-hover:text-emerald-700 truncate mr-2">{entry.headword}</h3>
                     <span className="text-[8px] font-black bg-emerald-50 text-emerald-700 px-2 py-1 rounded-md uppercase tracking-tighter shrink-0 border border-emerald-100">
                       {entry.language?.name}
                     </span>
                   </div>
-                  <p className="text-stone-500 text-sm font-medium line-clamp-3 mb-6 flex-grow leading-relaxed">
-                    {entry.primary_definition}
-                  </p>
+                  <p className="text-stone-500 text-sm font-medium line-clamp-3 mb-6 flex-grow leading-relaxed">{entry.primary_definition}</p>
                   <div className="pt-4 border-t border-stone-50 flex justify-between items-center">
-                    <span className="text-[9px] font-black text-stone-400 uppercase tracking-widest">
-                      Score: {entry.trust_score}%
-                    </span>
+                    <span className="text-[9px] font-black text-stone-400 uppercase tracking-widest">Score: {entry.trust_score}%</span>
                     <span className="text-emerald-600 text-xs font-black group-hover:translate-x-1 transition-transform">{'->'}</span>
                   </div>
                 </div>
@@ -229,9 +227,7 @@ export default function SearchContent() {
 
         {!loading && results.length === 0 && (
           <div className="text-center py-24 border-2 border-dashed border-stone-200 rounded-[3rem] bg-white">
-            <p className="text-stone-500 font-black uppercase tracking-widest text-xs mb-4">
-              No entries match this filter set
-            </p>
+            <p className="text-stone-500 font-black uppercase tracking-widest text-xs mb-4">No entries match this filter set</p>
             <button
               onClick={() => router.push('/search')}
               className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-widest"
