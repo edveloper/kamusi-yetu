@@ -1,11 +1,11 @@
 import { supabase } from '@/lib/supabase'
 
 type ModerationPayload =
-  | { action: 'approve_entry'; itemId: string }
+  | { action: 'approve_entry'; itemId: string; updates?: Record<string, string> }
   | { action: 'reject_entry'; itemId: string }
   | { action: 'flag_entry'; itemId: string }
   | { action: 'review_suggestion'; itemId: string; suggestionAction: 'accept' | 'reject'; note?: string }
-  | { action: 'apply_suggestion'; itemId: string; note?: string }
+  | { action: 'apply_suggestion'; itemId: string; note?: string; updates?: Record<string, string> }
 
 export async function runModerationAction(payload: ModerationPayload) {
   const { data, error } = await supabase.auth.getSession()
@@ -37,6 +37,9 @@ export type BridgeHealthResponse = {
     missing_both: number
     english_without_swahili: number
     swahili_without_english: number
+    phrase_total: number
+    phrase_with_examples: number
+    phrase_missing_examples: number
   }
   by_language: Array<{
     language_id: string
@@ -47,6 +50,9 @@ export type BridgeHealthResponse = {
     missing_both: number
     english_without_swahili: number
     swahili_without_english: number
+    phrase_total: number
+    phrase_with_examples: number
+    phrase_missing_examples: number
   }>
 }
 

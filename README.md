@@ -1,4 +1,16 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is the Kamusi Yetu codebase: a community-built dictionary and translation platform for Kenyan languages, with the long-term goal of evolving toward high-quality African language translation.
+
+## Project Roadmap
+
+See [docs/project-roadmap.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/project-roadmap.md) for the current project status, completed milestones, and the roadmap from dictionary foundation toward phrase, sentence, document, and speech translation.
+
+## Tactical Docs
+
+- [docs/translation-roadmap.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/translation-roadmap.md)
+- [docs/sprint-backlog-2weeks.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/sprint-backlog-2weeks.md)
+- [docs/language-onboarding-pipeline.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/language-onboarding-pipeline.md)
+- [docs/bulk-ingest-runbook.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/bulk-ingest-runbook.md)
+- [docs/first-batch-playbook.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/first-batch-playbook.md)
 
 ## Getting Started
 

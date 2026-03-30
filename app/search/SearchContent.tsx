@@ -23,6 +23,7 @@ const CATEGORIES = [
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
 type SearchSort = 'headword_asc' | 'newest' | 'trust_desc'
+type EntryKind = 'all' | 'word' | 'phrase'
 
 export default function SearchContent() {
   const searchParams = useSearchParams()
@@ -33,6 +34,7 @@ export default function SearchContent() {
   const catParam = searchParams.get('category') || 'all'
   const letterParam = searchParams.get('letter') || 'all'
   const sortParam = (searchParams.get('sort') as SearchSort) || 'headword_asc'
+  const kindParam = (searchParams.get('kind') as EntryKind) || 'all'
 
   const [searchQuery, setSearchQuery] = useState(queryParam)
   const [results, setResults] = useState<any[]>([])
@@ -65,7 +67,8 @@ export default function SearchContent() {
           langParam !== 'all' ? langParam : undefined,
           catParam !== 'all' ? catParam : undefined,
           letterParam !== 'all' ? letterParam : undefined,
-          sortParam
+          sortParam,
+          kindParam
         )
         setResults(response.rows || [])
         setTotalCount(response.total || 0)
@@ -78,7 +81,7 @@ export default function SearchContent() {
       }
     }
     runSearch()
-  }, [queryParam, langParam, catParam, letterParam, sortParam])
+  }, [queryParam, langParam, catParam, letterParam, sortParam, kindParam])
 
   const updateUrl = (newParams: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams)
@@ -178,6 +181,16 @@ export default function SearchContent() {
                 <option value="trust_desc">Sort: Trust Score</option>
               </select>
 
+              <select
+                value={kindParam}
+                onChange={(e) => updateUrl({ kind: e.target.value })}
+                className="bg-stone-50 border border-stone-200 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="all">Words + Phrases</option>
+                <option value="word">Words Only</option>
+                <option value="phrase">Phrases Only</option>
+              </select>
+
               <button
                 onClick={() => router.push('/search')}
                 className="text-[10px] font-black uppercase tracking-widest text-stone-500 hover:text-emerald-700"
@@ -210,9 +223,16 @@ export default function SearchContent() {
                 <div className="bg-white p-8 rounded-[2rem] border border-stone-200 hover:border-emerald-600 transition-all h-full flex flex-col shadow-sm hover:shadow-xl">
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="text-2xl font-black font-logo text-stone-900 group-hover:text-emerald-700 truncate mr-2">{entry.headword}</h3>
-                    <span className="text-[8px] font-black bg-emerald-50 text-emerald-700 px-2 py-1 rounded-md uppercase tracking-tighter shrink-0 border border-emerald-100">
-                      {entry.language?.name}
-                    </span>
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                      <span className="text-[8px] font-black bg-emerald-50 text-emerald-700 px-2 py-1 rounded-md uppercase tracking-tighter border border-emerald-100">
+                        {entry.language?.name}
+                      </span>
+                      {String(entry.part_of_speech || '').toLowerCase() === 'phrase' && (
+                        <span className="text-[8px] font-black bg-stone-100 text-stone-700 px-2 py-1 rounded-md uppercase tracking-tighter border border-stone-200">
+                          Phrase
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <p className="text-stone-500 text-sm font-medium line-clamp-3 mb-6 flex-grow leading-relaxed">{entry.primary_definition}</p>
                   <div className="pt-4 border-t border-stone-50 flex justify-between items-center">
@@ -228,12 +248,20 @@ export default function SearchContent() {
         {!loading && results.length === 0 && (
           <div className="text-center py-24 border-2 border-dashed border-stone-200 rounded-[3rem] bg-white">
             <p className="text-stone-500 font-black uppercase tracking-widest text-xs mb-4">No entries match this filter set</p>
-            <button
-              onClick={() => router.push('/search')}
-              className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-widest"
-            >
-              Reset and browse all
-            </button>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <button
+                onClick={() => router.push('/search')}
+                className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-widest"
+              >
+                Reset and browse all
+              </button>
+              <Link
+                href={kindParam === 'phrase' ? '/contribute?type=phrase' : '/contribute'}
+                className="px-5 py-2 rounded-xl border border-emerald-200 text-emerald-800 hover:bg-emerald-50 font-black text-xs uppercase tracking-widest"
+              >
+                {kindParam === 'phrase' ? 'Contribute a Phrase' : 'Contribute a Word'}
+              </Link>
+            </div>
           </div>
         )}
       </div>

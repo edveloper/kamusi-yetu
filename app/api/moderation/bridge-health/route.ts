@@ -59,7 +59,9 @@ export async function GET(req: Request) {
     }
 
     const rows: Array<{
+      id: string | null
       language_id: string | null
+      part_of_speech: string | null
       english_translation: string | null
       swahili_translation: string | null
       language?: { name?: string | null; code?: string | null } | Array<{ name?: string | null; code?: string | null }> | null
@@ -73,7 +75,9 @@ export async function GET(req: Request) {
       const { data: chunk, error } = await admin
         .from('entries')
         .select(`
+          id,
           language_id,
+          part_of_speech,
           english_translation,
           swahili_translation,
           language:languages(name, code)
@@ -88,6 +92,49 @@ export async function GET(req: Request) {
       from += pageSize
     }
 
+    const exampleEntryIds = new Set<string>()
+    const legacyExampleEntryIds = new Set<string>()
+    from = 0
+
+    while (true) {
+      const to = from + pageSize - 1
+      const { data: chunk, error } = await admin
+        .from('entry_usage_examples')
+        .select('entry_id')
+        .range(from, to)
+
+      if (error) throw error
+      if (!chunk || chunk.length === 0) break
+
+      for (const row of chunk as Array<{ entry_id: string | null }>) {
+        const entryId = String(row.entry_id || '')
+        if (entryId) exampleEntryIds.add(entryId)
+      }
+
+      if (chunk.length < pageSize) break
+      from += pageSize
+    }
+
+    from = 0
+    while (true) {
+      const to = from + pageSize - 1
+      const { data: chunk, error } = await admin
+        .from('usage_contexts')
+        .select('entry_id')
+        .range(from, to)
+
+      if (error) break
+      if (!chunk || chunk.length === 0) break
+
+      for (const row of chunk as Array<{ entry_id: string | null }>) {
+        const entryId = String(row.entry_id || '')
+        if (entryId) legacyExampleEntryIds.add(entryId)
+      }
+
+      if (chunk.length < pageSize) break
+      from += pageSize
+    }
+
     const byLanguage = new Map<string, {
       language_id: string
       language_name: string
@@ -97,6 +144,9 @@ export async function GET(req: Request) {
       missing_both: number
       english_without_swahili: number
       swahili_without_english: number
+      phrase_total: number
+      phrase_with_examples: number
+      phrase_missing_examples: number
     }>()
 
     let total = 0
@@ -104,15 +154,21 @@ export async function GET(req: Request) {
     let missingBoth = 0
     let englishWithoutSwahili = 0
     let swahiliWithoutEnglish = 0
+    let phraseTotal = 0
+    let phraseWithExamples = 0
+    let phraseMissingExamples = 0
 
     for (const row of rows || []) {
+      const entryId = String(row.id || '')
       const languageId = String(row.language_id || '')
       const rawLanguage = row.language
       const languageInfo = Array.isArray(rawLanguage) ? rawLanguage[0] : rawLanguage
       const languageName = String(languageInfo?.name || 'Unknown')
       const languageCode = String(languageInfo?.code || '').toLowerCase()
+      const isPhrase = String(row.part_of_speech || '').toLowerCase() === 'phrase'
       const en = clean(row.english_translation)
       const sw = clean(row.swahili_translation)
+      const hasExamples = !!entryId && (exampleEntryIds.has(entryId) || legacyExampleEntryIds.has(entryId))
 
       const hasBridge = !!(en || sw)
       const missingBothRow = !en && !sw
@@ -124,6 +180,9 @@ export async function GET(req: Request) {
       if (missingBothRow) missingBoth += 1
       if (enMissingSwRow) englishWithoutSwahili += 1
       if (swMissingEnRow) swahiliWithoutEnglish += 1
+      if (isPhrase) phraseTotal += 1
+      if (isPhrase && hasExamples) phraseWithExamples += 1
+      if (isPhrase && !hasExamples) phraseMissingExamples += 1
 
       const existing = byLanguage.get(languageId) || {
         language_id: languageId,
@@ -133,7 +192,10 @@ export async function GET(req: Request) {
         with_bridge: 0,
         missing_both: 0,
         english_without_swahili: 0,
-        swahili_without_english: 0
+        swahili_without_english: 0,
+        phrase_total: 0,
+        phrase_with_examples: 0,
+        phrase_missing_examples: 0
       }
 
       existing.total += 1
@@ -141,6 +203,9 @@ export async function GET(req: Request) {
       if (missingBothRow) existing.missing_both += 1
       if (enMissingSwRow) existing.english_without_swahili += 1
       if (swMissingEnRow) existing.swahili_without_english += 1
+      if (isPhrase) existing.phrase_total += 1
+      if (isPhrase && hasExamples) existing.phrase_with_examples += 1
+      if (isPhrase && !hasExamples) existing.phrase_missing_examples += 1
 
       byLanguage.set(languageId, existing)
     }
@@ -158,7 +223,10 @@ export async function GET(req: Request) {
         with_bridge: withBridge,
         missing_both: missingBoth,
         english_without_swahili: englishWithoutSwahili,
-        swahili_without_english: swahiliWithoutEnglish
+        swahili_without_english: swahiliWithoutEnglish,
+        phrase_total: phraseTotal,
+        phrase_with_examples: phraseWithExamples,
+        phrase_missing_examples: phraseMissingExamples
       },
       by_language: list
     })

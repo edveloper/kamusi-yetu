@@ -16,6 +16,7 @@ type EntryMetricRow = {
   id: string
   language_id: string
   headword: string
+  part_of_speech: string | null
   english_translation: string | null
   swahili_translation: string | null
   validation_status: string
@@ -40,6 +41,8 @@ type LanguageMetric = {
   totalEntries: number
   missingBridge: number
   bridgeCoveragePct: number
+  phraseEntries: number
+  phraseMissingExamples: number
 }
 
 const ENTRY_PAGE_SIZE = 1000
@@ -52,7 +55,7 @@ async function fetchAllEntriesForTrending() {
     const to = from + ENTRY_PAGE_SIZE - 1
     const { data, error } = await supabase
       .from('entries')
-      .select('id, language_id, headword, english_translation, swahili_translation, validation_status, created_at')
+      .select('id, language_id, headword, part_of_speech, english_translation, swahili_translation, validation_status, created_at')
       .eq('validation_status', 'verified')
       .range(from, to)
 
@@ -74,6 +77,7 @@ export default function TrendingPage() {
   const [entries, setEntries] = useState<EntryMetricRow[]>([])
   const [likesByEntry, setLikesByEntry] = useState<Record<string, number>>({})
   const [savesByEntry, setSavesByEntry] = useState<Record<string, number>>({})
+  const [exampleEntryIds, setExampleEntryIds] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     async function load() {
@@ -85,6 +89,30 @@ export default function TrendingPage() {
 
         const allEntries = await fetchAllEntriesForTrending()
         setEntries(allEntries)
+
+        const exampleIds = new Set<string>()
+
+        try {
+          const { data: structuredRows } = await supabase.from('entry_usage_examples').select('entry_id')
+          for (const row of structuredRows || []) {
+            const id = String((row as { entry_id?: string | null }).entry_id || '')
+            if (id) exampleIds.add(id)
+          }
+        } catch {
+          // no-op
+        }
+
+        try {
+          const { data: legacyRows } = await supabase.from('usage_contexts').select('entry_id')
+          for (const row of legacyRows || []) {
+            const id = String((row as { entry_id?: string | null }).entry_id || '')
+            if (id) exampleIds.add(id)
+          }
+        } catch {
+          // no-op
+        }
+
+        setExampleEntryIds(exampleIds)
 
         // Best-effort: likes
         try {
@@ -139,7 +167,9 @@ export default function TrendingPage() {
         native_name: lang.native_name,
         totalEntries: 0,
         missingBridge: 0,
-        bridgeCoveragePct: 100
+        bridgeCoveragePct: 100,
+        phraseEntries: 0,
+        phraseMissingExamples: 0
       }
     }
 
@@ -149,8 +179,15 @@ export default function TrendingPage() {
 
       const en = String(e.english_translation || '').trim()
       const sw = String(e.swahili_translation || '').trim()
+      const isPhrase = String(e.part_of_speech || '').toLowerCase() === 'phrase'
       if (!en && !sw) {
         metrics[e.language_id].missingBridge += 1
+      }
+      if (isPhrase) {
+        metrics[e.language_id].phraseEntries += 1
+        if (!exampleEntryIds.has(e.id)) {
+          metrics[e.language_id].phraseMissingExamples += 1
+        }
       }
     }
 
@@ -160,7 +197,7 @@ export default function TrendingPage() {
         m.totalEntries > 0 ? Math.round(((m.totalEntries - m.missingBridge) / m.totalEntries) * 100) : 100
     }
     return list
-  }, [entries, languages])
+  }, [entries, exampleEntryIds, languages])
 
   const topEntries = useMemo<EntryLite[]>(() => {
     return entries
@@ -201,13 +238,22 @@ export default function TrendingPage() {
       .slice(0, 8)
   }, [languageMetrics])
 
+  const phraseMissions = useMemo(() => {
+    return [...languageMetrics]
+      .filter((lang) => lang.phraseEntries > 0 || lang.totalEntries > 0)
+      .sort((a, b) => b.phraseMissingExamples - a.phraseMissingExamples || a.phraseEntries - b.phraseEntries || a.totalEntries - b.totalEntries)
+      .slice(0, 8)
+  }, [languageMetrics])
+
   const summary = useMemo(() => {
     const totalEntries = entries.length
     const totalLanguages = languages.length
     const totalMissingBridge = languageMetrics.reduce((acc, l) => acc + l.missingBridge, 0)
     const totalWithBridge = totalEntries - totalMissingBridge
     const bridgePct = totalEntries > 0 ? Math.round((totalWithBridge / totalEntries) * 100) : 0
-    return { totalEntries, totalLanguages, totalMissingBridge, bridgePct }
+    const phraseEntries = languageMetrics.reduce((acc, l) => acc + l.phraseEntries, 0)
+    const phraseMissingExamples = languageMetrics.reduce((acc, l) => acc + l.phraseMissingExamples, 0)
+    return { totalEntries, totalLanguages, totalMissingBridge, bridgePct, phraseEntries, phraseMissingExamples }
   }, [entries, languages.length, languageMetrics])
 
   return (
@@ -233,7 +279,9 @@ export default function TrendingPage() {
             { label: 'Verified Entries', value: summary.totalEntries },
             { label: 'Active Languages', value: summary.totalLanguages },
             { label: 'Bridge Coverage', value: `${summary.bridgePct}%` },
-            { label: 'Missing Bridge', value: summary.totalMissingBridge }
+            { label: 'Missing Bridge', value: summary.totalMissingBridge },
+            { label: 'Verified Phrases', value: summary.phraseEntries },
+            { label: 'Phrases Missing Examples', value: summary.phraseMissingExamples }
           ].map((card) => (
             <div key={card.label} className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
               <p className="text-[10px] text-stone-500 uppercase tracking-widest font-black mb-2">{card.label}</p>
@@ -342,6 +390,52 @@ export default function TrendingPage() {
                     className="px-3 py-2 rounded-xl bg-white border border-stone-200 text-[10px] font-black uppercase tracking-widest text-stone-700"
                   >
                     Review entries
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="bg-white rounded-3xl border border-stone-200 p-8 shadow-sm mb-10">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-black font-logo text-stone-900">Phrase Missions</h2>
+            <Link href="/contribute?type=phrase" className="text-xs font-black uppercase tracking-widest text-emerald-700">
+              Add phrase
+            </Link>
+          </div>
+          <p className="text-sm text-stone-600 mb-6">
+            Phrase coverage is the next quality layer. These languages need more phrase entries or better contextual examples.
+          </p>
+          <div className="grid md:grid-cols-2 gap-4">
+            {phraseMissions.map((lang) => (
+              <div key={lang.id} className="rounded-2xl border border-stone-100 bg-stone-50 p-5">
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <div>
+                    <p className="text-lg font-black text-stone-900">{lang.name}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
+                      {lang.code} {lang.native_name ? `| ${lang.native_name}` : ''}
+                    </p>
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg bg-stone-900 text-white">
+                    {lang.phraseEntries} phrases
+                  </span>
+                </div>
+                <div className="text-[11px] font-bold text-stone-600 uppercase tracking-widest mb-4">
+                  Missing phrase examples: {lang.phraseMissingExamples} | Total entries: {lang.totalEntries}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Link
+                    href={`/contribute?type=phrase&lang=${encodeURIComponent(lang.code)}`}
+                    className="px-3 py-2 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500"
+                  >
+                    Add phrase in {lang.code}
+                  </Link>
+                  <Link
+                    href={`/search?language=${encodeURIComponent(lang.id)}&kind=phrase`}
+                    className="px-3 py-2 rounded-xl bg-white border border-stone-200 text-[10px] font-black uppercase tracking-widest text-stone-700"
+                  >
+                    Review phrases
                   </Link>
                 </div>
               </div>

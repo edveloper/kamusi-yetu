@@ -37,13 +37,15 @@ export default function ExplorePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [languageFilter, setLanguageFilter] = useState('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
+  const [entryKind, setEntryKind] = useState<'all' | 'word' | 'phrase'>('all')
 
-  const goToSearch = (params: { q?: string; language?: string; category?: string; letter?: string }) => {
+  const goToSearch = (params: { q?: string; language?: string; category?: string; letter?: string; kind?: 'all' | 'word' | 'phrase' }) => {
     const query = new URLSearchParams()
     if (params.q && params.q.trim()) query.set('q', params.q.trim())
     if (params.language && params.language !== 'all') query.set('language', params.language)
     if (params.category && params.category !== 'all') query.set('category', params.category)
     if (params.letter && params.letter !== 'all') query.set('letter', params.letter)
+    if (params.kind && params.kind !== 'all') query.set('kind', params.kind)
     router.push(`/search?${query.toString()}`)
   }
 
@@ -98,14 +100,14 @@ export default function ExplorePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl md:text-7xl font-black mb-6 font-logo tracking-tight">Explore Dictionary</h1>
           <p className="text-xl text-emerald-100 max-w-2xl mx-auto font-medium opacity-90 leading-relaxed">
-            Dictionary mode. Search directly, then refine by language, letter, and topic.
+            Dictionary mode. Search directly, then refine by language, letter, topic, and whether you want words or phrases.
           </p>
-          <div className="mt-10 bg-white/10 border border-white/20 rounded-2xl p-4 md:p-5 max-w-4xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_180px_180px_auto] gap-3">
+          <div className="mt-10 bg-white/10 border border-white/20 rounded-2xl p-4 md:p-5 max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_170px_170px_170px_auto] gap-3">
               <input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && goToSearch({ q: searchQuery, language: languageFilter, category: categoryFilter })}
+                onKeyDown={(e) => e.key === 'Enter' && goToSearch({ q: searchQuery, language: languageFilter, category: categoryFilter, kind: entryKind })}
                 placeholder="Search headword or meaning..."
                 className="px-4 py-3 rounded-xl bg-white text-stone-900 font-semibold placeholder:text-stone-400"
               />
@@ -133,9 +135,18 @@ export default function ExplorePage() {
                   </option>
                 ))}
               </select>
+              <select
+                value={entryKind}
+                onChange={(e) => setEntryKind(e.target.value as 'all' | 'word' | 'phrase')}
+                className="px-4 py-3 rounded-xl bg-white text-stone-900 font-semibold"
+              >
+                <option value="all">Words + Phrases</option>
+                <option value="word">Words only</option>
+                <option value="phrase">Phrases only</option>
+              </select>
               <button
-                onClick={() => goToSearch({ q: searchQuery, language: languageFilter, category: categoryFilter })}
-                className="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 transition-colors font-black"
+                onClick={() => goToSearch({ q: searchQuery, language: languageFilter, category: categoryFilter, kind: entryKind })}
+                className="w-full xl:w-auto px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 transition-colors font-black whitespace-nowrap"
               >
                 Search
               </button>
@@ -145,7 +156,7 @@ export default function ExplorePage() {
             {ALPHABET.map((letter) => (
               <button
                 key={letter}
-                onClick={() => goToSearch({ letter, language: languageFilter, category: categoryFilter })}
+                onClick={() => goToSearch({ letter, language: languageFilter, category: categoryFilter, kind: entryKind })}
                 className="w-8 h-8 rounded-md bg-white/10 border border-white/20 hover:bg-white/20 text-xs font-black"
               >
                 {letter}
@@ -155,6 +166,9 @@ export default function ExplorePage() {
           <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
             <Link className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20" href="/search?language=all&category=all&letter=all">
               Full Dictionary
+            </Link>
+            <Link className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20" href="/search?kind=phrase">
+              Browse Phrases
             </Link>
             <Link className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20" href="/search?letter=a">
               Browse A-Z
@@ -240,11 +254,18 @@ export default function ExplorePage() {
                 Our languages are only as alive as our willingness to share them.
                 Is your grandmother&apos;s favorite saying here?
               </p>
-              <Link href="/contribute">
-                <button className="bg-white text-emerald-900 px-12 py-5 rounded-2xl hover:bg-emerald-50 transition-all font-black text-xl shadow-xl hover:scale-105 active:scale-95 flex items-center gap-4 mx-auto">
-                  <span>+</span> Add to the Collection
-                </button>
-              </Link>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <Link href="/contribute">
+                  <button className="bg-white text-emerald-900 px-8 py-5 rounded-2xl hover:bg-emerald-50 transition-all font-black text-lg shadow-xl hover:scale-105 active:scale-95 flex items-center gap-4 mx-auto">
+                    <span>+</span> Add a Word
+                  </button>
+                </Link>
+                <Link href="/contribute?type=phrase">
+                  <button className="bg-emerald-800 text-white px-8 py-5 rounded-2xl hover:bg-emerald-700 transition-all font-black text-lg shadow-xl hover:scale-105 active:scale-95 flex items-center gap-4 mx-auto border border-emerald-500/40">
+                    <span>+</span> Add a Phrase
+                  </button>
+                </Link>
+              </div>
             </div>
             <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
               <div className="absolute -top-24 -left-24 w-96 h-96 border-[40px] border-white rounded-full"></div>

@@ -1,5 +1,6 @@
 // lib/api/suggestions.ts
 import { supabase } from '@/lib/supabase'
+import { validateEntryRules } from '@/lib/validation/entry-rules'
 
 export type SuggestionPayload = {
   entry_id: string
@@ -16,6 +17,7 @@ export type SuggestionPayload = {
   register?: string
   english_translation?: string
   swahili_translation?: string
+  usage_example?: string
   reason: string
   details?: string
   source_type?: string
@@ -47,7 +49,7 @@ export type SuggestionRow = {
  * Submit a suggestion (existing behavior)
  */
 export async function submitSuggestion(payload: SuggestionPayload) {
-  const clean = (v?: string) => {
+  const clean = (v?: string | null) => {
     const s = String(v || '').trim()
     return s.length > 0 ? s : undefined
   }
@@ -69,12 +71,13 @@ export async function submitSuggestion(payload: SuggestionPayload) {
   put('register', payload.register)
   put('english_translation', payload.english_translation)
   put('swahili_translation', payload.swahili_translation)
+  put('usage_example', payload.usage_example)
 
   if (payload.type === 'edit') {
     // Validate bridge requirements against the projected entry state.
     const { data: entry, error: entryErr } = await supabase
       .from('entries')
-      .select('english_translation, swahili_translation, language:languages(code)')
+      .select('headword, primary_definition, part_of_speech, english_translation, swahili_translation, language:languages(code)')
       .eq('id', payload.entry_id)
       .single()
 
@@ -92,15 +95,16 @@ export async function submitSuggestion(payload: SuggestionPayload) {
         : ((languageValue as { code?: string } | null)?.code || '')
     ).toLowerCase()
 
-    if (!nextEnglish && !nextSwahili) {
-      throw new Error('Edit suggestion must keep at least one bridge translation (English or Swahili).')
-    }
-    if (languageCode === 'en' && !nextSwahili) {
-      throw new Error('English entries must keep a Swahili translation.')
-    }
-    if (languageCode === 'sw' && !nextEnglish) {
-      throw new Error('Swahili entries must keep an English translation.')
-    }
+    validateEntryRules({
+      languageCode,
+      headword: clean(basePatch.headword) ?? clean((entry as { headword?: string | null }).headword) ?? '',
+      primaryDefinition:
+        clean(basePatch.primary_definition) ?? clean((entry as { primary_definition?: string | null }).primary_definition) ?? '',
+      partOfSpeech: clean(basePatch.part_of_speech) ?? clean((entry as { part_of_speech?: string | null }).part_of_speech) ?? '',
+      englishTranslation: nextEnglish,
+      swahiliTranslation: nextSwahili,
+      usageExample: clean(basePatch.usage_example)
+    })
   }
 
   const detailsPayload = {

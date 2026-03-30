@@ -1,6 +1,7 @@
 // lib/api/entries.ts
 import { supabase } from '@/lib/supabase'
 import type { CreateEntryData } from '@/lib/types/database'
+import { validateEntryRules } from '@/lib/validation/entry-rules'
 
 const AUDIO_BUCKET = process.env.NEXT_PUBLIC_SUPABASE_AUDIO_BUCKET || 'entry-audio'
 
@@ -22,13 +23,6 @@ type LanguageCodeRow = {
 }
 
 async function validateBridgeRequirements(data: CreateEntryData) {
-  const english = String(data.english_translation || '').trim()
-  const swahili = String(data.swahili_translation || '').trim()
-
-  if (!english && !swahili) {
-    throw new Error('At least one bridge translation is required: English or Swahili.')
-  }
-
   const { data: language, error: languageErr } = await supabase
     .from('languages')
     .select('code')
@@ -40,12 +34,15 @@ async function validateBridgeRequirements(data: CreateEntryData) {
   }
 
   const code = String((language as LanguageCodeRow).code || '').toLowerCase()
-  if (code === 'en' && !swahili) {
-    throw new Error('English entries must include a Swahili translation.')
-  }
-  if (code === 'sw' && !english) {
-    throw new Error('Swahili entries must include an English translation.')
-  }
+  validateEntryRules({
+    languageCode: code,
+    headword: data.headword,
+    primaryDefinition: data.primary_definition,
+    partOfSpeech: data.part_of_speech,
+    englishTranslation: data.english_translation,
+    swahiliTranslation: data.swahili_translation,
+    usageExample: data.usage_example
+  })
 }
 
 export async function createEntry(data: CreateEntryData) {
@@ -80,6 +77,24 @@ export async function createEntry(data: CreateEntryData) {
   if (entryError) throw entryError
 
   if (data.usage_example && data.usage_example.trim() !== '') {
+    const examplePayload = {
+      entry_id: entry.id,
+      example_text: data.usage_example,
+      english_translation: english || null,
+      swahili_translation: swahili || null,
+      register: data.register || 'both',
+      validation_status: 'pending',
+      created_by: data.created_by
+    }
+
+    const { error: exampleError } = await supabase
+      .from('entry_usage_examples')
+      .insert(examplePayload)
+
+    if (exampleError) {
+      console.warn('Structured usage example save failed:', exampleError)
+    }
+
     const { error: contextError } = await supabase
       .from('usage_contexts')
       .insert({
@@ -152,17 +167,52 @@ export async function getEntry(id: string) {
         display_name,
         avatar_url
       )
-    `)
+  `)
     .eq('id', id)
     .single()
 
   if (error) throw error
 
+  let structuredExamples: any[] = []
+  try {
+    const { data: exampleRows, error: exampleError } = await supabase
+      .from('entry_usage_examples')
+      .select('*')
+      .eq('entry_id', id)
+      .order('created_at', { ascending: true })
+
+    if (!exampleError) {
+      structuredExamples = exampleRows || []
+    }
+  } catch (exampleFetchError) {
+    console.warn('Structured usage example fetch failed:', exampleFetchError)
+  }
+
+  const mergedExamples = [
+    ...structuredExamples.map((ex) => ({
+      id: ex.id,
+      context_text: ex.example_text,
+      english_translation: ex.english_translation,
+      swahili_translation: ex.swahili_translation,
+      register: ex.register,
+      validation_status: ex.validation_status,
+      source: 'entry_usage_examples'
+    })),
+    ...((data.usage_contexts || []) as any[]).map((ex) => ({
+      ...ex,
+      context_text: ex.context_text || ex.usage_text || ex.example_sentence || '',
+      source: 'usage_contexts'
+    }))
+  ].filter((ex, index, arr) => {
+    const text = String(ex.context_text || '').trim().toLowerCase()
+    return text && arr.findIndex((candidate) => String(candidate.context_text || '').trim().toLowerCase() === text) === index
+  })
+
   return {
     ...data,
     contributor_name: data.contributor?.display_name || 'Anonymous Contributor',
     contributor_avatar: data.contributor?.avatar_url || null,
-    usage_examples: data.usage_contexts || []
+    usage_examples: mergedExamples
   }
 }
 
@@ -172,6 +222,7 @@ export async function getEntries(filters?: {
   category?: string
   search?: string
   letter?: string
+  entry_kind?: 'all' | 'word' | 'phrase'
 }) {
   let query = supabase
     .from('entries')
@@ -186,6 +237,8 @@ export async function getEntries(filters?: {
   if (filters?.category) query = query.eq('category', filters.category)
   if (filters?.validation_status) query = query.eq('validation_status', filters.validation_status)
   if (filters?.letter && filters.letter !== 'all') query = query.ilike('headword', `${filters.letter}%`)
+  if (filters?.entry_kind === 'phrase') query = query.eq('part_of_speech', 'phrase')
+  if (filters?.entry_kind === 'word') query = query.or('part_of_speech.is.null,part_of_speech.neq.phrase')
   if (filters?.search) {
     try {
       query = query.textSearch('search_tsv', filters.search, { config: 'simple' })
@@ -249,7 +302,8 @@ export async function searchEntries(
   languageId?: string,
   categoryId?: string,
   letter?: string,
-  sort: 'headword_asc' | 'newest' | 'trust_desc' = 'headword_asc'
+  sort: 'headword_asc' | 'newest' | 'trust_desc' = 'headword_asc',
+  entryKind: 'all' | 'word' | 'phrase' = 'all'
 ) {
   let searchQuery = supabase
     .from('entries')
@@ -267,6 +321,8 @@ export async function searchEntries(
   if (languageId && languageId !== 'all') searchQuery = searchQuery.eq('language_id', languageId)
   if (categoryId && categoryId !== 'all') searchQuery = searchQuery.eq('category', categoryId)
   if (letter && letter !== 'all') searchQuery = searchQuery.ilike('headword', `${letter}%`)
+  if (entryKind === 'phrase') searchQuery = searchQuery.eq('part_of_speech', 'phrase')
+  if (entryKind === 'word') searchQuery = searchQuery.or('part_of_speech.is.null,part_of_speech.neq.phrase')
 
   if (sort === 'newest') {
     searchQuery = searchQuery.order('created_at', { ascending: false })

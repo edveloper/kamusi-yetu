@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import type { EntryValidationStatus } from '@/lib/types/database'
+import { validateEntryRules } from '@/lib/validation/entry-rules'
 
 type ModerationAction =
-  | { action: 'approve_entry'; itemId: string }
+  | { action: 'approve_entry'; itemId: string; updates?: Record<string, string> }
   | { action: 'reject_entry'; itemId: string }
   | { action: 'flag_entry'; itemId: string }
   | { action: 'review_suggestion'; itemId: string; suggestionAction: 'accept' | 'reject'; note?: string }
-  | { action: 'apply_suggestion'; itemId: string; note?: string }
+  | { action: 'apply_suggestion'; itemId: string; note?: string; updates?: Record<string, string> }
 
 type TrustScoreEntry = {
   part_of_speech: string | null
@@ -21,6 +22,9 @@ type LooseSupabaseClient = ReturnType<typeof createClient<any>>
 
 type EntryBridgeRow = {
   language_id: string
+  headword: string
+  primary_definition: string
+  part_of_speech: string | null
   english_translation: string | null
   swahili_translation: string | null
 }
@@ -50,7 +54,7 @@ async function validateBridgeAfterUpdate(
 ) {
   const { data: entryRow, error: entryErr } = await admin
     .from('entries')
-    .select('language_id, english_translation, swahili_translation')
+    .select('language_id, headword, primary_definition, part_of_speech, english_translation, swahili_translation')
     .eq('id', entryId)
     .single()
 
@@ -66,18 +70,46 @@ async function validateBridgeAfterUpdate(
   if (langErr || !langRow) throw new Error('Failed to resolve entry language for validation.')
 
   const code = String((langRow as { code: string | null }).code || '').toLowerCase()
-  const nextEnglish = cleanText(updates.english_translation ?? entry.english_translation)
-  const nextSwahili = cleanText(updates.swahili_translation ?? entry.swahili_translation)
+  validateEntryRules({
+    languageCode: code,
+    headword: updates.headword ?? entry.headword,
+    primaryDefinition: updates.primary_definition ?? entry.primary_definition,
+    partOfSpeech: updates.part_of_speech ?? entry.part_of_speech,
+    englishTranslation: updates.english_translation ?? entry.english_translation,
+    swahiliTranslation: updates.swahili_translation ?? entry.swahili_translation
+  })
+}
 
-  if (!nextEnglish && !nextSwahili) {
-    throw new Error('Suggestion would remove both bridge translations. At least one is required.')
-  }
-  if (code === 'en' && !nextSwahili) {
-    throw new Error('Suggestion invalid for English entry: Swahili translation is required.')
-  }
-  if (code === 'sw' && !nextEnglish) {
-    throw new Error('Suggestion invalid for Swahili entry: English translation is required.')
-  }
+async function upsertUsageExample(
+  admin: LooseSupabaseClient,
+  entryId: string,
+  usageExample: string | undefined,
+  fallbackEnglish: string | null,
+  fallbackSwahili: string | null,
+  register: string | null,
+  userId: string
+) {
+  const example = cleanText(usageExample)
+  if (!example) return
+
+  const { data: existing } = await admin
+    .from('entry_usage_examples')
+    .select('id')
+    .eq('entry_id', entryId)
+    .ilike('example_text', example)
+    .maybeSingle()
+
+  if (existing?.id) return
+
+  await admin.from('entry_usage_examples').insert({
+    entry_id: entryId,
+    example_text: example,
+    english_translation: fallbackEnglish,
+    swahili_translation: fallbackSwahili,
+    register: register || 'both',
+    validation_status: 'pending',
+    created_by: userId
+  })
 }
 
 function getSupabaseEnv() {
@@ -136,8 +168,36 @@ async function updateEntryStatusAdmin(
   admin: LooseSupabaseClient,
   entryId: string,
   status: EntryValidationStatus,
-  validatorId: string
+  validatorId: string,
+  updates?: Record<string, string>
 ) {
+  if (updates && Object.keys(updates).length > 0) {
+    await validateBridgeAfterUpdate(admin, entryId, updates)
+
+    const usageExample = updates.usage_example
+    const { data: updatedEntryRow, error: updateErr } = await admin
+      .from('entries')
+      .update({
+        ...Object.fromEntries(Object.entries(updates).filter(([key]) => key !== 'usage_example')),
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', entryId)
+      .select('english_translation, swahili_translation, register')
+      .single()
+
+    if (updateErr) throw updateErr
+
+    await upsertUsageExample(
+      admin,
+      entryId,
+      usageExample,
+      updatedEntryRow?.english_translation ?? null,
+      updatedEntryRow?.swahili_translation ?? null,
+      updatedEntryRow?.register ?? null,
+      validatorId
+    )
+  }
+
   const trustScore = await computeTrustScore(admin, entryId, status)
   const { error: entryError } = await admin
     .from('entries')
@@ -216,7 +276,8 @@ async function applySuggestionAdmin(
   admin: LooseSupabaseClient,
   suggestionId: string,
   moderatorId: string,
-  note?: string
+  note?: string,
+  overrideUpdates?: Record<string, string>
 ) {
   const { data: suggestion, error: fetchErr } = await admin
     .from('entry_suggestions')
@@ -241,7 +302,8 @@ async function applySuggestionAdmin(
     'english_translation',
     'swahili_translation',
     'register',
-    'category'
+    'category',
+    'usage_example'
   ]
 
   const updates: Record<string, string> = {}
@@ -262,20 +324,41 @@ async function applySuggestionAdmin(
     }
   }
 
+  if (overrideUpdates) {
+    for (const field of updatableFields) {
+      if (typeof overrideUpdates[field] === 'string' && String(overrideUpdates[field]).trim() !== '') {
+        updates[field] = String(overrideUpdates[field]).trim()
+      }
+    }
+  }
+
   if (Object.keys(updates).length === 0) {
     throw new Error('No updatable fields found on suggestion')
   }
 
   await validateBridgeAfterUpdate(admin, entryId, updates)
 
+  const usageExample = updates.usage_example
+  const entryUpdates = Object.fromEntries(Object.entries(updates).filter(([key]) => key !== 'usage_example'))
+
   const { data: updatedEntry, error: updateErr } = await admin
     .from('entries')
-    .update(updates)
+    .update(entryUpdates)
     .eq('id', entryId)
     .select()
     .single()
 
   if (updateErr) throw updateErr
+
+  await upsertUsageExample(
+    admin,
+    entryId,
+    usageExample,
+    updatedEntry?.english_translation ?? null,
+    updatedEntry?.swahili_translation ?? null,
+    updatedEntry?.register ?? null,
+    moderatorId
+  )
 
   await reviewSuggestionAdmin(admin, suggestionId, moderatorId, 'accept', note || `Applied by ${moderatorId}`)
   return updatedEntry
@@ -329,7 +412,7 @@ export async function POST(req: Request) {
 
     switch (body.action) {
       case 'approve_entry': {
-        const result = await updateEntryStatusAdmin(admin, body.itemId, 'verified', authData.user.id)
+        const result = await updateEntryStatusAdmin(admin, body.itemId, 'verified', authData.user.id, body.updates)
         return NextResponse.json({ ok: true, result })
       }
       case 'reject_entry': {
@@ -351,7 +434,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true, result })
       }
       case 'apply_suggestion': {
-        const result = await applySuggestionAdmin(admin, body.itemId, authData.user.id, body.note)
+        const result = await applySuggestionAdmin(admin, body.itemId, authData.user.id, body.note, body.updates)
         return NextResponse.json({ ok: true, result })
       }
       default:

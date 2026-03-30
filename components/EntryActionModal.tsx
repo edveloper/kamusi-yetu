@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 import type React from 'react'
 import { submitSuggestion } from '@/lib/api/suggestions'
+import { uploadEntryAudio } from '@/lib/api/entries'
+import { validateEntryRules } from '@/lib/validation/entry-rules'
 
 interface ActionModalProps {
   type: 'edit' | 'report'
@@ -21,6 +23,7 @@ type FormState = {
   pronunciation_ipa: string
   etymology: string
   audio_url: string
+  usage_example: string
   category: string
   register: string
   reason: string
@@ -46,6 +49,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
     pronunciation_ipa: entry?.pronunciation_ipa ?? '',
     etymology: entry?.etymology ?? '',
     audio_url: entry?.audio_url ?? '',
+    usage_example: entry?.usage_examples?.[0]?.context_text ?? '',
     category: entry?.category ?? '',
     register: entry?.register ?? '',
     reason: '',
@@ -59,7 +63,16 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
+  const [uploadingAudio, setUploadingAudio] = useState(false)
+  const [audioUploadError, setAudioUploadError] = useState('')
+  const [recordingSupported, setRecordingSupported] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
+  const [recordedPreviewUrl, setRecordedPreviewUrl] = useState<string | null>(null)
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null)
   const firstRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const mediaStreamRef = useRef<MediaStream | null>(null)
+  const recordedChunksRef = useRef<Blob[]>([])
 
   useEffect(() => {
     const key = DRAFT_KEY(entry?.id, type)
@@ -95,6 +108,22 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
+  useEffect(() => {
+    const hasSupport =
+      typeof window !== 'undefined' &&
+      typeof navigator !== 'undefined' &&
+      !!navigator.mediaDevices?.getUserMedia &&
+      typeof MediaRecorder !== 'undefined'
+    setRecordingSupported(hasSupport)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (recordedPreviewUrl) URL.revokeObjectURL(recordedPreviewUrl)
+      mediaStreamRef.current?.getTracks().forEach((t) => t.stop())
+    }
+  }, [recordedPreviewUrl])
+
   const clean = (v: string) => v.trim()
 
   const validate = (): { ok: boolean; message?: string } => {
@@ -102,16 +131,18 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
       if (!clean(form.headword)) return { ok: false, message: 'Headword is required.' }
       if (!clean(form.primary_definition)) return { ok: false, message: 'Corrected definition is required.' }
 
-      const english = clean(form.english_translation)
-      const swahili = clean(form.swahili_translation)
-      if (!english && !swahili) {
-        return { ok: false, message: 'Keep at least one bridge translation (English or Swahili).' }
-      }
-      if (languageCode === 'en' && !swahili) {
-        return { ok: false, message: 'English entries require a Swahili translation.' }
-      }
-      if (languageCode === 'sw' && !english) {
-        return { ok: false, message: 'Swahili entries require an English translation.' }
+      try {
+        validateEntryRules({
+          languageCode,
+          headword: form.headword,
+          primaryDefinition: form.primary_definition,
+          partOfSpeech: form.part_of_speech,
+          englishTranslation: form.english_translation,
+          swahiliTranslation: form.swahili_translation,
+          usageExample: form.usage_example
+        })
+      } catch (error) {
+        return { ok: false, message: error instanceof Error ? error.message : 'Entry validation failed.' }
       }
     }
 
@@ -131,6 +162,84 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
       }
     }
     return { ok: true }
+  }
+
+  const handleAudioFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !entry?.currentUserId) return
+
+    setUploadingAudio(true)
+    setAudioUploadError('')
+    try {
+      const url = await uploadEntryAudio(entry.currentUserId, file)
+      update({ audio_url: url })
+    } catch (err) {
+      setAudioUploadError(err instanceof Error ? err.message : 'Failed to upload audio.')
+    } finally {
+      setUploadingAudio(false)
+    }
+  }
+
+  const startAudioRecording = async () => {
+    if (!recordingSupported) {
+      setAudioUploadError('Audio recording is not supported in this browser.')
+      return
+    }
+
+    try {
+      setAudioUploadError('')
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      mediaStreamRef.current = stream
+      recordedChunksRef.current = []
+
+      const recorder = new MediaRecorder(stream)
+      mediaRecorderRef.current = recorder
+
+      recorder.ondataavailable = (event: BlobEvent) => {
+        if (event.data && event.data.size > 0) recordedChunksRef.current.push(event.data)
+      }
+
+      recorder.onstop = () => {
+        const blob = new Blob(recordedChunksRef.current, { type: recorder.mimeType || 'audio/webm' })
+        setRecordedBlob(blob)
+        if (recordedPreviewUrl) URL.revokeObjectURL(recordedPreviewUrl)
+        setRecordedPreviewUrl(URL.createObjectURL(blob))
+        stream.getTracks().forEach((t) => t.stop())
+        mediaStreamRef.current = null
+        setIsRecording(false)
+      }
+
+      recorder.start()
+      setIsRecording(true)
+    } catch {
+      setAudioUploadError('Microphone access denied or unavailable.')
+      setIsRecording(false)
+    }
+  }
+
+  const stopAudioRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop()
+    }
+  }
+
+  const uploadRecordedAudio = async () => {
+    if (!recordedBlob || !entry?.currentUserId) return
+
+    setUploadingAudio(true)
+    setAudioUploadError('')
+    try {
+      const fileExt = recordedBlob.type.includes('webm') ? 'webm' : 'wav'
+      const recordedFile = new File([recordedBlob], `suggestion-audio-${Date.now()}.${fileExt}`, {
+        type: recordedBlob.type || 'audio/webm'
+      })
+      const url = await uploadEntryAudio(entry.currentUserId, recordedFile)
+      update({ audio_url: url })
+    } catch (err) {
+      setAudioUploadError(err instanceof Error ? err.message : 'Failed to upload recorded audio.')
+    } finally {
+      setUploadingAudio(false)
+    }
   }
 
   const clearDraft = () => {
@@ -164,6 +273,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
       pronunciation_ipa: clean(form.pronunciation_ipa) || undefined,
       etymology: clean(form.etymology) || undefined,
       audio_url: clean(form.audio_url) || undefined,
+      usage_example: clean(form.usage_example) || undefined,
       category: clean(form.category) || undefined,
       register: clean(form.register) || undefined,
       reason: clean(form.reason),
@@ -215,7 +325,9 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
             {isEdit && (
               <>
                 <div>
-                  <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">Headword</label>
+                  <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">
+                    {String(form.part_of_speech).toLowerCase() === 'phrase' ? 'Word or Phrase' : 'Headword'}
+                  </label>
                   <input
                     ref={firstRef as any}
                     type="text"
@@ -263,12 +375,22 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>
                     <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">Part of Speech</label>
-                    <input
-                      type="text"
+                    <select
                       value={form.part_of_speech}
                       onChange={(e) => update({ part_of_speech: e.target.value })}
                       className="w-full p-3 bg-stone-50 border-2 border-stone-100 rounded-2xl"
-                    />
+                    >
+                      <option value="">Select part of speech...</option>
+                      <option value="noun">Noun</option>
+                      <option value="verb">Verb</option>
+                      <option value="adjective">Adjective</option>
+                      <option value="adverb">Adverb</option>
+                      <option value="pronoun">Pronoun</option>
+                      <option value="preposition">Preposition</option>
+                      <option value="conjunction">Conjunction</option>
+                      <option value="interjection">Interjection</option>
+                      <option value="phrase">Phrase</option>
+                    </select>
                   </div>
                   <div>
                     <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">Dialect Variant</label>
@@ -320,6 +442,49 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                     placeholder="https://..."
                     className="w-full p-3 bg-stone-50 border-2 border-stone-100 rounded-2xl"
                   />
+                  <div className="mt-3 space-y-3 rounded-2xl border border-stone-100 bg-stone-50 p-4">
+                    <input
+                      type="file"
+                      accept="audio/*"
+                      onChange={handleAudioFileChange}
+                      disabled={uploadingAudio}
+                      className="w-full text-xs text-stone-500 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-600 file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
+                    />
+                    <div className="flex flex-wrap gap-2">
+                      {!isRecording ? (
+                        <button
+                          type="button"
+                          onClick={startAudioRecording}
+                          disabled={!recordingSupported || uploadingAudio}
+                          className="px-4 py-2 rounded-xl bg-stone-900 text-white text-xs font-black uppercase tracking-widest disabled:opacity-50"
+                        >
+                          Start Recording
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={stopAudioRecording}
+                          className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-black uppercase tracking-widest"
+                        >
+                          Stop Recording
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={uploadRecordedAudio}
+                        disabled={!recordedBlob || uploadingAudio}
+                        className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-50"
+                      >
+                        Upload Recording
+                      </button>
+                    </div>
+                    {audioUploadError && <p className="text-xs text-red-600 font-bold">{audioUploadError}</p>}
+                    {recordedPreviewUrl && (
+                      <audio controls className="w-full">
+                        <source src={recordedPreviewUrl} />
+                      </audio>
+                    )}
+                  </div>
                 </div>
 
                 <div>
@@ -328,6 +493,17 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                     rows={3}
                     value={form.etymology}
                     onChange={(e) => update({ etymology: e.target.value })}
+                    className="w-full p-4 bg-stone-50 border-2 border-stone-100 rounded-2xl"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">Usage Example</label>
+                  <textarea
+                    rows={3}
+                    value={form.usage_example}
+                    onChange={(e) => update({ usage_example: e.target.value })}
+                    placeholder="Show the word or phrase in context..."
                     className="w-full p-4 bg-stone-50 border-2 border-stone-100 rounded-2xl"
                   />
                 </div>
@@ -424,6 +600,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                     <div className="text-sm text-stone-700 mt-2">{form.primary_definition || entry?.primary_definition}</div>
                     {form.english_translation && <div className="text-sm mt-2">EN: {form.english_translation}</div>}
                     {form.swahili_translation && <div className="text-sm">SW: {form.swahili_translation}</div>}
+                    {form.usage_example && <div className="text-sm mt-2 italic">Example: {form.usage_example}</div>}
                   </>
                 )}
                 <div className="mt-3 text-[13px]">
