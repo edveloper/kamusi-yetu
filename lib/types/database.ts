@@ -42,5 +42,7 @@ export interface Language {
   name: string
   native_name: string | null
   is_active: boolean
+  language_group_key?: string | null
+  language_group_label?: string | null
   created_at: string
 }

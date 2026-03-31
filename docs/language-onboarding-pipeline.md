@@ -1,6 +1,7 @@
 # Language Onboarding Pipeline
 
 Date: February 24, 2026
+Status: Active reference; initial registry rollout completed
 
 ## 1) Current-State Check (Your Existing Languages)
 
@@ -14,18 +15,49 @@ Current active set in your lexicon/audit:
 - Kalenjin (`kal`)
 
 Assessment against onboarding requirements:
-1. Exact language list: `Partial`
-- You have a working list of active languages, but no single canonical onboarding registry document defining rollout status and ownership.
+1. Exact language list: `Mostly in place`
+- You now have a working registry, active base languages, and inactive/seeded expansion languages in the system.
+- What is still missing is a stronger ownership/readiness table per language.
 
-2. ISO/code conventions: `Partial`
+2. ISO/code conventions: `Operational but still needs governance`
 - `en` and `sw` are standard.
-- Some other codes are usable but not consistently ISO-oriented (`ki`/`kal` likely need canonicalization policy).
+- the current registry uses a practical mix of ISO-like and private-use codes.
+- final canonicalization policy is still needed before wider public/API commitments.
 
-3. Script/orthography rules: `Not fully defined`
-- There is no enforced written policy for Unicode normalization, casing, diacritics handling, and variant spelling governance.
+3. Script/orthography rules: `Partially defined`
+- application search/indexing now uses normalized matching behavior.
+- native orthography preservation is part of current product behavior.
+- a fuller governance document for spelling variants and moderation handling is still pending.
 
 4. Bridge policy defaults: `Yes`
 - This is already implemented and enforced in workflow: at least one bridge (`english_translation` or `swahili_translation`) required, with stronger language-specific constraints in moderation/app logic.
+
+## Current Status Review
+
+What has been accomplished since this document was drafted:
+
+- expansion languages were registered in the language table
+- starter packs were seeded for multiple new languages
+- first language activation cohorts were introduced to product surfaces
+- language-specific community blurbs and visibility were added across the UI
+- bridge policy enforcement is active across contribution, suggestion, and moderation flows
+
+What is still required to fully finish onboarding governance:
+
+1. assign maturity/readiness labels per language:
+- `seed`
+- `emerging`
+- `usable`
+- `review-heavy`
+- `production-ready`
+
+2. define language ownership:
+- moderator owner
+- contributor pipeline
+- phrase pack status
+- audio/example coverage status
+
+3. define orthography review rules per language where needed
 
 ## 2) Code Convention (Going Forward)
 
@@ -89,4 +121,3 @@ This is the proposed next batch to register now (inactive first):
 Notes:
 - Entries marked `x-ke-*` should be confirmed for final code choice before public API commitments.
 - Existing production languages can remain as-is now to avoid disruption.
-

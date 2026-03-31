@@ -10,6 +10,8 @@ The next active checkpoint is `Phase 2 - Phrase and Usage Layer`.
 Working design document:
 
 - [phrase-usage-layer-design.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/phrase-usage-layer-design.md)
+- [phase-2-expansion-plan.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/phase-2-expansion-plan.md)
+- [language-rollout-waves.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/language-rollout-waves.md)
 
 Checkpoint progress:
 
@@ -290,8 +292,8 @@ This is the hard constraint set:
 - [sprint-backlog-2weeks.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/sprint-backlog-2weeks.md)
 - [language-onboarding-pipeline.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/language-onboarding-pipeline.md)
 - [bulk-ingest-runbook.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/bulk-ingest-runbook.md)
-- [first-batch-playbook.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/first-batch-playbook.md)
 - [phrase-usage-layer-design.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/phrase-usage-layer-design.md)
+- [phase-2-expansion-plan.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/phase-2-expansion-plan.md)
 
 ## Decision
 

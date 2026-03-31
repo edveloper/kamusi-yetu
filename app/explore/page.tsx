@@ -5,12 +5,16 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { getLanguages } from '@/lib/api/languages'
 import { supabase } from '@/lib/supabase'
+import { groupLanguages } from '@/lib/constants/languageGroups'
+import { getLanguageGroupNote } from '@/lib/constants/languageNotes'
 
 type LanguageItem = {
   id: string
   code?: string | null
   name: string
   native_name?: string | null
+  language_group_key?: string | null
+  language_group_label?: string | null
 }
 
 const categories = [
@@ -38,6 +42,7 @@ export default function ExplorePage() {
   const [languageFilter, setLanguageFilter] = useState('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [entryKind, setEntryKind] = useState<'all' | 'word' | 'phrase'>('all')
+  const groupedLanguages = groupLanguages(languages)
 
   const goToSearch = (params: { q?: string; language?: string; category?: string; letter?: string; kind?: 'all' | 'word' | 'phrase' }) => {
     const query = new URLSearchParams()
@@ -117,10 +122,14 @@ export default function ExplorePage() {
                 className="px-4 py-3 rounded-xl bg-white text-stone-900 font-semibold"
               >
                 <option value="all">All languages</option>
-                {languages.map((lang) => (
-                  <option key={lang.id} value={lang.id}>
-                    {lang.name}
-                  </option>
+                {groupedLanguages.map((group) => (
+                  <optgroup key={group.key} label={group.label}>
+                    {group.languages.map((lang) => (
+                      <option key={lang.id} value={lang.id}>
+                        {lang.name}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
               <select
@@ -187,30 +196,45 @@ export default function ExplorePage() {
             <div className="h-px flex-1 bg-stone-200"></div>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {languages.map((lang) => (
-              <Link href={`/search?language=${lang.id}`} key={lang.id} className="group">
-                <div className="bg-white rounded-[2rem] p-6 border border-stone-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="w-12 h-12 bg-stone-50 rounded-xl flex items-center justify-center text-xs font-black group-hover:bg-emerald-50 transition-colors">
-                      KE
-                    </div>
-                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-[0.15em]">
-                      {lang.code || 'KEN'}
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-black text-gray-900 mb-1 font-logo group-hover:text-emerald-600 transition-colors">
-                    {lang.name}
-                  </h3>
-                  <p className="text-stone-400 text-xs font-bold italic mb-6">{lang.native_name}</p>
-                  <div className="pt-4 border-t border-stone-100 flex justify-between items-center">
-                    <span className="text-xs font-black text-stone-400 uppercase tracking-widest">
-                      <b className="text-emerald-600 text-sm">{languageCounts[lang.id] || 0}</b> Records
-                    </span>
-                    <span className="text-emerald-500 font-bold group-hover:translate-x-1 transition-transform">{'->'}</span>
-                  </div>
+          <div className="space-y-10">
+            {groupedLanguages.map((group) => (
+              <div key={group.key}>
+                <div className="flex items-center gap-4 mb-6">
+                  <p className="text-[10px] font-black uppercase tracking-[0.25em] text-stone-400">{group.label}</p>
+                  <div className="h-px flex-1 bg-stone-200"></div>
                 </div>
-              </Link>
+                {getLanguageGroupNote(group.key) && (
+                  <p className="text-sm text-stone-500 max-w-3xl mb-6 leading-relaxed">
+                    {getLanguageGroupNote(group.key)}
+                  </p>
+                )}
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {group.languages.map((lang) => (
+                    <Link href={`/search?language=${lang.id}`} key={lang.id} className="group">
+                      <div className="bg-white rounded-[2rem] p-6 border border-stone-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                        <div className="flex justify-between items-start mb-6">
+                          <div className="w-12 h-12 bg-stone-50 rounded-xl flex items-center justify-center text-xs font-black group-hover:bg-emerald-50 transition-colors">
+                            KE
+                          </div>
+                          <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-[0.15em]">
+                            {lang.code || 'KEN'}
+                          </span>
+                        </div>
+                        <h3 className="text-xl font-black text-gray-900 mb-1 font-logo group-hover:text-emerald-600 transition-colors">
+                          {lang.name}
+                        </h3>
+                        <p className="text-stone-400 text-xs font-bold italic mb-6">{lang.native_name}</p>
+                        <div className="pt-4 border-t border-stone-100 flex justify-between items-center">
+                          <span className="text-xs font-black text-stone-400 uppercase tracking-widest">
+                            <b className="text-emerald-600 text-sm">{languageCounts[lang.id] || 0}</b> Records
+                          </span>
+                          <span className="text-emerald-500 font-bold group-hover:translate-x-1 transition-transform">{'->'}</span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </div>

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { searchEntries } from '@/lib/api/entries'
 import { getLanguages } from '@/lib/api/languages'
 import { getLanguageNote } from '@/lib/constants/languageNotes'
+import { groupLanguages } from '@/lib/constants/languageGroups'
 
 const CATEGORIES = [
   { id: 'family', name: 'Family' },
@@ -93,6 +94,7 @@ export default function SearchContent() {
   }
 
   const activeLanguage = languages.find((l) => l.id === langParam)
+  const groupedLanguages = groupLanguages(languages)
 
   return (
     <div className="min-h-screen bg-stone-50 pb-20 font-sans">
@@ -151,10 +153,14 @@ export default function SearchContent() {
                 className="bg-stone-50 border border-stone-200 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 <option value="all">All Communities</option>
-                {languages.map((l) => (
-                  <option key={l.id} value={l.id}>
-                    {l.name}
-                  </option>
+                {groupedLanguages.map((group) => (
+                  <optgroup key={group.key} label={group.label}>
+                    {group.languages.map((l) => (
+                      <option key={l.id} value={l.id}>
+                        {l.name}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
 

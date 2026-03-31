@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { getLanguages } from '@/lib/api/languages'
+import { groupLanguages } from '@/lib/constants/languageGroups'
 
 interface LanguageSelectorProps {
   selectedLanguages: string[]
@@ -9,10 +10,10 @@ interface LanguageSelectorProps {
   onClose: () => void
 }
 
-export default function LanguageSelector({ 
-  selectedLanguages, 
+export default function LanguageSelector({
+  selectedLanguages,
   onLanguagesChange,
-  onClose 
+  onClose
 }: LanguageSelectorProps) {
   const [allLanguages, setAllLanguages] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -32,14 +33,15 @@ export default function LanguageSelector({
     loadLanguages()
   }, [])
 
-  const filteredLanguages = allLanguages.filter(lang => 
+  const filteredLanguages = allLanguages.filter((lang) =>
     lang.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (lang.native_name && lang.native_name.toLowerCase().includes(searchQuery.toLowerCase()))
   )
+  const groupedLanguages = groupLanguages(filteredLanguages)
 
   const toggleLanguage = (languageId: string) => {
     if (selectedLanguages.includes(languageId)) {
-      onLanguagesChange(selectedLanguages.filter(id => id !== languageId))
+      onLanguagesChange(selectedLanguages.filter((id) => id !== languageId))
     } else {
       onLanguagesChange([...selectedLanguages, languageId])
     }
@@ -48,19 +50,17 @@ export default function LanguageSelector({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
-        {/* Header */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-gray-900">Select Your Languages</h2>
-            <button 
+            <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
             >
-              ×
+              x
             </button>
           </div>
-          
-          {/* Search */}
+
           <input
             type="text"
             placeholder="Search languages..."
@@ -70,7 +70,6 @@ export default function LanguageSelector({
           />
         </div>
 
-        {/* Language List */}
         <div className="flex-1 overflow-y-auto p-6">
           {loading ? (
             <div className="text-center py-8">
@@ -81,38 +80,47 @@ export default function LanguageSelector({
               No languages found matching "{searchQuery}"
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {filteredLanguages.map((lang) => {
-                const isSelected = selectedLanguages.includes(lang.id)
-                return (
-                  <button
-                    key={lang.id}
-                    onClick={() => toggleLanguage(lang.id)}
-                    className={`p-4 rounded-lg border-2 transition text-left ${
-                      isSelected
-                        ? 'border-primary-500 bg-primary-50'
-                        : 'border-gray-200 hover:border-primary-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-bold text-gray-900">{lang.name}</p>
-                        {lang.native_name && lang.native_name !== lang.name && (
-                          <p className="text-sm text-gray-600">{lang.native_name}</p>
-                        )}
-                      </div>
-                      {isSelected && (
-                        <div className="text-primary-600 text-xl">✓</div>
-                      )}
-                    </div>
-                  </button>
-                )
-              })}
+            <div className="space-y-6">
+              {groupedLanguages.map((group) => (
+                <div key={group.key}>
+                  <div className="mb-3 flex items-center gap-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{group.label}</p>
+                    <div className="h-px flex-1 bg-gray-100"></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {group.languages.map((lang) => {
+                      const isSelected = selectedLanguages.includes(lang.id)
+                      return (
+                        <button
+                          key={lang.id}
+                          onClick={() => toggleLanguage(lang.id)}
+                          className={`p-4 rounded-lg border-2 transition text-left ${
+                            isSelected
+                              ? 'border-primary-500 bg-primary-50'
+                              : 'border-gray-200 hover:border-primary-300'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-bold text-gray-900">{lang.name}</p>
+                              {lang.native_name && lang.native_name !== lang.name && (
+                                <p className="text-sm text-gray-600">{lang.native_name}</p>
+                              )}
+                            </div>
+                            {isSelected && (
+                              <div className="text-primary-600 text-xl">OK</div>
+                            )}
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
 
-        {/* Footer */}
         <div className="p-6 border-t border-gray-200 bg-gray-50">
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-600">

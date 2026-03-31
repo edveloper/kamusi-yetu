@@ -2,6 +2,7 @@
 
 Date range: Feb 24, 2026 - Mar 9, 2026
 Policy: Every entry needs at least one bridge field (`english_translation` or `swahili_translation`).
+Status: Historical sprint record; core objectives materially completed
 
 ## Sprint Goal
 Ship v1 foundation for language expansion + bridge-based translation + bulk lexicon cleanup.
@@ -61,6 +62,12 @@ Ship v1 foundation for language expansion + bridge-based translation + bulk lexi
   - translate ranking behavior (direct, pivot fallback, no-result),
   - feedback validation/method mapping,
   - bulk bridge dry-run logic + lifecycle status transitions.
+- Completed after initial snapshot:
+  - explicit phrase contribution flow
+  - phrase-aware moderation queue and gap tracking
+  - structured usage example table and backfill
+  - phrase-aware browse/filter surfaces in search and explore
+  - phrase-prioritized translation ranking for multi-word input
 
 ## Prioritized Tickets
 1. DB migration + audit script execution.
@@ -75,6 +82,21 @@ Ship v1 foundation for language expansion + bridge-based translation + bulk lexi
 3. Audit dashboard shows decreasing missing-bridge count.
 4. Bulk updates are reversible by job id.
 5. QA pass on core flows (contribute, search, entry, moderation, translate).
+
+## Status Review
+
+This sprint backlog should now be treated as completed for its original scope.
+
+Still open, but now belonging to later phases rather than this sprint:
+
+- deeper integration testing around phrase workflows
+- stronger sentence-level evaluation
+- broader phrase pack seeding across languages
+
+Canonical forward plan now lives in:
+
+- [project-roadmap.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/project-roadmap.md)
+- [phrase-usage-layer-design.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/phrase-usage-layer-design.md)
 
 ## Risks
 1. Ambiguous polysemy across dialects.

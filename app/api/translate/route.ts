@@ -13,6 +13,7 @@ type Candidate = {
   translation: string
   confidence: number
   path_type: 'direct_bridge' | 'direct_edge' | 'pivot_sw' | 'pivot_en' | 'pivot_sw_en' | 'pivot_en_sw'
+  match_kind?: 'word' | 'phrase'
   source_entry_id: string
   target_entry_id?: string
   via?: 'swahili' | 'english'
@@ -23,6 +24,7 @@ type EntryRow = {
   headword: string
   normalized_headword: string | null
   language_id: string
+  part_of_speech: string | null
   english_translation: string | null
   swahili_translation: string | null
   validation_status: string
@@ -88,6 +90,15 @@ function getClient() {
   return createClient(url, anon)
 }
 
+function isPhraseEntry(entry: EntryRow) {
+  return String(entry.part_of_speech || '').toLowerCase() === 'phrase'
+}
+
+function phraseAdjustedConfidence(base: number, entry: EntryRow, preferPhrase: boolean) {
+  if (preferPhrase && isPhraseEntry(entry)) return Math.min(0.99, base + 0.2)
+  return base
+}
+
 export async function POST(req: Request) {
   try {
     const supabase = getClient()
@@ -118,6 +129,7 @@ export async function POST(req: Request) {
     }
 
     const normalized = normalizeText(text)
+    const preferPhrase = normalized.includes(' ')
 
     const { data: languageRowsData } = await supabase
       .from('languages')
@@ -130,7 +142,7 @@ export async function POST(req: Request) {
 
     const { data: sourceVerified, error: sourceVerifiedErr } = await supabase
       .from('entries')
-      .select('id, headword, normalized_headword, language_id, english_translation, swahili_translation, validation_status')
+      .select('id, headword, normalized_headword, language_id, part_of_speech, english_translation, swahili_translation, validation_status')
       .eq('language_id', sourceLanguageId)
       .eq('validation_status', 'verified')
       .or(`normalized_headword.eq.${normalized},headword.ilike.${text}`)
@@ -141,7 +153,7 @@ export async function POST(req: Request) {
     if (sources.length === 0) {
       const { data: sourceAny, error: sourceAnyErr } = await supabase
         .from('entries')
-        .select('id, headword, normalized_headword, language_id, english_translation, swahili_translation, validation_status')
+        .select('id, headword, normalized_headword, language_id, part_of_speech, english_translation, swahili_translation, validation_status')
         .eq('language_id', sourceLanguageId)
         .or(`normalized_headword.eq.${normalized},headword.ilike.${text}`)
         .limit(20)
@@ -150,6 +162,12 @@ export async function POST(req: Request) {
     }
     if (sources.length === 0) {
       return NextResponse.json({ ok: true, result: [] })
+    }
+
+    if (preferPhrase) {
+      const phraseSources = sources.filter(isPhraseEntry)
+      const wordSources = sources.filter((source) => !isPhraseEntry(source))
+      sources = [...phraseSources, ...wordSources]
     }
 
     const candidates: Candidate[] = []
@@ -173,14 +191,17 @@ export async function POST(req: Request) {
       const targets = (targetsData || []) as TargetEntryRow[]
 
       const targetMap = new Map(targets.map((t) => [t.id, t.headword]))
+      const sourceMap = new Map(sources.map((source) => [source.id, source]))
 
       for (const edge of edgeRows) {
         const headword = targetMap.get(edge.target_entry_id)
+        const source = sourceMap.get(edge.source_entry_id)
         if (!headword) continue
         candidates.push({
           translation: headword,
-          confidence: Number(edge.confidence || 0.7),
+          confidence: phraseAdjustedConfidence(Number(edge.confidence || 0.7), source || sources[0], preferPhrase),
           path_type: 'direct_edge',
+          match_kind: source && isPhraseEntry(source) ? 'phrase' : 'word',
           source_entry_id: edge.source_entry_id,
           target_entry_id: edge.target_entry_id
         })
@@ -191,8 +212,9 @@ export async function POST(req: Request) {
       if (targetLanguageId === englishLanguageId && s.english_translation) {
         candidates.push({
           translation: s.english_translation,
-          confidence: 0.95,
+          confidence: phraseAdjustedConfidence(0.95, s, preferPhrase),
           path_type: 'direct_bridge',
+          match_kind: isPhraseEntry(s) ? 'phrase' : 'word',
           source_entry_id: s.id,
           via: 'english'
         })
@@ -201,8 +223,9 @@ export async function POST(req: Request) {
       if (targetLanguageId === swahiliLanguageId && s.swahili_translation) {
         candidates.push({
           translation: s.swahili_translation,
-          confidence: 0.95,
+          confidence: phraseAdjustedConfidence(0.95, s, preferPhrase),
           path_type: 'direct_bridge',
+          match_kind: isPhraseEntry(s) ? 'phrase' : 'word',
           source_entry_id: s.id,
           via: 'swahili'
         })
@@ -231,8 +254,9 @@ export async function POST(req: Request) {
         for (const t of targetBySw || []) {
           candidates.push({
             translation: t.headword,
-            confidence: 0.6,
+            confidence: phraseAdjustedConfidence(0.6, s, preferPhrase),
             path_type: 'pivot_sw',
+            match_kind: isPhraseEntry(s) ? 'phrase' : 'word',
             source_entry_id: s.id,
             target_entry_id: t.id,
             via: 'swahili'
@@ -263,8 +287,9 @@ export async function POST(req: Request) {
         for (const t of targetByEn || []) {
           candidates.push({
             translation: t.headword,
-            confidence: 0.55,
+            confidence: phraseAdjustedConfidence(0.55, s, preferPhrase),
             path_type: 'pivot_en',
+            match_kind: isPhraseEntry(s) ? 'phrase' : 'word',
             source_entry_id: s.id,
             target_entry_id: t.id,
             via: 'english'
@@ -298,8 +323,9 @@ export async function POST(req: Request) {
               for (const t of targetByBridgeEn || []) {
                 candidates.push({
                   translation: t.headword,
-                  confidence: 0.5,
+                  confidence: phraseAdjustedConfidence(0.5, s, preferPhrase),
                   path_type: 'pivot_sw_en',
+                  match_kind: isPhraseEntry(s) ? 'phrase' : 'word',
                   source_entry_id: s.id,
                   target_entry_id: t.id,
                   via: 'english'
@@ -338,8 +364,9 @@ export async function POST(req: Request) {
               for (const t of targetByBridgeSw || []) {
                 candidates.push({
                   translation: t.headword,
-                  confidence: 0.5,
+                  confidence: phraseAdjustedConfidence(0.5, s, preferPhrase),
                   path_type: 'pivot_en_sw',
+                  match_kind: isPhraseEntry(s) ? 'phrase' : 'word',
                   source_entry_id: s.id,
                   target_entry_id: t.id,
                   via: 'swahili'

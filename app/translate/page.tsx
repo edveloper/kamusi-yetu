@@ -8,8 +8,15 @@ import {
   type TranslationCandidate,
   type TranslationFeedbackVerdict
 } from '@/lib/api/translate'
+import { groupLanguages } from '@/lib/constants/languageGroups'
 
-type LanguageOption = { id: string; name: string; code?: string | null }
+type LanguageOption = {
+  id: string
+  name: string
+  code?: string | null
+  language_group_key?: string | null
+  language_group_label?: string | null
+}
 
 function confidenceLabel(score: number) {
   if (score >= 0.85) return 'High'
@@ -26,6 +33,11 @@ function pathLabel(path: TranslationCandidate['path_type']) {
   return 'Via English'
 }
 
+function matchKindLabel(kind?: TranslationCandidate['match_kind']) {
+  if (kind === 'phrase') return 'Phrase Match'
+  return 'Word Match'
+}
+
 export default function TranslatePage() {
   const [languages, setLanguages] = useState<LanguageOption[]>([])
   const [sourceLanguageId, setSourceLanguageId] = useState('')
@@ -36,6 +48,7 @@ export default function TranslatePage() {
   const [results, setResults] = useState<TranslationCandidate[]>([])
   const [feedbackMap, setFeedbackMap] = useState<Record<string, TranslationFeedbackVerdict>>({})
   const [feedbackPending, setFeedbackPending] = useState<Record<string, boolean>>({})
+  const groupedLanguages = groupLanguages(languages)
 
   useEffect(() => {
     async function load() {
@@ -140,8 +153,12 @@ export default function TranslatePage() {
                 className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50"
               >
                 <option value="">Select source...</option>
-                {languages.map((l) => (
-                  <option key={l.id} value={l.id}>{l.name}</option>
+                {groupedLanguages.map((group) => (
+                  <optgroup key={group.key} label={group.label}>
+                    {group.languages.map((l) => (
+                      <option key={l.id} value={l.id}>{l.name}</option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>
@@ -154,8 +171,12 @@ export default function TranslatePage() {
                 className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50"
               >
                 <option value="">Select target...</option>
-                {languages.map((l) => (
-                  <option key={l.id} value={l.id}>{l.name}</option>
+                {groupedLanguages.map((group) => (
+                  <optgroup key={group.key} label={group.label}>
+                    {group.languages.map((l) => (
+                      <option key={l.id} value={l.id}>{l.name}</option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>
@@ -195,6 +216,9 @@ export default function TranslatePage() {
             return (
             <div key={key} className="bg-white p-6 rounded-2xl border border-stone-200">
               <div className="flex flex-wrap items-center gap-2 mb-2">
+                <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded bg-stone-900 text-white border border-stone-800">
+                  {matchKindLabel(r.match_kind)}
+                </span>
                 <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-100">
                   {pathLabel(r.path_type)}
                 </span>

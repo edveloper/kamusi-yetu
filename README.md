@@ -9,8 +9,10 @@ See [docs/project-roadmap.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/project-r
 - [docs/translation-roadmap.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/translation-roadmap.md)
 - [docs/sprint-backlog-2weeks.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/sprint-backlog-2weeks.md)
 - [docs/language-onboarding-pipeline.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/language-onboarding-pipeline.md)
+- [docs/phrase-usage-layer-design.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/phrase-usage-layer-design.md)
+- [docs/phase-2-expansion-plan.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/phase-2-expansion-plan.md)
+- [docs/language-rollout-waves.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/language-rollout-waves.md)
 - [docs/bulk-ingest-runbook.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/bulk-ingest-runbook.md)
-- [docs/first-batch-playbook.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/first-batch-playbook.md)
 
 ## Getting Started
 

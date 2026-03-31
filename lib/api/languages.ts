@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { attachLanguageGroup } from '@/lib/constants/languageGroups'
 
 export async function getLanguages() {
   const { data, error } = await supabase
@@ -8,7 +9,7 @@ export async function getLanguages() {
     .order('name')
 
   if (error) throw error
-  return data
+  return (data || []).map(attachLanguageGroup)
 }
 
 export async function getLanguageByCode(code: string) {
@@ -19,5 +20,5 @@ export async function getLanguageByCode(code: string) {
     .single()
 
   if (error) throw error
-  return data
+  return data ? attachLanguageGroup(data) : data
 }

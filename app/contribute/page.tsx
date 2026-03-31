@@ -9,6 +9,7 @@ import { CATEGORIES } from '@/lib/constants'
 import { supabase } from '@/lib/supabase'
 import { validateEntryRules } from '@/lib/validation/entry-rules'
 import Link from 'next/link'
+import { groupLanguages } from '@/lib/constants/languageGroups'
 
 interface ContributionForm {
   language: string
@@ -66,6 +67,7 @@ export default function ContributePage() {
   const isPhrase = contributionMode === 'phrase'
   const englishRequired = selectedLanguageCode === 'sw'
   const swahiliRequired = selectedLanguageCode === 'en'
+  const groupedLanguages = groupLanguages(languages)
 
   useEffect(() => {
     if (!loading && !user) router.push('/login')
@@ -394,7 +396,13 @@ export default function ContributePage() {
                   className="w-full px-6 py-5 bg-stone-50 border-2 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none"
                 >
                   <option value="">Select language...</option>
-                  {languages.map(lang => (<option key={lang.id} value={lang.id}>{lang.name}</option>))}
+                  {groupedLanguages.map((group) => (
+                    <optgroup key={group.key} label={group.label}>
+                      {group.languages.map((lang) => (
+                        <option key={lang.id} value={lang.id}>{lang.name}</option>
+                      ))}
+                    </optgroup>
+                  ))}
                 </select>
               </div>
 
