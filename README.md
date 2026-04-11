@@ -12,6 +12,7 @@ See [docs/project-roadmap.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/project-r
 - [docs/phrase-usage-layer-design.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/phrase-usage-layer-design.md)
 - [docs/phase-2-expansion-plan.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/phase-2-expansion-plan.md)
 - [docs/language-rollout-waves.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/language-rollout-waves.md)
+- [docs/trending-visual-spec.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/trending-visual-spec.md)
 - [docs/bulk-ingest-runbook.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/bulk-ingest-runbook.md)
 
 ## Getting Started

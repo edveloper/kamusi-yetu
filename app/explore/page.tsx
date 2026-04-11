@@ -31,6 +31,26 @@ const categories = [
 ]
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+const featuredExamples = [
+  {
+    label: 'Popular language groups',
+    tone: 'bg-white border-stone-200',
+    items: [
+      { source: 'salama', sourceLang: 'Swahili', target: 'peace; safety', targetLang: 'English' },
+      { source: 'mũndũ', sourceLang: 'Kikuyu', target: 'person', targetLang: 'English' },
+      { source: 'Andu', sourceLang: 'Kikuyu', target: 'people; community members', targetLang: 'English' },
+    ],
+  },
+  {
+    label: 'Underdocumented language groups',
+    tone: 'bg-emerald-50 border-emerald-100',
+    items: [
+      { source: 'poisho?', sourceLang: 'Pokot', target: 'hello', targetLang: 'English' },
+      { source: 'Wukiere', sourceLang: 'Suba', target: 'good morning', targetLang: 'English' },
+      { source: 'Akkam?', sourceLang: 'Orma', target: 'hello; how are you?', targetLang: 'English' },
+    ],
+  },
+]
 
 export default function ExplorePage() {
   const router = useRouter()
@@ -43,6 +63,14 @@ export default function ExplorePage() {
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [entryKind, setEntryKind] = useState<'all' | 'word' | 'phrase'>('all')
   const groupedLanguages = groupLanguages(languages)
+  const languageCards = languages
+    .map((lang) => ({ ...lang, count: languageCounts[lang.id] || 0 }))
+    .sort((a, b) => b.count - a.count)
+  const popularLanguages = languageCards.slice(0, 5)
+  const underdocumentedLanguages = languageCards
+    .filter((lang) => lang.count > 0)
+    .sort((a, b) => a.count - b.count)
+    .slice(0, 5)
 
   const goToSearch = (params: { q?: string; language?: string; category?: string; letter?: string; kind?: 'all' | 'word' | 'phrase' }) => {
     const query = new URLSearchParams()
@@ -105,7 +133,7 @@ export default function ExplorePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl md:text-7xl font-black mb-6 font-logo tracking-tight">Explore Dictionary</h1>
           <p className="text-xl text-emerald-100 max-w-2xl mx-auto font-medium opacity-90 leading-relaxed">
-            Dictionary mode. Search directly, then refine by language, letter, topic, and whether you want words or phrases.
+            Search across languages, browse by topic, and discover both well-documented and growing communities in the dictionary.
           </p>
           <div className="mt-10 bg-white/10 border border-white/20 rounded-2xl p-4 md:p-5 max-w-5xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_170px_170px_170px_auto] gap-3">
@@ -191,6 +219,73 @@ export default function ExplorePage() {
 
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid xl:grid-cols-[1.4fr_1fr] gap-8 mb-14">
+            <div className="bg-white rounded-[2rem] border border-stone-200 shadow-sm p-6 md:p-8">
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-700 mb-3">Featured Examples</p>
+              <h2 className="text-3xl font-black text-stone-900 font-logo mb-3">A quick way into the dictionary</h2>
+              <p className="text-stone-600 font-medium leading-relaxed mb-6">
+                Start with a few sample entries, then browse the communities with the deepest coverage or help strengthen languages that need more words and phrases.
+              </p>
+              <div className="grid gap-4">
+                {featuredExamples.map((group) => (
+                  <div key={group.label} className={`rounded-2xl border p-5 ${group.tone}`}>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-4">{group.label}</p>
+                    <div className="space-y-3">
+                      {group.items.map((item) => (
+                        <div key={`${item.source}-${item.sourceLang}`} className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 rounded-xl bg-stone-50/70 px-4 py-3">
+                          <div>
+                            <p className="text-lg font-black text-stone-900">{item.source}</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">{item.sourceLang}</p>
+                          </div>
+                          <div className="text-stone-400 font-black">{'->'}</div>
+                          <div className="md:text-right">
+                            <p className="text-lg font-black text-emerald-700">{item.target}</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">{item.targetLang}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-6">
+              <div className="bg-white rounded-[2rem] border border-stone-200 shadow-sm p-6">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-4">Popular Language Groups</p>
+                <div className="space-y-3">
+                  {popularLanguages.map((lang) => (
+                    <Link key={lang.id} href={`/search?language=${lang.id}`} className="flex items-center justify-between rounded-xl bg-stone-50 px-4 py-3 hover:bg-emerald-50 transition-colors">
+                      <div>
+                        <p className="font-black text-stone-900">{lang.name}</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">{lang.native_name}</p>
+                      </div>
+                      <span className="text-sm font-black text-emerald-700">{lang.count}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-emerald-50 rounded-[2rem] border border-emerald-100 shadow-sm p-6">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700 mb-4">Underdocumented Groups</p>
+                <div className="space-y-3">
+                  {underdocumentedLanguages.map((lang) => (
+                    <Link key={lang.id} href={`/search?language=${lang.id}`} className="flex items-center justify-between rounded-xl bg-white px-4 py-3 hover:bg-emerald-100/40 transition-colors">
+                      <div>
+                        <p className="font-black text-stone-900">{lang.name}</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">{lang.native_name}</p>
+                      </div>
+                      <span className="text-sm font-black text-emerald-700">{lang.count}</span>
+                    </Link>
+                  ))}
+                </div>
+                <p className="text-sm text-emerald-900 font-medium leading-relaxed mt-4">
+                  These communities are still growing in the dictionary and are a strong place to discover, contribute, and help strengthen coverage.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="flex items-center gap-4 mb-12">
             <h2 className="text-4xl font-black text-gray-900 font-logo">By Community</h2>
             <div className="h-px flex-1 bg-stone-200"></div>

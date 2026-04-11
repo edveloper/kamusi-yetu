@@ -14,6 +14,7 @@ function HomeContent() {
   const [wotd, setWotd] = useState<any>(null)
   const [latest, setLatest] = useState<any[]>([])
   const [languages, setLanguages] = useState<any[]>([])
+  const maturityLevels = ['Starter', 'Growing', 'Phrase-Ready', 'Review-Heavy']
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -55,7 +56,7 @@ function HomeContent() {
         <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
           <h1 className="text-6xl md:text-8xl font-black mb-8 tracking-tight font-logo uppercase">Kamusi Yetu</h1>
           <p className="text-xl md:text-2xl text-emerald-100 mb-12 opacity-80 font-medium max-w-2xl mx-auto">
-            Every Kenyan language, equal and alive. More languages are being onboarded continuously.
+            Every Kenyan language, equal and alive. The platform is now in the word-plus-phrase foundation stage, with more languages and deeper contextual coverage being added continuously.
           </p>
           <form onSubmit={handleSearch} className="max-w-2xl mx-auto relative group">
             <input
@@ -76,6 +77,28 @@ function HomeContent() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 -mt-12 relative z-20">
+        <div className="mb-10 rounded-[2rem] border border-emerald-200 bg-white p-6 md:p-8 shadow-lg">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-700 mb-2">Building in Public</p>
+              <h2 className="text-2xl md:text-3xl font-black text-stone-900 font-logo">Words are live. Phrases are expanding.</h2>
+              <p className="text-stone-600 font-medium mt-3 max-w-3xl">
+                Verified dictionary entries and bridge translation are already live. We are now expanding phrase packs, usage examples, and subgroup languages so the platform becomes more useful in real conversation.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {maturityLevels.map((level) => (
+                <span
+                  key={level}
+                  className="rounded-full border border-stone-200 bg-stone-50 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-stone-600"
+                >
+                  {level}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <Link href={wotd ? `/entry/${wotd.id}` : '#'}>
@@ -148,7 +171,7 @@ function HomeContent() {
         <div className="mt-16 bg-white border border-emerald-200 rounded-3xl p-8 md:p-10">
           <h3 className="text-2xl font-black text-stone-900 font-logo uppercase tracking-tight mb-3">Help Expand The Dictionary</h3>
           <p className="text-stone-600 font-medium mb-6 max-w-3xl">
-            Contribute a word or phrase in your language and help close translation gaps across Kenyan communities.
+            Contribute a word or phrase in your language and help move a community from starter coverage toward phrase-ready translation.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link

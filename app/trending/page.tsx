@@ -4,6 +4,12 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { getLanguages } from '@/lib/api/languages'
 import { supabase } from '@/lib/supabase'
+import KenyaCountyCoverageMap from '@/components/trending/KenyaCountyCoverageMap'
+import {
+  computeLanguageMaturity,
+  getLanguageMaturityDefinition,
+  type LanguageMaturity,
+} from '@/lib/constants/languageMaturity'
 
 type LanguageRow = {
   id: string
@@ -43,6 +49,16 @@ type LanguageMetric = {
   bridgeCoveragePct: number
   phraseEntries: number
   phraseMissingExamples: number
+  maturity: LanguageMaturity
+}
+
+type PhraseSpotlight = {
+  id: string
+  headword: string
+  languageName: string
+  languageCode: string
+  englishTranslation: string
+  swahiliTranslation: string
 }
 
 const ENTRY_PAGE_SIZE = 1000
@@ -114,7 +130,6 @@ export default function TrendingPage() {
 
         setExampleEntryIds(exampleIds)
 
-        // Best-effort: likes
         try {
           const { data: likesRows } = await supabase.from('entry_likes').select('entry_id')
           const likesAgg: Record<string, number> = {}
@@ -128,7 +143,6 @@ export default function TrendingPage() {
           setLikesByEntry({})
         }
 
-        // Best-effort: saves
         try {
           const { data: saveRows } = await supabase.from('saved_words').select('entry_id')
           const savesAgg: Record<string, number> = {}
@@ -153,67 +167,79 @@ export default function TrendingPage() {
 
   const languageById = useMemo(() => {
     const map = new Map<string, LanguageRow>()
-    for (const l of languages) map.set(l.id, l)
+    for (const language of languages) map.set(language.id, language)
     return map
   }, [languages])
 
   const languageMetrics = useMemo<LanguageMetric[]>(() => {
     const metrics: Record<string, LanguageMetric> = {}
-    for (const lang of languages) {
-      metrics[lang.id] = {
-        id: lang.id,
-        code: lang.code,
-        name: lang.name,
-        native_name: lang.native_name,
+
+    for (const language of languages) {
+      metrics[language.id] = {
+        id: language.id,
+        code: language.code,
+        name: language.name,
+        native_name: language.native_name,
         totalEntries: 0,
         missingBridge: 0,
         bridgeCoveragePct: 100,
         phraseEntries: 0,
-        phraseMissingExamples: 0
+        phraseMissingExamples: 0,
+        maturity: 'not_yet_covered',
       }
     }
 
-    for (const e of entries) {
-      if (!metrics[e.language_id]) continue
-      metrics[e.language_id].totalEntries += 1
+    for (const entry of entries) {
+      if (!metrics[entry.language_id]) continue
+      metrics[entry.language_id].totalEntries += 1
 
-      const en = String(e.english_translation || '').trim()
-      const sw = String(e.swahili_translation || '').trim()
-      const isPhrase = String(e.part_of_speech || '').toLowerCase() === 'phrase'
-      if (!en && !sw) {
-        metrics[e.language_id].missingBridge += 1
+      const english = String(entry.english_translation || '').trim()
+      const swahili = String(entry.swahili_translation || '').trim()
+      const isPhrase = String(entry.part_of_speech || '').toLowerCase() === 'phrase'
+
+      if (!english && !swahili) {
+        metrics[entry.language_id].missingBridge += 1
       }
+
       if (isPhrase) {
-        metrics[e.language_id].phraseEntries += 1
-        if (!exampleEntryIds.has(e.id)) {
-          metrics[e.language_id].phraseMissingExamples += 1
+        metrics[entry.language_id].phraseEntries += 1
+        if (!exampleEntryIds.has(entry.id)) {
+          metrics[entry.language_id].phraseMissingExamples += 1
         }
       }
     }
 
     const list = Object.values(metrics)
-    for (const m of list) {
-      m.bridgeCoveragePct =
-        m.totalEntries > 0 ? Math.round(((m.totalEntries - m.missingBridge) / m.totalEntries) * 100) : 100
+    for (const metric of list) {
+      metric.bridgeCoveragePct =
+        metric.totalEntries > 0
+          ? Math.round(((metric.totalEntries - metric.missingBridge) / metric.totalEntries) * 100)
+          : 100
+      metric.maturity = computeLanguageMaturity({
+        totalEntries: metric.totalEntries,
+        bridgeCoveragePct: metric.bridgeCoveragePct,
+        phraseEntries: metric.phraseEntries,
+        phraseMissingExamples: metric.phraseMissingExamples,
+      })
     }
+
     return list
   }, [entries, exampleEntryIds, languages])
 
   const topEntries = useMemo<EntryLite[]>(() => {
     return entries
-      .map((e) => {
-        const likes = likesByEntry[e.id] || 0
-        const saves = savesByEntry[e.id] || 0
-        const lang = languageById.get(e.language_id)
-        const score = likes * 2 + saves
+      .map((entry) => {
+        const likes = likesByEntry[entry.id] || 0
+        const saves = savesByEntry[entry.id] || 0
+        const language = languageById.get(entry.language_id)
         return {
-          id: e.id,
-          headword: e.headword,
-          languageName: lang?.name || 'Unknown',
-          languageCode: String(lang?.code || '').toUpperCase(),
+          id: entry.id,
+          headword: entry.headword,
+          languageName: language?.name || 'Unknown',
+          languageCode: String(language?.code || '').toUpperCase(),
           likes,
           saves,
-          score
+          score: likes * 2 + saves,
         }
       })
       .sort((a, b) => b.score - a.score || b.likes - a.likes || b.saves - a.saves)
@@ -224,36 +250,79 @@ export default function TrendingPage() {
     return [...entries]
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .slice(0, 8)
-      .map((e) => ({
-        id: e.id,
-        headword: e.headword,
-        languageName: languageById.get(e.language_id)?.name || 'Unknown',
-        createdAt: new Date(e.created_at).toLocaleDateString()
+      .map((entry) => ({
+        id: entry.id,
+        headword: entry.headword,
+        languageName: languageById.get(entry.language_id)?.name || 'Unknown',
+        createdAt: new Date(entry.created_at).toLocaleDateString(),
       }))
   }, [entries, languageById])
 
+  const popularCommunities = useMemo(() => {
+    return [...languageMetrics]
+      .filter((language) => language.totalEntries > 0)
+      .sort((a, b) => b.totalEntries - a.totalEntries || b.phraseEntries - a.phraseEntries)
+      .slice(0, 6)
+  }, [languageMetrics])
+
+  const growingCommunities = useMemo(() => {
+    return [...languageMetrics]
+      .filter((language) => (language.maturity === 'growing' || language.maturity === 'starter') && language.totalEntries > 0)
+      .sort((a, b) => a.totalEntries - b.totalEntries || b.phraseEntries - a.phraseEntries)
+      .slice(0, 6)
+  }, [languageMetrics])
+
   const contributionRequests = useMemo(() => {
     return [...languageMetrics]
+      .filter((language) => language.totalEntries > 0)
       .sort((a, b) => a.totalEntries - b.totalEntries || a.bridgeCoveragePct - b.bridgeCoveragePct)
       .slice(0, 8)
   }, [languageMetrics])
 
   const phraseMissions = useMemo(() => {
     return [...languageMetrics]
-      .filter((lang) => lang.phraseEntries > 0 || lang.totalEntries > 0)
+      .filter((language) => language.phraseEntries > 0 || language.totalEntries > 0)
       .sort((a, b) => b.phraseMissingExamples - a.phraseMissingExamples || a.phraseEntries - b.phraseEntries || a.totalEntries - b.totalEntries)
       .slice(0, 8)
   }, [languageMetrics])
 
+  const phraseSpotlights = useMemo<PhraseSpotlight[]>(() => {
+    return entries
+      .filter((entry) => String(entry.part_of_speech || '').toLowerCase() === 'phrase')
+      .map((entry) => {
+        const language = languageById.get(entry.language_id)
+        return {
+          id: entry.id,
+          headword: entry.headword,
+          languageName: language?.name || 'Unknown',
+          languageCode: String(language?.code || '').toUpperCase(),
+          englishTranslation: String(entry.english_translation || '').trim(),
+          swahiliTranslation: String(entry.swahili_translation || '').trim(),
+        }
+      })
+      .filter((entry) => entry.englishTranslation || entry.swahiliTranslation)
+      .sort((a, b) => a.languageName.localeCompare(b.languageName))
+      .slice(0, 4)
+  }, [entries, languageById])
+
   const summary = useMemo(() => {
     const totalEntries = entries.length
     const totalLanguages = languages.length
-    const totalMissingBridge = languageMetrics.reduce((acc, l) => acc + l.missingBridge, 0)
+    const totalMissingBridge = languageMetrics.reduce((acc, language) => acc + language.missingBridge, 0)
     const totalWithBridge = totalEntries - totalMissingBridge
     const bridgePct = totalEntries > 0 ? Math.round((totalWithBridge / totalEntries) * 100) : 0
-    const phraseEntries = languageMetrics.reduce((acc, l) => acc + l.phraseEntries, 0)
-    const phraseMissingExamples = languageMetrics.reduce((acc, l) => acc + l.phraseMissingExamples, 0)
-    return { totalEntries, totalLanguages, totalMissingBridge, bridgePct, phraseEntries, phraseMissingExamples }
+    const phraseEntries = languageMetrics.reduce((acc, language) => acc + language.phraseEntries, 0)
+    const phraseReadyLanguages = languageMetrics.filter((language) => language.maturity === 'phrase_ready').length
+    const reviewHeavyLanguages = languageMetrics.filter((language) => language.maturity === 'review_heavy').length
+
+    return {
+      totalEntries,
+      totalLanguages,
+      bridgePct,
+      phraseEntries,
+      phraseReadyLanguages,
+      reviewHeavyLanguages,
+    }
   }, [entries, languages.length, languageMetrics])
 
   return (
@@ -262,7 +331,7 @@ export default function TrendingPage() {
         <div className="max-w-6xl mx-auto px-4 text-center relative z-10">
           <h1 className="text-5xl md:text-7xl font-black mb-6 font-logo tracking-tight">Trending</h1>
           <p className="text-lg md:text-2xl text-emerald-100 opacity-90 leading-relaxed font-medium">
-            Community pulse, dictionary health, and live missions for preserving lesser-known languages.
+            Community pulse, dictionary health, and live opportunities to strengthen Kenya&apos;s languages.
           </p>
         </div>
       </div>
@@ -274,20 +343,117 @@ export default function TrendingPage() {
           </div>
         )}
 
-        <section className="grid md:grid-cols-4 gap-4 mb-10">
+        <section className="grid md:grid-cols-3 xl:grid-cols-6 gap-4 mb-10">
           {[
             { label: 'Verified Entries', value: summary.totalEntries },
             { label: 'Active Languages', value: summary.totalLanguages },
             { label: 'Bridge Coverage', value: `${summary.bridgePct}%` },
-            { label: 'Missing Bridge', value: summary.totalMissingBridge },
             { label: 'Verified Phrases', value: summary.phraseEntries },
-            { label: 'Phrases Missing Examples', value: summary.phraseMissingExamples }
+            { label: 'Phrase-Ready', value: summary.phraseReadyLanguages },
+            { label: 'Review-Heavy', value: summary.reviewHeavyLanguages },
           ].map((card) => (
             <div key={card.label} className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
               <p className="text-[10px] text-stone-500 uppercase tracking-widest font-black mb-2">{card.label}</p>
               <p className="text-3xl font-black text-stone-900 font-logo">{loading ? '...' : card.value}</p>
             </div>
           ))}
+        </section>
+
+        <KenyaCountyCoverageMap
+          languageMetrics={languageMetrics.map((language) => ({
+            id: language.id,
+            code: language.code,
+            name: language.name,
+            totalEntries: language.totalEntries,
+            phraseEntries: language.phraseEntries,
+            maturity: language.maturity,
+          }))}
+        />
+
+        <section className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6 mb-10">
+          <div className="bg-white rounded-3xl border border-stone-200 p-8 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-700 mb-2">Communities</p>
+                <h2 className="text-2xl font-black font-logo text-stone-900">Popular Communities</h2>
+              </div>
+              <Link href="/explore" className="text-xs font-black uppercase tracking-widest text-emerald-700">
+                Explore
+              </Link>
+            </div>
+            <div className="grid md:grid-cols-2 gap-4">
+              {popularCommunities.map((language) => {
+                const maturity = getLanguageMaturityDefinition(language.maturity)
+                return (
+                  <Link key={language.id} href={`/search?language=${encodeURIComponent(language.id)}`} className="block">
+                    <div className="rounded-2xl border border-stone-100 bg-stone-50 p-5 hover:bg-white hover:border-emerald-200 transition">
+                      <div className="flex items-start justify-between gap-4 mb-3">
+                        <div>
+                          <p className="text-lg font-black text-stone-900">{language.name}</p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
+                            {language.code} {language.native_name ? `| ${language.native_name}` : ''}
+                          </p>
+                        </div>
+                        <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${maturity.badgeClassName}`}>
+                          {maturity.shortLabel}
+                        </span>
+                      </div>
+                      <p className="text-sm text-stone-600 font-medium leading-relaxed mb-4">{maturity.description}</p>
+                      <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-stone-500">
+                        <span>{language.totalEntries} entries</span>
+                        <span>{language.phraseEntries} phrases</span>
+                        <span>{language.bridgeCoveragePct}% bridge</span>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="bg-emerald-50 rounded-3xl border border-emerald-100 p-8 shadow-sm">
+            <div className="mb-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-700 mb-2">Growing Coverage</p>
+              <h2 className="text-2xl font-black font-logo text-stone-900">Where contributions matter most</h2>
+            </div>
+            <div className="space-y-3">
+              {growingCommunities.map((language) => {
+                const maturity = getLanguageMaturityDefinition(language.maturity)
+                return (
+                  <div key={language.id} className="rounded-2xl bg-white border border-emerald-100 p-4">
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <div>
+                        <p className="font-black text-stone-900">{language.name}</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">{language.code}</p>
+                      </div>
+                      <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${maturity.badgeClassName}`}>
+                        {maturity.shortLabel}
+                      </span>
+                    </div>
+                    <p className="text-sm text-stone-600 font-medium mb-3">
+                      {language.phraseEntries > 0
+                        ? 'This language has live phrase coverage and will improve quickly with more examples and context.'
+                        : 'This language is live and can become much more useful with the next wave of phrase and example contributions.'}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <Link
+                        href={`/contribute?lang=${encodeURIComponent(language.code)}`}
+                        className="px-3 py-2 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500"
+                      >
+                        Add Word
+                      </Link>
+                      <Link
+                        href={`/contribute?type=phrase&lang=${encodeURIComponent(language.code)}`}
+                        className="px-3 py-2 rounded-xl bg-white border border-stone-200 text-[10px] font-black uppercase tracking-widest text-stone-700"
+                      >
+                        Add Phrase
+                      </Link>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         </section>
 
         <section className="grid lg:grid-cols-2 gap-6 mb-10">
@@ -299,18 +465,18 @@ export default function TrendingPage() {
               </Link>
             </div>
             <div className="space-y-3">
-              {topEntries.map((e) => (
-                <Link key={e.id} href={`/entry/${e.id}`} className="block">
+              {topEntries.map((entry) => (
+                <Link key={entry.id} href={`/entry/${entry.id}`} className="block">
                   <div className="rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3 hover:bg-white hover:border-emerald-200 transition">
                     <div className="flex items-center justify-between gap-4">
                       <div className="min-w-0">
-                        <p className="font-black text-stone-900 truncate">{e.headword}</p>
+                        <p className="font-black text-stone-900 truncate">{entry.headword}</p>
                         <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
-                          {e.languageName} ({e.languageCode || 'N/A'})
+                          {entry.languageName} ({entry.languageCode || 'N/A'})
                         </p>
                       </div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700 whitespace-nowrap">
-                        Likes {e.likes} | Saves {e.saves}
+                        Likes {entry.likes} | Saves {entry.saves}
                       </p>
                     </div>
                   </div>
@@ -330,24 +496,64 @@ export default function TrendingPage() {
               </Link>
             </div>
             <div className="space-y-3">
-              {newestEntries.map((e) => (
-                <Link key={e.id} href={`/entry/${e.id}`} className="block">
+              {newestEntries.map((entry) => (
+                <Link key={entry.id} href={`/entry/${entry.id}`} className="block">
                   <div className="rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3 hover:bg-white hover:border-emerald-200 transition">
                     <div className="flex items-center justify-between gap-4">
                       <div className="min-w-0">
-                        <p className="font-black text-stone-900 truncate">{e.headword}</p>
+                        <p className="font-black text-stone-900 truncate">{entry.headword}</p>
                         <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
-                          {e.languageName}
+                          {entry.languageName}
                         </p>
                       </div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-stone-500 whitespace-nowrap">
-                        {e.createdAt}
+                        {entry.createdAt}
                       </p>
                     </div>
                   </div>
                 </Link>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section className="bg-white rounded-3xl border border-stone-200 p-8 shadow-sm mb-10">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-700 mb-2">Phrase Spotlight</p>
+              <h2 className="text-2xl font-black font-logo text-stone-900">Context worth preserving</h2>
+            </div>
+            <Link href="/search?kind=phrase" className="text-xs font-black uppercase tracking-widest text-emerald-700">
+              Browse phrases
+            </Link>
+          </div>
+          <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+            {phraseSpotlights.map((entry) => (
+              <Link key={entry.id} href={`/entry/${entry.id}`} className="block">
+                <div className="rounded-2xl border border-stone-100 bg-stone-50 p-5 hover:bg-white hover:border-emerald-200 transition h-full">
+                  <div className="mb-3">
+                    <p className="text-xl font-black text-stone-900">{entry.headword}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
+                      {entry.languageName} ({entry.languageCode || 'N/A'})
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    {entry.englishTranslation && (
+                      <p className="text-sm text-stone-700 font-medium">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-stone-400 block mb-1">English</span>
+                        {entry.englishTranslation}
+                      </p>
+                    )}
+                    {entry.swahiliTranslation && (
+                      <p className="text-sm text-stone-700 font-medium">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-stone-400 block mb-1">Swahili</span>
+                        {entry.swahiliTranslation}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
 
@@ -362,31 +568,31 @@ export default function TrendingPage() {
             Focus on languages with fewer entries and lower bridge coverage. These missions help close discovery gaps quickly.
           </p>
           <div className="grid md:grid-cols-2 gap-4">
-            {contributionRequests.map((lang) => (
-              <div key={lang.id} className="rounded-2xl border border-stone-100 bg-stone-50 p-5">
+            {contributionRequests.map((language) => (
+              <div key={language.id} className="rounded-2xl border border-stone-100 bg-stone-50 p-5">
                 <div className="flex items-center justify-between gap-3 mb-3">
                   <div>
-                    <p className="text-lg font-black text-stone-900">{lang.name}</p>
+                    <p className="text-lg font-black text-stone-900">{language.name}</p>
                     <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
-                      {lang.code} {lang.native_name ? `| ${lang.native_name}` : ''}
+                      {language.code} {language.native_name ? `| ${language.native_name}` : ''}
                     </p>
                   </div>
-                  <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg bg-amber-100 text-amber-700">
-                    {lang.totalEntries} entries
+                  <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${getLanguageMaturityDefinition(language.maturity).badgeClassName}`}>
+                    {getLanguageMaturityDefinition(language.maturity).shortLabel}
                   </span>
                 </div>
                 <div className="text-[11px] font-bold text-stone-600 uppercase tracking-widest mb-4">
-                  Bridge coverage: {lang.bridgeCoveragePct}% | Missing bridge: {lang.missingBridge}
+                  Bridge coverage: {language.bridgeCoveragePct}% | Missing bridge: {language.missingBridge}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Link
-                    href={`/contribute?lang=${encodeURIComponent(lang.code)}`}
+                    href={`/contribute?lang=${encodeURIComponent(language.code)}`}
                     className="px-3 py-2 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500"
                   >
-                    Contribute in {lang.code}
+                    Contribute in {language.code}
                   </Link>
                   <Link
-                    href={`/search?language=${encodeURIComponent(lang.id)}`}
+                    href={`/search?language=${encodeURIComponent(language.id)}`}
                     className="px-3 py-2 rounded-xl bg-white border border-stone-200 text-[10px] font-black uppercase tracking-widest text-stone-700"
                   >
                     Review entries
@@ -408,31 +614,31 @@ export default function TrendingPage() {
             Phrase coverage is the next quality layer. These languages need more phrase entries or better contextual examples.
           </p>
           <div className="grid md:grid-cols-2 gap-4">
-            {phraseMissions.map((lang) => (
-              <div key={lang.id} className="rounded-2xl border border-stone-100 bg-stone-50 p-5">
+            {phraseMissions.map((language) => (
+              <div key={language.id} className="rounded-2xl border border-stone-100 bg-stone-50 p-5">
                 <div className="flex items-center justify-between gap-3 mb-3">
                   <div>
-                    <p className="text-lg font-black text-stone-900">{lang.name}</p>
+                    <p className="text-lg font-black text-stone-900">{language.name}</p>
                     <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
-                      {lang.code} {lang.native_name ? `| ${lang.native_name}` : ''}
+                      {language.code} {language.native_name ? `| ${language.native_name}` : ''}
                     </p>
                   </div>
                   <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg bg-stone-900 text-white">
-                    {lang.phraseEntries} phrases
+                    {language.phraseEntries} phrases
                   </span>
                 </div>
                 <div className="text-[11px] font-bold text-stone-600 uppercase tracking-widest mb-4">
-                  Missing phrase examples: {lang.phraseMissingExamples} | Total entries: {lang.totalEntries}
+                  Missing phrase examples: {language.phraseMissingExamples} | Total entries: {language.totalEntries}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Link
-                    href={`/contribute?type=phrase&lang=${encodeURIComponent(lang.code)}`}
+                    href={`/contribute?type=phrase&lang=${encodeURIComponent(language.code)}`}
                     className="px-3 py-2 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500"
                   >
-                    Add phrase in {lang.code}
+                    Add phrase in {language.code}
                   </Link>
                   <Link
-                    href={`/search?language=${encodeURIComponent(lang.id)}&kind=phrase`}
+                    href={`/search?language=${encodeURIComponent(language.id)}&kind=phrase`}
                     className="px-3 py-2 rounded-xl bg-white border border-stone-200 text-[10px] font-black uppercase tracking-widest text-stone-700"
                   >
                     Review phrases

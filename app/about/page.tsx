@@ -3,6 +3,25 @@
 import Link from 'next/link'
 
 export default function AboutPage() {
+  const maturityLevels = [
+    {
+      title: 'Starter',
+      desc: 'A language has enough verified seed entries to appear in the product, but still needs more words, phrases, and examples.',
+    },
+    {
+      title: 'Growing',
+      desc: 'Word coverage is improving and phrase packs are underway, making the dictionary increasingly useful for daily lookups.',
+    },
+    {
+      title: 'Phrase-Ready',
+      desc: 'A language has meaningful phrase coverage and usage context, so translation quality improves beyond isolated words.',
+    },
+    {
+      title: 'Review-Heavy',
+      desc: 'A language is visible, but entries still need deeper expert or community review before it can be treated as broadly reliable.',
+    },
+  ]
+
   return (
     <div className="min-h-screen bg-stone-50 pb-20">
       <div className="bg-emerald-900 text-white py-32 border-b border-emerald-800 relative overflow-hidden">
@@ -31,7 +50,7 @@ export default function AboutPage() {
               &ldquo;We believe that technology should serve heritage. By building a digital home for our mother tongues, we empower the next generation to speak with pride and precision.&rdquo;
             </p>
             <p className="text-lg text-stone-600 leading-relaxed font-medium">
-              We are currently in the dictionary and word-translation phase. Our near-term milestones are phrase packs and sentence translation, followed by document and speech translation systems grounded in verified community data.
+              We are now in the late dictionary-plus-phrase foundation stage. Word lookup, bridge translation, and moderation are already live, while phrase packs, usage examples, and subgroup language rollout are actively expanding the platform toward sentence translation.
             </p>
           </div>
         </section>
@@ -79,6 +98,43 @@ export default function AboutPage() {
           ))}
         </div>
 
+        <section className="bg-white rounded-[3rem] shadow-xl border border-stone-200 p-8 md:p-16 mb-16">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+            <div>
+              <span className="text-sm font-black uppercase tracking-widest text-emerald-700">Our Progress</span>
+              <h2 className="text-3xl md:text-4xl font-black text-gray-900 font-logo mt-2">Where We Are Now</h2>
+            </div>
+            <span className="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-100 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700">
+              Phase 2 In Progress
+            </span>
+          </div>
+          <div className="grid md:grid-cols-3 gap-5 mb-10">
+            <div className="rounded-2xl border border-stone-100 bg-stone-50 p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-2">Available Today</p>
+              <p className="text-stone-700 font-medium">Verified word entries, bridge translation, moderation workflows, and active language expansion.</p>
+            </div>
+            <div className="rounded-2xl border border-stone-100 bg-stone-50 p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-2">Growing Next</p>
+              <p className="text-stone-700 font-medium">Phrase packs, usage examples, subgroup rollouts, and phrase-aware search and moderation.</p>
+            </div>
+            <div className="rounded-2xl border border-stone-100 bg-stone-50 p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-2">Why Context Matters</p>
+              <p className="text-stone-700 font-medium">Enough contextual data to support sentence translation that is better than simple word substitution.</p>
+            </div>
+          </div>
+          <div>
+            <h3 className="text-2xl font-black text-stone-900 font-logo mb-5">How Language Growth Works</h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              {maturityLevels.map((item) => (
+                <div key={item.title} className="rounded-2xl border border-stone-100 bg-white p-5">
+                  <p className="text-lg font-black text-stone-900 mb-2">{item.title}</p>
+                  <p className="text-stone-600 font-medium leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="bg-white rounded-[3rem] shadow-xl border border-stone-200 p-8 md:p-16 mb-16 overflow-hidden">
           <div className="flex flex-col gap-3 mb-8">
             <span className="text-sm font-black uppercase tracking-widest text-emerald-700">Roadmap</span>
@@ -89,11 +145,11 @@ export default function AboutPage() {
           <div className="space-y-5">
             {[
               {
-                title: 'Phase 1 - Dictionary Foundation (Current)',
+                title: 'Phase 1 - Dictionary Foundation',
                 desc: 'Build verified word entries, bridge translations (EN/SW), moderation workflows, and language expansion.',
               },
               {
-                title: 'Phase 2 - Phrase Layer',
+                title: 'Phase 2 - Phrase Layer (Current)',
                 desc: 'Add high-frequency phrase packs with usage context, formality, and domain tags for real conversational meaning.',
               },
               {

@@ -38,6 +38,27 @@ function matchKindLabel(kind?: TranslationCandidate['match_kind']) {
   return 'Word Match'
 }
 
+const translationExamples = [
+  {
+    sourceText: 'salama',
+    sourceLabel: 'Swahili',
+    targetText: 'peace; safety',
+    targetLabel: 'English',
+  },
+  {
+    sourceText: 'poisho?',
+    sourceLabel: 'Pokot',
+    targetText: 'hello',
+    targetLabel: 'English',
+  },
+  {
+    sourceText: 'Milembe',
+    sourceLabel: 'Logooli',
+    targetText: 'hello',
+    targetLabel: 'English',
+  },
+]
+
 export default function TranslatePage() {
   const [languages, setLanguages] = useState<LanguageOption[]>([])
   const [sourceLanguageId, setSourceLanguageId] = useState('')
@@ -143,6 +164,24 @@ export default function TranslatePage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 -mt-10">
+        <div className="mb-6 grid md:grid-cols-3 gap-4">
+          {translationExamples.map((example) => (
+            <button
+              key={`${example.sourceText}-${example.sourceLabel}`}
+              type="button"
+              onClick={() => setText(example.sourceText)}
+              className="text-left rounded-[1.5rem] border border-stone-200 bg-white p-5 shadow-sm hover:border-emerald-200 hover:bg-emerald-50/40 transition-all"
+            >
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-2">Example</p>
+              <p className="text-xl font-black text-stone-900">{example.sourceText}</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mt-1">{example.sourceLabel}</p>
+              <div className="my-3 h-px bg-stone-100"></div>
+              <p className="text-lg font-black text-emerald-700">{example.targetText}</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mt-1">{example.targetLabel}</p>
+            </button>
+          ))}
+        </div>
+
         <form onSubmit={onSubmit} className="bg-white p-8 rounded-[2rem] border border-stone-200 shadow-xl space-y-6">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
@@ -190,6 +229,9 @@ export default function TranslatePage() {
               placeholder="Type a word or phrase..."
               className="w-full px-4 py-4 rounded-xl border border-stone-200 bg-stone-50"
             />
+            <p className="mt-3 text-sm text-stone-500 font-medium">
+              Try one of the examples above, or enter a word or short phrase from any active language.
+            </p>
           </div>
 
           {error && (

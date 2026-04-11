@@ -86,6 +86,14 @@ Already separate or related Kalenjin-linked records in the registry:
 - Okiek (`oki`)
 - Omotik (`omt`)
 
+Current execution note:
+
+- First Kalenjin subgroup starter wave uses Kipsigis and Nandi:
+  - `sql/054_stage_kalenjin_subgroup_wave1_kipsigis_nandi.sql`
+  - `sql/055_validate_kalenjin_subgroup_wave1_kipsigis_nandi.sql`
+  - `sql/056_apply_kalenjin_subgroup_wave1_kipsigis_nandi.sql`
+  - `sql/057_activate_kalenjin_subgroup_wave1_kipsigis_nandi.sql`
+
 ## Wave 4 - Ultra-Low-Resource Languages
 
 These should remain review-heavy and activation-delayed until stronger expert or community sourcing is available:
@@ -136,8 +144,20 @@ Current execution note:
   - `sql/039_validate_wave1_starter_packs.sql`
   - `sql/040_apply_wave1_starter_packs.sql`
   - `sql/041_activate_wave1_languages.sql`
-- Wave 2 now begins with Sabaot only:
+- Wave 2 now begins with Sabaot:
   - `sql/042_stage_wave2_sabaot_starter_pack.sql`
   - `sql/043_validate_wave2_sabaot_starter_pack.sql`
   - `sql/044_apply_wave2_sabaot_starter_pack.sql`
+- Sabaot activation:
+  - `sql/045_activate_sabaot_wave2.sql`
+- First Luhya subgroup starter wave uses Olutsotso:
+  - `sql/046_stage_luhya_subgroup_wave1_olutsotso.sql`
+  - `sql/047_validate_luhya_subgroup_wave1_olutsotso.sql`
+  - `sql/048_apply_luhya_subgroup_wave1_olutsotso.sql`
+  - `sql/049_activate_luhya_subgroup_wave1_olutsotso.sql`
+- Second Luhya subgroup starter wave uses Bukusu and Logooli:
+  - `sql/050_stage_luhya_subgroup_wave2_bukusu_logooli.sql`
+  - `sql/051_validate_luhya_subgroup_wave2_bukusu_logooli.sql`
+  - `sql/052_apply_luhya_subgroup_wave2_bukusu_logooli.sql`
+  - `sql/053_activate_luhya_subgroup_wave2_bukusu_logooli.sql`
 - `oki` remains registered but pending stronger public lexical coverage or expert-supported curation before a `10 + 5` starter threshold is attempted.

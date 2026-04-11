@@ -1,0 +1,57 @@
+export type CountyTileLayout = {
+  countyCode: string
+  x: number
+  y: number
+}
+
+// A curated tile layout for a Kenya county atlas. This is intentionally
+// simplified for editorial visualization and is not a geographic boundary map.
+export const KENYA_COUNTY_TILE_LAYOUT: CountyTileLayout[] = [
+  { countyCode: 'mdr', x: 7, y: 0 },
+  { countyCode: 'wjr', x: 6, y: 1 },
+  { countyCode: 'mrs', x: 7, y: 1 },
+  { countyCode: 'grs', x: 6, y: 2 },
+  { countyCode: 'isi', x: 5, y: 2 },
+  { countyCode: 'lam', x: 8, y: 3 },
+  { countyCode: 'trv', x: 7, y: 3 },
+  { countyCode: 'smy', x: 0, y: 4 },
+  { countyCode: 'ksm', x: 1, y: 4 },
+  { countyCode: 'hmb', x: 1, y: 5 },
+  { countyCode: 'mig', x: 0, y: 5 },
+  { countyCode: 'kis', x: 2, y: 5 },
+  { countyCode: 'nmr', x: 2, y: 6 },
+  { countyCode: 'bsi', x: 1, y: 3 },
+  { countyCode: 'bgm', x: 2, y: 3 },
+  { countyCode: 'kak', x: 2, y: 4 },
+  { countyCode: 'vga', x: 3, y: 4 },
+  { countyCode: 'trk', x: 3, y: 1 },
+  { countyCode: 'wpk', x: 3, y: 2 },
+  { countyCode: 'skr', x: 4, y: 2 },
+  { countyCode: 'tnz', x: 3, y: 3 },
+  { countyCode: 'uas', x: 4, y: 3 },
+  { countyCode: 'elg', x: 5, y: 3 },
+  { countyCode: 'nan', x: 4, y: 4 },
+  { countyCode: 'bar', x: 4, y: 1 },
+  { countyCode: 'lak', x: 5, y: 4 },
+  { countyCode: 'nak', x: 4, y: 5 },
+  { countyCode: 'nrv', x: 3, y: 6 },
+  { countyCode: 'kaj', x: 4, y: 7 },
+  { countyCode: 'ker', x: 3, y: 5 },
+  { countyCode: 'bom', x: 2, y: 6 },
+  { countyCode: 'nri', x: 6, y: 4 },
+  { countyCode: 'nyd', x: 5, y: 5 },
+  { countyCode: 'krg', x: 6, y: 5 },
+  { countyCode: 'mur', x: 5, y: 6 },
+  { countyCode: 'kmb', x: 5, y: 7 },
+  { countyCode: 'nbr', x: 6, y: 7 },
+  { countyCode: 'emb', x: 6, y: 6 },
+  { countyCode: 'thr', x: 7, y: 6 },
+  { countyCode: 'mru', x: 7, y: 5 },
+  { countyCode: 'ktu', x: 7, y: 7 },
+  { countyCode: 'mku', x: 6, y: 8 },
+  { countyCode: 'mak', x: 7, y: 8 },
+  { countyCode: 'mom', x: 9, y: 6 },
+  { countyCode: 'kwl', x: 8, y: 7 },
+  { countyCode: 'kil', x: 9, y: 5 },
+  { countyCode: 'trt', x: 8, y: 8 },
+]

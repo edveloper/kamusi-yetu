@@ -12,6 +12,7 @@ Working design document:
 - [phrase-usage-layer-design.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/phrase-usage-layer-design.md)
 - [phase-2-expansion-plan.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/phase-2-expansion-plan.md)
 - [language-rollout-waves.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/language-rollout-waves.md)
+- [trending-visual-spec.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/trending-visual-spec.md)
 
 Checkpoint progress:
 
