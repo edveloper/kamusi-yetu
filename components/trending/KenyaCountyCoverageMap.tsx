@@ -341,6 +341,12 @@ export default function KenyaCountyCoverageMap({ languageMetrics }: CountyCovera
               ) : null}
 
               <div className="flex flex-wrap gap-2">
+                <Link
+                  href={`/explore?county=${encodeURIComponent(selectedCounty.countyCode)}`}
+                  className="px-3 py-2 rounded-xl border border-stone-200 bg-white text-[10px] font-black uppercase tracking-widest text-stone-700 hover:border-emerald-200 hover:text-emerald-700"
+                >
+                  Explore {selectedCounty.countyName}
+                </Link>
                 {selectedCounty.mappedLanguages.slice(0, 2).map((language) => (
                   <Link
                     key={`contribute-${selectedCounty.countyCode}-${language.code}`}

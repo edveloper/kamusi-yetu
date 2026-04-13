@@ -7,19 +7,7 @@ import { searchEntries } from '@/lib/api/entries'
 import { getLanguages } from '@/lib/api/languages'
 import { getLanguageNote } from '@/lib/constants/languageNotes'
 import { groupLanguages } from '@/lib/constants/languageGroups'
-
-const CATEGORIES = [
-  { id: 'family', name: 'Family' },
-  { id: 'food', name: 'Food' },
-  { id: 'home', name: 'Home' },
-  { id: 'nature', name: 'Nature' },
-  { id: 'culture', name: 'Culture' },
-  { id: 'business', name: 'Work' },
-  { id: 'tech', name: 'Tech' },
-  { id: 'health', name: 'Health' },
-  { id: 'education', name: 'Education' },
-  { id: 'law', name: 'Law' },
-]
+import { CATEGORIES } from '@/lib/constants'
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 

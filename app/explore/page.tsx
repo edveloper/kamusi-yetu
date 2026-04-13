@@ -1,12 +1,14 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { getLanguages } from '@/lib/api/languages'
 import { supabase } from '@/lib/supabase'
 import { groupLanguages } from '@/lib/constants/languageGroups'
 import { getLanguageGroupNote } from '@/lib/constants/languageNotes'
+import { getCountyLanguagePresence } from '@/lib/constants/languageCountyPresence'
+import { CATEGORIES } from '@/lib/constants'
 
 type LanguageItem = {
   id: string
@@ -16,19 +18,6 @@ type LanguageItem = {
   language_group_key?: string | null
   language_group_label?: string | null
 }
-
-const categories = [
-  { id: 'family', name: 'Family & Relationships', icon: 'Family' },
-  { id: 'food', name: 'Food & Cooking', icon: 'Food' },
-  { id: 'home', name: 'Home & Daily Life', icon: 'Home' },
-  { id: 'nature', name: 'Agriculture & Nature', icon: 'Nature' },
-  { id: 'culture', name: 'Culture & Traditions', icon: 'Culture' },
-  { id: 'business', name: 'Work & Business', icon: 'Business' },
-  { id: 'tech', name: 'Technology & Modern Life', icon: 'Tech' },
-  { id: 'health', name: 'Health & Body', icon: 'Health' },
-  { id: 'education', name: 'Education', icon: 'Education' },
-  { id: 'law', name: 'Law & Governance', icon: 'Law' }
-]
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 const featuredExamples = [
@@ -52,8 +41,9 @@ const featuredExamples = [
   },
 ]
 
-export default function ExplorePage() {
+function ExplorePageContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [languages, setLanguages] = useState<LanguageItem[]>([])
   const [loading, setLoading] = useState(true)
   const [languageCounts, setLanguageCounts] = useState<Record<string, number>>({})
@@ -62,10 +52,26 @@ export default function ExplorePage() {
   const [languageFilter, setLanguageFilter] = useState('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [entryKind, setEntryKind] = useState<'all' | 'word' | 'phrase'>('all')
+
+  const selectedCountyCode = String(searchParams.get('county') || '').toLowerCase()
+  const selectedCounty = selectedCountyCode ? getCountyLanguagePresence(selectedCountyCode) : undefined
   const groupedLanguages = groupLanguages(languages)
   const languageCards = languages
     .map((lang) => ({ ...lang, count: languageCounts[lang.id] || 0 }))
     .sort((a, b) => b.count - a.count)
+  const languageByCode = useMemo(
+    () => new Map(languages.map((language) => [String(language.code || '').toLowerCase(), language])),
+    [languages]
+  )
+  const countyLanguageCards = useMemo(() => {
+    if (!selectedCounty) return []
+
+    return selectedCounty.languageCodes
+      .map((code) => languageByCode.get(code.toLowerCase()))
+      .filter(Boolean)
+      .map((lang) => ({ ...lang!, count: languageCounts[lang!.id] || 0 }))
+      .sort((a, b) => b.count - a.count)
+  }, [selectedCounty, languageByCode, languageCounts])
   const popularLanguages = languageCards.slice(0, 5)
   const underdocumentedLanguages = languageCards
     .filter((lang) => lang.count > 0)
@@ -99,7 +105,7 @@ export default function ExplorePage() {
         )
 
         const categoryCountPairs = await Promise.all(
-          categories.map(async (category) => {
+          CATEGORIES.map(async (category) => {
             const { count } = await supabase
               .from('entries')
               .select('id', { count: 'exact', head: true })
@@ -133,8 +139,28 @@ export default function ExplorePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl md:text-7xl font-black mb-6 font-logo tracking-tight">Explore Dictionary</h1>
           <p className="text-xl text-emerald-100 max-w-2xl mx-auto font-medium opacity-90 leading-relaxed">
-            Search across languages, browse by topic, and discover both well-documented and growing communities in the dictionary.
+            {selectedCounty
+              ? `Browse ${selectedCounty.countyName}'s mapped language communities, then follow their entries, phrases, and growing dictionary coverage.`
+              : 'Search across languages, browse by topic, and discover both well-documented and growing communities in the dictionary.'}
           </p>
+          {selectedCounty ? (
+            <div className="mt-6 inline-flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-left">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-100">County Focus</p>
+                <p className="text-sm text-white font-black">{selectedCounty.countyName}</p>
+              </div>
+              <div className="h-8 w-px bg-white/20 hidden sm:block"></div>
+              <p className="max-w-xl text-sm text-emerald-100 font-medium leading-relaxed">
+                {selectedCounty.note}
+              </p>
+              <Link
+                href="/explore"
+                className="rounded-full border border-white/20 px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-white/10"
+              >
+                Clear County
+              </Link>
+            </div>
+          ) : null}
           <div className="mt-10 bg-white/10 border border-white/20 rounded-2xl p-4 md:p-5 max-w-5xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_170px_170px_170px_auto] gap-3">
               <input
@@ -166,7 +192,7 @@ export default function ExplorePage() {
                 className="px-4 py-3 rounded-xl bg-white text-stone-900 font-semibold"
               >
                 <option value="all">All topics</option>
-                {categories.map((category) => (
+                {CATEGORIES.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
@@ -286,6 +312,44 @@ export default function ExplorePage() {
             </div>
           </div>
 
+          {selectedCounty && countyLanguageCards.length > 0 ? (
+            <div className="mb-14">
+              <div className="flex items-center gap-4 mb-6">
+                <h2 className="text-4xl font-black text-gray-900 font-logo">{selectedCounty.countyName}</h2>
+                <div className="h-px flex-1 bg-stone-200"></div>
+              </div>
+              <p className="text-stone-600 font-medium leading-relaxed mb-6 max-w-3xl">
+                These are the language communities currently mapped to {selectedCounty.countyName}. Start here if you want county-specific discovery before widening back out to the full dictionary.
+              </p>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {countyLanguageCards.map((lang) => (
+                  <Link href={`/search?language=${lang.id}`} key={`county-${lang.id}`} className="group">
+                    <div className="bg-white rounded-[2rem] p-6 border border-emerald-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                      <div className="flex justify-between items-start mb-6">
+                        <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-xs font-black text-emerald-700">
+                          KE
+                        </div>
+                        <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-[0.15em]">
+                          {lang.code || 'KEN'}
+                        </span>
+                      </div>
+                      <h3 className="text-xl font-black text-gray-900 mb-1 font-logo group-hover:text-emerald-600 transition-colors">
+                        {lang.name}
+                      </h3>
+                      <p className="text-stone-400 text-xs font-bold italic mb-6">{lang.native_name}</p>
+                      <div className="pt-4 border-t border-stone-100 flex justify-between items-center">
+                        <span className="text-xs font-black text-stone-400 uppercase tracking-widest">
+                          <b className="text-emerald-600 text-sm">{lang.count}</b> Records
+                        </span>
+                        <span className="text-emerald-500 font-bold group-hover:translate-x-1 transition-transform">{'->'}</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
           <div className="flex items-center gap-4 mb-12">
             <h2 className="text-4xl font-black text-gray-900 font-logo">By Community</h2>
             <div className="h-px flex-1 bg-stone-200"></div>
@@ -343,7 +407,7 @@ export default function ExplorePage() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            {categories.map((category) => (
+            {CATEGORIES.map((category) => (
               <Link href={`/search?category=${category.id}`} key={category.id} className="group">
                 <div className="bg-white rounded-[2rem] p-8 text-center border border-stone-100 shadow-sm hover:border-emerald-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col items-center justify-center">
                   <span className="text-xl block mb-4 group-hover:scale-110 transition-transform duration-500">{category.icon}</span>
@@ -394,5 +458,19 @@ export default function ExplorePage() {
         </div>
       </section>
     </div>
+  )
+}
+
+export default function ExplorePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+        </div>
+      }
+    >
+      <ExplorePageContent />
+    </Suspense>
   )
 }

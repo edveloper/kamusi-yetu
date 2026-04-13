@@ -1,0 +1,67 @@
+-- 063_rollout_category_reference.sql
+-- Purpose:
+-- Establish the canonical rollout-domain category set for new uniform packs.
+--
+-- Important:
+-- - This file does not alter schema.
+-- - It is a reference file for new staging batches and moderation decisions.
+-- - Existing categories remain valid; new rollout work should prefer the
+--   categories listed here.
+
+-- Canonical rollout-domain categories for new packs:
+-- - greetings
+-- - courtesy
+-- - numbers
+-- - days
+-- - times_of_day
+-- - people
+-- - family
+-- - food
+-- - home
+-- - body
+-- - health
+-- - nature
+-- - culture
+-- - business
+-- - tech
+-- - education
+-- - law
+
+-- Suggested usage rules:
+-- - greetings:
+--   hello, good morning, good afternoon, good evening, how are you
+-- - courtesy:
+--   thank you, sorry, you are welcome, excuse me, no problem
+-- - numbers:
+--   one, two, three, counting, amounts
+-- - days:
+--   Monday through Sunday, today, tomorrow, yesterday
+-- - times_of_day:
+--   morning, afternoon, evening, night, dawn
+-- - people:
+--   person, man, woman, people, guest, friend
+-- - family:
+--   mother, father, child, sibling, grandparent
+
+-- Verification:
+-- select *
+-- from (
+--   values
+--     ('greetings'),
+--     ('courtesy'),
+--     ('numbers'),
+--     ('days'),
+--     ('times_of_day'),
+--     ('people'),
+--     ('family'),
+--     ('food'),
+--     ('home'),
+--     ('body'),
+--     ('health'),
+--     ('nature'),
+--     ('culture'),
+--     ('business'),
+--     ('tech'),
+--     ('education'),
+--     ('law')
+-- ) as rollout_categories(category_id);
