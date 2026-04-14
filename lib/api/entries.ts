@@ -7,15 +7,32 @@ const AUDIO_BUCKET = process.env.NEXT_PUBLIC_SUPABASE_AUDIO_BUCKET || 'entry-aud
 
 /**
  * Normalize text for consistent matching and indexing.
- * Strips diacritics, lowercases, and trims whitespace.
+ * Strips diacritics, smooths punctuation, lowercases, and trims whitespace.
  */
 function normalizeText(s: string) {
   if (!s) return s
   return s
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '') // strip diacritics
+    .replace(/['’]/g, '')
+    .replace(/[^a-zA-Z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
     .toLowerCase()
     .trim()
+}
+
+function escapeLike(value: string) {
+  return value.replace(/[%,]/g, (char) => `\\${char}`)
+}
+
+function buildFallbackSearchClause(rawQuery: string) {
+  const query = escapeLike(rawQuery.trim())
+  return [
+    `headword.ilike.%${query}%`,
+    `primary_definition.ilike.%${query}%`,
+    `english_translation.ilike.%${query}%`,
+    `swahili_translation.ilike.%${query}%`
+  ].join(',')
 }
 
 type LanguageCodeRow = {
@@ -243,7 +260,7 @@ export async function getEntries(filters?: {
     try {
       query = query.textSearch('search_tsv', filters.search, { config: 'simple' })
     } catch (e) {
-      query = query.or(`headword.ilike.%${filters.search}%,primary_definition.ilike.%${filters.search}%`)
+      query = query.or(buildFallbackSearchClause(filters.search))
     }
   }
 
@@ -315,7 +332,7 @@ export async function searchEntries(
     try {
       searchQuery = searchQuery.textSearch('search_tsv', query, { config: 'simple' })
     } catch (e) {
-      searchQuery = searchQuery.or(`headword.ilike.%${query}%,primary_definition.ilike.%${query}%`)
+      searchQuery = searchQuery.or(buildFallbackSearchClause(query))
     }
   }
   if (languageId && languageId !== 'all') searchQuery = searchQuery.eq('language_id', languageId)

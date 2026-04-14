@@ -47,6 +47,9 @@ function normalizeText(s: string) {
   return s
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '')
+    .replace(/['’]/g, '')
+    .replace(/[^a-zA-Z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
     .toLowerCase()
     .trim()
 }
@@ -72,8 +75,79 @@ function addTerm(set: Set<string>, term: string | null | undefined) {
   const clean = pickNonEmpty(term)
   if (!clean) return
   for (const token of splitTerms(clean)) {
-    set.add(token.toLowerCase())
+    const normalized = normalizeText(token)
+    if (normalized) set.add(normalized)
   }
+}
+
+function escapeLike(value: string) {
+  return value.replace(/[%_]/g, (char) => `\\${char}`)
+}
+
+function buildHeadwordMatchClause(rawText: string, normalized: string) {
+  const trimmed = rawText.trim()
+  const escaped = escapeLike(trimmed)
+  return [
+    `normalized_headword.eq.${normalized}`,
+    `headword.ilike.${trimmed}`,
+    `headword.ilike.%${escaped}%`
+  ].join(',')
+}
+
+function getBridgeTerms(entry: EntryRow, via: 'english' | 'swahili') {
+  const terms = new Set<string>()
+  addTerm(terms, via === 'english' ? entry.english_translation : entry.swahili_translation)
+  addTerm(terms, entry.headword)
+  return Array.from(terms)
+}
+
+function hasBridgeToken(value: string | null | undefined, termSet: Set<string>) {
+  const clean = pickNonEmpty(value)
+  if (!clean) return false
+
+  if (termSet.has(normalizeText(clean))) return true
+
+  for (const token of splitTerms(clean)) {
+    if (termSet.has(normalizeText(token))) return true
+  }
+
+  return false
+}
+
+async function findBridgeMatches(
+  supabase: any,
+  targetLanguageId: string,
+  via: 'english' | 'swahili',
+  terms: string[],
+  limit: number
+) {
+  if (terms.length === 0) return []
+
+  const column = via === 'english' ? 'english_translation' : 'swahili_translation'
+  const normalizedTerms = new Set(terms.map((term) => normalizeText(term)).filter(Boolean))
+  const queries = terms.map((term) => `${column}.ilike.%${escapeLike(term)}%`)
+  let { data } = await supabase
+    .from('entries')
+    .select(`id, headword, ${column}`)
+    .eq('language_id', targetLanguageId)
+    .eq('validation_status', 'verified')
+    .or(queries.join(','))
+    .limit(Math.max(limit * 4, 12))
+
+  if (!data || data.length === 0) {
+    const fallback = await supabase
+      .from('entries')
+      .select(`id, headword, ${column}`)
+      .eq('language_id', targetLanguageId)
+      .or(queries.join(','))
+      .limit(Math.max(limit * 4, 12))
+    data = fallback.data || []
+  }
+
+  const matches = (data || []).filter((row: Record<string, string | null>) =>
+    hasBridgeToken(row[column], normalizedTerms)
+  )
+  return matches.slice(0, limit)
 }
 
 function getClient() {
@@ -145,7 +219,7 @@ export async function POST(req: Request) {
       .select('id, headword, normalized_headword, language_id, part_of_speech, english_translation, swahili_translation, validation_status')
       .eq('language_id', sourceLanguageId)
       .eq('validation_status', 'verified')
-      .or(`normalized_headword.eq.${normalized},headword.ilike.${text}`)
+      .or(buildHeadwordMatchClause(text, normalized))
       .limit(20)
     if (sourceVerifiedErr) throw sourceVerifiedErr
 
@@ -155,7 +229,7 @@ export async function POST(req: Request) {
         .from('entries')
         .select('id, headword, normalized_headword, language_id, part_of_speech, english_translation, swahili_translation, validation_status')
         .eq('language_id', sourceLanguageId)
-        .or(`normalized_headword.eq.${normalized},headword.ilike.${text}`)
+        .or(buildHeadwordMatchClause(text, normalized))
         .limit(20)
       if (sourceAnyErr) throw sourceAnyErr
       sources = (sourceAny || []) as EntryRow[]
@@ -233,23 +307,13 @@ export async function POST(req: Request) {
 
       const swBridge = pickNonEmpty(s.swahili_translation)
       if (targetLanguageId !== swahiliLanguageId && swBridge) {
-        let { data: targetBySw } = await supabase
-          .from('entries')
-          .select('id, headword, swahili_translation')
-          .eq('language_id', targetLanguageId)
-          .eq('validation_status', 'verified')
-          .ilike('swahili_translation', swBridge)
-          .limit(5)
-
-        if (!targetBySw || targetBySw.length === 0) {
-          const fallback = await supabase
-            .from('entries')
-            .select('id, headword, swahili_translation')
-            .eq('language_id', targetLanguageId)
-            .ilike('swahili_translation', swBridge)
-            .limit(5)
-          targetBySw = fallback.data || []
-        }
+        const targetBySw = await findBridgeMatches(
+          supabase,
+          targetLanguageId,
+          'swahili',
+          getBridgeTerms(s, 'swahili'),
+          5
+        )
 
         for (const t of targetBySw || []) {
           candidates.push({
@@ -266,23 +330,13 @@ export async function POST(req: Request) {
 
       const enBridge = pickNonEmpty(s.english_translation)
       if (targetLanguageId !== englishLanguageId && enBridge) {
-        let { data: targetByEn } = await supabase
-          .from('entries')
-          .select('id, headword, english_translation')
-          .eq('language_id', targetLanguageId)
-          .eq('validation_status', 'verified')
-          .ilike('english_translation', enBridge)
-          .limit(5)
-
-        if (!targetByEn || targetByEn.length === 0) {
-          const fallback = await supabase
-            .from('entries')
-            .select('id, headword, english_translation')
-            .eq('language_id', targetLanguageId)
-            .ilike('english_translation', enBridge)
-            .limit(5)
-          targetByEn = fallback.data || []
-        }
+        const targetByEn = await findBridgeMatches(
+          supabase,
+          targetLanguageId,
+          'english',
+          getBridgeTerms(s, 'english'),
+          5
+        )
 
         for (const t of targetByEn || []) {
           candidates.push({
@@ -312,13 +366,13 @@ export async function POST(req: Request) {
             for (const row of rows) addTerm(englishTerms, row.english_term)
 
             for (const term of englishTerms) {
-              const { data: targetByBridgeEn } = await supabase
-                .from('entries')
-                .select('id, headword, english_translation')
-                .eq('language_id', targetLanguageId)
-                .eq('validation_status', 'verified')
-                .ilike('english_translation', term)
-                .limit(5)
+              const targetByBridgeEn = await findBridgeMatches(
+                supabase,
+                targetLanguageId,
+                'english',
+                [term],
+                5
+              )
 
               for (const t of targetByBridgeEn || []) {
                 candidates.push({
@@ -353,13 +407,13 @@ export async function POST(req: Request) {
             for (const row of rows) addTerm(swahiliTerms, row.swahili_term)
 
             for (const term of swahiliTerms) {
-              const { data: targetByBridgeSw } = await supabase
-                .from('entries')
-                .select('id, headword, swahili_translation')
-                .eq('language_id', targetLanguageId)
-                .eq('validation_status', 'verified')
-                .ilike('swahili_translation', term)
-                .limit(5)
+              const targetByBridgeSw = await findBridgeMatches(
+                supabase,
+                targetLanguageId,
+                'swahili',
+                [term],
+                5
+              )
 
               for (const t of targetByBridgeSw || []) {
                 candidates.push({

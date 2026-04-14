@@ -27,6 +27,7 @@ greeting_entries as (
     e.id,
     e.language_id,
     e.headword,
+    e.primary_definition,
     e.part_of_speech,
     e.category,
     e.english_translation,
@@ -34,21 +35,105 @@ greeting_entries as (
   from public.entries e
   where e.validation_status = 'verified'
     and (
-      lower(coalesce(e.category, '')) = 'greetings'
+      lower(coalesce(e.category, '')) in ('greetings', 'courtesy')
       or lower(coalesce(e.part_of_speech, '')) = 'phrase'
          and (
-           lower(coalesce(e.english_translation, '')) like '%hello%'
-           or lower(coalesce(e.english_translation, '')) like '%good morning%'
-           or lower(coalesce(e.english_translation, '')) like '%good afternoon%'
-           or lower(coalesce(e.english_translation, '')) like '%good evening%'
-           or lower(coalesce(e.english_translation, '')) like '%how are you%'
-           or lower(coalesce(e.english_translation, '')) like '%i am fine%'
-           or lower(coalesce(e.english_translation, '')) like '%thank you%'
-           or lower(coalesce(e.english_translation, '')) like '%you are welcome%'
-           or lower(coalesce(e.english_translation, '')) like '%sorry%'
-           or lower(coalesce(e.english_translation, '')) like '%goodbye%'
-           or lower(coalesce(e.english_translation, '')) like '%see you%'
-           or lower(coalesce(e.english_translation, '')) like '%nice to meet you%'
+           lower(concat_ws(' ',
+             coalesce(e.headword, ''),
+             coalesce(e.primary_definition, ''),
+             coalesce(e.english_translation, ''),
+             coalesce(e.swahili_translation, '')
+           )) like '%hello%'
+           or lower(concat_ws(' ',
+             coalesce(e.headword, ''),
+             coalesce(e.primary_definition, ''),
+             coalesce(e.english_translation, ''),
+             coalesce(e.swahili_translation, '')
+           )) like '%good morning%'
+           or lower(concat_ws(' ',
+             coalesce(e.headword, ''),
+             coalesce(e.primary_definition, ''),
+             coalesce(e.english_translation, ''),
+             coalesce(e.swahili_translation, '')
+           )) like '%good afternoon%'
+           or lower(concat_ws(' ',
+             coalesce(e.headword, ''),
+             coalesce(e.primary_definition, ''),
+             coalesce(e.english_translation, ''),
+             coalesce(e.swahili_translation, '')
+           )) like '%good evening%'
+           or lower(concat_ws(' ',
+             coalesce(e.headword, ''),
+             coalesce(e.primary_definition, ''),
+             coalesce(e.english_translation, ''),
+             coalesce(e.swahili_translation, '')
+           )) like '%good night%'
+           or lower(concat_ws(' ',
+             coalesce(e.headword, ''),
+             coalesce(e.primary_definition, ''),
+             coalesce(e.english_translation, ''),
+             coalesce(e.swahili_translation, '')
+           )) like '%how are you%'
+           or lower(concat_ws(' ',
+             coalesce(e.headword, ''),
+             coalesce(e.primary_definition, ''),
+             coalesce(e.english_translation, ''),
+             coalesce(e.swahili_translation, '')
+           )) like '%i am fine%'
+           or lower(concat_ws(' ',
+             coalesce(e.headword, ''),
+             coalesce(e.primary_definition, ''),
+             coalesce(e.english_translation, ''),
+             coalesce(e.swahili_translation, '')
+           )) like '%thank you%'
+           or lower(concat_ws(' ',
+             coalesce(e.headword, ''),
+             coalesce(e.primary_definition, ''),
+             coalesce(e.english_translation, ''),
+             coalesce(e.swahili_translation, '')
+           )) like '%thanks%'
+           or lower(concat_ws(' ',
+             coalesce(e.headword, ''),
+             coalesce(e.primary_definition, ''),
+             coalesce(e.english_translation, ''),
+             coalesce(e.swahili_translation, '')
+           )) like '%you are welcome%'
+           or lower(concat_ws(' ',
+             coalesce(e.headword, ''),
+             coalesce(e.primary_definition, ''),
+             coalesce(e.english_translation, ''),
+             coalesce(e.swahili_translation, '')
+           )) like '%welcome%'
+           or lower(concat_ws(' ',
+             coalesce(e.headword, ''),
+             coalesce(e.primary_definition, ''),
+             coalesce(e.english_translation, ''),
+             coalesce(e.swahili_translation, '')
+           )) like '%sorry%'
+           or lower(concat_ws(' ',
+             coalesce(e.headword, ''),
+             coalesce(e.primary_definition, ''),
+             coalesce(e.english_translation, ''),
+             coalesce(e.swahili_translation, '')
+           )) like '%excuse me%'
+           or lower(concat_ws(' ',
+             coalesce(e.headword, ''),
+             coalesce(e.primary_definition, ''),
+             coalesce(e.english_translation, ''),
+             coalesce(e.swahili_translation, '')
+           )) like '%goodbye%'
+           or lower(concat_ws(' ',
+             coalesce(e.headword, ''),
+             coalesce(e.primary_definition, ''),
+             coalesce(e.english_translation, ''),
+             coalesce(e.swahili_translation, '')
+           )) like '%see you%'
+           or lower(concat_ws(' ',
+             coalesce(e.headword, ''),
+             coalesce(e.primary_definition, ''),
+             coalesce(e.english_translation, ''),
+             coalesce(e.swahili_translation, '')
+           )) like '%nice to meet you%'
          )
     )
 ),

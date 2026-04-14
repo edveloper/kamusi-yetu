@@ -14,6 +14,12 @@ const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 type SearchSort = 'headword_asc' | 'newest' | 'trust_desc'
 type EntryKind = 'all' | 'word' | 'phrase'
 
+function compactBridgeText(value: string | null | undefined) {
+  const text = String(value || '').trim()
+  if (!text) return null
+  return text.replace(/\s+/g, ' ')
+}
+
 export default function SearchContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -215,6 +221,12 @@ export default function SearchContent() {
             {results.map((entry) => (
               <Link href={`/entry/${entry.id}`} key={entry.id} className="group">
                 <div className="bg-white p-8 rounded-[2rem] border border-stone-200 hover:border-emerald-600 transition-all h-full flex flex-col shadow-sm hover:shadow-xl">
+                  {(() => {
+                    const englishBridge = compactBridgeText(entry.english_translation)
+                    const swahiliBridge = compactBridgeText(entry.swahili_translation)
+
+                    return (
+                      <>
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="text-2xl font-black font-logo text-stone-900 group-hover:text-emerald-700 truncate mr-2">{entry.headword}</h3>
                     <div className="flex flex-col items-end gap-1 shrink-0">
@@ -229,10 +241,27 @@ export default function SearchContent() {
                     </div>
                   </div>
                   <p className="text-stone-500 text-sm font-medium line-clamp-3 mb-6 flex-grow leading-relaxed">{entry.primary_definition}</p>
+                  {(englishBridge || swahiliBridge) && (
+                    <div className="mb-6 space-y-2">
+                      {englishBridge && (
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-stone-500 line-clamp-2">
+                          EN: <span className="normal-case tracking-normal text-stone-700">{englishBridge}</span>
+                        </p>
+                      )}
+                      {swahiliBridge && (
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-stone-500 line-clamp-2">
+                          SW: <span className="normal-case tracking-normal text-stone-700">{swahiliBridge}</span>
+                        </p>
+                      )}
+                    </div>
+                  )}
                   <div className="pt-4 border-t border-stone-50 flex justify-between items-center">
                     <span className="text-[9px] font-black text-stone-400 uppercase tracking-widest">Score: {entry.trust_score}%</span>
                     <span className="text-emerald-600 text-xs font-black group-hover:translate-x-1 transition-transform">{'->'}</span>
                   </div>
+                      </>
+                    )
+                  })()}
                 </div>
               </Link>
             ))}
