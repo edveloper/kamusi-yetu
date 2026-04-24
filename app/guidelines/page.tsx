@@ -54,7 +54,7 @@ export default function GuidelinesPage() {
 
           <div className="text-center pt-8">
             <Link href="/contribute">
-              <button className="bg-emerald-600 text-white px-12 py-5 rounded-2xl font-black text-xl hover:scale-105 transition shadow-lg">
+              <button className="btn-primary">
                 I Understand, Let&apos;s Build →
               </button>
             </Link>

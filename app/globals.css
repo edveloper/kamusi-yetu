@@ -76,3 +76,24 @@ img {
   height: auto;
   display: block;
 }
+
+/* Shared surface and button styles */
+.surface-card {
+  @apply bg-white border border-neutral-200 shadow-soft rounded-[1.75rem];
+}
+
+.surface-card-strong {
+  @apply bg-white border border-neutral-200 shadow-medium rounded-[1.75rem];
+}
+
+.surface-card-subtle {
+  @apply bg-stone-50 border border-stone-200 rounded-[1.75rem];
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-2xl bg-emerald-700 text-white font-black uppercase tracking-[0.22em] px-6 py-3 shadow-sm transition hover:bg-emerald-800;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-2xl border border-emerald-200 bg-white text-emerald-800 font-black uppercase tracking-[0.22em] px-6 py-3 transition hover:bg-emerald-50;
+}

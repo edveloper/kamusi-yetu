@@ -1,6 +1,7 @@
-'use client'
+ 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { getLanguages } from '@/lib/api/languages'
 import {
   translateText,
@@ -158,12 +159,20 @@ export default function TranslatePage() {
         <div className="max-w-4xl mx-auto px-4">
           <h1 className="text-5xl md:text-6xl font-black font-logo tracking-tight">Translate</h1>
           <p className="text-emerald-100/80 mt-4 text-lg">
-            Translate across Kenyan languages using direct and bridge paths.
+            Find verified dictionary translations and bridge-assisted candidates across Kenyan languages.
           </p>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 -mt-10">
+        <div className="mb-6 bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
+          <p className="text-sm text-emerald-900 font-semibold mb-3"><strong>How to read results:</strong></p>
+          <div className="grid md:grid-cols-3 gap-4 text-sm text-emerald-800">
+            <div><strong>Confidence:</strong> High = verified by multiple reviewers; Medium = likely correct; Low = preliminary match.</div>
+            <div><strong>Direct:</strong> Found in our verified dictionary for this language pair. <strong>Bridge:</strong> Found via English or Swahili translation. <strong>Pivot:</strong> Routed through multiple languages.</div>
+            <div><strong>Phrase vs Word:</strong> Phrase matches indicate multi-word expressions with specific meaning. Word matches are single lexical units.</div>
+          </div>
+        </div>
         <div className="mb-6 grid md:grid-cols-3 gap-4">
           {translationExamples.map((example) => (
             <button
@@ -313,6 +322,25 @@ export default function TranslatePage() {
             <div className="text-center text-stone-400 text-sm py-10">No translation candidates yet.</div>
           )}
         </div>
+
+        <section className="mt-16 mb-0">
+          <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-3xl p-12 md:p-16 text-white shadow-xl">
+            <div className="text-center">
+              <h2 className="text-4xl font-black font-logo mb-4">Help Strengthen Translations</h2>
+              <p className="text-emerald-100 text-lg font-medium mb-8 max-w-3xl mx-auto">
+                Your contributions improve translation accuracy across all languages. Add verified entries and help bridge language gaps.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Link href="/contribute" className="px-8 py-4 rounded-2xl bg-white text-emerald-900 font-black text-lg hover:bg-emerald-50 transition">
+                  Add an Entry
+                </Link>
+                <Link href="/explore" className="px-8 py-4 rounded-2xl border-2 border-white text-white font-black text-lg hover:bg-white/10 transition">
+                  Explore Languages
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   )

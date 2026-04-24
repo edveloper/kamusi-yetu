@@ -343,309 +343,266 @@ export default function TrendingPage() {
           </div>
         )}
 
-        <section className="grid md:grid-cols-3 xl:grid-cols-6 gap-4 mb-10">
-          {[
-            { label: 'Verified Entries', value: summary.totalEntries },
-            { label: 'Active Languages', value: summary.totalLanguages },
-            { label: 'Bridge Coverage', value: `${summary.bridgePct}%` },
-            { label: 'Verified Phrases', value: summary.phraseEntries },
-            { label: 'Phrase-Ready', value: summary.phraseReadyLanguages },
-            { label: 'Review-Heavy', value: summary.reviewHeavyLanguages },
-          ].map((card) => (
-            <div key={card.label} className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
-              <p className="text-[10px] text-stone-500 uppercase tracking-widest font-black mb-2">{card.label}</p>
-              <p className="text-3xl font-black text-stone-900 font-logo">{loading ? '...' : card.value}</p>
-            </div>
-          ))}
+        {/* SECTION 1: Dictionary Health Overview */}
+        <section className="mb-16 pt-6 md:pt-12">
+          <div className="mb-6">
+            <h2 className="text-3xl font-black text-stone-900 font-logo mb-2">Dictionary Health at a Glance</h2>
+            <p className="text-stone-600 font-medium">Real-time metrics showing our progress toward comprehensive Kenyan language coverage.</p>
+          </div>
+          <div className="grid md:grid-cols-3 xl:grid-cols-6 gap-4">
+            {[
+              { label: 'Verified Entries', value: summary.totalEntries },
+              { label: 'Active Languages', value: summary.totalLanguages },
+              { label: 'Bridge Coverage', value: `${summary.bridgePct}%` },
+              { label: 'Verified Phrases', value: summary.phraseEntries },
+              { label: 'Phrase-Ready', value: summary.phraseReadyLanguages },
+              { label: 'Review-Heavy', value: summary.reviewHeavyLanguages },
+            ].map((card) => (
+              <div key={card.label} className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm hover:shadow-md transition">
+                <p className="text-[10px] text-stone-500 uppercase tracking-widest font-black mb-2">{card.label}</p>
+                <p className="text-3xl font-black text-stone-900 font-logo">{loading ? '...' : card.value}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
-        <KenyaCountyCoverageMap
-          languageMetrics={languageMetrics.map((language) => ({
-            id: language.id,
-            code: language.code,
-            name: language.name,
-            totalEntries: language.totalEntries,
-            phraseEntries: language.phraseEntries,
-            maturity: language.maturity,
-          }))}
-        />
+        {/* SECTION 2: Geographic Coverage */}
+        <section className="mb-16">
+          <div className="mb-6">
+            <h2 className="text-3xl font-black text-stone-900 font-logo mb-2">Geographic Reach</h2>
+            <p className="text-stone-600 font-medium">Community presence across Kenya—where languages are strongest and where growth is needed most.</p>
+          </div>
+          <KenyaCountyCoverageMap
+            languageMetrics={languageMetrics.map((language) => ({
+              id: language.id,
+              code: language.code,
+              name: language.name,
+              totalEntries: language.totalEntries,
+              phraseEntries: language.phraseEntries,
+              maturity: language.maturity,
+            }))}
+          />
+        </section>
 
-        <section className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6 mb-10">
-          <div className="bg-white rounded-3xl border border-stone-200 p-8 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-700 mb-2">Communities</p>
-                <h2 className="text-2xl font-black font-logo text-stone-900">Popular Communities</h2>
+        {/* SECTION 3: Community Strength */}
+        <section className="mb-16">
+          <div className="mb-6">
+            <h2 className="text-3xl font-black text-stone-900 font-logo mb-2">Community Strength</h2>
+            <p className="text-stone-600 font-medium">Languages with proven coverage and the next tier ready for rapid growth.</p>
+          </div>
+          <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
+            <div className="bg-white rounded-3xl border border-stone-200 p-8 shadow-sm">
+              <h3 className="text-2xl font-black font-logo text-stone-900 mb-6">Popular Communities</h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                {popularCommunities.map((language) => {
+                  const maturity = getLanguageMaturityDefinition(language.maturity)
+                  return (
+                    <Link key={language.id} href={`/search?language=${encodeURIComponent(language.id)}`} className="block">
+                      <div className="rounded-2xl border border-stone-100 bg-stone-50 p-5 hover:bg-white hover:border-emerald-200 transition">
+                        <div className="flex items-start justify-between gap-4 mb-3">
+                          <div>
+                            <p className="text-lg font-black text-stone-900">{language.name}</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
+                              {language.code} {language.native_name ? `| ${language.native_name}` : ''}
+                            </p>
+                          </div>
+                          <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest whitespace-nowrap ${maturity.badgeClassName}`}>
+                            {maturity.shortLabel}
+                          </span>
+                        </div>
+                        <p className="text-sm text-stone-600 font-medium leading-relaxed mb-4">{maturity.description}</p>
+                        <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-stone-500">
+                          <span>{language.totalEntries} entries</span>
+                          <span>{language.phraseEntries} phrases</span>
+                          <span>{language.bridgeCoveragePct}% bridge</span>
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                })}
               </div>
-              <Link href="/explore" className="text-xs font-black uppercase tracking-widest text-emerald-700">
-                Explore
-              </Link>
             </div>
-            <div className="grid md:grid-cols-2 gap-4">
-              {popularCommunities.map((language) => {
-                const maturity = getLanguageMaturityDefinition(language.maturity)
-                return (
-                  <Link key={language.id} href={`/search?language=${encodeURIComponent(language.id)}`} className="block">
-                    <div className="rounded-2xl border border-stone-100 bg-stone-50 p-5 hover:bg-white hover:border-emerald-200 transition">
-                      <div className="flex items-start justify-between gap-4 mb-3">
+
+            <div className="bg-emerald-50 rounded-3xl border border-emerald-100 p-8 shadow-sm">
+              <h3 className="text-2xl font-black font-logo text-stone-900 mb-6">Next Growth Wave</h3>
+              <div className="space-y-3">
+                {growingCommunities.map((language) => {
+                  const maturity = getLanguageMaturityDefinition(language.maturity)
+                  return (
+                    <div key={language.id} className="rounded-2xl bg-white border border-emerald-100 p-4 hover:border-emerald-200 transition">
+                      <div className="flex items-center justify-between gap-3 mb-2">
                         <div>
-                          <p className="text-lg font-black text-stone-900">{language.name}</p>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
-                            {language.code} {language.native_name ? `| ${language.native_name}` : ''}
-                          </p>
+                          <p className="font-black text-stone-900">{language.name}</p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">{language.code}</p>
                         </div>
                         <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${maturity.badgeClassName}`}>
                           {maturity.shortLabel}
                         </span>
                       </div>
-                      <p className="text-sm text-stone-600 font-medium leading-relaxed mb-4">{maturity.description}</p>
-                      <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-stone-500">
-                        <span>{language.totalEntries} entries</span>
-                        <span>{language.phraseEntries} phrases</span>
-                        <span>{language.bridgeCoveragePct}% bridge</span>
+                      <p className="text-sm text-stone-600 font-medium mb-3">
+                        {language.phraseEntries > 0
+                          ? 'Phrase coverage live—add examples to improve translation quality.'
+                          : 'Ready for phrase expansion. Your contributions have immediate impact.'}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <Link
+                          href={`/contribute?lang=${encodeURIComponent(language.code)}`}
+                          className="px-3 py-2 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700"
+                        >
+                          Add Word
+                        </Link>
+                        <Link
+                          href={`/contribute?type=phrase&lang=${encodeURIComponent(language.code)}`}
+                          className="px-3 py-2 rounded-xl bg-white border border-stone-200 text-[10px] font-black uppercase tracking-widest text-stone-700 hover:bg-stone-50"
+                        >
+                          Add Phrase
+                        </Link>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 4: Community Activity */}
+        <section className="mb-16">
+          <div className="mb-6">
+            <h2 className="text-3xl font-black text-stone-900 font-logo mb-2">Community Activity</h2>
+            <p className="text-stone-600 font-medium">Latest contributions and the words getting the most love from the community.</p>
+          </div>
+          <div className="grid lg:grid-cols-2 gap-6">
+            <div className="bg-white rounded-3xl border border-stone-200 p-8 shadow-sm">
+              <h3 className="text-2xl font-black font-logo text-stone-900 mb-6">Latest Additions</h3>
+              <div className="space-y-3">
+                {newestEntries.map((entry) => (
+                  <Link key={entry.id} href={`/entry/${entry.id}`} className="block">
+                    <div className="rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3 hover:bg-white hover:border-emerald-200 transition">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="min-w-0">
+                          <p className="font-black text-stone-900 truncate">{entry.headword}</p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
+                            {entry.languageName} ({entry.languageCode || 'N/A'})
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </Link>
-                )
-              })}
+                ))}
+                {!loading && newestEntries.length === 0 && (
+                  <p className="text-sm text-stone-500">Check back soon for new additions.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-3xl border border-stone-200 p-8 shadow-sm">
+              <h3 className="text-2xl font-black font-logo text-stone-900 mb-6">Most Appreciated</h3>
+              <div className="space-y-3">
+                {topEntries.map((entry) => (
+                  <Link key={entry.id} href={`/entry/${entry.id}`} className="block">
+                    <div className="rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3 hover:bg-white hover:border-emerald-200 transition">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="min-w-0">
+                          <p className="font-black text-stone-900 truncate">{entry.headword}</p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
+                            {entry.languageName} ({entry.languageCode || 'N/A'})
+                          </p>
+                        </div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700 whitespace-nowrap">
+                          ❤️ {entry.likes} | 💾 {entry.saves}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+                {!loading && topEntries.length === 0 && (
+                  <p className="text-sm text-stone-500">No interaction data yet.</p>
+                )}
+              </div>
             </div>
           </div>
+        </section>
 
-          <div className="bg-emerald-50 rounded-3xl border border-emerald-100 p-8 shadow-sm">
-            <div className="mb-6">
-              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-700 mb-2">Growing Coverage</p>
-              <h2 className="text-2xl font-black font-logo text-stone-900">Where contributions matter most</h2>
+        {/* SECTION 5: Phrase Expansion */}
+        <section className="mb-16">
+          <div className="mb-6">
+            <h2 className="text-3xl font-black text-stone-900 font-logo mb-2">Next Phase: Phrase Expansion</h2>
+            <p className="text-stone-600 font-medium">Context and multi-word expressions are the next layer. These languages need more phrase entries and usage examples.</p>
+          </div>
+          <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-6">
+            <div className="bg-stone-900 rounded-3xl border border-stone-800 p-8 shadow-sm text-white">
+              <h3 className="text-2xl font-black font-logo mb-6">Phrase Spotlight</h3>
+              <div className="space-y-4">
+                {phraseSpotlights.map((phrase) => (
+                  <Link key={phrase.id} href={`/entry/${phrase.id}`} className="block">
+                    <div className="rounded-2xl border border-stone-700 bg-stone-800 px-4 py-4 hover:border-emerald-500 transition">
+                      <p className="text-lg font-black mb-2">{phrase.headword}</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-3">
+                        {phrase.languageName}
+                      </p>
+                      <p className="text-sm text-stone-300 italic mb-2">&quot;{phrase.englishTranslation}&quot;</p>
+                      {phrase.swahiliTranslation && (
+                        <p className="text-sm text-stone-400">(SW: {phrase.swahiliTranslation})</p>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+                {!loading && phraseSpotlights.length === 0 && (
+                  <p className="text-sm text-stone-400">Phrases coming soon.</p>
+                )}
+              </div>
             </div>
-            <div className="space-y-3">
-              {growingCommunities.map((language) => {
-                const maturity = getLanguageMaturityDefinition(language.maturity)
-                return (
-                  <div key={language.id} className="rounded-2xl bg-white border border-emerald-100 p-4">
+
+            <div className="bg-emerald-50 rounded-3xl border border-emerald-100 p-8 shadow-sm">
+              <h3 className="text-2xl font-black font-logo text-stone-900 mb-6">Phrase Missions</h3>
+              <p className="text-stone-600 font-medium mb-6">
+                These languages have phrase foundations and will improve fastest with more contextual examples.
+              </p>
+              <div className="space-y-3">
+                {phraseMissions.map((language) => (
+                  <div key={language.id} className="rounded-2xl bg-white border border-emerald-100 p-4 hover:border-emerald-300 transition">
                     <div className="flex items-center justify-between gap-3 mb-2">
                       <div>
                         <p className="font-black text-stone-900">{language.name}</p>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">{language.code}</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
+                          {language.totalEntries} entries, {language.phraseEntries} phrases
+                        </p>
                       </div>
-                      <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${maturity.badgeClassName}`}>
-                        {maturity.shortLabel}
+                      <span className="text-[10px] font-black text-emerald-700 bg-emerald-100 px-2 py-1 rounded-lg">
+                        {language.phraseMissingExamples} need examples
                       </span>
                     </div>
-                    <p className="text-sm text-stone-600 font-medium mb-3">
-                      {language.phraseEntries > 0
-                        ? 'This language has live phrase coverage and will improve quickly with more examples and context.'
-                        : 'This language is live and can become much more useful with the next wave of phrase and example contributions.'}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      <Link
-                        href={`/contribute?lang=${encodeURIComponent(language.code)}`}
-                        className="px-3 py-2 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500"
-                      >
-                        Add Word
-                      </Link>
-                      <Link
-                        href={`/contribute?type=phrase&lang=${encodeURIComponent(language.code)}`}
-                        className="px-3 py-2 rounded-xl bg-white border border-stone-200 text-[10px] font-black uppercase tracking-widest text-stone-700"
-                      >
-                        Add Phrase
-                      </Link>
-                    </div>
+                    <Link
+                      href={`/contribute?type=phrase&lang=${encodeURIComponent(language.code)}`}
+                      className="inline-block px-3 py-2 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 mt-2"
+                    >
+                      Add Phrase
+                    </Link>
                   </div>
-                )
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section className="grid lg:grid-cols-2 gap-6 mb-10">
-          <div className="bg-white rounded-3xl border border-stone-200 p-8 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-black font-logo text-stone-900">Most Appreciated Entries</h2>
-              <Link href="/search" className="text-xs font-black uppercase tracking-widest text-emerald-700">
-                Browse all
-              </Link>
-            </div>
-            <div className="space-y-3">
-              {topEntries.map((entry) => (
-                <Link key={entry.id} href={`/entry/${entry.id}`} className="block">
-                  <div className="rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3 hover:bg-white hover:border-emerald-200 transition">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="min-w-0">
-                        <p className="font-black text-stone-900 truncate">{entry.headword}</p>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
-                          {entry.languageName} ({entry.languageCode || 'N/A'})
-                        </p>
-                      </div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700 whitespace-nowrap">
-                        Likes {entry.likes} | Saves {entry.saves}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-              {!loading && topEntries.length === 0 && (
-                <p className="text-sm text-stone-500">No interaction data yet.</p>
-              )}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-3xl border border-stone-200 p-8 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-black font-logo text-stone-900">Latest Additions</h2>
-              <Link href="/contribute" className="text-xs font-black uppercase tracking-widest text-emerald-700">
-                Add word
-              </Link>
-            </div>
-            <div className="space-y-3">
-              {newestEntries.map((entry) => (
-                <Link key={entry.id} href={`/entry/${entry.id}`} className="block">
-                  <div className="rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3 hover:bg-white hover:border-emerald-200 transition">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="min-w-0">
-                        <p className="font-black text-stone-900 truncate">{entry.headword}</p>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
-                          {entry.languageName}
-                        </p>
-                      </div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-stone-500 whitespace-nowrap">
-                        {entry.createdAt}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-white rounded-3xl border border-stone-200 p-8 shadow-sm mb-10">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-700 mb-2">Phrase Spotlight</p>
-              <h2 className="text-2xl font-black font-logo text-stone-900">Context worth preserving</h2>
-            </div>
-            <Link href="/search?kind=phrase" className="text-xs font-black uppercase tracking-widest text-emerald-700">
-              Browse phrases
-            </Link>
-          </div>
-          <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
-            {phraseSpotlights.map((entry) => (
-              <Link key={entry.id} href={`/entry/${entry.id}`} className="block">
-                <div className="rounded-2xl border border-stone-100 bg-stone-50 p-5 hover:bg-white hover:border-emerald-200 transition h-full">
-                  <div className="mb-3">
-                    <p className="text-xl font-black text-stone-900">{entry.headword}</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
-                      {entry.languageName} ({entry.languageCode || 'N/A'})
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    {entry.englishTranslation && (
-                      <p className="text-sm text-stone-700 font-medium">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-stone-400 block mb-1">English</span>
-                        {entry.englishTranslation}
-                      </p>
-                    )}
-                    {entry.swahiliTranslation && (
-                      <p className="text-sm text-stone-700 font-medium">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-stone-400 block mb-1">Swahili</span>
-                        {entry.swahiliTranslation}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="bg-white rounded-3xl border border-stone-200 p-8 shadow-sm mb-10">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-black font-logo text-stone-900">Contribution Requests: Lesser-Known Languages</h2>
-            <Link href="/contribute" className="text-xs font-black uppercase tracking-widest text-emerald-700">
-              Open contribute
-            </Link>
-          </div>
-          <p className="text-sm text-stone-600 mb-6">
-            Focus on languages with fewer entries and lower bridge coverage. These missions help close discovery gaps quickly.
-          </p>
-          <div className="grid md:grid-cols-2 gap-4">
-            {contributionRequests.map((language) => (
-              <div key={language.id} className="rounded-2xl border border-stone-100 bg-stone-50 p-5">
-                <div className="flex items-center justify-between gap-3 mb-3">
-                  <div>
-                    <p className="text-lg font-black text-stone-900">{language.name}</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
-                      {language.code} {language.native_name ? `| ${language.native_name}` : ''}
-                    </p>
-                  </div>
-                  <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${getLanguageMaturityDefinition(language.maturity).badgeClassName}`}>
-                    {getLanguageMaturityDefinition(language.maturity).shortLabel}
-                  </span>
-                </div>
-                <div className="text-[11px] font-bold text-stone-600 uppercase tracking-widest mb-4">
-                  Bridge coverage: {language.bridgeCoveragePct}% | Missing bridge: {language.missingBridge}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Link
-                    href={`/contribute?lang=${encodeURIComponent(language.code)}`}
-                    className="px-3 py-2 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500"
-                  >
-                    Contribute in {language.code}
-                  </Link>
-                  <Link
-                    href={`/search?language=${encodeURIComponent(language.id)}`}
-                    className="px-3 py-2 rounded-xl bg-white border border-stone-200 text-[10px] font-black uppercase tracking-widest text-stone-700"
-                  >
-                    Review entries
-                  </Link>
-                </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </section>
 
-        <section className="bg-white rounded-3xl border border-stone-200 p-8 shadow-sm mb-10">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-black font-logo text-stone-900">Phrase Missions</h2>
-            <Link href="/contribute?type=phrase" className="text-xs font-black uppercase tracking-widest text-emerald-700">
-              Add phrase
-            </Link>
-          </div>
-          <p className="text-sm text-stone-600 mb-6">
-            Phrase coverage is the next quality layer. These languages need more phrase entries or better contextual examples.
-          </p>
-          <div className="grid md:grid-cols-2 gap-4">
-            {phraseMissions.map((language) => (
-              <div key={language.id} className="rounded-2xl border border-stone-100 bg-stone-50 p-5">
-                <div className="flex items-center justify-between gap-3 mb-3">
-                  <div>
-                    <p className="text-lg font-black text-stone-900">{language.name}</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
-                      {language.code} {language.native_name ? `| ${language.native_name}` : ''}
-                    </p>
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg bg-stone-900 text-white">
-                    {language.phraseEntries} phrases
-                  </span>
-                </div>
-                <div className="text-[11px] font-bold text-stone-600 uppercase tracking-widest mb-4">
-                  Missing phrase examples: {language.phraseMissingExamples} | Total entries: {language.totalEntries}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Link
-                    href={`/contribute?type=phrase&lang=${encodeURIComponent(language.code)}`}
-                    className="px-3 py-2 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500"
-                  >
-                    Add phrase in {language.code}
-                  </Link>
-                  <Link
-                    href={`/search?language=${encodeURIComponent(language.id)}&kind=phrase`}
-                    className="px-3 py-2 rounded-xl bg-white border border-stone-200 text-[10px] font-black uppercase tracking-widest text-stone-700"
-                  >
-                    Review phrases
-                  </Link>
-                </div>
+        {/* SECTION 6: Call to Action */}
+        <section className="mb-0">
+          <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-3xl p-12 md:p-16 text-white shadow-xl">
+            <div className="text-center">
+              <h2 className="text-4xl font-black font-logo mb-4">Your Impact Starts Here</h2>
+              <p className="text-emerald-100 text-lg font-medium mb-8 max-w-3xl mx-auto">
+                Every word, phrase, and example brings us closer to a complete dictionary and stronger translation for all Kenyan languages.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Link href="/contribute" className="px-8 py-4 rounded-2xl bg-white text-emerald-900 font-black text-lg hover:bg-emerald-50 transition">
+                  Start Contributing
+                </Link>
+                <Link href="/explore" className="px-8 py-4 rounded-2xl border-2 border-white text-white font-black text-lg hover:bg-white/10 transition">
+                  Explore Dictionary
+                </Link>
               </div>
-            ))}
+            </div>
           </div>
         </section>
       </div>

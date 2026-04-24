@@ -50,7 +50,7 @@ export default function AboutPage() {
               &ldquo;We believe that technology should serve heritage. By building a digital home for our mother tongues, we empower the next generation to speak with pride and precision.&rdquo;
             </p>
             <p className="text-lg text-stone-600 leading-relaxed font-medium">
-              We are now in the late dictionary-plus-phrase foundation stage. Word lookup, bridge translation, and moderation are already live, while phrase packs, usage examples, and subgroup language rollout are actively expanding the platform toward sentence translation.
+              We are now in Phase 2: the phrase and usage expansion stage. Verified word lookup, bridge translation, and moderation workflows are live. Phrase packs, usage examples, and community rollout are actively expanding the platform. Sentence-level translation remains future work.
             </p>
           </div>
         </section>
@@ -120,6 +120,23 @@ export default function AboutPage() {
             <div className="rounded-2xl border border-stone-100 bg-stone-50 p-5">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-2">Why Context Matters</p>
               <p className="text-stone-700 font-medium">Enough contextual data to support sentence translation that is better than simple word substitution.</p>
+            </div>
+          </div>
+          <div>
+            <h3 className="text-2xl font-black text-stone-900 font-logo mb-5">Quality & Trust</h3>
+            <div className="grid md:grid-cols-3 gap-4 mb-8">
+              <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
+                <p className="font-black text-stone-900 mb-2">Verified Entries</p>
+                <p className="text-stone-600 font-medium text-sm">Every entry is reviewed by a moderator for accuracy, completeness, and cultural appropriateness.</p>
+              </div>
+              <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
+                <p className="font-black text-stone-900 mb-2">Bridge Coverage</p>
+                <p className="text-stone-600 font-medium text-sm">All entries have English and/or Swahili translations to ensure discoverability and cross-language search.</p>
+              </div>
+              <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
+                <p className="font-black text-stone-900 mb-2">Open & Transparent</p>
+                <p className="text-stone-600 font-medium text-sm">Contributions, moderation decisions, and data gaps are visible. Community feedback shapes decisions.</p>
+              </div>
             </div>
           </div>
           <div>

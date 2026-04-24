@@ -312,7 +312,7 @@ export default function ContributePage() {
             Your {isPhrase ? 'phrase' : 'word'} contribution of <span className="text-emerald-600 font-black italic">"{formData.word}"</span> has been recorded for review.
           </p>
           <div className="grid gap-4">
-            <button onClick={resetForm} className="w-full bg-emerald-600 text-white py-5 rounded-2xl font-black text-lg hover:bg-emerald-700 transition shadow-xl shadow-emerald-900/10">
+            <button onClick={resetForm} className="btn-primary">
               {isPhrase ? 'Add Another Phrase' : 'Add Another Word'}
             </button>
             <Link href="/" className="block w-full py-4 text-stone-400 font-bold hover:text-emerald-600 transition-colors uppercase tracking-widest text-xs">Return Home</Link>
@@ -690,7 +690,7 @@ export default function ContributePage() {
               <button
                 type="submit"
                 disabled={status === 'submitting' || isDuplicate}
-                className="w-full bg-emerald-600 text-white px-8 py-6 rounded-[1.5rem] hover:bg-emerald-700 transition-all font-black text-xl shadow-2xl shadow-emerald-900/20 disabled:opacity-50 flex items-center justify-center gap-4 group"
+                className="w-full btn-primary text-xl disabled:opacity-50 flex items-center justify-center gap-4 group"
               >
                 {status === 'submitting'
                   ? `Recording ${isPhrase ? 'phrase' : 'word'}...`
