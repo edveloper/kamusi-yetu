@@ -74,7 +74,7 @@ export default async function HomePage() {
               <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-emerald-700 mb-2">Building in public</p>
               <h2 className="text-3xl md:text-4xl font-black text-stone-900 font-logo">What’s live, and what’s next</h2>
               <p className="text-stone-600 font-medium mt-4 max-w-3xl leading-relaxed">
-                The dictionary is active today with verified entries and bridge-assisted translation candidates. Phrase packs, usage examples and richer language communities are the focus now.
+                The dictionary is currently with verified entries and bridge-assisted translation candidates. Phrase packs, usage examples and richer language communities are the focus now.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
