@@ -3,18 +3,15 @@
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-stone-50 pb-20">
-      {/* Hero Header */}
-      <div className="bg-emerald-900 text-white py-24 border-b border-emerald-800 relative overflow-hidden">
-        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          <h1 className="text-5xl md:text-7xl font-black mb-6 font-logo tracking-tight">
-            Tuwasiliane
-          </h1>
-          <p className="text-xl md:text-2xl text-emerald-100 opacity-90 leading-relaxed font-medium">
-            Have a suggestion, a correction, or want to partner with us? <br className="hidden md:block"/> Our ears are open to the community.
+      <div className="relative overflow-hidden bg-gradient-to-br from-emerald-700 to-emerald-800 text-white py-20 md:py-28 px-4 sm:px-6">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.12),_transparent_50%)]" />
+        <div className="relative max-w-5xl mx-auto text-center">
+          <p className="text-xs uppercase tracking-[0.35em] text-emerald-100 mb-4 font-semibold">Get in touch with us</p>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-logo">Tuwasiliane</h1>
+          <p className="mt-6 text-base md:text-lg text-emerald-50 max-w-2xl mx-auto leading-8">
+            Have a suggestion, a correction, or want to partner with us? Our ears are open to the community.
           </p>
         </div>
-        {/* Background Decorative Graphic */}
-        <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-emerald-800 rounded-full blur-3xl opacity-50"></div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 -mt-12 relative z-20">

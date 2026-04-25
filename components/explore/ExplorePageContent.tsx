@@ -73,18 +73,18 @@ export default function ExplorePageContent({
 
   return (
     <div className="min-h-screen bg-stone-50 font-sans">
-      <div className="relative overflow-hidden bg-emerald-900 text-white py-24 border-b border-emerald-800">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.16),_transparent_40%)]" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className="relative overflow-hidden bg-gradient-to-br from-emerald-700 to-emerald-800 text-white py-20 md:py-28 px-4 sm:px-6">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.12),_transparent_50%)]" />
+        <div className="relative max-w-5xl mx-auto text-center">
           <p className="text-xs uppercase tracking-[0.35em] text-emerald-100 mb-4 font-semibold">Explore the dictionary</p>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-4xl mx-auto font-logo">Explore Dictionary</h1>
-          <p className="mt-6 text-base md:text-lg text-emerald-100 max-w-3xl mx-auto leading-8 opacity-95 font-medium">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-logo">Explore Dictionary</h1>
+          <p className="mt-6 text-base md:text-lg text-emerald-50 max-w-2xl mx-auto leading-8">
             Search across languages, browse by topic, and discover both well-documented and growing communities in the dictionary.
           </p>
 
-          <div className="mt-10 max-w-4xl mx-auto">
-            <form action="/search" className="relative bg-white/10 border border-white/15 rounded-[2rem] p-4 md:p-5 backdrop-blur-sm">
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_170px_170px_170px_auto] gap-3">
+          <div className="mt-10 max-w-2xl mx-auto">
+            <form action="/search" className="relative">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_170px_170px_170px_75px] gap-3">
                 <input
                   name="q"
                   placeholder="Search headword or meaning..."
@@ -129,7 +129,7 @@ export default function ExplorePageContent({
                 </select>
                 <button
                   type="submit"
-                  className="w-full xl:w-auto px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 transition-colors font-black uppercase tracking-[0.22em]"
+                  className="px-3 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 transition-colors font-black text-xs uppercase tracking-widest text-white"
                 >
                   Search
                 </button>

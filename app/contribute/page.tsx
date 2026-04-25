@@ -323,19 +323,23 @@ export default function ContributePage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 py-16">
-      <div className="max-w-3xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl md:text-6xl font-black text-gray-900 mb-4 tracking-tight font-logo">
+    <div className="min-h-screen bg-stone-50 pb-20">
+      <div className="relative overflow-hidden bg-gradient-to-br from-emerald-700 to-emerald-800 text-white py-20 md:py-28 px-4 sm:px-6">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.12),_transparent_50%)]" />
+        <div className="relative max-w-5xl mx-auto text-center">
+          <p className="text-xs uppercase tracking-[0.35em] text-emerald-100 mb-4 font-semibold">Record and preserve</p>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-logo">
             {isPhrase ? 'Contribute a Phrase' : 'Contribute a Word'}
           </h1>
-          <p className="text-stone-500 text-xl font-medium">
+          <p className="mt-6 text-base md:text-lg text-emerald-50 max-w-2xl mx-auto leading-8">
             {isPhrase
               ? 'Record a greeting, expression, proverb, or common phrase with enough context to preserve how it is actually used.'
               : 'Record a word, preserve a legacy.'}
           </p>
         </div>
+      </div>
 
+      <div className="max-w-3xl mx-auto px-4 -mt-10 relative z-20">
         <form onSubmit={handleSubmit} className="bg-white rounded-[2.5rem] shadow-xl border border-stone-200 overflow-hidden">
           <div className="h-2 bg-emerald-600 w-full"></div>
           

@@ -327,16 +327,18 @@ export default function TrendingPage() {
 
   return (
     <div className="min-h-screen bg-stone-50 pb-24 font-sans">
-      <div className="bg-emerald-900 text-white py-24 border-b border-emerald-800 relative overflow-hidden">
-        <div className="max-w-6xl mx-auto px-4 text-center relative z-10">
-          <h1 className="text-5xl md:text-7xl font-black mb-6 font-logo tracking-tight">Trending</h1>
-          <p className="text-lg md:text-2xl text-emerald-100 opacity-90 leading-relaxed font-medium">
-            Community pulse, dictionary health, and live opportunities to strengthen Kenya&apos;s languages.
+      <div className="relative overflow-hidden bg-gradient-to-br from-emerald-700 to-emerald-800 text-white py-20 md:py-28 px-4 sm:px-6">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.12),_transparent_50%)]" />
+        <div className="relative max-w-5xl mx-auto text-center">
+          <p className="text-xs uppercase tracking-[0.35em] text-emerald-100 mb-4 font-semibold">Community pulse and dictionary health</p>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-logo">Trending</h1>
+          <p className="mt-6 text-base md:text-lg text-emerald-50 max-w-2xl mx-auto leading-8">
+            Live opportunities to strengthen Kenya&apos;s languages through community contributions and data insights.
           </p>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 -mt-10 relative z-20">
+      <div className="max-w-7xl mx-auto px-4 -mt-10 relative z-20">
         {error && (
           <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-700 font-bold text-sm">
             {error}
@@ -344,9 +346,9 @@ export default function TrendingPage() {
         )}
 
         {/* SECTION 1: Dictionary Health Overview */}
-        <section className="mb-16 pt-6 md:pt-12">
-          <div className="mb-6">
-            <h2 className="text-3xl font-black text-stone-900 font-logo mb-2">Dictionary Health at a Glance</h2>
+        <section className="mb-16">
+          <div className="mb-10 surface-card p-6 md:p-8">
+            <h2 className="text-3xl md:text-4xl font-black text-stone-900 font-logo mb-2">Dictionary Health at a Glance</h2>
             <p className="text-stone-600 font-medium">Real-time metrics showing our progress toward comprehensive Kenyan language coverage.</p>
           </div>
           <div className="grid md:grid-cols-3 xl:grid-cols-6 gap-4">

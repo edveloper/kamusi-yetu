@@ -5,18 +5,14 @@ import Link from 'next/link'
 export default function TeamPage() {
   return (
     <div className="min-h-screen bg-stone-50 pb-24 font-sans">
-      <div className="bg-emerald-900 text-white py-32 border-b border-emerald-800 relative overflow-hidden">
-        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          <h1 className="text-6xl md:text-8xl font-black mb-8 font-logo tracking-tight">
-            Team
-          </h1>
-          <p className="text-xl md:text-2xl text-emerald-100 opacity-90 leading-relaxed font-medium max-w-3xl mx-auto">
+      <div className="relative overflow-hidden bg-gradient-to-br from-emerald-700 to-emerald-800 text-white py-20 md:py-28 px-4 sm:px-6">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.12),_transparent_50%)]" />
+        <div className="relative max-w-5xl mx-auto text-center">
+          <p className="text-xs uppercase tracking-[0.35em] text-emerald-100 mb-4 font-semibold">Our team and vision</p>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-logo">Team</h1>
+          <p className="mt-6 text-base md:text-lg text-emerald-50 max-w-2xl mx-auto leading-8">
             Kamusi Yetu is founder-led today, with the long-term aim of growing into a wider network of engineers, linguists, educators, and community reviewers.
           </p>
-        </div>
-
-        <div className="absolute top-0 right-0 opacity-10 translate-x-1/4 -translate-y-1/4 pointer-events-none">
-          <div className="w-[600px] h-[600px] border-[60px] border-white rounded-full"></div>
         </div>
       </div>
 
@@ -95,17 +91,20 @@ export default function TeamPage() {
           </div>
         </section>
 
-        <div className="bg-emerald-600 rounded-[3rem] p-12 md:p-24 text-white text-center shadow-2xl relative overflow-hidden">
-          <div className="relative z-10">
-            <h2 className="text-4xl md:text-6xl font-black mb-8 font-logo tracking-tight">Build With Us</h2>
-            <p className="text-emerald-100 mb-10 text-xl font-medium max-w-2xl mx-auto leading-relaxed">
+        <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-3xl p-12 md:p-16 text-white shadow-xl">
+          <div className="text-center">
+            <h2 className="text-4xl font-black font-logo mb-4">Build With Us</h2>
+            <p className="text-emerald-100 text-lg font-medium mb-8 max-w-3xl mx-auto">
               If you work in language, research, moderation, education, or engineering, there is space to help shape the next stage of Kamusi Yetu.
             </p>
-            <Link href="/contact">
-              <button className="bg-white text-emerald-900 px-14 py-6 rounded-2xl font-black text-xl hover:bg-emerald-50 transition-all shadow-2xl">
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link href="/contact" className="px-8 py-4 rounded-2xl bg-white text-emerald-900 font-black text-lg hover:bg-emerald-50 transition">
                 Contact the Founder
-              </button>
-            </Link>
+              </Link>
+              <Link href="/contribute" className="px-8 py-4 rounded-2xl border-2 border-white text-white font-black text-lg hover:bg-white/10 transition">
+                Start Contributing
+              </Link>
+            </div>
           </div>
         </div>
       </div>

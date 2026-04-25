@@ -3,19 +3,18 @@ import Link from 'next/link'
 export default function ModeratorsPage() {
   return (
     <div className="min-h-screen bg-stone-50 pb-20">
-      {/* Hero Header - Matches Explore Page Style */}
-      <div className="bg-emerald-900 text-white py-24 border-b border-emerald-800 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <h1 className="text-5xl md:text-7xl font-black mb-6 font-logo tracking-tight">
-            Our Moderators
-          </h1>
-          <p className="text-xl text-emerald-100 max-w-2xl mx-auto font-medium opacity-90 leading-relaxed">
+      {/* Hero Header - Standardized Gradient */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-emerald-700 to-emerald-800 text-white py-20 md:py-28 px-4 sm:px-6">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.12),_transparent_50%)]" />
+        <div className="relative max-w-5xl mx-auto text-center">
+          <p className="text-xs uppercase tracking-[0.35em] text-emerald-100 mb-4 font-semibold">Community guardianship</p>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-logo">Our Moderators</h1>
+          <p className="mt-6 text-base md:text-lg text-emerald-50 max-w-2xl mx-auto leading-8">
             Ensuring the accuracy, cultural authenticity, and quality of every entry in our collective archive.
           </p>
         </div>
-        {/* Background Decoration to match Explore/CTA */}
-        <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
-          <div className="absolute -top-24 -left-24 w-96 h-96 border-[40px] border-white rounded-full"></div>
+        <div className="absolute top-0 left-0 opacity-6 pointer-events-none">
+          <div className="-translate-x-1/4 -translate-y-1/4 w-[520px] h-[520px] border-[48px] border-white rounded-full opacity-10"></div>
         </div>
       </div>
 
@@ -97,33 +96,22 @@ export default function ModeratorsPage() {
           </div>
         </section>
 
-        {/* Professional CTA - Matching Explore Page Footer */}
+        {/* Professional CTA - Standard Gradient CTA */}
         <section className="mt-20">
-          <div className="bg-emerald-900 rounded-[3rem] p-12 md:p-20 text-white shadow-2xl relative overflow-hidden text-center">
-            <div className="relative z-10">
-              <h2 className="text-4xl md:text-6xl font-black mb-8 font-logo tracking-tight">
-                Join the Moderation <br className="hidden md:block"/> Team
-              </h2>
-              <p className="text-emerald-100 mb-12 text-xl font-medium opacity-90 max-w-2xl mx-auto leading-relaxed">
-                We are looking for native speakers with a background in linguistics or language preservation. 
-                Help us keep our heritage accurate and alive.
+          <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-3xl p-12 md:p-16 text-white shadow-xl">
+            <div className="text-center">
+              <h2 className="text-4xl font-black font-logo mb-4">Join the Moderation Team</h2>
+              <p className="text-emerald-100 text-lg font-medium mb-8 max-w-3xl mx-auto">
+                We are looking for native speakers with a background in linguistics or language preservation. Help us keep our heritage accurate and alive.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/contact">
-                  <button className="bg-white text-emerald-900 px-10 py-5 rounded-2xl hover:bg-emerald-50 transition-all font-black text-lg shadow-xl hover:scale-105 active:scale-95">
-                    Apply to Moderate
-                  </button>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Link href="/contact" className="px-8 py-4 rounded-2xl bg-white text-emerald-900 font-black text-lg hover:bg-emerald-50 transition">
+                  Apply to Moderate
                 </Link>
-                <Link href="/guidelines">
-                  <button className="bg-transparent border-2 border-white/30 text-white px-10 py-5 rounded-2xl hover:bg-white/10 transition-all font-black text-lg">
-                    Review Guidelines
-                  </button>
+                <Link href="/guidelines" className="px-8 py-4 rounded-2xl border-2 border-white text-white font-black text-lg hover:bg-white/10 transition">
+                  Review Guidelines
                 </Link>
               </div>
-            </div>
-            
-            <div className="absolute bottom-0 right-0 w-full h-full opacity-10 pointer-events-none">
-                <div className="absolute -bottom-24 -right-24 w-96 h-96 border-[40px] border-white rounded-full"></div>
             </div>
           </div>
         </section>

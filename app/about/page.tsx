@@ -24,15 +24,14 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-stone-50 pb-20">
-      <div className="bg-emerald-900 text-white py-32 border-b border-emerald-800 relative overflow-hidden">
-        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          <h1 className="text-6xl md:text-8xl font-black mb-8 font-logo tracking-tight">Our Story</h1>
-          <p className="text-xl md:text-2xl text-emerald-100 opacity-90 leading-relaxed font-medium">
-            Every Kenyan language is a treasure. We are here to ensure <br className="hidden md:block" /> our voices remain audible tomorrow.
+      <div className="relative overflow-hidden bg-gradient-to-br from-emerald-700 to-emerald-800 text-white py-20 md:py-28 px-4 sm:px-6">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.12),_transparent_50%)]" />
+        <div className="relative max-w-5xl mx-auto text-center">
+          <p className="text-xs uppercase tracking-[0.35em] text-emerald-100 mb-4 font-semibold">Our story and mission</p>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-logo">Our Story</h1>
+          <p className="mt-6 text-base md:text-lg text-emerald-50 max-w-2xl mx-auto leading-8">
+            Every Kenyan language is a treasure. We are here to ensure our voices remain audible tomorrow.
           </p>
-        </div>
-        <div className="absolute top-0 right-0 opacity-10 translate-x-1/4 -translate-y-1/4 pointer-events-none">
-          <div className="w-[600px] h-[600px] border-[60px] border-white rounded-full"></div>
         </div>
       </div>
 
@@ -194,20 +193,20 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <div className="bg-emerald-600 rounded-[3rem] p-12 md:p-20 text-white text-center shadow-2xl relative overflow-hidden">
-          <div className="relative z-10">
-            <h2 className="text-4xl md:text-5xl font-black mb-8 font-logo">Join the Movement</h2>
-            <p className="text-emerald-100 mb-10 text-xl font-medium max-w-lg mx-auto leading-relaxed">
+        <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-3xl p-12 md:p-16 text-white shadow-xl">
+          <div className="text-center">
+            <h2 className="text-4xl font-black font-logo mb-4">Join the Movement</h2>
+            <p className="text-emerald-100 text-lg font-medium mb-8 max-w-3xl mx-auto">
               Our target is to preserve 10,000 unique Kenyan words this year. Will your mother tongue be represented?
             </p>
-            <Link href="/contribute">
-              <button className="bg-white text-emerald-900 px-12 py-5 rounded-2xl font-black text-xl hover:bg-emerald-50 transition-all shadow-xl hover:scale-105 active:scale-95">
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link href="/contribute" className="px-8 py-4 rounded-2xl bg-white text-emerald-900 font-black text-lg hover:bg-emerald-50 transition">
                 Start Contributing
-              </button>
-            </Link>
-          </div>
-          <div className="absolute inset-0 opacity-10 pointer-events-none flex items-center justify-center">
-            <div className="w-full h-full border-[1px] border-white/20 rotate-45 scale-150"></div>
+              </Link>
+              <Link href="/explore" className="px-8 py-4 rounded-2xl border-2 border-white text-white font-black text-lg hover:bg-white/10 transition">
+                Explore Dictionary
+              </Link>
+            </div>
           </div>
         </div>
       </div>

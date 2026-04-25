@@ -9,10 +9,12 @@ export default function GuidelinesPage() {
 
   return (
     <div className="min-h-screen bg-stone-50 pb-20">
-      <div className="bg-emerald-900 text-white py-24">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-5xl md:text-7xl font-black mb-6 font-logo tracking-tight">Community Standards</h1>
-          <p className="text-xl text-emerald-100 opacity-90 font-medium">How we keep Kamusi Yetu accurate and respectful.</p>
+      <div className="relative overflow-hidden bg-gradient-to-br from-emerald-700 to-emerald-800 text-white py-20 md:py-28 px-4 sm:px-6">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.12),_transparent_50%)]" />
+        <div className="relative max-w-5xl mx-auto text-center">
+          <p className="text-xs uppercase tracking-[0.35em] text-emerald-100 mb-4 font-semibold">Quality and trust</p>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-logo">Community Standards</h1>
+          <p className="mt-6 text-base md:text-lg text-emerald-50 max-w-2xl mx-auto leading-8">How we keep Kamusi Yetu accurate and respectful.</p>
         </div>
       </div>
 
@@ -53,11 +55,20 @@ export default function GuidelinesPage() {
           </section>
 
           <div className="text-center pt-8">
-            <Link href="/contribute">
-              <button className="btn-primary">
-                I Understand, Let&apos;s Build →
-              </button>
-            </Link>
+            <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-3xl p-12 md:p-16 text-white shadow-xl inline-block w-full">
+              <h2 className="text-4xl font-black font-logo mb-4">Ready to Contribute?</h2>
+              <p className="text-emerald-100 text-lg font-medium mb-8 max-w-3xl mx-auto">
+                You understand the standards. Now help us preserve and grow Kenya's languages.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Link href="/contribute" className="px-8 py-4 rounded-2xl bg-white text-emerald-900 font-black text-lg hover:bg-emerald-50 transition">
+                  Start Contributing
+                </Link>
+                <Link href="/explore" className="px-8 py-4 rounded-2xl border-2 border-white text-white font-black text-lg hover:bg-white/10 transition">
+                  Explore Dictionary
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </div>
