@@ -12,7 +12,7 @@ type ExplorePageProps = {
 export default async function ExplorePage({ searchParams }: ExplorePageProps) {
   const [{ languages, languageCounts, categoryCounts }, resolvedSearchParams] = await Promise.all([
     getExplorePageData(),
-    searchParams || Promise.resolve({}),
+    searchParams || Promise.resolve<{ county?: string }>({}),
   ])
 
   const groupedLanguages = groupLanguages(languages)
@@ -37,7 +37,7 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
       groupedLanguages={groupedLanguages}
       languageCounts={languageCounts}
       categoryCounts={categoryCounts}
-      selectedCounty={selectedCounty ? { countyName: selectedCounty.countyName, note: selectedCounty.note } : undefined}
+      selectedCounty={selectedCounty ? { countyName: selectedCounty.countyName, note: selectedCounty.note || '' } : undefined}
       countyLanguageCards={countyLanguageCards}
     />
   )

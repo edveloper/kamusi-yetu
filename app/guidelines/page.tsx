@@ -18,9 +18,8 @@ export default function GuidelinesPage() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 -mt-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-20">
         <div className="bg-white rounded-[2.5rem] shadow-xl border border-stone-200 p-8 md:p-16 space-y-16">
-          
           <section>
             <div className="inline-block bg-emerald-100 text-emerald-800 px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest mb-6">
               The Golden Rule

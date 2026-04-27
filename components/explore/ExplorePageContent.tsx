@@ -82,13 +82,13 @@ export default function ExplorePageContent({
             Search across languages, browse by topic, and discover both well-documented and growing communities in the dictionary.
           </p>
 
-          <div className="mt-10 max-w-2xl mx-auto">
+          <div className="mt-10 max-w-4xl mx-auto">
             <form action="/search" className="relative">
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_170px_170px_170px_75px] gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[minmax(0,1fr)_170px_170px_170px_90px] gap-3">
                 <input
                   name="q"
                   placeholder="Search headword or meaning..."
-                  className="px-4 py-3 rounded-xl bg-white text-stone-900 font-semibold placeholder:text-stone-400"
+                  className="w-full px-4 py-3 rounded-xl bg-white text-stone-900 font-semibold placeholder:text-stone-400"
                 />
                 <select
                   name="language"
@@ -129,7 +129,7 @@ export default function ExplorePageContent({
                 </select>
                 <button
                   type="submit"
-                  className="px-3 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 transition-colors font-black text-xs uppercase tracking-widest text-white"
+                  className="w-full md:w-auto px-4 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 transition-colors font-black text-xs uppercase tracking-widest text-white"
                 >
                   Search
                 </button>

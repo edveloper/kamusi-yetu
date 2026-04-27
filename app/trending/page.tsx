@@ -485,7 +485,7 @@ export default function TrendingPage() {
                         <div className="min-w-0">
                           <p className="font-black text-stone-900 truncate">{entry.headword}</p>
                           <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
-                            {entry.languageName} ({entry.languageCode || 'N/A'})
+                            {entry.languageName}
                           </p>
                         </div>
                       </div>

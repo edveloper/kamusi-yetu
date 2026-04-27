@@ -9,9 +9,11 @@ import { createServerSupabaseClient } from '@/lib/supabase-server'
 
 type LanguageRow = {
   id: string
-  code: string | null
+  code: string
   name: string
-  native_name?: string | null
+  native_name: string | null
+  is_active: boolean
+  created_at: string
 }
 
 type EntryRow = {
@@ -72,7 +74,7 @@ const getActiveLanguagesCached = unstable_cache(
     const supabase = createServerSupabaseClient()
     const { data, error } = await supabase
       .from('languages')
-      .select('id, code, name, native_name')
+      .select('id, code, name, native_name, is_active, created_at')
       .eq('is_active', true)
       .order('name')
 
