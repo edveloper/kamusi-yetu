@@ -326,14 +326,13 @@ export default function TrendingPage() {
   }, [entries, languages.length, languageMetrics])
 
   return (
-    <div className="min-h-screen bg-stone-50 pb-24 font-sans">
-      <div className="relative overflow-hidden bg-gradient-to-br from-emerald-700 to-emerald-800 text-white py-20 md:py-28 px-4 sm:px-6">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.12),_transparent_50%)]" />
+    <div className="min-h-screen bg-neutral-100 pb-24 font-sans">
+      <div className="relative overflow-hidden bg-heritage-dark text-white py-20 md:py-28 px-4 sm:px-6">
         <div className="relative max-w-5xl mx-auto text-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-emerald-100 mb-4 font-semibold">Community pulse and dictionary health</p>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-logo">Trending</h1>
-          <p className="mt-6 text-base md:text-lg text-emerald-50 max-w-2xl mx-auto leading-8">
-            Live opportunities to strengthen Kenya&apos;s languages through community contributions and data insights.
+          <p className="text-xs uppercase tracking-[0.35em] text-accent-300 mb-4 font-semibold\">Where We Stand. Where We Need Help.</p>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-display\">The State of Our Languages</h1>
+          <p className="mt-6 text-base md:text-lg text-white max-w-2xl mx-auto leading-8\">
+            See which languages are thriving. Discover which ones need your voice. Every contribution writes the next chapter of Kenya's linguistic story.
           </p>
         </div>
       </div>
@@ -348,8 +347,8 @@ export default function TrendingPage() {
         {/* SECTION 1: Dictionary Health Overview */}
         <section className="mb-16">
           <div className="mb-10 surface-card p-6 md:p-8">
-            <h2 className="text-3xl md:text-4xl font-black text-stone-900 font-logo mb-2">Dictionary Health at a Glance</h2>
-            <p className="text-stone-600 font-medium">Real-time metrics showing our progress toward comprehensive Kenyan language coverage.</p>
+            <h2 className="text-3xl md:text-4xl font-black text-heritage-dark font-display mb-2">Dictionary Health at a Glance</h2>
+            <p className="text-neutral-600 font-medium">Real-time metrics showing our progress toward comprehensive Kenyan language coverage.</p>
           </div>
           <div className="grid md:grid-cols-3 xl:grid-cols-6 gap-4">
             {[
@@ -360,9 +359,9 @@ export default function TrendingPage() {
               { label: 'Phrase-Ready', value: summary.phraseReadyLanguages },
               { label: 'Review-Heavy', value: summary.reviewHeavyLanguages },
             ].map((card) => (
-              <div key={card.label} className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm hover:shadow-md transition">
-                <p className="text-[10px] text-stone-500 uppercase tracking-widest font-black mb-2">{card.label}</p>
-                <p className="text-3xl font-black text-stone-900 font-logo">{loading ? '...' : card.value}</p>
+              <div key={card.label} className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm hover:shadow-md transition">
+                <p className="text-[10px] text-neutral-500 uppercase tracking-widest font-black mb-2">{card.label}</p>
+                <p className="text-3xl font-black text-heritage-dark font-display">{loading ? '...' : card.value}</p>
               </div>
             ))}
           </div>
@@ -371,8 +370,8 @@ export default function TrendingPage() {
         {/* SECTION 2: Geographic Coverage */}
         <section className="mb-16">
           <div className="mb-6">
-            <h2 className="text-3xl font-black text-stone-900 font-logo mb-2">Geographic Reach</h2>
-            <p className="text-stone-600 font-medium">Community presence across Kenya—where languages are strongest and where growth is needed most.</p>
+            <h2 className="text-3xl font-black text-heritage-dark font-display mb-2">Geographic Reach</h2>
+            <p className="text-neutral-600 font-medium">Community presence across Kenya—where languages are strongest and where growth is needed most.</p>
           </div>
           <KenyaCountyCoverageMap
             languageMetrics={languageMetrics.map((language) => ({
@@ -389,22 +388,22 @@ export default function TrendingPage() {
         {/* SECTION 3: Community Strength */}
         <section className="mb-16">
           <div className="mb-6">
-            <h2 className="text-3xl font-black text-stone-900 font-logo mb-2">Community Strength</h2>
-            <p className="text-stone-600 font-medium">Languages with proven coverage and the next tier ready for rapid growth.</p>
+            <h2 className="text-3xl font-black text-heritage-dark font-display mb-2">Community Strength</h2>
+            <p className="text-neutral-600 font-medium">Languages with proven coverage and the next tier ready for rapid growth.</p>
           </div>
           <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
-            <div className="bg-white rounded-3xl border border-stone-200 p-8 shadow-sm">
-              <h3 className="text-2xl font-black font-logo text-stone-900 mb-6">Popular Communities</h3>
+            <div className="bg-white rounded-3xl border border-neutral-200 p-8 shadow-sm">
+              <h3 className="text-2xl font-black font-display text-heritage-dark mb-6">Popular Communities</h3>
               <div className="grid md:grid-cols-2 gap-4">
                 {popularCommunities.map((language) => {
                   const maturity = getLanguageMaturityDefinition(language.maturity)
                   return (
                     <Link key={language.id} href={`/search?language=${encodeURIComponent(language.id)}`} className="block">
-                      <div className="rounded-2xl border border-stone-100 bg-stone-50 p-5 hover:bg-white hover:border-emerald-200 transition">
+                    <div key={language.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 hover:bg-neutral-100 hover:border-accent-300/40 transition">
                         <div className="flex items-start justify-between gap-4 mb-3">
                           <div>
-                            <p className="text-lg font-black text-stone-900">{language.name}</p>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
+                            <p className="text-lg font-black text-neutral-900">{language.name}</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-neutral-500">
                               {language.code} {language.native_name ? `| ${language.native_name}` : ''}
                             </p>
                           </div>
@@ -412,8 +411,8 @@ export default function TrendingPage() {
                             {maturity.shortLabel}
                           </span>
                         </div>
-                        <p className="text-sm text-stone-600 font-medium leading-relaxed mb-4">{maturity.description}</p>
-                        <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-stone-500">
+                        <p className="text-sm text-neutral-600 font-medium leading-relaxed mb-4">{maturity.description}</p>
+                        <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-neutral-500">
                           <span>{language.totalEntries} entries</span>
                           <span>{language.phraseEntries} phrases</span>
                           <span>{language.bridgeCoveragePct}% bridge</span>
@@ -425,23 +424,23 @@ export default function TrendingPage() {
               </div>
             </div>
 
-            <div className="bg-emerald-50 rounded-3xl border border-emerald-100 p-8 shadow-sm">
-              <h3 className="text-2xl font-black font-logo text-stone-900 mb-6">Next Growth Wave</h3>
+            <div className="bg-accent-50 rounded-3xl border border-accent-100 p-8 shadow-sm">
+              <h3 className="text-2xl font-black font-display text-heritage-dark mb-6">Next Growth Wave</h3>
               <div className="space-y-3">
                 {growingCommunities.map((language) => {
                   const maturity = getLanguageMaturityDefinition(language.maturity)
                   return (
-                    <div key={language.id} className="rounded-2xl bg-white border border-emerald-100 p-4 hover:border-emerald-200 transition">
+                    <div key={language.id} className="rounded-2xl bg-neutral-50 border border-accent-100 p-4 hover:border-accent-300/50 transition">
                       <div className="flex items-center justify-between gap-3 mb-2">
                         <div>
-                          <p className="font-black text-stone-900">{language.name}</p>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">{language.code}</p>
+                          <p className="font-black text-neutral-900">{language.name}</p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-neutral-500">{language.code}</p>
                         </div>
                         <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${maturity.badgeClassName}`}>
                           {maturity.shortLabel}
                         </span>
                       </div>
-                      <p className="text-sm text-stone-600 font-medium mb-3">
+                      <p className="text-sm text-neutral-600 font-medium mb-3">
                         {language.phraseEntries > 0
                           ? 'Phrase coverage live—add examples to improve translation quality.'
                           : 'Ready for phrase expansion. Your contributions have immediate impact.'}
@@ -449,13 +448,13 @@ export default function TrendingPage() {
                       <div className="flex flex-wrap gap-2">
                         <Link
                           href={`/contribute?lang=${encodeURIComponent(language.code)}`}
-                          className="px-3 py-2 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700"
+                          className="px-3 py-2 rounded-xl bg-accent-300 text-heritage-dark text-[10px] font-black uppercase tracking-widest hover:bg-accent-400"
                         >
                           Add Word
                         </Link>
                         <Link
                           href={`/contribute?type=phrase&lang=${encodeURIComponent(language.code)}`}
-                          className="px-3 py-2 rounded-xl bg-white border border-stone-200 text-[10px] font-black uppercase tracking-widest text-stone-700 hover:bg-stone-50"
+                          className="px-3 py-2 rounded-xl bg-neutral-50 border border-neutral-200 text-[10px] font-black uppercase tracking-widest text-neutral-700 hover:bg-neutral-100"
                         >
                           Add Phrase
                         </Link>
@@ -471,20 +470,20 @@ export default function TrendingPage() {
         {/* SECTION 4: Community Activity */}
         <section className="mb-16">
           <div className="mb-6">
-            <h2 className="text-3xl font-black text-stone-900 font-logo mb-2">Community Activity</h2>
-            <p className="text-stone-600 font-medium">Latest contributions and the words getting the most love from the community.</p>
+            <h2 className="text-3xl font-black text-heritage-dark font-display mb-2">Community Activity</h2>
+            <p className="text-neutral-600 font-medium">Latest contributions and the words getting the most love from the community.</p>
           </div>
           <div className="grid lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-3xl border border-stone-200 p-8 shadow-sm">
-              <h3 className="text-2xl font-black font-logo text-stone-900 mb-6">Latest Additions</h3>
+            <div className="bg-neutral-100 rounded-3xl border border-accent-300/30 p-8 shadow-soft">
+              <h3 className="text-2xl font-black font-display text-heritage-dark mb-6">Latest Additions</h3>
               <div className="space-y-3">
                 {newestEntries.map((entry) => (
                   <Link key={entry.id} href={`/entry/${entry.id}`} className="block">
-                    <div className="rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3 hover:bg-white hover:border-emerald-200 transition">
+                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 hover:bg-neutral-100 hover:border-accent-300/40 transition">
                       <div className="flex items-center justify-between gap-4">
                         <div className="min-w-0">
-                          <p className="font-black text-stone-900 truncate">{entry.headword}</p>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
+                          <p className="font-black text-neutral-900 truncate">{entry.headword}</p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-neutral-500">
                             {entry.languageName}
                           </p>
                         </div>
@@ -493,25 +492,25 @@ export default function TrendingPage() {
                   </Link>
                 ))}
                 {!loading && newestEntries.length === 0 && (
-                  <p className="text-sm text-stone-500">Check back soon for new additions.</p>
+                  <p className="text-sm text-neutral-500">Check back soon for new additions.</p>
                 )}
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl border border-stone-200 p-8 shadow-sm">
-              <h3 className="text-2xl font-black font-logo text-stone-900 mb-6">Most Appreciated</h3>
+            <div className="bg-neutral-100 rounded-3xl border border-accent-300/30 p-8 shadow-soft">
+              <h3 className="text-2xl font-black font-display text-heritage-dark mb-6">Most Appreciated</h3>
               <div className="space-y-3">
                 {topEntries.map((entry) => (
                   <Link key={entry.id} href={`/entry/${entry.id}`} className="block">
-                    <div className="rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3 hover:bg-white hover:border-emerald-200 transition">
+                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 hover:bg-neutral-100 hover:border-accent-300/40 transition">
                       <div className="flex items-center justify-between gap-4">
                         <div className="min-w-0">
-                          <p className="font-black text-stone-900 truncate">{entry.headword}</p>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
+                          <p className="font-black text-neutral-900 truncate">{entry.headword}</p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-neutral-500">
                             {entry.languageName} ({entry.languageCode || 'N/A'})
                           </p>
                         </div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700 whitespace-nowrap">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-accent-700 whitespace-nowrap">
                           ❤️ {entry.likes} | 💾 {entry.saves}
                         </p>
                       </div>
@@ -519,7 +518,7 @@ export default function TrendingPage() {
                   </Link>
                 ))}
                 {!loading && topEntries.length === 0 && (
-                  <p className="text-sm text-stone-500">No interaction data yet.</p>
+                  <p className="text-sm text-neutral-500">No interaction data yet.</p>
                 )}
               </div>
             </div>
@@ -529,55 +528,55 @@ export default function TrendingPage() {
         {/* SECTION 5: Phrase Expansion */}
         <section className="mb-16">
           <div className="mb-6">
-            <h2 className="text-3xl font-black text-stone-900 font-logo mb-2">Next Phase: Phrase Expansion</h2>
-            <p className="text-stone-600 font-medium">Context and multi-word expressions are the next layer. These languages need more phrase entries and usage examples.</p>
+            <h2 className="text-3xl font-black text-heritage-dark font-display mb-2">Next Phase: Phrase Expansion</h2>
+            <p className="text-neutral-600 font-medium">Context and multi-word expressions are the next layer. These languages need more phrase entries and usage examples.</p>
           </div>
           <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-6">
-            <div className="bg-stone-900 rounded-3xl border border-stone-800 p-8 shadow-sm text-white">
-              <h3 className="text-2xl font-black font-logo mb-6">Phrase Spotlight</h3>
+            <div className="bg-heritage-dark rounded-3xl border border-accent-300/20 p-8 shadow-soft text-white">
+              <h3 className="text-2xl font-black font-display mb-6">Phrase Spotlight</h3>
               <div className="space-y-4">
                 {phraseSpotlights.map((phrase) => (
                   <Link key={phrase.id} href={`/entry/${phrase.id}`} className="block">
-                    <div className="rounded-2xl border border-stone-700 bg-stone-800 px-4 py-4 hover:border-emerald-500 transition">
+                    <div className="rounded-2xl border border-neutral-700 bg-neutral-800 px-4 py-4 hover:border-accent-300 transition">
                       <p className="text-lg font-black mb-2">{phrase.headword}</p>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-3">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-accent-300 mb-3">
                         {phrase.languageName}
                       </p>
-                      <p className="text-sm text-stone-300 italic mb-2">&quot;{phrase.englishTranslation}&quot;</p>
+                      <p className="text-sm text-neutral-300 italic mb-2">&quot;{phrase.englishTranslation}&quot;</p>
                       {phrase.swahiliTranslation && (
-                        <p className="text-sm text-stone-400">(SW: {phrase.swahiliTranslation})</p>
+                        <p className="text-sm text-neutral-400">(SW: {phrase.swahiliTranslation})</p>
                       )}
                     </div>
                   </Link>
                 ))}
                 {!loading && phraseSpotlights.length === 0 && (
-                  <p className="text-sm text-stone-400">Phrases coming soon.</p>
+                  <p className="text-sm text-neutral-400">Phrases coming soon.</p>
                 )}
               </div>
             </div>
 
-            <div className="bg-emerald-50 rounded-3xl border border-emerald-100 p-8 shadow-sm">
-              <h3 className="text-2xl font-black font-logo text-stone-900 mb-6">Phrase Missions</h3>
-              <p className="text-stone-600 font-medium mb-6">
+            <div className="bg-accent-50 rounded-3xl border border-accent-100 p-8 shadow-soft">
+              <h3 className="text-2xl font-black font-display text-heritage-dark mb-6">Phrase Missions</h3>
+              <p className="text-neutral-600 font-medium mb-6">
                 These languages have phrase foundations and will improve fastest with more contextual examples.
               </p>
               <div className="space-y-3">
                 {phraseMissions.map((language) => (
-                  <div key={language.id} className="rounded-2xl bg-white border border-emerald-100 p-4 hover:border-emerald-300 transition">
+                  <div key={language.id} className="rounded-2xl bg-neutral-50 border border-accent-100 p-4 hover:border-accent-300/50 transition">
                     <div className="flex items-center justify-between gap-3 mb-2">
                       <div>
-                        <p className="font-black text-stone-900">{language.name}</p>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-stone-500">
+                        <p className="font-black text-neutral-900">{language.name}</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-neutral-500">
                           {language.totalEntries} entries, {language.phraseEntries} phrases
                         </p>
                       </div>
-                      <span className="text-[10px] font-black text-emerald-700 bg-emerald-100 px-2 py-1 rounded-lg">
+                      <span className="text-[10px] font-black text-accent-700 bg-accent-100 px-2 py-1 rounded-lg">
                         {language.phraseMissingExamples} need examples
                       </span>
                     </div>
                     <Link
                       href={`/contribute?type=phrase&lang=${encodeURIComponent(language.code)}`}
-                      className="inline-block px-3 py-2 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 mt-2"
+                      className="inline-block px-3 py-2 rounded-xl bg-heritage-dark text-white text-[10px] font-black uppercase tracking-widest hover:bg-heritage-darker mt-2"
                     >
                       Add Phrase
                     </Link>
@@ -590,17 +589,17 @@ export default function TrendingPage() {
 
         {/* SECTION 6: Call to Action */}
         <section className="mb-0">
-          <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-3xl p-12 md:p-16 text-white shadow-xl">
+          <div className="bg-heritage-dark rounded-2xl p-12 md:p-16 text-white shadow-strong">
             <div className="text-center">
-              <h2 className="text-4xl font-black font-logo mb-4">Your Impact Starts Here</h2>
-              <p className="text-emerald-100 text-lg font-medium mb-8 max-w-3xl mx-auto">
+              <h2 className="text-4xl font-black font-display mb-4">Your Impact Starts Here</h2>
+              <p className="text-white text-lg font-medium mb-8 max-w-3xl mx-auto">
                 Every word, phrase, and example brings us closer to a complete dictionary and stronger translation for all Kenyan languages.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <Link href="/contribute" className="px-8 py-4 rounded-2xl bg-white text-emerald-900 font-black text-lg hover:bg-emerald-50 transition">
+                <Link href="/contribute" className="px-8 py-4 rounded-lg bg-accent-300 text-heritage-dark font-black text-lg hover:bg-accent-400 transition shadow-soft">
                   Start Contributing
                 </Link>
-                <Link href="/explore" className="px-8 py-4 rounded-2xl border-2 border-white text-white font-black text-lg hover:bg-white/10 transition">
+                <Link href="/explore" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-accent-300/20 transition">
                   Explore Dictionary
                 </Link>
               </div>

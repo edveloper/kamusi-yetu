@@ -1,0 +1,11 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "apply-hero-updates",
+			"type": "shell",
+			"command": "echo 'noop'",
+			"isBackground": false
+		}
+	]
+}

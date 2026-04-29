@@ -110,49 +110,49 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center py-12 px-4">
-        <div className="max-w-md w-full text-center bg-white rounded-[3rem] border border-stone-200 shadow-2xl p-12">
-          <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-6">
+      <div className="min-h-screen bg-neutral-100 flex items-center justify-center py-12 px-4">
+        <div className="max-w-md w-full text-center bg-neutral-100 rounded-[3rem] border border-accent-200 shadow-soft p-12">
+          <div className="w-20 h-20 bg-accent-100 text-accent-700 rounded-full flex items-center justify-center text-3xl mx-auto mb-6">
             *
           </div>
-          <h2 className="text-3xl font-black text-stone-900 font-logo uppercase tracking-tight mb-4">Account created</h2>
-          <p className="text-stone-500 font-medium leading-relaxed">
+          <h2 className="text-3xl font-black text-heritage-dark font-display uppercase tracking-tight mb-4">Account created</h2>
+          <p className="text-neutral-500 font-medium leading-relaxed">
             Check your email to verify your account. Redirecting you to the archive...
           </p>
-          {info && <p className="text-xs text-amber-700 mt-4 font-bold">{info}</p>}
+          {info && <p className="text-xs text-accent-700 mt-4 font-bold">{info}</p>}
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-64 bg-emerald-900 -translate-y-1/2 rounded-b-[5rem] z-0"></div>
+    <div className="min-h-screen bg-neutral-100 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-64 bg-heritage-dark -translate-y-1/2 rounded-b-[5rem] z-0"></div>
 
       <div className="max-w-2xl w-full mx-auto relative z-10">
         <div className="text-center mb-10">
-          <h2 className="text-4xl font-black text-white font-logo tracking-tight mb-3 italic">Kamusi Yetu</h2>
-          <p className="text-emerald-100/60 font-black text-[10px] uppercase tracking-[0.3em]">
+          <h2 className="text-4xl font-black text-white font-display tracking-tight mb-3 italic">Kamusi Yetu</h2>
+          <p className="text-white/60 font-black text-[10px] uppercase tracking-[0.3em]">
             Join the Cultural Archive
           </p>
         </div>
 
-        <div className="bg-white rounded-[3rem] border border-stone-200 shadow-2xl shadow-emerald-900/10 p-8 md:p-12">
+        <div className="bg-neutral-100 rounded-[3rem] border border-accent-200 shadow-soft shadow-heritage-dark/10 p-8 md:p-12">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-amber-50 border border-amber-200 text-amber-800 px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-wide">
+              <div className="bg-accent-50 border border-accent-200 text-accent-700 px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-wide">
                 {error}
               </div>
             )}
             {info && (
-              <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl text-xs font-bold">
+              <div className="bg-accent-50 border border-accent-200 text-accent-700 px-5 py-4 rounded-2xl text-xs font-bold">
                 {info}
               </div>
             )}
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="email" className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                <label htmlFor="email" className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em] mb-3 ml-1">
                   Email
                 </label>
                 <input
@@ -161,13 +161,13 @@ export default function SignupPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium text-stone-900 placeholder:text-stone-300"
+                  className="w-full px-6 py-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-heritage-dark/10 focus:border-heritage-dark transition-all font-medium text-neutral-900 placeholder:text-neutral-300"
                   placeholder="you@heritage.com"
                 />
               </div>
 
               <div>
-                <label htmlFor="username" className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                <label htmlFor="username" className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em] mb-3 ml-1">
                   Username
                 </label>
                 <input
@@ -176,7 +176,7 @@ export default function SignupPage() {
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium text-stone-900 placeholder:text-stone-300"
+                  className="w-full px-6 py-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-heritage-dark/10 focus:border-heritage-dark transition-all font-medium text-neutral-900 placeholder:text-neutral-300"
                   placeholder="e.g. nyambura"
                 />
               </div>
@@ -184,7 +184,7 @@ export default function SignupPage() {
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="password" className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                <label htmlFor="password" className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em] mb-3 ml-1">
                   Password
                 </label>
                 <input
@@ -193,13 +193,13 @@ export default function SignupPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium text-stone-900 placeholder:text-stone-300"
+                  className="w-full px-6 py-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-heritage-dark/10 focus:border-heritage-dark transition-all font-medium text-neutral-900 placeholder:text-neutral-300"
                   placeholder="********"
                 />
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                <label htmlFor="confirmPassword" className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em] mb-3 ml-1">
                   Confirm Password
                 </label>
                 <input
@@ -208,30 +208,30 @@ export default function SignupPage() {
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium text-stone-900 placeholder:text-stone-300"
+                  className="w-full px-6 py-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-heritage-dark/10 focus:border-heritage-dark transition-all font-medium text-neutral-900 placeholder:text-neutral-300"
                   placeholder="********"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3 ml-1">Bio</label>
+              <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em] mb-3 ml-1">Bio</label>
               <textarea
                 rows={3}
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium text-stone-900 placeholder:text-stone-300 resize-none"
+                className="w-full px-6 py-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-heritage-dark/10 focus:border-heritage-dark transition-all font-medium text-neutral-900 placeholder:text-neutral-300 resize-none"
                 placeholder="Tell the community about your language journey..."
               />
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3 ml-1">Profile Photo (Optional)</label>
+              <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em] mb-3 ml-1">Profile Photo (Optional)</label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => setAvatarFile(e.target.files?.[0] || null)}
-                className="w-full text-xs text-stone-500 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-600 file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
+                className="w-full text-xs text-neutral-500 file:mr-3 file:rounded-lg file:border-0 file:bg-heritage-dark file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
               />
             </div>
 
@@ -247,8 +247,8 @@ export default function SignupPage() {
                       onClick={() => toggleLanguage(lang.id)}
                       className={`px-3 py-2 rounded-xl text-xs font-black border transition ${
                         selected
-                          ? 'bg-emerald-600 text-white border-emerald-600'
-                          : 'bg-stone-50 text-stone-600 border-stone-200 hover:border-emerald-400'
+                          ? 'bg-heritage-dark text-white border-heritage-dark'
+                          : 'bg-neutral-50 text-neutral-600 border-neutral-200 hover:border-accent-300'
                       }`}
                     >
                       {lang.name}
@@ -261,7 +261,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-emerald-700 text-white px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] hover:bg-emerald-800 transition-all shadow-xl shadow-emerald-900/20 disabled:opacity-50 disabled:cursor-not-allowed group"
+              className="w-full bg-heritage-dark text-white px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] hover:bg-heritage-darker transition-all shadow-xl shadow-heritage-dark/20 disabled:opacity-50 disabled:cursor-not-allowed group"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-3">
@@ -277,7 +277,7 @@ export default function SignupPage() {
           <div className="mt-10 pt-8 border-t border-stone-100 text-center">
             <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest">
               Part of the tribe?{' '}
-              <Link href="/login" className="text-emerald-600 hover:text-emerald-700 ml-2 border-b border-emerald-100 pb-1">
+              <Link href="/login" className="text-accent-600 hover:text-accent-700 ml-2 border-b border-accent-100 pb-1">>
                 Sign In
               </Link>
             </p>
@@ -285,7 +285,7 @@ export default function SignupPage() {
         </div>
       </div>
 
-      <div className="absolute bottom-0 right-0 w-64 h-64 border-[40px] border-emerald-900/5 rounded-full -mr-32 -mb-32"></div>
+      <div className="absolute bottom-0 right-0 w-64 h-64 border-[40px] border-heritage-dark/5 rounded-full -mr-32 -mb-32"></div>
     </div>
   )
 }

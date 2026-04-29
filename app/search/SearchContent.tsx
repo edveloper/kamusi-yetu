@@ -91,15 +91,15 @@ export default function SearchContent() {
   const groupedLanguages = groupLanguages(languages)
 
   return (
-    <div className="min-h-screen bg-stone-50 pb-20 font-sans">
-      <div className="bg-emerald-900 text-white py-20 relative overflow-hidden border-b border-emerald-800">
+    <div className="min-h-screen bg-neutral-100 pb-20 font-sans">
+      <div className="bg-heritage-dark text-white py-20 relative overflow-hidden border-b border-heritage-darker">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-6xl font-black font-logo tracking-tight mb-3 uppercase">
+            <h1 className="text-4xl md:text-6xl font-black font-display tracking-tight mb-3 uppercase">
               {langParam !== 'all' && activeLanguage ? `${activeLanguage.name} Dictionary` : 'Dictionary Search'}
             </h1>
             {langParam !== 'all' && activeLanguage && (
-              <p className="text-emerald-100/90 mb-6 text-sm md:text-base max-w-2xl">{getLanguageNote(activeLanguage.code)}</p>
+              <p className="text-white/90 mb-6 text-sm md:text-base max-w-2xl">{getLanguageNote(activeLanguage.code)}</p>
             )}
             <div className="relative group">
               <input
@@ -108,21 +108,21 @@ export default function SearchContent() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && updateUrl({ q: searchQuery })}
                 placeholder="Search headword or meaning..."
-                className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white px-6 py-4 rounded-xl focus:bg-white focus:text-stone-900 transition-all font-bold placeholder:text-emerald-100/40"
+                className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white px-6 py-4 rounded-xl focus:bg-white focus:text-neutral-900 transition-all font-bold placeholder:text-accent-100/40"
               />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="sticky top-20 z-20 bg-white border-b border-stone-200">
+      <div className="sticky top-20 z-20 bg-white border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-3 py-4">
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
               <button
                 onClick={() => updateUrl({ letter: 'all' })}
                 className={`px-3 py-2 rounded-lg text-[9px] font-black uppercase shrink-0 transition-all ${
-                  letterParam === 'all' ? 'bg-emerald-900 text-white' : 'bg-stone-100 text-stone-500'
+                  letterParam === 'all' ? 'bg-heritage-dark text-white' : 'bg-neutral-100 text-neutral-500'
                 }`}
               >
                 A-Z
@@ -132,7 +132,7 @@ export default function SearchContent() {
                   key={letter}
                   onClick={() => updateUrl({ letter })}
                   className={`w-8 h-8 flex items-center justify-center rounded-lg text-[10px] font-black shrink-0 transition-all ${
-                    letterParam === letter ? 'bg-emerald-900 text-white' : 'hover:bg-emerald-50 text-stone-500'
+                    letterParam === letter ? 'bg-heritage-dark text-white' : 'hover:bg-accent-50 text-neutral-500'
                   }`}
                 >
                   {letter}
@@ -144,7 +144,7 @@ export default function SearchContent() {
               <select
                 value={langParam}
                 onChange={(e) => updateUrl({ language: e.target.value })}
-                className="bg-stone-50 border border-stone-200 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="bg-neutral-50 border border-neutral-200 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-heritage-dark"
               >
                 <option value="all">All Communities</option>
                 {groupedLanguages.map((group) => (
@@ -161,7 +161,7 @@ export default function SearchContent() {
               <select
                 value={catParam}
                 onChange={(e) => updateUrl({ category: e.target.value })}
-                className="bg-stone-50 border border-stone-200 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="bg-neutral-50 border border-neutral-200 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-heritage-dark"
               >
                 <option value="all">Any Category</option>
                 {CATEGORIES.map((c) => (
@@ -174,7 +174,7 @@ export default function SearchContent() {
               <select
                 value={sortParam}
                 onChange={(e) => updateUrl({ sort: e.target.value })}
-                className="bg-stone-50 border border-stone-200 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="bg-neutral-50 border border-neutral-200 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-heritage-dark"
               >
                 <option value="headword_asc">Sort: Headword A-Z</option>
                 <option value="newest">Sort: Newest</option>
@@ -184,7 +184,7 @@ export default function SearchContent() {
               <select
                 value={kindParam}
                 onChange={(e) => updateUrl({ kind: e.target.value })}
-                className="bg-stone-50 border border-stone-200 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="bg-neutral-50 border border-neutral-200 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-heritage-dark"
               >
                 <option value="all">Words + Phrases</option>
                 <option value="word">Words Only</option>
@@ -193,7 +193,7 @@ export default function SearchContent() {
 
               <button
                 onClick={() => router.push('/search')}
-                className="text-[10px] font-black uppercase tracking-widest text-stone-500 hover:text-emerald-700"
+                className="text-[10px] font-black uppercase tracking-widest text-neutral-500 hover:text-accent-700"
               >
                 Reset filters
               </button>
@@ -204,23 +204,23 @@ export default function SearchContent() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6 flex items-center justify-between gap-4">
-          <p className="text-xs font-black uppercase tracking-widest text-stone-500">
+          <p className="text-xs font-black uppercase tracking-widest text-neutral-500">
             {loading ? 'Searching...' : `Showing ${results.length} of ${totalCount} entries`}
           </p>
-          <Link href="/explore" className="text-xs font-black uppercase tracking-widest text-emerald-700 hover:text-emerald-800">
+          <Link href="/explore" className="text-xs font-black uppercase tracking-widest text-accent-700 hover:text-accent-800">
             Back to Explore
           </Link>
         </div>
 
         {loading ? (
-          <div className="py-20 text-center animate-pulse font-black text-stone-300 uppercase tracking-[0.4em] text-[10px]">
+          <div className="py-20 text-center animate-pulse font-black text-neutral-300 uppercase tracking-[0.4em] text-[10px]">
             Filtering...
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {results.map((entry) => (
               <Link href={`/entry/${entry.id}`} key={entry.id} className="group">
-                <div className="bg-white p-8 rounded-[2rem] border border-stone-200 hover:border-emerald-600 transition-all h-full flex flex-col shadow-sm hover:shadow-xl">
+                <div className="bg-neutral-50 p-8 rounded-[2rem] border border-neutral-200 hover:border-heritage-dark transition-all h-full flex flex-col shadow-sm hover:shadow-xl">
                   {(() => {
                     const englishBridge = compactBridgeText(entry.english_translation)
                     const swahiliBridge = compactBridgeText(entry.swahili_translation)
@@ -228,36 +228,36 @@ export default function SearchContent() {
                     return (
                       <>
                   <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-2xl font-black font-logo text-stone-900 group-hover:text-emerald-700 truncate mr-2">{entry.headword}</h3>
+                    <h3 className="text-2xl font-black font-display text-heritage-dark group-hover:text-accent-700 truncate mr-2">{entry.headword}</h3>
                     <div className="flex flex-col items-end gap-1 shrink-0">
-                      <span className="text-[8px] font-black bg-emerald-50 text-emerald-700 px-2 py-1 rounded-md uppercase tracking-tighter border border-emerald-100">
+                      <span className="text-[8px] font-black bg-accent-50 text-accent-700 px-2 py-1 rounded-md uppercase tracking-tighter border border-accent-100">
                         {entry.language?.name}
                       </span>
                       {String(entry.part_of_speech || '').toLowerCase() === 'phrase' && (
-                        <span className="text-[8px] font-black bg-stone-100 text-stone-700 px-2 py-1 rounded-md uppercase tracking-tighter border border-stone-200">
+                        <span className="text-[8px] font-black bg-neutral-100 text-neutral-700 px-2 py-1 rounded-md uppercase tracking-tighter border border-neutral-200">
                           Phrase
                         </span>
                       )}
                     </div>
                   </div>
-                  <p className="text-stone-500 text-sm font-medium line-clamp-3 mb-6 flex-grow leading-relaxed">{entry.primary_definition}</p>
+                  <p className="text-neutral-500 text-sm font-medium line-clamp-3 mb-6 flex-grow leading-relaxed">{entry.primary_definition}</p>
                   {(englishBridge || swahiliBridge) && (
                     <div className="mb-6 space-y-2">
                       {englishBridge && (
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-stone-500 line-clamp-2">
-                          EN: <span className="normal-case tracking-normal text-stone-700">{englishBridge}</span>
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500 line-clamp-2">
+                          EN: <span className="normal-case tracking-normal text-neutral-700">{englishBridge}</span>
                         </p>
                       )}
                       {swahiliBridge && (
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-stone-500 line-clamp-2">
-                          SW: <span className="normal-case tracking-normal text-stone-700">{swahiliBridge}</span>
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500 line-clamp-2">
+                          SW: <span className="normal-case tracking-normal text-neutral-700">{swahiliBridge}</span>
                         </p>
                       )}
                     </div>
                   )}
-                  <div className="pt-4 border-t border-stone-50 flex justify-between items-center">
-                    <span className="text-[9px] font-black text-stone-400 uppercase tracking-widest">Score: {entry.trust_score}%</span>
-                    <span className="text-emerald-600 text-xs font-black group-hover:translate-x-1 transition-transform">{'->'}</span>
+                  <div className="pt-4 border-t border-neutral-50 flex justify-between items-center">
+                    <span className="text-[9px] font-black text-neutral-400 uppercase tracking-widest">Score: {entry.trust_score}%</span>
+                    <span className="text-accent-600 text-xs font-black group-hover:translate-x-1 transition-transform">{'->'}</span>
                   </div>
                       </>
                     )
@@ -269,18 +269,18 @@ export default function SearchContent() {
         )}
 
         {!loading && results.length === 0 && (
-          <div className="text-center py-24 border-2 border-dashed border-stone-200 rounded-[3rem] bg-white">
-            <p className="text-stone-500 font-black uppercase tracking-widest text-xs mb-4">No entries match this filter set</p>
+          <div className="text-center py-24 border-2 border-dashed border-neutral-200 rounded-[3rem] bg-neutral-50">
+            <p className="text-neutral-500 font-black uppercase tracking-widest text-xs mb-4">No entries match this filter set</p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <button
                 onClick={() => router.push('/search')}
-                className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-widest"
+                className="px-5 py-2 rounded-xl bg-heritage-dark hover:bg-heritage-darker text-white font-black text-xs uppercase tracking-widest"
               >
                 Reset and browse all
               </button>
               <Link
                 href={kindParam === 'phrase' ? '/contribute?type=phrase' : '/contribute'}
-                className="px-5 py-2 rounded-xl border border-emerald-200 text-emerald-800 hover:bg-emerald-50 font-black text-xs uppercase tracking-widest"
+                className="px-5 py-2 rounded-xl border border-accent-200 text-accent-800 hover:bg-accent-50 font-black text-xs uppercase tracking-widest"
               >
                 {kindParam === 'phrase' ? 'Contribute a Phrase' : 'Contribute a Word'}
               </Link>

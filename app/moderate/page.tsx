@@ -410,39 +410,39 @@ export default function ModeratePage() {
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-4 border-emerald-200 border-t-emerald-600"></div>
+    <div className="min-h-screen bg-neutral-100 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-4 border-accent-100 border-t-accent-300"></div>
     </div>
   )
 
   if (!isUserModerator) return (
-    <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
-      <div className="bg-white p-12 rounded-[2.5rem] shadow-xl text-center max-w-md border border-stone-200">
-        <h2 className="text-3xl font-black text-gray-900 mb-4 font-logo tracking-tighter uppercase">Access Denied</h2>
-        <p className="text-stone-500 font-medium mb-8">This chamber is reserved for community elders and guardians.</p>
-        <Link href="/profile" className="inline-block bg-stone-900 text-white px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest">Return to Profile</Link>
+    <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-4">
+      <div className="bg-neutral-100 p-12 rounded-[2.5rem] shadow-soft text-center max-w-md border border-accent-200">
+        <h2 className="text-3xl font-black text-heritage-dark mb-4 font-display tracking-tighter uppercase">Access Denied</h2>
+        <p className="text-neutral-500 font-medium mb-8">This chamber is reserved for community elders and guardians.</p>
+        <Link href="/profile" className="inline-block bg-heritage-dark text-white px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-heritage-darker transition">Return to Profile</Link>
       </div>
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      <div className="bg-emerald-900 text-white pt-20 pb-24 border-b border-emerald-800">
+    <div className="min-h-screen bg-neutral-100">
+      <div className="bg-heritage-dark text-white pt-20 pb-24 border-b border-heritage-darker">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
             <div className="max-w-2xl">
-              <h1 className="text-4xl md:text-5xl font-black font-logo tracking-tight mb-4 uppercase">Moderator Dashboard</h1>
-              <p className="text-emerald-100/70 text-lg font-medium italic font-serif">Reviewing and validating the community&apos;s collective wisdom.</p>
+              <h1 className="text-4xl md:text-5xl font-black font-display tracking-tight mb-4 uppercase">Moderator Dashboard</h1>
+              <p className="text-white/80 text-lg font-medium italic font-serif">Reviewing and validating the community&apos;s collective wisdom.</p>
             </div>
 
-            <div className="flex flex-wrap gap-4 font-logo">
-              <div className="bg-emerald-800/50 backdrop-blur-md p-4 rounded-2xl border border-emerald-700/50">
-                <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">Weekly Reviews</div>
-                <div className="text-3xl font-black">{loadingData ? '...' : modStats.thisWeek}</div>
+            <div className="flex flex-wrap gap-4">
+              <div className="bg-accent-50/90 p-4 rounded-2xl border border-accent-200">
+                <div className="text-[10px] font-black text-accent-700 uppercase tracking-widest mb-1">Weekly Reviews</div>
+                <div className="text-3xl font-black text-heritage-dark">{loadingData ? '...' : modStats.thisWeek}</div>
               </div>
-              <div className="bg-emerald-800/50 backdrop-blur-md p-4 rounded-2xl border border-emerald-700/50">
-                <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">Guardian Score</div>
-                <div className="text-3xl font-black">{loadingData ? '...' : modStats.score}</div>
+              <div className="bg-accent-50/90 p-4 rounded-2xl border border-accent-200">
+                <div className="text-[10px] font-black text-accent-700 uppercase tracking-widest mb-1">Guardian Score</div>
+                <div className="text-3xl font-black text-heritage-dark">{loadingData ? '...' : modStats.score}</div>
               </div>
             </div>
           </div>
@@ -452,12 +452,12 @@ export default function ModeratePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10">
         <div className="grid lg:grid-cols-4 gap-8">
           <div className="lg:col-span-1 space-y-4">
-            <div className="bg-white p-6 rounded-3xl shadow-xl border border-stone-200">
-              <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-3 ml-1">Filter by Language</label>
+            <div className="bg-neutral-100 p-6 rounded-3xl shadow-soft border border-accent-200">
+              <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-3 ml-1">Filter by Language</label>
               <select
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value)}
-                className="w-full px-4 py-3 bg-stone-50 border-2 border-stone-50 rounded-xl focus:bg-white focus:border-emerald-500 transition-all outline-none font-bold text-gray-900 appearance-none cursor-pointer"
+                className="w-full px-4 py-3 bg-neutral-50 border-2 border-neutral-50 rounded-xl focus:bg-white focus:border-accent-300 transition-all outline-none font-bold text-heritage-dark appearance-none cursor-pointer"
               >
                 <option value="all">All Dialects</option>
                 {languages.map((lang) => (
@@ -466,12 +466,12 @@ export default function ModeratePage() {
               </select>
             </div>
 
-            <div className="bg-white p-6 rounded-3xl shadow-xl border border-stone-200">
-              <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-3 ml-1">Filter by Content Type</label>
+            <div className="bg-neutral-100 p-6 rounded-3xl shadow-soft border border-accent-200">
+              <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-3 ml-1">Filter by Content Type</label>
               <select
                 value={selectedContentType}
                 onChange={(e) => setSelectedContentType(e.target.value as 'all' | 'word' | 'phrase' | 'entry' | 'suggestion')}
-                className="w-full px-4 py-3 bg-stone-50 border-2 border-stone-50 rounded-xl focus:bg-white focus:border-emerald-500 transition-all outline-none font-bold text-gray-900 appearance-none cursor-pointer"
+                className="w-full px-4 py-3 bg-neutral-50 border-2 border-neutral-50 rounded-xl focus:bg-white focus:border-accent-300 transition-all outline-none font-bold text-heritage-dark appearance-none cursor-pointer"
               >
                 <option value="all">All Items</option>
                 <option value="phrase">Phrases</option>
@@ -481,56 +481,56 @@ export default function ModeratePage() {
               </select>
             </div>
 
-            <div className="flex items-center justify-between p-5 rounded-2xl font-black uppercase text-[11px] tracking-widest bg-emerald-600 text-white shadow-lg shadow-emerald-900/20">
+            <div className="flex items-center justify-between p-5 rounded-2xl font-black uppercase text-[11px] tracking-widest bg-heritage-dark text-white shadow-soft">
               <span>Pending Review</span>
-              <span className="px-2 py-1 rounded-lg text-[10px] bg-emerald-500">{filteredList.length}</span>
+              <span className="px-2 py-1 rounded-lg text-[10px] bg-accent-100 text-heritage-dark">{filteredList.length}</span>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center justify-between p-5 rounded-2xl font-black uppercase text-[11px] tracking-widest bg-stone-900 text-white shadow-lg shadow-stone-900/10">
+              <div className="flex items-center justify-between p-5 rounded-2xl font-black uppercase text-[11px] tracking-widest bg-accent-100 text-heritage-dark shadow-soft">
                 <span>Pending Phrases</span>
-                <span className="px-2 py-1 rounded-lg text-[10px] bg-stone-700">{pendingPhraseCount}</span>
+                <span className="px-2 py-1 rounded-lg text-[10px] bg-accent-200 text-accent-700">{pendingPhraseCount}</span>
               </div>
-              <div className="flex items-center justify-between p-5 rounded-2xl font-black uppercase text-[11px] tracking-widest bg-amber-500 text-white shadow-lg shadow-amber-900/10">
+              <div className="flex items-center justify-between p-5 rounded-2xl font-black uppercase text-[11px] tracking-widest bg-amber-500 text-white shadow-soft">
                 <span>Needs Completion</span>
                 <span className="px-2 py-1 rounded-lg text-[10px] bg-amber-400">{incompleteCount}</span>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-3xl shadow-xl border border-stone-200">
-              <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-4">Bridge Health</p>
+            <div className="bg-neutral-100 p-6 rounded-3xl shadow-soft border border-accent-200">
+              <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-4">Bridge Health</p>
               {bridgeHealth ? (
                 <div className="space-y-3 text-[11px]">
                   <div className="flex items-center justify-between">
-                    <span className="text-stone-500 font-bold uppercase tracking-wide">Total</span>
-                    <span className="font-black text-stone-900">{bridgeHealth.total}</span>
+                    <span className="text-neutral-500 font-bold uppercase tracking-wide">Total</span>
+                    <span className="font-black text-heritage-dark">{bridgeHealth.total}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-stone-500 font-bold uppercase tracking-wide">With Bridge</span>
-                    <span className="font-black text-emerald-700">{bridgeHealth.with_bridge}</span>
+                    <span className="text-neutral-500 font-bold uppercase tracking-wide">With Bridge</span>
+                    <span className="font-black text-accent-700">{bridgeHealth.with_bridge}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-stone-500 font-bold uppercase tracking-wide">Missing Both</span>
+                    <span className="text-neutral-500 font-bold uppercase tracking-wide">Missing Both</span>
                     <span className="font-black text-red-600">{bridgeHealth.missing_both}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-stone-500 font-bold uppercase tracking-wide">EN w/o SW</span>
-                    <span className="font-black text-amber-700">{bridgeHealth.english_without_swahili}</span>
+                    <span className="text-neutral-500 font-bold uppercase tracking-wide">EN w/o SW</span>
+                    <span className="font-black text-accent-700">{bridgeHealth.english_without_swahili}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-stone-500 font-bold uppercase tracking-wide">SW w/o EN</span>
-                    <span className="font-black text-amber-700">{bridgeHealth.swahili_without_english}</span>
+                    <span className="text-neutral-500 font-bold uppercase tracking-wide">SW w/o EN</span>
+                    <span className="font-black text-accent-700">{bridgeHealth.swahili_without_english}</span>
                   </div>
-                  <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
-                    <span className="text-stone-500 font-bold uppercase tracking-wide">Phrases</span>
-                    <span className="font-black text-stone-900">{bridgeHealth.phrase_total}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-stone-500 font-bold uppercase tracking-wide">Phrase Examples</span>
-                    <span className="font-black text-emerald-700">{bridgeHealth.phrase_with_examples}</span>
+                  <div className="pt-3 border-t border-accent-100 flex items-center justify-between">
+                    <span className="text-neutral-500 font-bold uppercase tracking-wide">Phrases</span>
+                    <span className="font-black text-heritage-dark">{bridgeHealth.phrase_total}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-stone-500 font-bold uppercase tracking-wide">Phrases Missing Examples</span>
+                    <span className="text-neutral-500 font-bold uppercase tracking-wide">Phrase Examples</span>
+                    <span className="font-black text-accent-700">{bridgeHealth.phrase_with_examples}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-neutral-500 font-bold uppercase tracking-wide">Phrases Missing Examples</span>
                     <span className="font-black text-amber-700">{bridgeHealth.phrase_missing_examples}</span>
                   </div>
                 </div>
@@ -539,29 +539,29 @@ export default function ModeratePage() {
               )}
             </div>
 
-            <div className="bg-white p-6 rounded-3xl shadow-xl border border-stone-200">
-              <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-4">Language Risk</p>
+            <div className="bg-neutral-100 p-6 rounded-3xl shadow-soft border border-accent-200">
+              <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-4">Language Risk</p>
               {bridgeByLanguage.length > 0 ? (
                 <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
                   {bridgeByLanguage.map((lang) => {
                     const risk = lang.missing_both + lang.english_without_swahili + lang.swahili_without_english
                     const gapPct = lang.total > 0 ? Math.round((risk / lang.total) * 100) : 0
                     return (
-                      <div key={lang.language_id} className="rounded-xl border border-stone-100 bg-stone-50 p-3">
+                      <div key={lang.language_id} className="rounded-xl border border-accent-100 bg-accent-50 p-3">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-xs font-black text-stone-800 truncate">{lang.language_name}</p>
+                          <p className="text-xs font-black text-heritage-dark truncate">{lang.language_name}</p>
                           <span className={`text-[10px] font-black px-2 py-1 rounded-md ${
-                            risk > 0 ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'
+                            risk > 0 ? 'bg-red-100 text-red-700' : 'bg-accent-100 text-accent-700'
                           }`}>
                             Issues {risk}
                           </span>
                         </div>
-                        <div className="mt-2 text-[10px] text-stone-500 font-bold uppercase tracking-wide flex items-center justify-between">
+                        <div className="mt-2 text-[10px] text-neutral-500 font-bold uppercase tracking-wide flex items-center justify-between">
                           <span>Total {lang.total}</span>
                           <span>Gap {gapPct}%</span>
                         </div>
                         {lang.phrase_total > 0 && (
-                          <div className="mt-2 text-[10px] text-stone-500 font-bold uppercase tracking-wide flex items-center justify-between">
+                          <div className="mt-2 text-[10px] text-neutral-500 font-bold uppercase tracking-wide flex items-center justify-between">
                             <span>Phrases {lang.phrase_total}</span>
                             <span>Missing examples {lang.phrase_missing_examples}</span>
                           </div>
@@ -571,7 +571,7 @@ export default function ModeratePage() {
                   })}
                 </div>
               ) : (
-                <p className="text-xs text-stone-400">No language metrics yet.</p>
+                <p className="text-xs text-neutral-400">No language metrics yet.</p>
               )}
             </div>
           </div>
@@ -579,23 +579,23 @@ export default function ModeratePage() {
           <div className="lg:col-span-3 pb-20">
             {loadingData ? (
               <div className="bg-white p-20 rounded-[2.5rem] border border-stone-200 text-center">
-                <div className="animate-spin rounded-full h-10 w-10 border-4 border-stone-100 border-t-emerald-600 mx-auto"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-neutral-100 border-t-heritage-dark mx-auto"></div>
               </div>
             ) : (
               <div className="space-y-6">
                 {filteredList.some((item) => isPhraseItem(item) && getModerationGaps(item).includes('usage example')) && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-[2rem] p-6 shadow-sm">
+                  <div className="bg-accent-50 border border-accent-100 rounded-[2rem] p-6 shadow-soft">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div>
-                        <p className="text-[10px] font-black text-amber-700 uppercase tracking-[0.2em] mb-2">Phrase Review Priority</p>
-                        <h3 className="text-2xl font-black text-stone-900 font-logo">Phrases Missing Usage Examples</h3>
-                        <p className="text-sm text-stone-600 mt-2 max-w-2xl">
+                        <p className="text-[10px] font-black text-accent-700 uppercase tracking-[0.2em] mb-2">Phrase Review Priority</p>
+                        <h3 className="text-2xl font-black text-heritage-dark font-display">Phrases Missing Usage Examples</h3>
+                        <p className="text-sm text-neutral-600 mt-2 max-w-2xl">
                           These phrase submissions need context before they should be treated as strong translation material.
                         </p>
                       </div>
                       <button
                         onClick={() => setSelectedContentType('phrase')}
-                        className="px-5 py-3 rounded-xl bg-amber-500 text-white font-black text-xs uppercase tracking-widest hover:bg-amber-600"
+                        className="px-5 py-3 rounded-xl bg-heritage-dark text-white font-black text-xs uppercase tracking-widest hover:bg-heritage-darker"
                       >
                         Focus Phrase Queue
                       </button>
@@ -608,26 +608,26 @@ export default function ModeratePage() {
                   const isPhrase = isPhraseItem(submission)
                   const gaps = getModerationGaps(submission)
                   return (
-                    <div key={submission.id} className={`bg-white rounded-[2.5rem] border-2 transition-all overflow-hidden ${reviewingId === submission.id ? 'border-emerald-500 shadow-2xl scale-[1.01]' : 'border-white shadow-sm hover:shadow-md'}`}>
+                    <div key={submission.id} className={`bg-neutral-50 rounded-[2.5rem] border-2 transition-all overflow-hidden ${reviewingId === submission.id ? 'border-heritage-dark shadow-2xl scale-[1.01]' : 'border-neutral-50 shadow-sm hover:shadow-md'}`}>
                       <div className="p-8 md:p-10">
                         <div className="flex flex-wrap items-center gap-4 mb-6">
-                          <span className="bg-stone-100 text-stone-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                          <span className="bg-accent-50 text-accent-700 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
                             {submission.language?.name || 'Unknown'}
                           </span>
-                          <span className="bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                          <span className="bg-accent-100 text-accent-700 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
                             {submission.item_type}
                           </span>
                           {isPhrase && (
-                            <span className="bg-stone-900 text-white px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                            <span className="bg-heritage-dark text-white px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
                               phrase
                             </span>
                           )}
-                          <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">
+                          <span className="text-[10px] font-black text-neutral-500 uppercase tracking-widest">
                             By {submission.contributor?.display_name || 'Anonymous'} | {formatDate(submission.created_at)}
                           </span>
                         </div>
 
-                        <h3 className="text-3xl md:text-4xl font-black text-gray-900 mb-6 font-logo leading-tight uppercase tracking-tighter break-words">
+                        <h3 className="text-3xl md:text-4xl font-black text-heritage-dark mb-6 font-display leading-tight uppercase tracking-tighter break-words">
                           {submission.headword || '(no headword)'}
                         </h3>
 
@@ -670,15 +670,15 @@ export default function ModeratePage() {
                           </div>
                         </div>
 
-                        <div className="mb-8 rounded-2xl border border-stone-200 bg-stone-50 p-5">
+                        <div className="mb-8 rounded-2xl border border-accent-100 bg-accent-50 p-5">
                           <div className="flex flex-wrap items-center gap-3 justify-between">
-                            <p className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em]">Review Summary</p>
+                            <p className="text-[10px] font-black text-neutral-500 uppercase tracking-[0.2em]">Review Summary</p>
                             {gaps.length > 0 ? (
                               <span className="text-[10px] font-black px-3 py-1 rounded-full bg-amber-100 text-amber-800 uppercase tracking-widest">
                                 needs completion
                               </span>
                             ) : (
-                              <span className="text-[10px] font-black px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 uppercase tracking-widest">
+                              <span className="text-[10px] font-black px-3 py-1 rounded-full bg-accent-100 text-accent-700 uppercase tracking-widest">
                                 ready to approve
                               </span>
                             )}
@@ -705,14 +705,14 @@ export default function ModeratePage() {
                                 value={actionNote}
                                 onChange={(e) => setActionNote(e.target.value)}
                                 placeholder="Internal moderator notes (optional)..."
-                                className="w-full px-6 py-4 bg-stone-50 border-2 border-emerald-100 rounded-2xl focus:bg-white focus:border-emerald-500 transition-all outline-none font-medium text-stone-600 italic font-serif"
+                                className="w-full px-6 py-4 bg-neutral-50 border-2 border-accent-100 rounded-2xl focus:bg-white focus:border-accent-300 transition-all outline-none font-medium text-heritage-dark italic font-serif"
                                 rows={2}
                               />
-                              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 font-logo">
+                              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
                                 <button
                                   onClick={() => handleReviewAction(submission, 'accept')}
                                   disabled={isProcessing}
-                                  className="w-full sm:flex-1 sm:min-w-[140px] bg-emerald-600 text-white px-6 py-4 rounded-xl hover:bg-emerald-700 transition font-black flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/10 disabled:opacity-50 uppercase text-[10px] tracking-widest"
+                                  className="w-full sm:flex-1 sm:min-w-[140px] bg-heritage-dark text-white px-6 py-4 rounded-xl hover:bg-heritage-darker transition font-black flex items-center justify-center gap-2 shadow-lg shadow-heritage-dark/10 disabled:opacity-50 uppercase text-[10px] tracking-widest"
                                   aria-label="Approve entry"
                                 >
                                   {isProcessing ? '...' : `Approve ${isPhrase ? 'Phrase' : 'Entry'}`}
@@ -727,7 +727,7 @@ export default function ModeratePage() {
                                 </button>
                                 <button
                                   onClick={() => { setReviewingId(null); setActionNote('') }}
-                                  className="w-full sm:w-auto px-6 py-4 text-stone-400 font-black hover:text-stone-600 transition tracking-widest text-[10px] uppercase"
+                                  className="w-full sm:w-auto px-6 py-4 text-neutral-500 font-black hover:text-heritage-dark transition tracking-widest text-[10px] uppercase"
                                 >
                                   Cancel
                                 </button>
@@ -738,7 +738,7 @@ export default function ModeratePage() {
                               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                                 <button
                                   onClick={() => { setReviewingId(submission.id); setActionNote('') }}
-                                  className="w-full sm:w-auto bg-stone-900 text-white px-8 py-3.5 rounded-xl hover:bg-stone-800 transition font-black text-[11px] tracking-widest uppercase font-logo"
+                                  className="w-full sm:w-auto bg-heritage-dark text-white px-8 py-3.5 rounded-xl hover:bg-heritage-darker transition font-black text-[11px] tracking-widest uppercase"
                                   aria-label="Open review panel"
                                 >
                                   Review Submission
@@ -746,14 +746,14 @@ export default function ModeratePage() {
 
                                 <button
                                   onClick={() => setEditingItem({ ...submission, currentUserId: user?.id } as ModerationItem)}
-                                  className="w-full sm:w-auto px-4 py-3 text-sm bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-black uppercase tracking-widest"
+                                  className="w-full sm:w-auto px-4 py-3 text-sm bg-accent-300 text-heritage-dark rounded-xl hover:bg-accent-400 transition font-black uppercase tracking-widest"
                                 >
                                   {gaps.length > 0 ? `Complete ${isPhrase ? 'Phrase' : 'Entry'} + Approve` : `Refine ${isPhrase ? 'Phrase' : 'Entry'}`}
                                 </button>
 
                                 <button
                                   onClick={() => handleApply(submission)}
-                                  className="w-full sm:w-auto px-4 py-3 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-black uppercase tracking-widest"
+                                  className="w-full sm:w-auto px-4 py-3 text-sm bg-heritage-dark text-white rounded-xl hover:bg-heritage-darker transition font-black uppercase tracking-widest"
                                   aria-label="Apply suggestion to entry"
                                 >
                                   Apply
@@ -780,9 +780,9 @@ export default function ModeratePage() {
                 })}
 
                 {filteredList.length === 0 && (
-                  <div className="bg-white p-24 rounded-[3rem] border border-stone-200 text-center shadow-sm">
-                    <h3 className="text-2xl font-black text-gray-900 mb-2 font-logo uppercase tracking-tighter">Clear Horizon</h3>
-                    <p className="text-stone-500 font-medium font-serif italic">No pending submissions to review right now.</p>
+                  <div className="bg-neutral-100 p-24 rounded-[3rem] border border-accent-200 text-center shadow-soft">
+                    <h3 className="text-2xl font-black text-heritage-dark mb-2 font-display uppercase tracking-tighter">Clear Horizon</h3>
+                    <p className="text-neutral-500 font-medium font-serif italic">No pending submissions to review right now.</p>
                   </div>
                 )}
               </div>

@@ -26,14 +26,14 @@ export const LANGUAGE_MATURITY_DEFINITIONS: Record<LanguageMaturity, LanguageMat
     label: 'Phrase-Ready',
     shortLabel: 'Phrase-Ready',
     description: 'This language has enough entry depth and phrase context to support stronger phrase-level discovery and translation.',
-    badgeClassName: 'bg-emerald-700 text-white border border-emerald-800',
+    badgeClassName: 'bg-heritage-dark text-white border border-heritage-darker',
   },
   growing: {
     key: 'growing',
     label: 'Growing',
     shortLabel: 'Growing',
     description: 'This language has meaningful starter depth and is expanding beyond basic lookup coverage.',
-    badgeClassName: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+    badgeClassName: 'bg-accent-100 text-accent-800 border border-accent-200',
   },
   starter: {
     key: 'starter',
@@ -54,7 +54,7 @@ export const LANGUAGE_MATURITY_DEFINITIONS: Record<LanguageMaturity, LanguageMat
     label: 'Not Yet Covered',
     shortLabel: 'Not Covered',
     description: 'This language is registered or relevant to the map, but it does not yet have live entry coverage.',
-    badgeClassName: 'bg-stone-100 text-stone-600 border border-stone-200',
+    badgeClassName: 'bg-neutral-100 text-neutral-600 border border-neutral-200',
   },
 }
 

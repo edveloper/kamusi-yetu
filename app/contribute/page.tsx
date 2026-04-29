@@ -304,18 +304,18 @@ export default function ContributePage() {
 
   if (status === 'success') {
     return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center p-6">
-        <div className="bg-white rounded-[3rem] p-12 max-w-xl w-full text-center shadow-2xl border border-stone-100">
-          <div className="w-24 h-24 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center text-5xl mx-auto mb-8 animate-bounce">🎊</div>
-          <h2 className="text-4xl font-black text-gray-900 mb-4 font-logo tracking-tight">Asante Sana!</h2>
-          <p className="text-stone-500 mb-10 text-xl font-medium leading-relaxed">
-            Your {isPhrase ? 'phrase' : 'word'} contribution of <span className="text-emerald-600 font-black italic">"{formData.word}"</span> has been recorded for review.
+      <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-6">
+        <div className="bg-neutral-100 rounded-[3rem] p-12 max-w-xl w-full text-center shadow-soft border border-accent-200">
+          <div className="w-24 h-24 bg-accent-50 text-accent-700 rounded-3xl flex items-center justify-center text-5xl mx-auto mb-8 animate-bounce">🎊</div>
+          <h2 className="text-4xl font-black text-heritage-dark mb-4 font-display tracking-tight">Asante Sana!</h2>
+          <p className="text-neutral-500 mb-10 text-xl font-medium leading-relaxed">
+            Your {isPhrase ? 'phrase' : 'word'} contribution of <span className="text-accent-700 font-black italic">"{formData.word}"</span> has been recorded for review.
           </p>
           <div className="grid gap-4">
             <button onClick={resetForm} className="btn-primary">
               {isPhrase ? 'Add Another Phrase' : 'Add Another Word'}
             </button>
-            <Link href="/" className="block w-full py-4 text-stone-400 font-bold hover:text-emerald-600 transition-colors uppercase tracking-widest text-xs">Return Home</Link>
+            <Link href="/" className="block w-full py-4 text-neutral-400 font-bold hover:text-accent-700 transition-colors uppercase tracking-widest text-xs">Return Home</Link>
           </div>
         </div>
       </div>
@@ -323,25 +323,24 @@ export default function ContributePage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 pb-20">
-      <div className="relative overflow-hidden bg-gradient-to-br from-emerald-700 to-emerald-800 text-white py-20 md:py-28 px-4 sm:px-6">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.12),_transparent_50%)]" />
+    <div className="min-h-screen bg-neutral-100 pb-20">
+      <div className="relative overflow-hidden bg-heritage-dark text-white py-20 md:py-28 px-4 sm:px-6">
         <div className="relative max-w-5xl mx-auto text-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-emerald-100 mb-4 font-semibold">Record and preserve</p>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-logo">
-            {isPhrase ? 'Contribute a Phrase' : 'Contribute a Word'}
+          <p className="text-xs uppercase tracking-[0.35em] text-accent-300 mb-4 font-semibold\">Be a Guardian of Language</p>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-display\">
+            {isPhrase ? 'Share a Phrase' : 'Share a Word'}
           </h1>
-          <p className="mt-6 text-base md:text-lg text-emerald-50 max-w-2xl mx-auto leading-8">
+          <p className="mt-6 text-base md:text-lg text-white max-w-2xl mx-auto leading-8\">
             {isPhrase
-              ? 'Record a greeting, expression, proverb, or common phrase with enough context to preserve how it is actually used.'
-              : 'Record a word, preserve a legacy.'}
+              ? 'Document the expressions, proverbs, and sayings that carry your culture. Show the world how your language truly lives.'
+              : "The words you know might be the only place they're recorded. Help us preserve them."}
           </p>
         </div>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 -mt-10 relative z-20">
-        <form onSubmit={handleSubmit} className="bg-white rounded-[2.5rem] shadow-xl border border-stone-200 overflow-hidden">
-          <div className="h-2 bg-emerald-600 w-full"></div>
+        <form onSubmit={handleSubmit} className="bg-neutral-50 rounded-[2.5rem] shadow-xl border border-neutral-200 overflow-hidden">
+          <div className="h-2 bg-heritage-dark w-full"></div>
           
           <div className="p-8 md:p-14">
             {(status === 'error' || isDuplicate) && (
@@ -352,7 +351,7 @@ export default function ContributePage() {
 
             <div className="space-y-10">
               <div className="group">
-                <label className="block text-xs font-black text-stone-400 uppercase mb-4">Contribution Type</label>
+                <label className="block text-xs font-black text-neutral-400 uppercase mb-4">Contribution Type</label>
                 <div className="grid md:grid-cols-2 gap-4">
                   <button
                     type="button"
@@ -364,11 +363,11 @@ export default function ContributePage() {
                       }))
                     }}
                     className={`rounded-2xl border-2 px-5 py-5 text-left transition-all ${
-                      !isPhrase ? 'border-emerald-500 bg-emerald-50' : 'border-stone-200 bg-stone-50 hover:border-stone-300'
+                      !isPhrase ? 'border-heritage-dark bg-accent-50' : 'border-neutral-200 bg-neutral-50 hover:border-neutral-300'
                     }`}
                   >
-                    <p className="text-sm font-black text-stone-900 uppercase tracking-widest mb-1">Word Entry</p>
-                    <p className="text-sm text-stone-500 font-medium">
+                    <p className="text-sm font-black text-neutral-900 uppercase tracking-widest mb-1">Word Entry</p>
+                    <p className="text-sm text-neutral-500 font-medium">
                       Use this for a single lexical item such as a noun, verb, adjective, or interjection.
                     </p>
                   </button>
@@ -379,10 +378,10 @@ export default function ContributePage() {
                       setFormData((prev) => ({ ...prev, part_of_speech: 'phrase' }))
                     }}
                     className={`rounded-2xl border-2 px-5 py-5 text-left transition-all ${
-                      isPhrase ? 'border-emerald-500 bg-emerald-50' : 'border-stone-200 bg-stone-50 hover:border-stone-300'
+                      isPhrase ? 'border-heritage-dark bg-accent-50' : 'border-neutral-200 bg-neutral-50 hover:border-neutral-300'
                     }`}
                   >
-                    <p className="text-sm font-black text-stone-900 uppercase tracking-widest mb-1">Phrase Entry</p>
+                    <p className="text-sm font-black text-neutral-900 uppercase tracking-widest mb-1">Phrase Entry</p>
                     <p className="text-sm text-stone-500 font-medium">
                       Use this for greetings, idioms, proverbs, set expressions, and multi-word speech patterns.
                     </p>
@@ -392,12 +391,12 @@ export default function ContributePage() {
 
               {/* Language */}
               <div className="group">
-                <label className="block text-xs font-black text-stone-400 uppercase mb-4">Choose Language *</label>
+                <label className="block text-xs font-black text-neutral-400 uppercase mb-4">Choose Language *</label>
                 <select
                   required
                   value={formData.language}
                   onChange={(e) => setFormData({...formData, language: e.target.value})}
-                  className="w-full px-6 py-5 bg-stone-50 border-2 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none"
+                  className="w-full px-6 py-5 bg-neutral-50 border-2 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none"
                 >
                   <option value="">Select language...</option>
                   {groupedLanguages.map((group) => (
@@ -422,15 +421,15 @@ export default function ContributePage() {
                     placeholder={isPhrase ? 'e.g. habari yako' : 'e.g. Amani'}
                     value={formData.word}
                     onChange={(e) => setFormData({...formData, word: e.target.value})}
-                    className="w-full px-6 py-5 bg-stone-50 border-2 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none"
+                    className="w-full px-6 py-5 bg-neutral-50 border-2 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none"
                   />
                 </div>
                 <div className="group">
-                  <label className="block text-xs font-black text-stone-400 uppercase mb-4">Category</label>
+                  <label className="block text-xs font-black text-neutral-400 uppercase mb-4">Category</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({...formData, category: e.target.value})}
-                    className="w-full px-6 py-5 bg-stone-50 border-2 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none"
+                    className="w-full px-6 py-5 bg-neutral-50 border-2 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none"
                   >
                     <option value="">Select topic...</option>
                     {CATEGORIES.map(cat => (<option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>))}
@@ -441,7 +440,7 @@ export default function ContributePage() {
               {/* Linguistic Metadata */}
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="group">
-                  <label className="block text-xs font-black text-stone-400 uppercase mb-4">Part of Speech</label>
+                  <label className="block text-xs font-black text-neutral-400 uppercase mb-4">Part of Speech</label>
                   <select
                     value={formData.part_of_speech}
                     onChange={(e) => {
@@ -449,7 +448,7 @@ export default function ContributePage() {
                       setFormData({ ...formData, part_of_speech: value })
                       setContributionMode(value === 'phrase' ? 'phrase' : 'word')
                     }}
-                    className="w-full px-6 py-5 bg-stone-50 border-2 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none"
+                    className="w-full px-6 py-5 bg-neutral-50 border-2 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none"
                   >
                     <option value="">Select part of speech...</option>
                     <option value="noun">Noun</option>
@@ -464,7 +463,7 @@ export default function ContributePage() {
                   </select>
                 </div>
                 <div className="group">
-                  <label className="block text-xs font-black text-stone-400 uppercase mb-4">
+                  <label className="block text-xs font-black text-neutral-400 uppercase mb-4">
                     Pronunciation (IPA)
                   </label>
                   <input
@@ -472,14 +471,14 @@ export default function ContributePage() {
                     placeholder="e.g. /a.ma.ni/"
                     value={formData.pronunciation_ipa}
                     onChange={(e) => setFormData({ ...formData, pronunciation_ipa: e.target.value })}
-                    className="w-full px-6 py-5 bg-stone-50 border-2 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none"
+                    className="w-full px-6 py-5 bg-neutral-50 border-2 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none"
                   />
                 </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="group">
-                  <label className="block text-xs font-black text-stone-400 uppercase mb-4">
+                  <label className="block text-xs font-black text-neutral-400 uppercase mb-4">
                     Dialect Variant
                   </label>
                   <input
@@ -487,7 +486,7 @@ export default function ContributePage() {
                     placeholder="e.g. Central, Coastal, Urban"
                     value={formData.dialect_variant}
                     onChange={(e) => setFormData({ ...formData, dialect_variant: e.target.value })}
-                    className="w-full px-6 py-5 bg-stone-50 border-2 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none"
+                    className="w-full px-6 py-5 bg-neutral-50 border-2 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none"
                   />
                 </div>
                 <div className="group">
@@ -500,7 +499,7 @@ export default function ContributePage() {
                       placeholder="https://..."
                       value={formData.audio_url}
                       onChange={(e) => setFormData({ ...formData, audio_url: e.target.value })}
-                      className="w-full px-6 py-5 bg-stone-50 border-2 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none"
+                      className="w-full px-6 py-5 bg-neutral-50 border-2 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none"
                     />
                     <div className="rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50 p-4">
                       <label className="block text-[10px] font-black text-stone-500 uppercase tracking-widest mb-2">
@@ -511,10 +510,10 @@ export default function ContributePage() {
                         accept="audio/*"
                         onChange={handleAudioFileChange}
                         disabled={uploadingAudio}
-                        className="w-full text-xs text-stone-500 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-600 file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
+                        className="w-full text-xs text-neutral-500 file:mr-3 file:rounded-lg file:border-0 file:bg-heritage-dark file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
                       />
                       {uploadingAudio && (
-                        <p className="text-xs text-emerald-600 font-bold mt-2">Uploading audio...</p>
+                        <p className="text-xs text-accent-600 font-bold mt-2">Uploading audio...</p>
                       )}
                       {audioUploadError && (
                         <p className="text-xs text-red-600 font-bold mt-2">{audioUploadError}</p>
@@ -551,7 +550,7 @@ export default function ContributePage() {
                           type="button"
                           onClick={uploadRecordedAudio}
                           disabled={!recordedBlob || uploadingAudio}
-                          className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-50"
+                          className="px-4 py-2 rounded-xl bg-heritage-dark text-white text-xs font-black uppercase tracking-widest disabled:opacity-50"
                         >
                           Upload Recording
                         </button>
@@ -590,7 +589,7 @@ export default function ContributePage() {
 
                             {/* Definition */}
               <div className="group">
-                <label className="block text-xs font-black text-stone-400 uppercase mb-4">
+                <label className="block text-xs font-black text-neutral-400 uppercase mb-4">
                   {isPhrase ? 'Meaning, Use, and Definition *' : 'Meaning & Definition *'}
                 </label>
                 <textarea
@@ -601,13 +600,13 @@ export default function ContributePage() {
                   onChange={(e) =>
                     setFormData({ ...formData, definition: e.target.value })
                   }
-                  className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none font-medium text-gray-800 resize-none leading-relaxed"
+                  className="w-full px-6 py-5 bg-neutral-50 border-2 border-neutral-50 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none font-medium text-gray-800 resize-none leading-relaxed"
                 />
               </div>
 
               {/* English Translation */}
               <div className="group">
-                <label className="block text-xs font-black text-stone-400 uppercase mb-4">
+                <label className="block text-xs font-black text-neutral-400 uppercase mb-4">
                   English Translation {englishRequired ? '*' : '(Optional)'}
                 </label>
                 <input
@@ -620,13 +619,13 @@ export default function ContributePage() {
                       english_translation: e.target.value,
                     })
                   }
-                  className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none font-medium text-gray-800"
+                  className="w-full px-6 py-5 bg-neutral-50 border-2 border-neutral-50 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none font-medium text-gray-800"
                 />
               </div>
 
               {/* Swahili Translation */}
               <div className="group">
-                <label className="block text-xs font-black text-stone-400 uppercase mb-4">
+                <label className="block text-xs font-black text-neutral-400 uppercase mb-4">
                   Swahili Translation {swahiliRequired ? '*' : '(Optional)'}
                 </label>
                 <input
@@ -639,13 +638,13 @@ export default function ContributePage() {
                       swahili_translation: e.target.value,
                     })
                   }
-                  className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none font-medium text-gray-800"
+                  className="w-full px-6 py-5 bg-neutral-50 border-2 border-neutral-50 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none font-medium text-gray-800"
                 />
               </div>
 
-              {/* Usage Example */}
+              {/* Etymology */}
               <div className="group">
-                <label className="block text-xs font-black text-stone-400 uppercase mb-4">
+                <label className="block text-xs font-black text-neutral-400 uppercase mb-4">
                   {isPhrase ? 'Phrase in Use *' : 'Usage Example (Optional)'}
                 </label>
                 <textarea
@@ -655,21 +654,21 @@ export default function ContributePage() {
                   onChange={(e) =>
                     setFormData({ ...formData, usage_example: e.target.value })
                   }
-                  className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none font-medium text-gray-800 resize-none leading-relaxed italic"
+                  className="w-full px-6 py-5 bg-neutral-50 border-2 border-neutral-50 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none font-medium text-gray-800 resize-none leading-relaxed italic"
                 />
               </div>
 
-              <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
-                <p className="text-[11px] font-black text-emerald-800 uppercase tracking-widest mb-1">
+              <div className="rounded-2xl border border-accent-300/30 bg-accent-50 p-4">
+                <p className="text-[11px] font-black text-accent-700 uppercase tracking-widest mb-1">
                   Bridge Rule
                 </p>
-                <p className="text-sm text-emerald-900">
+                <p className="text-sm text-accent-700">
                   Every {isPhrase ? 'phrase' : 'entry'} must include at least one bridge translation (English or Swahili).
                   {swahiliRequired && ' English entries require Swahili translation.'}
                   {englishRequired && ' Swahili entries require English translation.'}
                 </p>
                 {isPhrase && (
-                  <p className="text-sm text-emerald-900 mt-2">
+                  <p className="text-sm text-accent-700 mt-2">
                     Phrase entries should have an explanatory definition and a real usage example, not only a direct gloss.
                   </p>
                 )}
@@ -685,7 +684,7 @@ export default function ContributePage() {
                   placeholder="Origin history of this word, borrowings, or root form..."
                   value={formData.etymology}
                   onChange={(e) => setFormData({ ...formData, etymology: e.target.value })}
-                  className="w-full px-6 py-5 bg-stone-50 border-2 border-stone-50 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none font-medium text-gray-800 resize-none leading-relaxed"
+                  className="w-full px-6 py-5 bg-neutral-50 border-2 border-neutral-50 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none font-medium text-gray-800 resize-none leading-relaxed"
                 />
               </div>
             </div>
@@ -698,7 +697,7 @@ export default function ContributePage() {
               >
                 {status === 'submitting'
                   ? `Recording ${isPhrase ? 'phrase' : 'word'}...`
-                  : `Submit ${isPhrase ? 'Phrase' : 'Word'} for Review ->`}
+                  : `Submit ${isPhrase ? 'Phrase' : 'Word'} for Review ${'->'}`}
               </button>
             </div>
           </div>

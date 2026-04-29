@@ -131,7 +131,7 @@ export default function EntryPage() {
       if (activeModal === 'edit') {
         await submitSuggestion({
           entry_id: id,
-          user_id: user.id,
+          user_id: user.id as any,
           type: 'edit',
           headword: data.headword,
           primary_definition: data.primary_definition,
@@ -148,7 +148,7 @@ export default function EntryPage() {
           details: data.details,
           source_type: data.source_type,
           source_reference: data.source_reference,
-          confidence: data.confidence
+          confidence: String(data.confidence)
         })
       } else {
         await reportEntry({
@@ -169,7 +169,7 @@ export default function EntryPage() {
   const handleLike = async () => {
     if (!user) return alert('Sign in to like')
     const liked = await toggleLike(id, user.id)
-    setLikesCount(prev => liked ? prev + 1 : prev - 1)
+    setLikesCount(prev => (typeof liked === 'boolean' && liked) ? prev + 1 : prev - 1)
   }
 
   const handleAddComment = async () => {
@@ -212,7 +212,7 @@ export default function EntryPage() {
             href={part}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-emerald-600 underline break-words"
+            className="text-accent-600 underline break-words"
           >
             {part}
           </a>
@@ -251,7 +251,7 @@ export default function EntryPage() {
               />
               <button
                 onClick={() => handleEdit(c.id)}
-                className="bg-emerald-600 text-white px-3 py-2 rounded-lg text-sm"
+                className="bg-heritage-dark text-white px-3 py-2 rounded-lg text-sm"
               >
                 Save
               </button>
@@ -287,7 +287,7 @@ export default function EntryPage() {
                       )
                     )
                   }}
-                  className="text-emerald-600"
+                  className="text-accent-600"
                 >
                   👍 {c.likesCount || 0}
                 </button>
@@ -311,7 +311,7 @@ export default function EntryPage() {
                 {/* Reply button */}
                 <button
                   onClick={() => setReplyingTo(c.id)}
-                  className="text-emerald-600"
+                  className="text-accent-600"
                 >
                   Reply
                 </button>
@@ -350,7 +350,7 @@ export default function EntryPage() {
               />
               <button
                 onClick={() => handleReply(c.id)}
-                className="bg-emerald-600 text-white px-3 py-2 rounded-lg text-sm"
+                className="bg-heritage-dark text-white px-3 py-2 rounded-lg text-sm"
               >
                 Post
               </button>
@@ -366,13 +366,13 @@ export default function EntryPage() {
 
   if (loading)
     return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center font-logo animate-pulse text-stone-400">
+      <div className="min-h-screen bg-neutral-100 flex items-center justify-center font-display animate-pulse text-neutral-400">
         RECONSTRUCTING...
       </div>
     )
   if (!entry)
     return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center font-logo text-stone-400 uppercase">
+      <div className="min-h-screen bg-neutral-100 flex items-center justify-center font-display text-neutral-400 uppercase">
         Entry Not Found
       </div>
     )
@@ -383,7 +383,7 @@ export default function EntryPage() {
       <div className="max-w-7xl mx-auto px-4 py-8 flex justify-between items-center gap-3">
         <button
           onClick={() => router.back()}
-          className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-400 hover:text-emerald-600 transition-colors"
+          className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-400 hover:text-accent-600 transition-colors"
         >
           ← Back
         </button>
@@ -391,12 +391,12 @@ export default function EntryPage() {
           <div className="relative">
             <button
               onClick={() => setShowShareMenu(!showShareMenu)}
-              className="bg-white border border-stone-200 p-4 rounded-2xl hover:border-emerald-500 transition-all"
+              className="bg-neutral-50 border border-neutral-200 p-4 rounded-2xl hover:border-heritage-dark transition-all"
             >
               🔗
             </button>
             {showShareMenu && (
-              <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-stone-200 shadow-2xl rounded-2xl overflow-hidden z-[50]">
+                <div className="absolute top-full right-0 mt-2 w-48 bg-neutral-50 border border-neutral-200 shadow-2xl rounded-2xl overflow-hidden z-[50]">
                 {['x', 'wa', 'fb'].map((p) => (
                   <button
                     key={p}
@@ -418,9 +418,10 @@ export default function EntryPage() {
           {/* Star = saved words */}
           <button
             onClick={handleSaveToggle}
-            className={`p-4 rounded-2xl border transition-all ${isSaved
-              ? 'bg-amber-50 border-amber-400 text-amber-600'
-              : 'bg-white border-stone-200 text-stone-400 hover:border-amber-400'
+            className={`p-4 rounded-2xl border transition-all ${
+              isSaved
+                ? 'bg-accent-50 border-accent-300 text-accent-700'
+                : 'bg-neutral-100 border-neutral-200 text-neutral-400 hover:border-accent-300'
               }`}
           >
             {isSaved ? '★' : '☆'}
@@ -429,20 +430,20 @@ export default function EntryPage() {
       </div>
 
       <main className="max-w-4xl mx-auto px-4 mt-8">
-        <div className="bg-white rounded-[3rem] border border-stone-200 p-8 md:p-14 shadow-xl shadow-stone-900/5">
+        <div className="bg-neutral-100 rounded-[3rem] border border-accent-300/30 p-8 md:p-14 shadow-soft">
           {/* Word Heading */}
           <div className="flex flex-col md:flex-row md:items-end gap-3 mb-10">
-            <h1 className="text-4xl md:text-6xl font-black font-logo text-stone-900 uppercase tracking-tight">
+            <h1 className="text-4xl md:text-6xl font-black font-display text-heritage-dark uppercase tracking-tight">
               {entry.headword}
             </h1>
-            <span className="text-emerald-600 font-logo text-lg italic mb-1 md:mb-3">
+            <span className="text-accent-700 font-display text-lg italic mb-1 md:mb-3">
               / {entry.part_of_speech || 'word'} /
             </span>
           </div>
 
           {entry.audio_url && (
-            <div className="mb-8 bg-emerald-50 border border-emerald-100 rounded-2xl p-4">
-              <p className="text-[10px] font-black text-emerald-700 uppercase tracking-[0.2em] mb-2">
+            <div className="mb-8 bg-accent-50 border border-accent-100 rounded-2xl p-4">
+              <p className="text-[10px] font-black text-accent-700 uppercase tracking-[0.2em] mb-2">
                 Listen Pronunciation
               </p>
               <audio controls className="w-full">
@@ -533,14 +534,14 @@ export default function EntryPage() {
             {/* Usage Examples */}
             {entry.usage_examples?.length > 0 && (
               <section>
-                <h2 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.3em] mb-6">
+                <h2 className="text-[10px] font-black text-neutral-400 uppercase tracking-[0.3em] mb-6">
                   In Context
                 </h2>
                 <div className="space-y-6">
                   {entry.usage_examples.map((ex: any, i: number) => (
                     <div
                       key={i}
-                      className="bg-stone-50 p-4 md:p-8 rounded-[2rem] border-l-4 border-emerald-500 italic text-stone-600 text-lg break-words"
+                      className="bg-stone-50 p-4 md:p-8 rounded-[2rem] border-l-4 border-accent-300 italic text-neutral-600 text-lg break-words"
                     >
                       "{ex.context_text}"
                     </div>
@@ -550,21 +551,21 @@ export default function EntryPage() {
             )}
 
             {/* Likes */}
-            <section className="pt-8 border-t border-stone-100">
+            <section className="pt-8 border-t border-neutral-100">
               <button
                 onClick={handleLike}
-                className="flex items-center gap-2 text-emerald-600 font-bold"
+                className="flex items-center gap-2 text-accent-600 font-bold"
               >
                 👍 Like
               </button>
-              <span className="ml-2 text-stone-500">
+              <span className="ml-2 text-neutral-500">
                 {likesCount} {likesCount === 1 ? 'like' : 'likes'}
               </span>
             </section>
 
             {/* Comments */}
-            <section className="pt-8 border-t border-stone-100">
-              <h2 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.3em] mb-4">
+            <section className="pt-8 border-t border-neutral-100">
+              <h2 className="text-[10px] font-black text-neutral-400 uppercase tracking-[0.3em] mb-4">
                 Discussion
               </h2>
               <div className="space-y-4">{renderComments(null)}</div>
@@ -579,7 +580,7 @@ export default function EntryPage() {
                   />
                   <button
                     onClick={handleAddComment}
-                    className="bg-emerald-600 text-white px-3 py-2 rounded-lg flex-shrink-0 whitespace-nowrap"
+                    className="bg-heritage-dark text-white px-3 py-2 rounded-lg flex-shrink-0 whitespace-nowrap"
                   >
                     Post
                   </button>
@@ -589,8 +590,8 @@ export default function EntryPage() {
 
             {/* Related Words */}
             {relatedWords.length > 0 && (
-              <section className="pt-8 border-t border-stone-100">
-                <h2 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.3em] mb-6">
+              <section className="pt-8 border-t border-neutral-100">
+                <h2 className="text-[10px] font-black text-neutral-400 uppercase tracking-[0.3em] mb-6">
                   See Also
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -598,12 +599,12 @@ export default function EntryPage() {
                     <Link
                       key={word.id}
                       href={`/entry/${word.id}`}
-                      className="group p-4 md:p-5 bg-stone-50 rounded-2xl hover:bg-emerald-50 transition-all border border-transparent hover:border-emerald-200 max-w-full min-w-0"
+                      className="group p-4 md:p-5 bg-accent-50 rounded-2xl hover:bg-accent-100 transition-all border border-transparent hover:border-accent-300 max-w-full min-w-0"
                     >
-                      <p className="font-logo font-black text-stone-900 group-hover:text-emerald-700 uppercase text-sm mb-1">
+                      <p className="font-display font-black text-heritage-dark group-hover:text-accent-700 uppercase text-sm mb-1">
                         {word.headword}
                       </p>
-                      <p className="text-[10px] text-stone-500 line-clamp-1 italic">
+                      <p className="text-[10px] text-neutral-500 line-clamp-1 italic">
                         {word.language?.name}
                       </p>
                     </Link>
@@ -614,16 +615,16 @@ export default function EntryPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="mt-16 pt-12 border-t border-stone-100 grid md:grid-cols-2 gap-4">
+          <div className="mt-16 pt-12 border-t border-neutral-100 grid md:grid-cols-2 gap-4">
             <button
               onClick={() => setActiveModal('edit')}
-              className="bg-emerald-600 text-white py-6 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] hover:bg-emerald-700 shadow-lg shadow-emerald-900/10 transition-all"
+              className="bg-heritage-dark text-white py-6 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] hover:bg-heritage-darker shadow-lg shadow-heritage-dark/10 transition-all"
             >
               Suggest Amendment
             </button>
             <button
               onClick={() => setActiveModal('report')}
-              className="bg-stone-50 text-stone-400 py-6 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] hover:bg-red-50 hover:text-red-500 transition-all"
+              className="bg-neutral-50 text-neutral-400 py-6 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] hover:bg-red-50 hover:text-red-500 transition-all"
             >
               Report Issue
             </button>
@@ -631,9 +632,9 @@ export default function EntryPage() {
         </div>
 
         {/* Footer Credits */}
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-8 text-stone-400 min-w-0">
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-8 text-neutral-400 min-w-0">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-stone-200 overflow-hidden border border-stone-300">
+            <div className="w-8 h-8 rounded-full bg-neutral-200 overflow-hidden border border-neutral-300">
               {entry.contributor_avatar && (
                 <img
                   src={entry.contributor_avatar}
@@ -644,7 +645,7 @@ export default function EntryPage() {
             </div>
             <span className="text-[9px] font-black uppercase tracking-widest break-words">
               Archived by{' '}
-              <span className="text-stone-600 underline cursor-pointer">
+              <span className="text-neutral-600 underline cursor-pointer">
                 {entry.contributor_name}
               </span>
             </span>
