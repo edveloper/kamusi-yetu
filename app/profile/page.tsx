@@ -339,7 +339,7 @@ export default function ProfilePage() {
               <div className={`text-3xl md:text-5xl font-black font-display mb-1 ${s.color || 'text-heritage-dark'}`}>{loadingData ? '...' : s.value}</div>
               <div className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">{s.label}</div>
             </div>
-          ))}}
+          ))}
         </div>
       </div>
 

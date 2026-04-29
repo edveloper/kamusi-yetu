@@ -277,7 +277,7 @@ export default function SignupPage() {
           <div className="mt-10 pt-8 border-t border-stone-100 text-center">
             <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest">
               Part of the tribe?{' '}
-              <Link href="/login" className="text-accent-600 hover:text-accent-700 ml-2 border-b border-accent-100 pb-1">>
+              <Link href="/login" className="text-accent-600 hover:text-accent-700 ml-2 border-b border-accent-100 pb-1">
                 Sign In
               </Link>
             </p>
