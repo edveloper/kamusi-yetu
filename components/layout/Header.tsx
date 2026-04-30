@@ -7,7 +7,7 @@ import { useState } from 'react'
 
 function Logo() {
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center">
       <div className="flex-shrink-0 w-60 h-40 relative">
         <Image
           src="/logo.png"
@@ -65,17 +65,75 @@ export default function Header() {
 
   return (
     <>
-      {/* Background overlay to close menu on click */}
+      {/* Mobile Menu Drawer - Full Screen Overlay */}
       {menuOpen && (
         <div 
-          className="fixed inset-0 z-40 md:hidden" 
+          className="fixed inset-0 z-40 md:hidden bg-black/40 backdrop-blur-sm transition-opacity duration-300"
           onClick={handleBackgroundClick}
         />
       )}
+      
+      {/* Mobile Navigation Drawer */}
+      {menuOpen && (
+        <div className="fixed top-0 left-0 bottom-0 w-full max-w-sm bg-heritage-dark z-[60] md:hidden flex flex-col shadow-strong overflow-y-auto transform transition-transform duration-300 ease-in-out">
+          {/* Close Button */}
+          <div className="sticky top-0 flex justify-end p-4 bg-heritage-dark border-b border-heritage-darker shrink-0">
+            <button 
+              onClick={() => setMenuOpen(false)}
+              className="text-white p-2 hover:bg-heritage-darker rounded-lg transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Menu Content - Scrollable */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <nav className="space-y-4">
+              {navLinks.map((link) => (
+                <Link 
+                  key={link.name} 
+                  href={link.href} 
+                  onClick={() => setMenuOpen(false)} 
+                  className="block text-sm font-semibold text-white uppercase tracking-[0.25em] hover:text-accent-300 transition-colors"
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </nav>
+            
+            <div className="pt-6 border-t border-heritage-darker">
+              {user ? (
+                <div className="space-y-4">
+                  <Link 
+                    href="/profile" 
+                    onClick={() => setMenuOpen(false)} 
+                    className="block text-sm font-semibold text-accent-300 uppercase tracking-[0.25em] hover:text-white transition-colors"
+                  >
+                    View Profile
+                  </Link>
+                  <button 
+                    onClick={handleSignOut} 
+                    className="block w-full text-left text-sm font-semibold text-red-300 uppercase tracking-[0.25em] hover:text-red-200 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <Link href="/login" onClick={() => setMenuOpen(false)} className="block text-sm font-semibold text-white uppercase tracking-[0.25em] hover:text-accent-300 transition-colors">Login</Link>
+                  <Link href="/signup" onClick={() => setMenuOpen(false)} className="block text-sm font-semibold text-accent-300 uppercase tracking-[0.25em] hover:text-white transition-colors">Join Archive</Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       <header className="sticky top-0 z-50 backdrop-blur-sm bg-[#D4A373]/80 flex items-center py-1 shadow-soft">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="flex items-center justify-between">
-            <Link href="/" onClick={() => setMenuOpen(false)}>
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 w-full">
+          <div className="flex items-center justify-between gap-2">
+            <Link href="/" onClick={() => setMenuOpen(false)} className="-ml-2 sm:ml-0">
               <Logo />
             </Link>
 
@@ -136,45 +194,6 @@ export default function Header() {
               </div>
             </div>
           </div>
-
-          {/* Mobile Dropdown */}
-          {menuOpen && (
-            <div className="absolute top-20 left-0 w-full max-w-full overflow-x-hidden bg-heritage-dark border-b border-heritage-darker p-8 md:hidden flex flex-col space-y-6 shadow-medium animate-in fade-in slide-in-from-top-4 z-[55]">
-              {navLinks.map((link) => (
-                <Link 
-                  key={link.name} 
-                  href={link.href} 
-                  onClick={() => setMenuOpen(false)} 
-                  className="text-[10px] font-semibold text-white uppercase tracking-[0.3em] break-words"
-                >
-                  {link.name}
-                </Link>
-              ))}
-              
-              {user ? (
-                <div className="pt-6 flex flex-col space-y-6 border-t border-heritage-darker">
-                  <Link 
-                    href="/profile" 
-                    onClick={() => setMenuOpen(false)} 
-                    className="text-[10px] font-semibold text-accent-300 uppercase tracking-[0.3em]"
-                  >
-                    View Profile
-                  </Link>
-                  <button 
-                    onClick={handleSignOut} 
-                    className="text-left text-[10px] font-semibold text-red-300 uppercase tracking-[0.3em]"
-                  >
-                    Logout
-                  </button>
-                </div>
-              ) : (
-                <div className="pt-6 flex flex-col space-y-6 border-t border-heritage-darker">
-                  <Link href="/login" onClick={() => setMenuOpen(false)} className="text-[10px] font-semibold text-white uppercase tracking-[0.3em]">Login</Link>
-                  <Link href="/signup" onClick={() => setMenuOpen(false)} className="text-[10px] font-semibold text-accent-300 uppercase tracking-[0.3em]">Join Archive</Link>
-                </div>
-              )}
-            </div>
-          )}
         </div>
       </header>
     </>
