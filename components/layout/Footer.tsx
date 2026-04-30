@@ -25,7 +25,7 @@ export function Footer() {
                 Eddie Ezekiel
               </a>
             </p>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-400 hidden md:block">
               &copy; {new Date().getFullYear()} Kamusi Yetu — Built with pride in Kenya.
             </p>
           </div>
@@ -92,6 +92,11 @@ export function Footer() {
               </li>
             </ul>
           </div>
+        </div>
+        <div className="md:hidden pt-8 border-t border-heritage-darker/30 mt-8">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+            &copy; {new Date().getFullYear()} Kamusi Yetu — Built with pride in Kenya.
+          </p>
         </div>
       </div>
     </footer>

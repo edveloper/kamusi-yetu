@@ -16,6 +16,10 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: 'Kamusi Yetu - Every Kenyan Language, Equal and Alive',
   description: 'A collaborative dictionary platform for Kenyan languages - built by Kenyans, for Kenyans',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+  },
 }
 
 export default function RootLayout({

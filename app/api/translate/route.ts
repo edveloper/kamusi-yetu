@@ -434,6 +434,38 @@ export async function POST(req: Request) {
       }
     }
 
+    // Special case: reverse-lookup when source IS a bridge language (EN or SW)
+    // E.g., English "Boy" → Dholuo should find Dholuo entries with english_translation="Boy"
+    if (sourceLanguageId === englishLanguageId || sourceLanguageId === swahiliLanguageId) {
+      const isBridgeSource = sourceLanguageId === englishLanguageId ? 'english' : 'swahili'
+      const bridgeColumn = sourceLanguageId === englishLanguageId ? 'english_translation' : 'swahili_translation'
+
+      for (const s of sources) {
+        const sourceHeadword = s.headword
+        const { data: reverseMatches } = await supabase
+          .from('entries')
+          .select('id, headword')
+          .eq('language_id', targetLanguageId)
+          .eq('validation_status', 'verified')
+          .ilike(bridgeColumn, `%${escapeLike(sourceHeadword)}%`)
+          .limit(limit * 2)
+
+        if (reverseMatches && reverseMatches.length > 0) {
+          for (const match of reverseMatches as TargetEntryRow[]) {
+            candidates.push({
+              translation: match.headword,
+              confidence: phraseAdjustedConfidence(0.9, s, preferPhrase),
+              path_type: 'direct_bridge',
+              match_kind: isPhraseEntry(s) ? 'phrase' : 'word',
+              source_entry_id: s.id,
+              target_entry_id: match.id,
+              via: isBridgeSource as 'english' | 'swahili'
+            })
+          }
+        }
+      }
+    }
+
     return NextResponse.json({ ok: true, result: rankCandidates(candidates as RankedCandidate[], limit) })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Translation failed.'
