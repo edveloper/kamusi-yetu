@@ -82,13 +82,13 @@ const getActiveLanguagesCached = unstable_cache(
     return (data || []).map((language) => attachLanguageGroup(language as LanguageRow))
   },
   ['public-active-languages'],
-  { revalidate: 900 }
+  { revalidate: 60 }
 )
 
 const getVerifiedEntriesCached = unstable_cache(
   async () => fetchAllVerifiedEntries(),
   ['public-verified-entries'],
-  { revalidate: 900 }
+  { revalidate: 60 }
 )
 
 const getUsageExampleEntryIdsCached = unstable_cache(
@@ -119,7 +119,7 @@ const getUsageExampleEntryIdsCached = unstable_cache(
     return Array.from(ids)
   },
   ['public-usage-example-entry-ids'],
-  { revalidate: 900 }
+  { revalidate: 60 }
 )
 
 const getEntryLikesCountCached = unstable_cache(
@@ -140,7 +140,7 @@ const getEntryLikesCountCached = unstable_cache(
     return counts
   },
   ['public-entry-likes-count'],
-  { revalidate: 900 }
+  { revalidate: 60 }
 )
 
 const getSavedWordsCountCached = unstable_cache(
@@ -161,7 +161,7 @@ const getSavedWordsCountCached = unstable_cache(
     return counts
   },
   ['public-saved-words-count'],
-  { revalidate: 900 }
+  { revalidate: 60 }
 )
 
 function createLanguageMap(languages: Awaited<ReturnType<typeof getActiveLanguagesCached>>) {
@@ -204,10 +204,19 @@ export async function getHomepageData() {
         })()
       : null
 
+  // Calculate stats from actual data
+  const verifiedEntries = entries.length
+  const phraseCount = entries.filter(e => String(e.part_of_speech || '').toLowerCase() === 'phrase').length
+
   return {
     languages,
     latest,
     wordOfTheDay,
+    stats: {
+      totalLanguages: languages.length,
+      totalEntries: verifiedEntries,
+      totalPhrases: phraseCount,
+    },
   }
 }
 

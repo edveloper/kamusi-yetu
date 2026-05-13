@@ -3,17 +3,14 @@ import { getLanguageNote } from '@/lib/constants/languageNotes'
 import { getHomepageData } from '@/lib/public-site'
 
 export default async function HomePage() {
-  const { languages, latest, wordOfTheDay } = await getHomepageData()
+  const { languages, latest, wordOfTheDay, stats } = await getHomepageData()
   const maturityLevels = ['Starter', 'Growing', 'Phrase-Ready', 'Review-Heavy']
-  const activeLanguages = 37
-  const verifiedEntries = 3015
-  const verifiedPhrases = 394
   const currentPhase = "Phase 2 - Phrase Layer"
 
   const projectStats = [
-    { label: 'Languages', value: activeLanguages },
-    { label: 'Verified Entries', value: verifiedEntries },
-    { label: 'Phrase Packs', value: verifiedPhrases },
+    { label: 'Languages', value: stats.totalLanguages },
+    { label: 'Verified Entries', value: stats.totalEntries },
+    { label: 'Phrase Packs', value: stats.totalPhrases },
   ]
 
   return (

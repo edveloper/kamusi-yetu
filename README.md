@@ -15,6 +15,28 @@ See [docs/project-roadmap.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/project-r
 - [docs/trending-visual-spec.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/trending-visual-spec.md)
 - [docs/bulk-ingest-runbook.md](/C:/Users/Admin/Desktop/kamusi-yetu/docs/bulk-ingest-runbook.md)
 
+## Seed Pack System (Bulk Data Generation)
+
+**New:** Generate and import curated seed packs across multiple Kenyan languages using concept-driven matrices.
+
+**Quick Start:**
+1. [SEED_PACK_QUICK_START.md](SEED_PACK_QUICK_START.md) — 5-step guide to generate and import seeds (5 minutes)
+2. [docs/SEED_GENERATOR_WALKTHROUGH.md](docs/SEED_GENERATOR_WALKTHROUGH.md) — Full step-by-step import workflow
+3. [seed-packs/README.md](seed-packs/README.md) — Schema, concepts, and architecture
+
+**Available Seed Packs:**
+- `seed-packs/numbers.json` — 20 numeric concepts (1-1000)
+- `seed-packs/greetings.json` — 12 social phrases
+- `seed-packs/kinship.json` — 15 family relations
+- `seed-packs/health.json` — 15 body parts + health terms
+- `seed-packs/colors.json` — 12 color adjectives
+
+**Generator Command:**
+```bash
+npx ts-node --esm scripts/generate-seed-csv.ts
+# Output: CSV files in output/ directory ready for Supabase import
+```
+
 ## Getting Started
 
 First, run the development server:
