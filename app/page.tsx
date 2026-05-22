@@ -16,17 +16,39 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-neutral-100 font-sans pb-20">
       {/* Project Status Ribbon */}
-      <div className="bg-primary-100 text-primary-700 px-4 sm:px-6 py-2 border-b border-primary-300">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-wrap items-center justify-center gap-4 text-sm font-semibold uppercase tracking-[0.18em]">
-            <span className="text-primary-600">Live Dictionary Status</span>
-            <span className="hidden sm:inline-block h-4 w-px bg-primary-300" />
-            {projectStats.map((stat) => (
-              <span key={stat.label} className="inline-flex items-center gap-2 rounded-full bg-neutral-100 border border-primary-300 px-3 py-2 text-primary-900">
-                <span>{stat.label}:</span>
-                <strong className="font-black text-primary-600">{stat.value.toLocaleString()}</strong>
-              </span>
+      <div className="bg-primary-100 text-primary-700 border-b border-primary-300">
+        {/* Mobile: auto-scrolling ticker */}
+        <div className="md:hidden overflow-hidden py-2">
+          <div className="ticker-track">
+            {[0, 1].map((copy) => (
+              <div key={copy} className="flex items-center gap-5 px-6 whitespace-nowrap" aria-hidden={copy === 1 ? true : undefined}>
+                <span className="text-primary-600 text-sm font-semibold uppercase tracking-[0.18em]">Live Dictionary Status</span>
+                <span className="inline-block h-4 w-px bg-primary-300" />
+                {projectStats.map((stat) => (
+                  <span key={stat.label} className="inline-flex items-center gap-2 rounded-full bg-neutral-100 border border-primary-300 px-3 py-1.5 text-primary-900 text-sm font-semibold uppercase tracking-[0.18em]">
+                    <span>{stat.label}:</span>
+                    <strong className="font-black text-primary-600">{stat.value.toLocaleString()}</strong>
+                  </span>
+                ))}
+                <span className="inline-block w-8" />
+              </div>
             ))}
+          </div>
+        </div>
+
+        {/* Desktop: static centered layout */}
+        <div className="hidden md:block px-6 py-2">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-center gap-4 text-sm font-semibold uppercase tracking-[0.18em]">
+              <span className="text-primary-600">Live Dictionary Status</span>
+              <span className="inline-block h-4 w-px bg-primary-300" />
+              {projectStats.map((stat) => (
+                <span key={stat.label} className="inline-flex items-center gap-2 rounded-full bg-neutral-100 border border-primary-300 px-3 py-2 text-primary-900">
+                  <span>{stat.label}:</span>
+                  <strong className="font-black text-primary-600">{stat.value.toLocaleString()}</strong>
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>

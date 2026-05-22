@@ -282,9 +282,9 @@ export default function ProfilePage() {
               
               {/* Action Buttons */}
               <div className="flex flex-wrap justify-center gap-2">
-                <button 
+                <button
                   onClick={() => setIsEditing(true)}
-                  className="bg-accent-300/20 hover:bg-accent-300 border border-accent-300/30 text-heritage-dark px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
+                  className="bg-white/15 hover:bg-accent-300 border border-white/30 text-white px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
                 >
                   Edit Profile
                 </button>
@@ -301,7 +301,7 @@ export default function ProfilePage() {
             
             <div className="text-center md:text-left flex-1 min-w-0">
               <h1 className="text-4xl md:text-7xl font-black font-display tracking-tight mb-2 truncate">{displayName}</h1>
-              <p className="text-accent-700/60 max-w-xl text-lg font-medium mb-6 italic leading-relaxed">
+              <p className="text-white/70 max-w-xl text-lg font-medium mb-6 italic leading-relaxed">
                 {profile?.bio || "Preserving the echoes of our ancestors, one word at a time."}
               </p>
               <div className="flex flex-wrap gap-3 justify-center md:justify-start items-center min-w-0">

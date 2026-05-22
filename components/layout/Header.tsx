@@ -8,13 +8,13 @@ import { useState } from 'react'
 function Logo() {
   return (
     <div className="flex items-center">
-      <div className="flex-shrink-0 w-60 h-40 relative">
+      <div className="flex-shrink-0 w-48 h-28 relative">
         <Image
           src="/logo.png"
           alt="Kamusi Yetu logo"
           fill
           className="object-contain"
-          sizes="240px"
+          sizes="192px"
         />
       </div>
     </div>

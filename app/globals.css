@@ -202,5 +202,21 @@ img {
   background-color: #9C6B47;
 }
 
+/* Status ribbon ticker animation (mobile) */
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker 22s linear infinite;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
 /* Import component utilities after Tailwind setup */
 @import "./component-utilities.css";

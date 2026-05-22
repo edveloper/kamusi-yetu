@@ -436,12 +436,12 @@ export default function ModeratePage() {
             </div>
 
             <div className="flex flex-wrap gap-4">
-              <div className="bg-accent-50/90 p-4 rounded-2xl border border-accent-200">
-                <div className="text-[10px] font-black text-accent-700 uppercase tracking-widest mb-1">Weekly Reviews</div>
+              <div className="bg-white/95 p-4 rounded-2xl border border-white/20">
+                <div className="text-[10px] font-black text-neutral-500 uppercase tracking-widest mb-1">Weekly Reviews</div>
                 <div className="text-3xl font-black text-heritage-dark">{loadingData ? '...' : modStats.thisWeek}</div>
               </div>
-              <div className="bg-accent-50/90 p-4 rounded-2xl border border-accent-200">
-                <div className="text-[10px] font-black text-accent-700 uppercase tracking-widest mb-1">Guardian Score</div>
+              <div className="bg-white/95 p-4 rounded-2xl border border-white/20">
+                <div className="text-[10px] font-black text-neutral-500 uppercase tracking-widest mb-1">Guardian Score</div>
                 <div className="text-3xl font-black text-heritage-dark">{loadingData ? '...' : modStats.score}</div>
               </div>
             </div>
