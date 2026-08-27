@@ -229,7 +229,7 @@
  * Applied through a pseudo-element so it never lands in the accessible name
  * and no screen reader has to announce a decorative circle. */
 .mark::before {
-  content: "C9";
+  content: "◉";
   color: var(--color-signal-500);
   margin-right: 0.55em;
   font-size: 0.9em;

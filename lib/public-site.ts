@@ -103,21 +103,6 @@ const getHomepageStatsCached = unstable_cache(
   { revalidate: 60 }
 )
 
-// Fetches only the two fields the explore page needs for its count maps.
-// ~300KB vs ~2.2MB for the full entry rows.
-const getExploreEntryMetaCached = unstable_cache(
-  async () => {
-    const { data } = await supabase
-      .from('entries')
-      .select('language_id, category')
-      .eq('validation_status', 'verified')
-      .eq('needs_orthography_review', false)
-    return (data ?? []) as Array<{ language_id: string; category: string | null }>
-  },
-  ['public-explore-entry-meta'],
-  { revalidate: 60 }
-)
-
 function createLanguageMap(languages: Awaited<ReturnType<typeof getActiveLanguagesCached>>) {
   return new Map(languages.map((language) => [language.id, language] as const))
 }
@@ -151,23 +136,6 @@ export async function getHomepageData() {
   }
 }
 
-export async function getExplorePageData() {
-  const [languages, entryMeta] = await Promise.all([
-    getActiveLanguagesCached(),
-    getExploreEntryMetaCached(),
-  ])
-
-  const languageCounts: CountMap = {}
-  const categoryCounts: CountMap = {}
-
-  for (const entry of entryMeta) {
-    languageCounts[entry.language_id] = (languageCounts[entry.language_id] || 0) + 1
-    const category = String(entry.category || '').trim()
-    if (category) categoryCounts[category] = (categoryCounts[category] || 0) + 1
-  }
-
-  return { languages, languageCounts, categoryCounts }
-}
 
 // ---------------------------------------------------------------------------
 // Server-rendered entry pages (Wave 3)
@@ -457,15 +425,13 @@ export const getLanguageDirectory = unstable_cache(
       languageRows = (fallback.data ?? []) as Array<Record<string, unknown>>
     }
 
-    const [concepts, voice, counts] = await Promise.all([
+    // Entry counts come from the view, not from counting returned rows.
+    // PostgREST caps a response at 1,000 rows whatever limit you ask for, so
+    // tallying rows client-side silently reported a truncated sample: Dholuo
+    // showed 14 against a true 198.
+    const [concepts, voice] = await Promise.all([
       supabase.from('language_concept_coverage').select('*'),
       supabase.from('language_voice_coverage').select('*'),
-      supabase
-        .from('entries')
-        .select('language_id')
-        .eq('validation_status', 'verified')
-        .eq('needs_orthography_review', false)
-        .limit(10000),
     ])
 
     const conceptRows = new Map(
@@ -481,11 +447,6 @@ export const getLanguageDirectory = unstable_cache(
       ])
     )
 
-    const entryCounts: Record<string, number> = {}
-    for (const row of (counts.data ?? []) as Array<{ language_id: string }>) {
-      entryCounts[row.language_id] = (entryCounts[row.language_id] ?? 0) + 1
-    }
-
     return languageRows.map((language) => {
       const id = String(language.id)
       const concept = conceptRows.get(id)
@@ -495,7 +456,7 @@ export const getLanguageDirectory = unstable_cache(
         code: String(language.code ?? ''),
         name: String(language.name ?? ''),
         nativeName: (language.native_name as string | null) ?? null,
-        entries: entryCounts[id] ?? 0,
+        entries: Number(sound?.public_entries ?? 0),
         conceptsCovered: Number(concept?.concepts_covered ?? 0),
         conceptsTotal: Number(concept?.concepts_total ?? 0),
         percentCovered: Number(concept?.percent_covered ?? 0),
