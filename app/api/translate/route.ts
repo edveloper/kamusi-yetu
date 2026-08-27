@@ -131,6 +131,7 @@ async function findBridgeMatches(
     .select(`id, headword, ${column}`)
     .eq('language_id', targetLanguageId)
     .eq('validation_status', 'verified')
+    .eq('needs_orthography_review', false)
     .or(queries.join(','))
     .limit(Math.max(limit * 4, 12))
 
@@ -139,6 +140,8 @@ async function findBridgeMatches(
       .from('entries')
       .select(`id, headword, ${column}`)
       .eq('language_id', targetLanguageId)
+      .eq('needs_orthography_review', false)
+      .neq('validation_status', 'seeded')
       .or(queries.join(','))
       .limit(Math.max(limit * 4, 12))
     data = fallback.data || []
@@ -219,6 +222,7 @@ export async function POST(req: Request) {
       .select('id, headword, normalized_headword, language_id, part_of_speech, english_translation, swahili_translation, validation_status')
       .eq('language_id', sourceLanguageId)
       .eq('validation_status', 'verified')
+      .eq('needs_orthography_review', false)
       .or(buildHeadwordMatchClause(text, normalized))
       .limit(20)
     if (sourceVerifiedErr) throw sourceVerifiedErr
@@ -229,6 +233,8 @@ export async function POST(req: Request) {
         .from('entries')
         .select('id, headword, normalized_headword, language_id, part_of_speech, english_translation, swahili_translation, validation_status')
         .eq('language_id', sourceLanguageId)
+        .eq('needs_orthography_review', false)
+        .neq('validation_status', 'seeded')
         .or(buildHeadwordMatchClause(text, normalized))
         .limit(20)
       if (sourceAnyErr) throw sourceAnyErr
@@ -447,6 +453,7 @@ export async function POST(req: Request) {
           .select('id, headword')
           .eq('language_id', targetLanguageId)
           .eq('validation_status', 'verified')
+          .eq('needs_orthography_review', false)
           .ilike(bridgeColumn, `%${escapeLike(sourceHeadword)}%`)
           .limit(limit * 2)
 

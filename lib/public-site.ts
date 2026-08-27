@@ -40,16 +40,19 @@ const getHomepageStatsCached = unstable_cache(
       supabase
         .from('entries')
         .select('*', { count: 'exact', head: true })
-        .eq('validation_status', 'verified'),
+        .eq('validation_status', 'verified')
+        .eq('needs_orthography_review', false),
       supabase
         .from('entries')
         .select('*', { count: 'exact', head: true })
         .eq('validation_status', 'verified')
+        .eq('needs_orthography_review', false)
         .ilike('part_of_speech', 'phrase'),
       supabase
         .from('entries')
         .select('id, language_id, headword, primary_definition')
         .eq('validation_status', 'verified')
+        .eq('needs_orthography_review', false)
         .order('created_at', { ascending: false })
         .limit(3),
     ])
@@ -69,6 +72,7 @@ const getHomepageStatsCached = unstable_cache(
       .from('entries')
       .select('id, language_id, headword, primary_definition, part_of_speech')
       .eq('validation_status', 'verified')
+      .eq('needs_orthography_review', false)
       .order('created_at', { ascending: true })
       .range(offset, offset)
 
@@ -94,6 +98,7 @@ const getExploreEntryMetaCached = unstable_cache(
       .from('entries')
       .select('language_id, category')
       .eq('validation_status', 'verified')
+      .eq('needs_orthography_review', false)
     return (data ?? []) as Array<{ language_id: string; category: string | null }>
   },
   ['public-explore-entry-meta'],
@@ -146,4 +151,138 @@ export async function getExplorePageData() {
   }
 
   return { languages, languageCounts, categoryCounts }
+}
+
+// ---------------------------------------------------------------------------
+// Server-rendered entry pages (Wave 3)
+//
+// Until now every entry page was a client component that shipped a spinner to
+// the server, so all ~6,400 entries were invisible to search engines and to
+// link previews. These two functions back the server shell and the sitemap.
+// ---------------------------------------------------------------------------
+
+export type SitemapEntry = { id: string; updated_at: string | null }
+
+/**
+ * Every publicly visible entry id, for the sitemap.
+ *
+ * PostgREST caps a response at 1,000 rows, so this pages through the corpus
+ * explicitly rather than silently returning the first page.
+ */
+export const getSitemapEntries = unstable_cache(
+  async (): Promise<SitemapEntry[]> => {
+    const pageSize = 1000
+    const all: SitemapEntry[] = []
+
+    for (let from = 0; ; from += pageSize) {
+      const { data, error } = await supabase
+        .from('entries')
+        .select('id, updated_at')
+        .eq('validation_status', 'verified')
+        .eq('needs_orthography_review', false)
+        .order('id')
+        .range(from, from + pageSize - 1)
+
+      if (error) throw error
+      const rows = (data ?? []) as SitemapEntry[]
+      all.push(...rows)
+      if (rows.length < pageSize) break
+    }
+
+    return all
+  },
+  ['public-sitemap-entries'],
+  { revalidate: 86400 }
+)
+
+export type PublicEntry = {
+  id: string
+  headword: string
+  primary_definition: string | null
+  part_of_speech: string | null
+  category: string | null
+  pronunciation_ipa: string | null
+  dialect_variant: string | null
+  etymology: string | null
+  audio_url: string | null
+  english_translation: string | null
+  swahili_translation: string | null
+  trust_score: number | null
+  updated_at: string | null
+  language: { id: string; name: string; code: string; native_name: string | null } | null
+  usage_examples: Array<{ text: string; english: string | null; swahili: string | null }>
+}
+
+/**
+ * One entry, shaped for server rendering and metadata. Returns null for a
+ * missing or non-public entry so the route can render a proper 404.
+ */
+export async function getPublicEntry(id: string): Promise<PublicEntry | null> {
+  if (!id) return null
+
+  const { data, error } = await supabase
+    .from('entries')
+    .select(
+      `id, headword, primary_definition, part_of_speech, category, pronunciation_ipa,
+       dialect_variant, etymology, audio_url, english_translation, swahili_translation,
+       trust_score, updated_at, validation_status, needs_orthography_review,
+       language:languages(id, name, code, native_name)`
+    )
+    .eq('id', id)
+    .maybeSingle()
+
+  if (error || !data) return null
+
+  const row = data as Record<string, unknown>
+  if (row.validation_status !== 'verified' || row.needs_orthography_review === true) return null
+
+  const { data: exampleRows } = await supabase
+    .from('entry_usage_examples')
+    .select('example_text, english_translation, swahili_translation')
+    .eq('entry_id', id)
+    .order('created_at', { ascending: true })
+
+  const languageValue = row.language
+  const language = Array.isArray(languageValue) ? languageValue[0] : languageValue
+
+  return {
+    ...(row as unknown as PublicEntry),
+    language: (language as PublicEntry['language']) ?? null,
+    usage_examples: ((exampleRows ?? []) as Array<Record<string, string | null>>)
+      .map((example) => ({
+        text: String(example.example_text ?? '').trim(),
+        english: example.english_translation,
+        swahili: example.swahili_translation,
+      }))
+      .filter((example) => example.text.length > 0),
+  }
+}
+
+/** The other languages that share this entry's meaning, via the bridge glosses. */
+export async function getEntryEquivalents(entry: PublicEntry, limit = 12) {
+  const english = String(entry.english_translation ?? '').trim()
+  const swahili = String(entry.swahili_translation ?? '').trim()
+  if (!english && !swahili) return []
+
+  const filters: string[] = []
+  if (english) filters.push(`english_translation.ilike.${english.replace(/[%_]/g, '')}`)
+  if (swahili) filters.push(`swahili_translation.ilike.${swahili.replace(/[%_]/g, '')}`)
+
+  const { data } = await supabase
+    .from('entries')
+    .select('id, headword, language:languages(id, name, code)')
+    .eq('validation_status', 'verified')
+    .eq('needs_orthography_review', false)
+    .neq('id', entry.id)
+    .or(filters.join(','))
+    .limit(limit)
+
+  return ((data ?? []) as Array<Record<string, unknown>>).map((row) => {
+    const lang = Array.isArray(row.language) ? row.language[0] : row.language
+    return {
+      id: String(row.id),
+      headword: String(row.headword),
+      language: (lang as { id: string; name: string; code: string } | null) ?? null,
+    }
+  })
 }

@@ -326,6 +326,7 @@ export async function searchEntries(
     .from('entries')
     .select(`*, language:languages(*)`, { count: 'exact' })
     .eq('validation_status', 'verified')
+    .eq('needs_orthography_review', false)
     .limit(100)
 
   if (query && query.trim() !== '') {
@@ -357,11 +358,86 @@ export async function searchEntries(
   }
 }
 
+export type EntrySuggestion = {
+  id: string
+  headword: string
+  primary_definition: string | null
+  part_of_speech: string | null
+  language_name: string | null
+}
+
+/**
+ * Lightweight typeahead lookup for the search boxes.
+ * Returns a small, prefix-biased set of verified entries with only the
+ * fields the dropdown renders, so it stays fast on every keystroke.
+ */
+export async function searchSuggestions(
+  query: string,
+  languageId?: string,
+  limit = 7
+): Promise<EntrySuggestion[]> {
+  const q = query.trim()
+  if (!q) return []
+
+  const escaped = escapeLike(q)
+  let request = supabase
+    .from('entries')
+    .select('id, headword, primary_definition, part_of_speech, language:languages(name)')
+    .eq('validation_status', 'verified')
+    .eq('needs_orthography_review', false)
+    .or(
+      [
+        `headword.ilike.${escaped}%`,
+        `headword.ilike.%${escaped}%`,
+        `english_translation.ilike.%${escaped}%`,
+        `swahili_translation.ilike.%${escaped}%`
+      ].join(',')
+    )
+    .limit(limit * 3)
+
+  if (languageId && languageId !== 'all') {
+    request = request.eq('language_id', languageId)
+  }
+
+  const { data, error } = await request
+  if (error) throw error
+
+  type SuggestionRow = {
+    id: string
+    headword: string
+    primary_definition: string | null
+    part_of_speech: string | null
+    language: { name: string | null } | Array<{ name: string | null }> | null
+  }
+
+  const lower = q.toLowerCase()
+  const mapped: EntrySuggestion[] = ((data || []) as SuggestionRow[]).map((row) => ({
+    id: row.id,
+    headword: row.headword,
+    primary_definition: row.primary_definition ?? null,
+    part_of_speech: row.part_of_speech ?? null,
+    language_name: Array.isArray(row.language)
+      ? (row.language[0]?.name ?? null)
+      : (row.language?.name ?? null)
+  }))
+
+  // Surface prefix matches first, then shorter/alphabetical headwords.
+  mapped.sort((a, b) => {
+    const aPrefix = a.headword.toLowerCase().startsWith(lower) ? 0 : 1
+    const bPrefix = b.headword.toLowerCase().startsWith(lower) ? 0 : 1
+    if (aPrefix !== bPrefix) return aPrefix - bPrefix
+    return a.headword.localeCompare(b.headword)
+  })
+
+  return mapped.slice(0, limit)
+}
+
 export async function getLatestEntries() {
   const { data, error } = await supabase
     .from('entries')
     .select(`*, language:languages(*)`)
     .eq('validation_status', 'verified')
+    .eq('needs_orthography_review', false)
     .order('created_at', { ascending: false })
     .limit(3)
 
@@ -375,6 +451,7 @@ export async function getWordOfTheDay() {
       .from('entries')
       .select('id')
       .eq('validation_status', 'verified')
+      .eq('needs_orthography_review', false)
 
     if (error || !allIds || allIds.length === 0) return null
 
@@ -394,6 +471,7 @@ export async function getRelatedEntries(categoryId: string, currentEntryId: stri
     .select(`id, headword, primary_definition, language:languages(name)`)
     .eq('category', categoryId)
     .eq('validation_status', 'verified')
+    .eq('needs_orthography_review', false)
     .neq('id', currentEntryId)
     .limit(3)
 
