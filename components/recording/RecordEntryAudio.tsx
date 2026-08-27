@@ -253,7 +253,7 @@ export default function RecordEntryAudio({
         Record this word
       </h2>
       {error && (
-        <p role="alert" className="text-sm font-semibold text-red-700 bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-4">
+        <p role="alert" className="mb-4 border border-signal-200 bg-signal-50 px-4 py-3 text-sm font-semibold text-signal-700">
           {error}
         </p>
       )}
@@ -286,14 +286,14 @@ export default function RecordEntryAudio({
         <ul className="space-y-3 mb-5">
           {CONSENT_SCOPES.map((scope) => (
             <li key={scope.key} className="flex gap-3">
-              <span aria-hidden="true" className="text-accent-700 font-black mt-0.5">
+              <span aria-hidden="true" className="mt-0.5 font-semibold text-signal-500">
                 {scope.required ? '•' : '○'}
               </span>
               <div>
                 <p className="text-sm font-semibold text-ink-900">
                   {scope.label}
                   {!scope.required && (
-                    <label className="ml-3 inline-flex items-center gap-2 font-medium text-neutral-700">
+                    <label className="ml-3 inline-flex items-center gap-2 font-medium text-ink-700">
                       <input
                         type="checkbox"
                         checked={attribute}
@@ -342,8 +342,8 @@ export default function RecordEntryAudio({
                     className="mt-1"
                   />
                   <span className="text-sm">
-                    <span className="font-semibold text-neutral-900">{type.label}</span>{' '}
-                    <span className="text-neutral-700">{type.detail}</span>
+                    <span className="font-semibold text-ink-900">{type.label}</span>{' '}
+                    <span className="text-ink-700">{type.detail}</span>
                   </span>
                 </label>
               ))}
@@ -351,7 +351,7 @@ export default function RecordEntryAudio({
           </fieldset>
 
           <div>
-            <label htmlFor="speaker-county" className="block text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] mb-1">
+            <label htmlFor="speaker-county" className="label mb-2 block text-ink-600">
               Where you learned it
             </label>
             <p className="text-xs text-ink-600 mb-2">{WHY_WE_ASK.county}</p>
@@ -370,7 +370,7 @@ export default function RecordEntryAudio({
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="speaker-age" className="block text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] mb-1">
+              <label htmlFor="speaker-age" className="label mb-2 block text-ink-600">
                 Age
               </label>
               <select
@@ -386,7 +386,7 @@ export default function RecordEntryAudio({
               </select>
             </div>
             <div>
-              <label htmlFor="speaker-gender" className="block text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] mb-1">
+              <label htmlFor="speaker-gender" className="label mb-2 block text-ink-600">
                 Voice
               </label>
               <select
@@ -445,7 +445,7 @@ export default function RecordEntryAudio({
           ) : (
             <button
               onClick={stop}
-              className="inline-flex items-center gap-2 bg-red-600 px-6 py-3 text-xs font-black uppercase tracking-[0.22em] text-white"
+              className="inline-flex items-center gap-2 bg-signal-500 px-5 py-3 text-[0.9375rem] font-semibold text-white"
             >
               <span aria-hidden="true" className="inline-block h-2 w-2 rounded-full bg-white" />
               Stop ({MAX_SECONDS - seconds}s)
