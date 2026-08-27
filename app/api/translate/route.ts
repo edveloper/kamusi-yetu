@@ -12,7 +12,7 @@ type TranslateRequest = {
 type Candidate = {
   translation: string
   confidence: number
-  path_type: 'direct_bridge' | 'direct_edge' | 'pivot_sw' | 'pivot_en' | 'pivot_sw_en' | 'pivot_en_sw'
+  path_type: 'concept' | 'direct_bridge' | 'direct_edge' | 'pivot_sw' | 'pivot_en' | 'pivot_sw_en' | 'pivot_en_sw'
   match_kind?: 'word' | 'phrase'
   source_entry_id: string
   target_entry_id?: string
@@ -28,6 +28,7 @@ type EntryRow = {
   english_translation: string | null
   swahili_translation: string | null
   validation_status: string
+  concept_id: string | null
 }
 
 type LanguageCodeRow = { id: string; code: string }
@@ -167,6 +168,27 @@ function getClient() {
   return createClient(url, anon)
 }
 
+/**
+ * A miss is the highest-quality contribution signal there is: someone naming
+ * exactly which word, in which pair, is absent. It used to be discarded.
+ */
+async function recordGap(
+  supabase: any,
+  text: string,
+  sourceLanguageId: string,
+  targetLanguageId: string
+) {
+  try {
+    await supabase.rpc('record_translation_gap', {
+      p_query: text,
+      p_source: sourceLanguageId,
+      p_target: targetLanguageId
+    })
+  } catch {
+    // Never let gap logging break a translation response.
+  }
+}
+
 function isPhraseEntry(entry: EntryRow) {
   return String(entry.part_of_speech || '').toLowerCase() === 'phrase'
 }
@@ -219,7 +241,7 @@ export async function POST(req: Request) {
 
     const { data: sourceVerified, error: sourceVerifiedErr } = await supabase
       .from('entries')
-      .select('id, headword, normalized_headword, language_id, part_of_speech, english_translation, swahili_translation, validation_status')
+      .select('id, headword, normalized_headword, language_id, part_of_speech, english_translation, swahili_translation, validation_status, concept_id')
       .eq('language_id', sourceLanguageId)
       .eq('validation_status', 'verified')
       .eq('needs_orthography_review', false)
@@ -231,7 +253,7 @@ export async function POST(req: Request) {
     if (sources.length === 0) {
       const { data: sourceAny, error: sourceAnyErr } = await supabase
         .from('entries')
-        .select('id, headword, normalized_headword, language_id, part_of_speech, english_translation, swahili_translation, validation_status')
+        .select('id, headword, normalized_headword, language_id, part_of_speech, english_translation, swahili_translation, validation_status, concept_id')
         .eq('language_id', sourceLanguageId)
         .eq('needs_orthography_review', false)
         .neq('validation_status', 'seeded')
@@ -240,7 +262,55 @@ export async function POST(req: Request) {
       if (sourceAnyErr) throw sourceAnyErr
       sources = (sourceAny || []) as EntryRow[]
     }
+    // KY-12. When translating FROM a bridge language, the answer often lives in
+    // the TARGET row's gloss, not in a source entry. This used to run only
+    // after a source entry had been found, so it never fired for the case it
+    // was written for: "How are you?" -> Dholuo returned nothing even though
+    // the Dholuo row carries that exact English gloss, because English has no
+    // phrase entries at all. Running it on the raw query text first fixes that.
+    const bridgeSourceCandidates: Candidate[] = []
+    if (sourceLanguageId === englishLanguageId || sourceLanguageId === swahiliLanguageId) {
+      const bridgeColumn =
+        sourceLanguageId === englishLanguageId ? 'english_translation' : 'swahili_translation'
+      const via = sourceLanguageId === englishLanguageId ? 'english' : 'swahili'
+      const trimmed = text.trim()
+
+      const { data: reverseRows } = await supabase
+        .from('entries')
+        .select('id, headword, part_of_speech')
+        .eq('language_id', targetLanguageId)
+        .eq('validation_status', 'verified')
+        .eq('needs_orthography_review', false)
+        .or([
+          `${bridgeColumn}.ilike.${escapeLike(trimmed)}`,
+          `${bridgeColumn}.ilike.%${escapeLike(trimmed)}%`
+        ].join(','))
+        .limit(Math.max(limit * 2, 10))
+
+      for (const row of (reverseRows || []) as Array<{ id: string; headword: string; part_of_speech: string | null }>) {
+        const exact =
+          normalizeText(String(row.headword)) === normalized ||
+          (reverseRows || []).length === 1
+        bridgeSourceCandidates.push({
+          translation: row.headword,
+          confidence: exact ? 0.92 : 0.88,
+          path_type: 'direct_bridge',
+          match_kind: String(row.part_of_speech || '').toLowerCase() === 'phrase' ? 'phrase' : 'word',
+          source_entry_id: '',
+          target_entry_id: row.id,
+          via: via as 'english' | 'swahili'
+        })
+      }
+    }
+
     if (sources.length === 0) {
+      if (bridgeSourceCandidates.length > 0) {
+        return NextResponse.json({
+          ok: true,
+          result: rankCandidates(bridgeSourceCandidates as RankedCandidate[], limit)
+        })
+      }
+      await recordGap(supabase, text, sourceLanguageId, targetLanguageId)
       return NextResponse.json({ ok: true, result: [] })
     }
 
@@ -250,7 +320,46 @@ export async function POST(req: Request) {
       sources = [...phraseSources, ...wordSources]
     }
 
-    const candidates: Candidate[] = []
+    const candidates: Candidate[] = [...bridgeSourceCandidates]
+
+    // Concept join. Two entries sharing a concept are translation equivalents
+    // by construction, so this is exact where the string pivots below are
+    // approximate. It runs first and outranks them.
+    const conceptIds = Array.from(
+      new Set(sources.map((s) => s.concept_id).filter((id): id is string => !!id))
+    )
+
+    if (conceptIds.length > 0) {
+      const { data: conceptMatches } = await supabase
+        .from('entries')
+        .select('id, headword, part_of_speech, concept_id')
+        .eq('language_id', targetLanguageId)
+        .eq('validation_status', 'verified')
+        .eq('needs_orthography_review', false)
+        .in('concept_id', conceptIds)
+        .limit(Math.max(limit * 2, 10))
+
+      const sourceByConcept = new Map<string, EntryRow>()
+      for (const source of sources) {
+        if (source.concept_id && !sourceByConcept.has(source.concept_id)) {
+          sourceByConcept.set(source.concept_id, source)
+        }
+      }
+
+      for (const match of (conceptMatches || []) as Array<{
+        id: string; headword: string; part_of_speech: string | null; concept_id: string
+      }>) {
+        const source = sourceByConcept.get(match.concept_id) ?? sources[0]
+        candidates.push({
+          translation: match.headword,
+          confidence: phraseAdjustedConfidence(0.97, source, preferPhrase),
+          path_type: 'concept',
+          match_kind: String(match.part_of_speech || '').toLowerCase() === 'phrase' ? 'phrase' : 'word',
+          source_entry_id: source.id,
+          target_entry_id: match.id
+        })
+      }
+    }
 
     const sourceIds = sources.map((s) => s.id)
     const { data: edgeRowsData } = await supabase
@@ -473,7 +582,12 @@ export async function POST(req: Request) {
       }
     }
 
-    return NextResponse.json({ ok: true, result: rankCandidates(candidates as RankedCandidate[], limit) })
+    const ranked = rankCandidates(candidates as RankedCandidate[], limit)
+    if (ranked.length === 0) {
+      await recordGap(supabase, text, sourceLanguageId, targetLanguageId)
+    }
+
+    return NextResponse.json({ ok: true, result: ranked })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Translation failed.'
     return NextResponse.json({ error: message }, { status: 500 })

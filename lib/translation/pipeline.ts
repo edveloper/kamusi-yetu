@@ -1,4 +1,5 @@
 export type TranslationPath =
+  | 'concept'
   | 'direct_bridge'
   | 'direct_edge'
   | 'pivot_sw'

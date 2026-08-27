@@ -196,13 +196,17 @@ export default async function HomePage() {
 
         <div className="bg-heritage-dark rounded-2xl p-12 md:p-16 text-white shadow-strong mt-16">
           <div className="text-center">
-            <h2 className="text-4xl font-black font-display mb-4">Help expand the dictionary</h2>
+            <h2 className="text-4xl font-black font-display mb-4">Your language is missing words</h2>
             <p className="text-white text-lg font-medium mb-8 max-w-3xl mx-auto">
-              Add a word or phrase from your language, and make the dictionary stronger for your community. Every contribution helps move a language toward phrase-ready coverage.
+              We can show you exactly which ones. Pick your language and we&apos;ll ask you
+              for meanings it does not have yet — one word at a time.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link href="/contribute" className="px-8 py-4 rounded-lg bg-accent-300 text-heritage-dark font-black text-lg hover:bg-accent-400 transition shadow-soft">
-                Add a word
+              <Link href="/contribute/gaps" className="px-8 py-4 rounded-lg bg-accent-300 text-heritage-dark font-black text-lg hover:bg-accent-400 transition shadow-soft">
+                Show me what&apos;s missing
+              </Link>
+              <Link href="/contribute" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-accent-300/20 transition">
+                Add any word
               </Link>
               <Link href="/contribute?type=phrase" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-accent-300/20 transition">
                 Add a phrase

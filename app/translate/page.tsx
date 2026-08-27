@@ -26,6 +26,7 @@ function confidenceLabel(score: number) {
 }
 
 function pathLabel(path: TranslationCandidate['path_type']) {
+  if (path === 'concept') return 'Same meaning'
   if (path === 'direct_edge') return 'Direct'
   if (path === 'direct_bridge') return 'Bridge'
   if (path === 'pivot_sw') return 'Via Swahili'
