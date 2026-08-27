@@ -76,29 +76,29 @@ export default function ConsentSettings() {
   const pending = recordings.filter((r) => r.validation_status === 'pending').length
 
   return (
-    <section className="bg-neutral-50 border border-neutral-200 rounded-2xl p-6">
-      <h2 className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.22em] mb-3">
+    <section className="border border-ink-200 bg-card p-6">
+      <h2 className="mark label mb-3 text-ink-600">
         Your voice recordings
       </h2>
 
       {message && (
-        <p className="text-sm font-semibold text-heritage-dark bg-primary-100 border border-primary-200 rounded-xl px-4 py-3 mb-4">
+        <p className="mb-4 border border-petrol-200 bg-petrol-50 px-4 py-3 text-sm font-semibold text-petrol-600">
           {message}
         </p>
       )}
       {error && (
-        <p role="alert" className="text-sm font-semibold text-red-700 bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-4">
+        <p role="alert" className="mb-4 border border-signal-200 bg-signal-50 px-4 py-3 text-sm font-semibold text-signal-700">
           {error}
         </p>
       )}
 
       {!consent ? (
-        <p className="text-sm text-neutral-700">
+        <p className="text-sm text-ink-700">
           You have not given consent to record. You can do that from any entry page.
         </p>
       ) : (
         <>
-          <p className="text-sm text-neutral-700 mb-4">
+          <p className="mb-4 text-sm text-ink-700">
             {recordings.length === 0
               ? 'You have agreed to record, but have not made a recording yet.'
               : `${recordings.length} ${recordings.length === 1 ? 'recording' : 'recordings'}. ${verified} published, ${pending} awaiting review.`}
@@ -107,9 +107,9 @@ export default function ConsentSettings() {
           {recordings.length > 0 && (
             <ul className="mb-5 space-y-1.5">
               {recordings.slice(0, 8).map((recording) => (
-                <li key={recording.id} className="text-sm text-neutral-700 flex flex-wrap gap-2">
-                  <span className="font-semibold text-neutral-900">{recording.prompt_text}</span>
-                  <span className="text-xs text-neutral-600 uppercase tracking-widest">
+                <li key={recording.id} className="flex flex-wrap gap-2 text-sm text-ink-700">
+                  <span className="font-semibold text-ink-900">{recording.prompt_text}</span>
+                  <span className="label text-ink-500">
                     {recording.validation_status}
                   </span>
                 </li>
@@ -120,16 +120,16 @@ export default function ConsentSettings() {
           {!confirming ? (
             <button
               onClick={() => setConfirming(true)}
-              className="text-xs font-black uppercase tracking-[0.22em] text-red-700 hover:text-red-800"
+              className="text-sm font-semibold text-signal-600 underline underline-offset-4 hover:text-signal-700"
             >
               Withdraw my consent
             </button>
           ) : (
-            <div className="bg-red-50 border border-red-100 rounded-xl p-4">
-              <p className="text-sm text-neutral-900 font-semibold mb-1">
+            <div className="border border-signal-200 bg-signal-50 p-4">
+              <p className="mb-1 text-sm font-semibold text-ink-900">
                 Withdraw consent and delete your recordings?
               </p>
-              <p className="text-sm text-neutral-700 mb-4">
+              <p className="mb-4 text-sm text-ink-700">
                 Your {recordings.length > 0 ? `${recordings.length} ` : ''}
                 {recordings.length === 1 ? 'recording' : 'recordings'} will be removed from the
                 corpus and the audio files deleted. Copies already downloaded by others under the
@@ -139,14 +139,14 @@ export default function ConsentSettings() {
                 <button
                   onClick={handleWithdraw}
                   disabled={busy}
-                  className=" bg-red-600 px-6 py-3 text-xs font-black uppercase tracking-[0.22em] text-white disabled:opacity-50"
+                  className="bg-signal-500 px-5 py-3 text-[0.9375rem] font-semibold text-white disabled:opacity-50"
                 >
                   {busy ? 'Withdrawing…' : 'Yes, withdraw'}
                 </button>
                 <button
                   onClick={() => setConfirming(false)}
                   disabled={busy}
-                  className="text-xs font-black uppercase tracking-[0.22em] text-neutral-600"
+                  className="text-[0.9375rem] font-semibold text-ink-600"
                 >
                   Keep them
                 </button>

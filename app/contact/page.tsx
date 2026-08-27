@@ -1,49 +1,112 @@
-'use client'
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import { SITE_URL } from '@/lib/constants/site'
+
+// Who lands here: someone with a specific reason, and there are only four of
+// them. The old page had a heading, a subheading in two languages, and one
+// email address, which left the visitor to compose the whole message from
+// scratch. Naming the reasons and prefilling the subject does most of that work.
+
+export const metadata: Metadata = {
+  title: 'Contact',
+  description: 'Ask to review a language, report a problem, work together, or ask about the data.',
+  alternates: { canonical: `${SITE_URL}/contact` },
+}
+
+const EMAIL = 'ed.veloper10@gmail.com'
+
+const REASONS = [
+  {
+    title: 'Ask to review a language',
+    body: 'Tell us which language and how you know it. Growing up with it is a complete answer.',
+    subject: 'Reviewing a language on LughaKonnect',
+    prompt: 'Which language, and how you know it.',
+  },
+  {
+    title: 'Something here is wrong',
+    body: 'A wrong meaning, a misspelling, or a word that is not really used. Entry pages have a report link, but this works too.',
+    subject: 'A correction for LughaKonnect',
+    prompt: 'Which entry, and what is wrong with it.',
+  },
+  {
+    title: 'Work together',
+    body: 'Universities, archives, language associations, and anyone holding material already collected. Also engineers and researchers.',
+    subject: 'Working together on LughaKonnect',
+    prompt: 'Who you are and what you have in mind.',
+  },
+  {
+    title: 'Using the data',
+    body: 'The corpus is CC BY 4.0, so you do not need permission. Get in touch if you want a bulk export or a format that does not exist yet.',
+    subject: 'Using the LughaKonnect corpus',
+    prompt: 'What you are building and what format would help.',
+  },
+]
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-neutral-100 pb-20">
-      <div className="relative overflow-hidden bg-heritage-dark text-white py-20 md:py-28 px-4 sm:px-6">
-        <div className="relative max-w-5xl mx-auto text-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-accent-300 mb-4 font-semibold">Get in touch with us</p>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-display">Tuwasiliane</h1>
-          <p className="mt-6 text-base md:text-lg text-white max-w-2xl mx-auto leading-8">
-            Have a suggestion, a correction, or want to partner with us? Our ears are open to the community.
+    <div className="min-h-screen bg-paper">
+      <header className="border-b border-ink-900 bg-ink-900 text-paper">
+        <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 md:py-20">
+          <p className="mark label mb-5 text-signal-300">Contact</p>
+          <h1 className="display text-4xl sm:text-5xl md:text-6xl">Get in touch</h1>
+          <p className="definition mt-7 max-w-xl text-ink-300">
+            One person reads these, so a short message with the specifics in it gets a faster
+            answer than a long one.
           </p>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-6xl mx-auto px-4 -mt-12 relative z-20">
-        <div className="grid lg:grid-cols-3 gap-8">
-          
-          {/* Info Side */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="bg-neutral-100 p-10 shadow-soft border border-ink-200">
-              <h2 className="text-3xl font-black mb-8 font-display text-heritage-dark">Get in Touch</h2>
-              
-              <div className="space-y-8">
-                <div className="group flex items-center gap-5">
-                  <div className="w-14 h-14 bg-accent-100 text-heritage-dark rounded-2xl flex items-center justify-center text-2xl group-hover:bg-accent-200 transition-all duration-300 shadow-sm">
-                    📧
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black text-neutral-500 uppercase tracking-widest mb-1">Email Us</p>
-                    <p className="font-bold text-heritage-dark text-lg break-all">
-                      <a href="mailto:ed.veloper10@gmail.com" className="text-accent-700 hover:underline">ed.veloper10@gmail.com</a>
-                    </p>
-                  </div>
+      <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+        <ul className="reveal-rows border-t border-ink-200">
+          {REASONS.map((reason) => (
+            <li key={reason.title} className="border-b border-ink-200">
+              <a
+                href={`mailto:${EMAIL}?subject=${encodeURIComponent(reason.subject)}`}
+                className="group grid gap-x-8 gap-y-2 py-6 transition-colors hover:bg-paper-warm md:grid-cols-[1fr_1.3fr]"
+              >
+                <div>
+                  <h2 className="text-lg font-semibold text-ink-900 group-hover:text-signal-600">
+                    {reason.title}
+                  </h2>
+                  <p className="label mt-1 text-ink-500">{reason.prompt}</p>
                 </div>
-              </div>
+                <p className="text-ink-700">{reason.body}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
 
-              <div className="mt-12 pt-10 border-t border-accent-200">
-                <p className="text-neutral-600 font-medium text-sm leading-relaxed">
-                  We aim to respond to all community inquiries within <span className="text-accent-700 font-bold">48 hours</span>.
-                </p>
-              </div>
-            </div>
-          </div>
+        <div className="mt-12 border border-ink-200 bg-paper-warm px-6 py-5">
+          <p className="label mb-2 text-ink-600">Or write directly</p>
+          <a
+            href={`mailto:${EMAIL}`}
+            className="font-mono text-lg text-ink-900 underline underline-offset-4 hover:text-signal-600"
+          >
+            {EMAIL}
+          </a>
         </div>
-      </div>
+
+        <section className="mt-14 border-t border-ink-200 pt-8">
+          <h2 className="mark label mb-4 text-ink-600">You may not need to write at all</h2>
+          <ul className="space-y-3">
+            {[
+              ['How entries get verified and what the statuses mean', '/guidelines'],
+              ['What reviewing involves and how rights are granted', '/moderators'],
+              ['How much each language has so far', '/trending'],
+              ['Add a word or a recording right now', '/contribute/gaps'],
+            ].map(([label, href]) => (
+              <li key={href}>
+                <Link
+                  href={href}
+                  className="text-[0.9375rem] text-signal-600 underline underline-offset-4 hover:text-signal-700"
+                >
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </main>
     </div>
   )
 }

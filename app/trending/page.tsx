@@ -172,14 +172,14 @@ export default async function CoveragePage() {
                             : 'text-ink-800'
                         }`}
                       >
-                        {language.verified_recordings === 0 ? 'none' : language.verified_recordings}
+                        {language.verified_recordings === 0 ? 'None' : language.verified_recordings}
                       </td>
                       <td
                         className={`tabular py-3 text-right font-mono ${
                           language.distinct_speakers === 0 ? 'text-signal-500' : 'text-ink-800'
                         }`}
                       >
-                        {language.distinct_speakers === 0 ? 'none' : language.distinct_speakers}
+                        {language.distinct_speakers === 0 ? 'None' : language.distinct_speakers}
                       </td>
                     </tr>
                   )

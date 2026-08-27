@@ -173,14 +173,16 @@
   .measure { max-width: 68ch; }
 }
 
-/* Anton is single-weight and already condensed, so these set size, tracking
- * and case rather than weight or width. Tight negative tracking at large
- * sizes is what stops a condensed face looking gappy. */
+/* Anton is single-weight and already condensed, so these set size and tracking
+ * rather than weight or width. Tight negative tracking at large sizes is what
+ * stops a condensed face looking gappy.
+ *
+ * Sentence case, not caps. Anton at display size is loud enough on its own,
+ * and caps make a long heading measurably slower to read. */
 .font-logo {
   font-family: var(--font-display);
   font-weight: 400;
   letter-spacing: -0.01em;
-  text-transform: uppercase;
 }
 
 .headword {
@@ -194,8 +196,7 @@
   font-family: var(--font-display);
   font-weight: 400;
   letter-spacing: -0.015em;
-  line-height: 0.95;
-  text-transform: uppercase;
+  line-height: 0.98;
   text-wrap: balance;
 }
 
@@ -243,10 +244,9 @@
 /* Small uppercase metadata: language codes, counts, statuses. */
 .label {
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
   /* No colour, for the same reason as .definition. Callers pass one. */
 }
 

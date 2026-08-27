@@ -52,8 +52,8 @@ const COVERAGE_BUCKETS = [
   { min: 70, fill: 'fill-petrol-600', label: '70% and above' },
   { min: 50, fill: 'fill-petrol-400', label: '50 to 70%' },
   { min: 30, fill: 'fill-petrol-200', label: '30 to 50%' },
-  { min: 1, fill: 'fill-petrol-50', label: 'under 30%' },
-  { min: 0, fill: 'fill-paper-warm', label: 'nothing yet' },
+  { min: 1, fill: 'fill-petrol-50', label: 'Under 30%' },
+  { min: 0, fill: 'fill-paper-warm', label: 'Nothing yet' },
 ] as const
 
 function bucketFor(pct: number) {
@@ -267,7 +267,7 @@ export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyC
                         </div>
                         <p className="tabular mt-1 font-mono text-xs text-ink-600">
                           {language.totalEntries === 0
-                            ? 'nothing recorded yet'
+                            ? 'Nothing recorded yet'
                             : `${language.totalEntries} words, ${language.phraseEntries} phrases`}
                         </p>
                       </li>

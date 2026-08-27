@@ -124,19 +124,19 @@ export default async function TranslatePage({ searchParams }: { searchParams: Se
             </p>
 
             <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2">
-              <span className="border border-ink-900 bg-ink-900 px-2.5 py-1 text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-paper">
+              <span className="border border-ink-900 bg-ink-900 px-2.5 py-1 text-xs font-semibold text-paper">
                 {PATH_LABEL[best.path_type]}
               </span>
               {(best.via_paths ?? []).slice(1).map((path) => (
                 <span
                   key={path}
-                  className="border border-ink-300 px-2.5 py-1 text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-ink-600"
+                  className="border border-ink-300 px-2.5 py-1 text-xs font-semibold text-ink-600"
                 >
-                  also {PATH_LABEL[path].toLowerCase()}
+                  Also {PATH_LABEL[path].toLowerCase()}
                 </span>
               ))}
               {best.match_kind === 'phrase' && (
-                <span className="label text-ink-500">phrase</span>
+                <span className="label text-ink-500">Phrase</span>
               )}
             </div>
 

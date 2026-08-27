@@ -1,120 +1,178 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
+import { SITE_URL } from '@/lib/constants/site'
+import { getLanguageCoverage } from '@/lib/public-site'
 
-export default function ModeratorsPage() {
+// Who lands here: someone deciding whether to review, or a linguist working out
+// whether their standing would be recognised. The job is to answer "what would
+// I actually be responsible for, and who decides that", concretely.
+//
+// The old page listed four abstract duties (Entry Validation, Data Stewardship)
+// and an empty "Active Teams" panel. It described a bureaucracy rather than a
+// role, and none of it reflected how authority actually works now.
+
+export const revalidate = 300
+
+export const metadata: Metadata = {
+  title: 'Reviewers',
+  description:
+    'How reviewing works on LughaKonnect, what a reviewer decides, and how rights are granted per language.',
+  alternates: { canonical: `${SITE_URL}/moderators` },
+}
+
+const CREDENTIALS: Array<[string, string]> = [
+  [
+    'First-language speaker',
+    'You grew up speaking it. This is the strongest standing there is here, and it needs no qualification of any kind.',
+  ],
+  [
+    'Heritage speaker',
+    'It is your family language but you did not grow up using it daily. Your judgement counts, weighted below a first-language speaker.',
+  ],
+  [
+    'Linguist',
+    'Academic or professional training, verified against an affiliation. Useful on orthography, structure and the calls that need method.',
+  ],
+  [
+    'Student',
+    'Studying the language formally. You can review, weighted lowest, and your work is visible to others.',
+  ],
+  [
+    'Institution',
+    'A university, archive or language body holding material already collected.',
+  ],
+]
+
+const DECISIONS: Array<[string, string]> = [
+  [
+    'Approve an entry',
+    'The word is real, the spelling is right, and the meaning is accurate. Two approvals from different people, at least one a verified speaker, publishes it.',
+  ],
+  [
+    'Send it back',
+    'Something is wrong. You have to say what, and the contributor is shown your reason. An unexplained rejection is how a first-time contributor becomes a former one.',
+  ],
+  [
+    'Dispute it',
+    'You believe the entry is wrong and want it held. One dispute is enough to stop publication until it is resolved.',
+  ],
+  [
+    'Approve a recording',
+    'The audio is audible, it is the right word, and it is the language it claims to be.',
+  ],
+  [
+    'Repair spelling',
+    'The 358 quarantined entries need a speaker to confirm the correct form. This is the queue where a first-language speaker is worth more than anyone else on the project.',
+  ],
+]
+
+export default async function ReviewersPage() {
+  const coverage = await getLanguageCoverage()
+  const withSpeakers = coverage.filter((l) => l.verified_speakers > 0).length
+  const withoutSpeakers = coverage.filter((l) => l.verified_speakers === 0)
+
   return (
-    <div className="min-h-screen bg-neutral-100 pb-20">
-      {/* Hero Header - Standardized Gradient */}
-      <div className="relative overflow-hidden bg-heritage-dark text-white py-20 md:py-28 px-4 sm:px-6">
-        <div className="relative max-w-5xl mx-auto text-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-accent-300 mb-4 font-semibold">Community guardianship</p>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-display">Our Moderators</h1>
-          <p className="mt-6 text-base md:text-lg text-white max-w-2xl mx-auto leading-8">
-            Ensuring the accuracy, cultural authenticity, and quality of every entry in our collective archive.
+    <div className="min-h-screen bg-paper">
+      <header className="border-b border-ink-900 bg-ink-900 text-paper">
+        <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 md:py-20">
+          <p className="mark label mb-5 text-signal-300">Reviewers</p>
+          <h1 className="display text-4xl sm:text-5xl md:text-6xl">
+            Nobody reviews a language they do not speak
+          </h1>
+          <p className="definition mt-7 max-w-xl text-ink-300">
+            Reviewing rights are granted for one language at a time. A linguist working on
+            Dholuo has no standing over Kipsigis, and a Kipsigis speaker with no formal training
+            has the final word on Kipsigis.
           </p>
         </div>
-        <div className="absolute top-0 left-0 opacity-6 pointer-events-none">
-          <div className="-translate-x-1/4 -translate-y-1/4 w-[520px] h-[520px] border-[48px] border-white rounded-full opacity-10"></div>
-        </div>
-      </div>
+      </header>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20">
-        
-        {/* Quality Standards Section */}
-        <section className="bg-neutral-100 shadow-soft border border-ink-200 p-8 md:p-16 mb-16">
-          <div className="flex flex-col md:flex-row gap-12 items-start">
-            <div className="md:w-1/3">
-              <h2 className="text-4xl font-black text-heritage-dark font-display leading-tight">
-                Linguistic <br/>Integrity
-              </h2>
-              <div className="h-1.5 w-16 bg-accent-300 mt-4 rounded-full"></div>
-              <p className="mt-6 text-neutral-600 font-medium leading-relaxed">
-                Moderators act as curators, verifying that submissions reflect real-world usage and cultural nuance.
-              </p>
-            </div>
-            
-            <div className="md:w-2/3 grid sm:grid-cols-2 gap-10">
-              <div className="space-y-3">
-                <div className="text-accent-700 font-black text-2xl">01</div>
-                <h3 className="font-black text-heritage-dark uppercase text-xs tracking-widest">Entry Validation</h3>
-                <p className="text-sm text-neutral-600 leading-relaxed font-medium">Cross-referencing submissions with established dialect patterns to maintain high academic standards.</p>
-              </div>
-
-              <div className="space-y-3">
-                <div className="text-accent-600 font-black text-2xl">02</div>
-                <h3 className="font-black text-neutral-900 uppercase text-xs tracking-widest">Community Review</h3>
-                <p className="text-sm text-neutral-700 leading-relaxed font-medium">Monitoring the platform to resolve disputes and ensure all contributions remain respectful and accurate.</p>
-              </div>
-
-              <div className="space-y-3">
-                <div className="text-accent-600 font-black text-2xl">03</div>
-                <h3 className="font-black text-neutral-900 uppercase text-xs tracking-widest">Data Stewardship</h3>
-                <p className="text-sm text-neutral-700 leading-relaxed font-medium">Organizing metadata, regional tags, and phonetic transcriptions for better searchability.</p>
-              </div>
-
-              <div className="space-y-3">
-                <div className="text-accent-600 font-black text-2xl">04</div>
-                <h3 className="font-black text-neutral-900 uppercase text-xs tracking-widest">Archive Security</h3>
-                <p className="text-sm text-neutral-700 leading-relaxed font-medium">Protecting the integrity of the archive by preventing spam, vandalism, or low-quality entries.</p>
-              </div>
-            </div>
-          </div>
+      <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+        <section className="mb-16">
+          <h2 className="mark display mb-3 text-2xl">What a reviewer decides</h2>
+          <p className="mb-8 text-ink-700">
+            Five decisions, all of them recorded against your name and visible on the entry.
+          </p>
+          <ol className="reveal-rows border-t border-ink-200">
+            {DECISIONS.map(([title, body], index) => (
+              <li
+                key={title}
+                className="grid gap-x-6 border-b border-ink-200 py-5 sm:grid-cols-[2.5rem_1fr]"
+              >
+                <span className="label text-signal-500">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <div>
+                  <h3 className="font-semibold text-ink-900">{title}</h3>
+                  <p className="mt-1.5 text-ink-700">{body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </section>
 
-        {/* Meet the Teams - Reusing the Card Style from "By Community" */}
-        <section className="py-12">
-          <div className="flex items-center gap-4 mb-12">
-            <h2 className="text-4xl font-black text-heritage-dark font-display">Active Teams</h2>
-            <div className="h-px flex-1 bg-accent-100"></div>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { team: "Kiswahili", count: "3 Moderators", tag: "SWA", info: "Specialists in Coastal and Standard Swahili dialects." },
-              { team: "Gikuyu", count: "2 Moderators", tag: "KIK", info: "Focused on central region orthography and oral history." },
-              { team: "Dholuo", count: "2 Moderators", tag: "LUO", info: "Experts in Nilotic linguistic structures and modern usage." },
-            ].map((item, idx) => (
-              <div key={idx} className="bg-accent-50 p-8 border border-ink-200 shadow-soft transition-all duration-300">
-                <div className="flex justify-between items-start mb-8">
-                  <div className="w-12 h-12 bg-accent-100 rounded-xl flex items-center justify-center text-xl text-heritage-dark">
-                    🛡️
-                  </div>
-                  <span className="text-[10px] font-black text-accent-700 bg-accent-100 px-3 py-1 rounded-full uppercase tracking-widest">
-                    {item.tag}
-                  </span>
-                </div>
-                <h3 className="text-2xl font-black text-heritage-dark mb-2 font-display">{item.team}</h3>
-                <p className="text-neutral-500 text-xs font-bold uppercase tracking-tighter mb-4">
-                  {item.count}
-                </p>
-                <div className="pt-6 border-t border-accent-100">
-                   <p className="text-sm text-neutral-600 leading-relaxed font-medium italic">"{item.info}"</p>
-                </div>
+        <section className="mb-16">
+          <h2 className="mark display mb-3 text-2xl">What counts as standing</h2>
+          <p className="mb-8 text-ink-700">
+            You claim a credential, a moderator checks it, and only then does it carry weight.
+            A claim on its own does nothing.
+          </p>
+          <div className="border border-ink-200">
+            {CREDENTIALS.map(([kind, detail]) => (
+              <div
+                key={kind}
+                className="grid gap-x-6 border-b border-ink-200 px-5 py-4 last:border-b-0 sm:grid-cols-[11rem_1fr]"
+              >
+                <p className="font-semibold text-ink-900">{kind}</p>
+                <p className="text-ink-700">{detail}</p>
               </div>
             ))}
           </div>
+          <p className="mt-6 text-ink-700">
+            You cannot vouch for an entry you contributed yourself. That is enforced by the
+            database rather than by policy, so it cannot be forgotten.
+          </p>
         </section>
 
-        {/* Professional CTA - Standard Gradient CTA */}
-        <section className="mt-20">
-          <div className="bg-heritage-dark rounded-2xl p-12 md:p-16 text-white shadow-strong">
-            <div className="text-center">
-              <h2 className="text-4xl font-black font-display mb-4">Join the Moderation Team</h2>
-              <p className="text-white text-lg font-medium mb-8 max-w-3xl mx-auto">
-                We are looking for native speakers with a background in linguistics or language preservation. Help us keep our heritage accurate and alive.
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Link href="/contact" className="px-8 py-4 rounded-lg bg-accent-300 text-heritage-dark font-black text-lg hover:bg-accent-400 transition shadow-soft">
-                  Apply to Moderate
+        {/* The real reason to read this page: most languages have nobody. */}
+        <section className="mb-16">
+          <h2 className="mark display mb-3 text-2xl">Which languages have nobody</h2>
+          <p className="mb-8 text-ink-700">
+            {withSpeakers === 0
+              ? 'No language has a verified reviewer yet. Every one of these is waiting for its first.'
+              : `${withSpeakers} of ${coverage.length} languages have at least one verified reviewer. These do not.`}
+          </p>
+          <ul className="flex flex-wrap gap-2">
+            {withoutSpeakers.slice(0, 40).map((language) => (
+              <li key={language.language_id}>
+                <Link
+                  href={`/contact?language=${encodeURIComponent(language.language_code)}`}
+                  className="inline-block border border-ink-200 px-3 py-1.5 text-sm text-ink-700 transition-colors hover:border-signal-500 hover:text-signal-600"
+                >
+                  {language.language_name}
                 </Link>
-                <Link href="/guidelines" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-ink-800 transition">
-                  Review Guidelines
-                </Link>
-              </div>
-            </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="border-t-2 border-ink-900 pt-10">
+          <h2 className="display mb-3 text-2xl">Asking to review</h2>
+          <p className="mb-7 max-w-xl text-ink-700">
+            Tell us which language and how you know it. Growing up with it is a complete
+            answer. If you have contributed entries already, say so, because it makes the
+            decision straightforward.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/contact" className="btn-primary">
+              Ask to review a language
+            </Link>
+            <Link href="/guidelines" className="btn-secondary">
+              Read the standards first
+            </Link>
           </div>
         </section>
-      </div>
+      </main>
     </div>
   )
 }

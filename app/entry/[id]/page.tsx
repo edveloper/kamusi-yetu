@@ -103,7 +103,7 @@ export default async function EntryPage({ params }: Params) {
       <header className="border-b border-ink-900 bg-ink-900 text-paper">
         <div className="mx-auto max-w-4xl px-4 pb-10 pt-8 sm:px-6">
           <nav aria-label="Breadcrumb" className="mb-8">
-            <ol className="flex flex-wrap items-center gap-2 text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-ink-300">
+            <ol className="flex flex-wrap items-center gap-2 text-xs font-semibold text-ink-300">
               <li>
                 <Link href="/explore" className="transition-colors hover:text-sand-300">
                   Browse
