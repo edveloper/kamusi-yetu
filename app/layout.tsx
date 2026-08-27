@@ -13,12 +13,33 @@ const playfair = Playfair_Display({
   display: 'swap',
 })
 
+const SITE_NAME = 'LughaKonnect'
+const SITE_DESCRIPTION =
+  "An open corpus of Kenya's languages, documented by the people who speak them. Words, phrases and recordings, so these languages are usable by the technology that is coming."
+
 export const metadata: Metadata = {
-  title: 'Kamusi Yetu - Every Kenyan Language, Equal and Alive',
-  description: 'A collaborative dictionary platform for Kenyan languages - built by Kenyans, for Kenyans',
+  metadataBase: new URL('https://lughakonnect.co.ke'),
+  title: {
+    default: `${SITE_NAME} — Kenyan languages, documented by their speakers`,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',
+  },
+  openGraph: {
+    type: 'website',
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} — Kenyan languages, documented by their speakers`,
+    description: SITE_DESCRIPTION,
+    locale: 'en_KE',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${SITE_NAME} — Kenyan languages, documented by their speakers`,
+    description: SITE_DESCRIPTION,
   },
 }
 

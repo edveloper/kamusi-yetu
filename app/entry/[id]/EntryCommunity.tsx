@@ -1,6 +1,6 @@
 'use client'
 
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/lib/contexts/AuthContext'
@@ -23,9 +23,8 @@ import { submitSuggestion } from '@/lib/api/suggestions'
 import { supabase } from '@/lib/supabase'
 import EntryActionModal from '@/components/EntryActionModal'
 
-export default function EntryPage() {
-  const params = useParams()
-  const id = Array.isArray(params?.id) ? params.id[0] : (params?.id as string)
+export default function EntryCommunity({ entryId }: { entryId: string }) {
+  const id = entryId
 
   const { user } = useAuth()
   const router = useRouter()
@@ -225,9 +224,9 @@ export default function EntryPage() {
     const children = comments.filter(c => c.parent_id === parentId)
     return children.map(c => (
       <div key={c.id} className="ml-0 md:ml-6 mt-4">
-        <div className="bg-stone-50 p-4 md:p-6 rounded-xl border border-stone-200 max-w-full break-words">
+        <div className="bg-neutral-50 p-4 md:p-6 rounded-xl border border-neutral-200 max-w-full break-words">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-6 h-6 rounded-full bg-stone-200 overflow-hidden">
+            <div className="w-6 h-6 rounded-full bg-neutral-200 overflow-hidden">
               {c.user?.avatar_url && (
                 <img
                   src={c.user.avatar_url}
@@ -260,13 +259,13 @@ export default function EntryPage() {
                   setEditingComment(null)
                   setEditText('')
                 }}
-                className="bg-stone-200 px-3 py-2 rounded-lg text-sm"
+                className="bg-neutral-200 px-3 py-2 rounded-lg text-sm"
               >
                 Cancel
               </button>
             </div>
           ) : (
-            <p className="text-stone-700 break-words whitespace-pre-wrap">
+            <p className="text-neutral-700 break-words whitespace-pre-wrap">
               {renderContent(c.content)}
             </p>
           )}
@@ -366,24 +365,24 @@ export default function EntryPage() {
 
   if (loading)
     return (
-      <div className="min-h-screen bg-neutral-100 flex items-center justify-center font-display animate-pulse text-neutral-400">
+      <div className="min-h-screen bg-neutral-100 flex items-center justify-center font-display animate-pulse text-neutral-600">
         RECONSTRUCTING...
       </div>
     )
   if (!entry)
     return (
-      <div className="min-h-screen bg-neutral-100 flex items-center justify-center font-display text-neutral-400 uppercase">
+      <div className="min-h-screen bg-neutral-100 flex items-center justify-center font-display text-neutral-600 uppercase">
         Entry Not Found
       </div>
     )
 
   return (
-    <div className="entry-root min-h-screen bg-stone-50 pb-20 font-sans">
+    <div className="entry-root min-h-screen bg-neutral-50 pb-20 font-sans">
       {/* Header Navigation */}
       <div className="max-w-7xl mx-auto px-4 py-8 flex justify-between items-center gap-3">
         <button
           onClick={() => router.back()}
-          className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-400 hover:text-accent-600 transition-colors"
+          className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-600 hover:text-accent-600 transition-colors"
         >
           ← Back
         </button>
@@ -401,14 +400,14 @@ export default function EntryPage() {
                   <button
                     key={p}
                     onClick={() => handleShare(p as any)}
-                    className="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-stone-50 border-b border-stone-100 italic"
+                    className="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-neutral-50 border-b border-neutral-200 italic"
                   >
                     Share on {p === 'wa' ? 'WhatsApp' : p.toUpperCase()}
                   </button>
                 ))}
                 <button
                   onClick={() => handleShare('copy')}
-                  className="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-stone-50"
+                  className="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-neutral-50"
                 >
                   Copy Link
                 </button>
@@ -421,7 +420,7 @@ export default function EntryPage() {
             className={`p-4 rounded-2xl border transition-all ${
               isSaved
                 ? 'bg-accent-50 border-accent-300 text-accent-700'
-                : 'bg-neutral-100 border-neutral-200 text-neutral-400 hover:border-accent-300'
+                : 'bg-neutral-100 border-neutral-200 text-neutral-600 hover:border-accent-300'
               }`}
           >
             {isSaved ? '★' : '☆'}
@@ -431,125 +430,7 @@ export default function EntryPage() {
 
       <main className="max-w-4xl mx-auto px-4 mt-8">
         <div className="bg-neutral-100 rounded-[3rem] border border-accent-300/30 p-8 md:p-14 shadow-soft">
-          {/* Word Heading */}
-          <div className="flex flex-col md:flex-row md:items-end gap-3 mb-10">
-            <h1 className="text-4xl md:text-6xl font-black font-display text-heritage-dark uppercase tracking-tight">
-              {entry.headword}
-            </h1>
-            <span className="text-accent-700 font-display text-lg italic mb-1 md:mb-3">
-              / {entry.part_of_speech || 'word'} /
-            </span>
-          </div>
-
-          {entry.audio_url && (
-            <div className="mb-8 bg-accent-50 border border-accent-100 rounded-2xl p-4">
-              <p className="text-[10px] font-black text-accent-700 uppercase tracking-[0.2em] mb-2">
-                Listen Pronunciation
-              </p>
-              <audio controls className="w-full">
-                <source src={entry.audio_url} />
-                Your browser does not support audio playback.
-              </audio>
-            </div>
-          )}
-
           <div className="space-y-10">
-            {/* Definition */}
-            <section>
-              <h2 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.3em] mb-4">
-                Definition
-              </h2>
-              <p className="text-lg md:text-2xl font-medium text-stone-800 leading-relaxed font-serif">
-                {entry.primary_definition}
-              </p>
-            </section>
-
-            {(entry.pronunciation_ipa || entry.dialect_variant || entry.etymology || entry.audio_url) && (
-              <section className="grid md:grid-cols-2 gap-6">
-                {entry.pronunciation_ipa && (
-                  <div className="bg-stone-50 p-5 rounded-2xl border border-stone-100">
-                    <h2 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-2">
-                      Pronunciation (IPA)
-                    </h2>
-                    <p className="text-stone-700 font-medium">{entry.pronunciation_ipa}</p>
-                  </div>
-                )}
-
-                {entry.dialect_variant && (
-                  <div className="bg-stone-50 p-5 rounded-2xl border border-stone-100">
-                    <h2 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-2">
-                      Dialect Variant
-                    </h2>
-                    <p className="text-stone-700 font-medium">{entry.dialect_variant}</p>
-                  </div>
-                )}
-
-                {entry.audio_url && (
-                  <div className="bg-stone-50 p-5 rounded-2xl border border-stone-100 md:col-span-2">
-                    <h2 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3">
-                      Audio Pronunciation
-                    </h2>
-                    <audio controls className="w-full">
-                      <source src={entry.audio_url} />
-                      Your browser does not support audio playback.
-                    </audio>
-                  </div>
-                )}
-
-                {entry.etymology && (
-                  <div className="bg-stone-50 p-5 rounded-2xl border border-stone-100 md:col-span-2">
-                    <h2 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-2">
-                      Etymology
-                    </h2>
-                    <p className="text-stone-700 font-medium leading-relaxed">{entry.etymology}</p>
-                  </div>
-                )}
-              </section>
-            )}
-
-            {/* English Translation */}
-            {entry.english_translation && (
-              <section>
-                <h2 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.3em] mb-4">
-                  English Translation
-                </h2>
-                <p className="text-lg font-medium text-stone-700 italic">
-                  {entry.english_translation}
-                </p>
-              </section>
-            )}
-
-            {/* Swahili Translation */}
-            {entry.swahili_translation && (
-              <section>
-                <h2 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.3em] mb-4">
-                  Swahili Translation
-                </h2>
-                <p className="text-lg font-medium text-stone-700 italic">
-                  {entry.swahili_translation}
-                </p>
-              </section>
-            )}
-
-            {/* Usage Examples */}
-            {entry.usage_examples?.length > 0 && (
-              <section>
-                <h2 className="text-[10px] font-black text-neutral-400 uppercase tracking-[0.3em] mb-6">
-                  In Context
-                </h2>
-                <div className="space-y-6">
-                  {entry.usage_examples.map((ex: any, i: number) => (
-                    <div
-                      key={i}
-                      className="bg-stone-50 p-4 md:p-8 rounded-[2rem] border-l-4 border-accent-300 italic text-neutral-600 text-lg break-words"
-                    >
-                      "{ex.context_text}"
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
             {/* Likes */}
             <section className="pt-8 border-t border-neutral-100">
               <button
@@ -565,7 +446,7 @@ export default function EntryPage() {
 
             {/* Comments */}
             <section className="pt-8 border-t border-neutral-100">
-              <h2 className="text-[10px] font-black text-neutral-400 uppercase tracking-[0.3em] mb-4">
+              <h2 className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em] mb-4">
                 Discussion
               </h2>
               <div className="space-y-4">{renderComments(null)}</div>
@@ -591,7 +472,7 @@ export default function EntryPage() {
             {/* Related Words */}
             {relatedWords.length > 0 && (
               <section className="pt-8 border-t border-neutral-100">
-                <h2 className="text-[10px] font-black text-neutral-400 uppercase tracking-[0.3em] mb-6">
+                <h2 className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em] mb-6">
                   See Also
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -624,7 +505,7 @@ export default function EntryPage() {
             </button>
             <button
               onClick={() => setActiveModal('report')}
-              className="bg-neutral-50 text-neutral-400 py-6 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] hover:bg-red-50 hover:text-red-500 transition-all"
+              className="bg-neutral-50 text-neutral-600 py-6 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] hover:bg-red-50 hover:text-red-500 transition-all"
             >
               Report Issue
             </button>
@@ -632,7 +513,7 @@ export default function EntryPage() {
         </div>
 
         {/* Footer Credits */}
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-8 text-neutral-400 min-w-0">
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-8 text-neutral-600 min-w-0">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-8 h-8 rounded-full bg-neutral-200 overflow-hidden border border-neutral-300">
               {entry.contributor_avatar && (

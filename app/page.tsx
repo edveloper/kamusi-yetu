@@ -1,11 +1,11 @@
 import Link from 'next/link'
 import { getLanguageNote } from '@/lib/constants/languageNotes'
 import { getHomepageData } from '@/lib/public-site'
+import SearchAutocomplete from '@/components/SearchAutocomplete'
 
 export default async function HomePage() {
   const { languages, latest, wordOfTheDay, stats } = await getHomepageData()
   const maturityLevels = ['Starter', 'Growing', 'Phrase-Ready', 'Review-Heavy']
-  const currentPhase = "Phase 2 - Phrase Layer"
 
   const projectStats = [
     { label: 'Languages', value: stats.totalLanguages },
@@ -56,18 +56,18 @@ export default async function HomePage() {
       <div className="relative overflow-hidden bg-heritage-dark text-white py-20 md:py-28 px-4 sm:px-6">
         <div className="relative max-w-5xl mx-auto text-center">
           <p className="text-xs uppercase tracking-[0.35em] text-accent-300 mb-4 font-semibold">Our Languages, Our Heritage</p>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-display">Kamusi Yetu</h1>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-display">LughaKonnect</h1>
           <p className="mt-6 text-base md:text-lg text-white max-w-2xl mx-auto leading-8">
             A living archive where Kenya's languages breathe. Discover words your grandmother spoke. Share the phrases that carry your culture forward.
           </p>
 
           <div className="mt-10 max-w-2xl mx-auto">
             <form action="/search" className="relative">
-              <input
-                type="text"
+              <SearchAutocomplete
                 name="q"
+                formMode
                 placeholder="Find a word, a phrase, a memory..."
-                className="w-full rounded-2xl border border-accent-300/40 bg-neutral-100 text-neutral-900 placeholder:text-neutral-400 px-6 py-4 font-semibold shadow-soft focus:border-accent-300 focus:ring-4 focus:ring-heritage-light/20 outline-none transition"
+                inputClassName="w-full rounded-2xl border border-accent-300/40 bg-neutral-100 text-neutral-900 placeholder:text-neutral-600 px-6 py-4 pr-28 font-semibold shadow-soft focus:border-accent-300 focus:ring-4 focus:ring-heritage-light/20 outline-none transition"
               />
               <button
                 type="submit"
@@ -77,9 +77,11 @@ export default async function HomePage() {
               </button>
             </form>
             <div className="mt-4 flex flex-wrap justify-center gap-3 text-xs text-white">
-              <span className="rounded-full bg-accent-300/20 px-4 py-2">37 languages preserved</span>
-              <span className="rounded-full bg-accent-300/20 px-4 py-2">3,000+ verified words</span>
-              <span className="rounded-full bg-accent-300/20 px-4 py-2">Growing phrase collection</span>
+              <span className="rounded-full bg-accent-300/20 px-4 py-2">{stats.totalLanguages} languages preserved</span>
+              <span className="rounded-full bg-accent-300/20 px-4 py-2">{stats.totalEntries.toLocaleString()} verified entries</span>
+              <span className="rounded-full bg-accent-300/20 px-4 py-2">
+                {stats.totalPhrases > 0 ? `${stats.totalPhrases.toLocaleString()} phrase packs` : 'Growing phrase collection'}
+              </span>
             </div>
           </div>
         </div>
