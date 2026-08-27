@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { SITE_URL } from '@/lib/constants/site'
 import { getCorpusHeadline, getLanguageCoverage } from '@/lib/public-site'
-import { computeLanguageMaturity, getLanguageMaturityDefinition } from '@/lib/constants/languageMaturity'
 import { COUNTY_LANGUAGE_PRESENCE } from '@/lib/constants/languageCountyPresence'
 import KenyaCountyCoverageMap from '@/components/trending/KenyaCountyCoverageMap'
 import CountUp from '@/components/ui/CountUp'
@@ -26,12 +25,6 @@ export default async function CoveragePage() {
 
   const withMaturity = coverage.map((language) => ({
     ...language,
-    maturity: computeLanguageMaturity({
-      totalEntries: language.public_entries,
-      bridgeCoveragePct: 100,
-      phraseEntries: language.phrase_entries,
-      phraseMissingExamples: 0,
-    }),
     percentCovered:
       language.concepts_total > 0
         ? Math.round((language.concepts_covered / language.concepts_total) * 1000) / 10
@@ -65,12 +58,11 @@ export default async function CoveragePage() {
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 md:py-20">
           <p className="mark label mb-5 text-signal-300">Coverage</p>
           <h1 className="display max-w-3xl text-4xl sm:text-5xl md:text-6xl">
-            {silent} of {coverage.length} languages have never been recorded
+            What each language has so far
           </h1>
           <p className="definition mt-7 max-w-2xl text-ink-300">
-            This page shows what each language actually has, including the parts that are
-            missing. A corpus that only publishes its good numbers is not one anybody should
-            build on.
+            Word counts, phrase counts, how much of the core vocabulary is covered, and how
+            much of it can be heard. The gaps are listed alongside the totals.
           </p>
         </div>
       </header>
@@ -114,7 +106,8 @@ export default async function CoveragePage() {
               name: language.language_name,
               totalEntries: language.public_entries,
               phraseEntries: language.phrase_entries,
-              maturity: language.maturity,
+              coveragePct: language.percentCovered,
+              maturity: 'starter' as const,
             }))}
           />
         </div>
@@ -143,7 +136,6 @@ export default async function CoveragePage() {
               </thead>
               <tbody>
                 {strongest.map((language) => {
-                  const definition = getLanguageMaturityDefinition(language.maturity)
                   return (
                     <tr key={language.language_id} className="border-b border-ink-200">
                       <td className="py-3 pr-4">
@@ -153,7 +145,6 @@ export default async function CoveragePage() {
                         >
                           {language.language_name}
                         </Link>
-                        <span className="label ml-2 text-ink-500">{definition.shortLabel}</span>
                       </td>
                       <td className="tabular py-3 pr-4 text-right font-mono text-ink-800">
                         {language.public_entries.toLocaleString()}
@@ -162,14 +153,14 @@ export default async function CoveragePage() {
                         {language.phrase_entries.toLocaleString()}
                       </td>
                       <td className="py-3 pr-4">
-                        <div className="flex items-center justify-end gap-2.5">
-                          <div className="hidden h-1.5 w-16 bg-ink-200 sm:block">
+                        <div className="flex items-center justify-end gap-3">
+                          <div className="hidden h-1.5 w-20 shrink-0 bg-ink-200 sm:block">
                             <div
-                              className="h-full bg-ink-900"
+                              className="h-full bg-petrol-500"
                               style={{ width: `${Math.min(100, Math.max(2, language.percentCovered))}%` }}
                             />
                           </div>
-                          <span className="tabular font-mono text-ink-800">
+                          <span className="tabular w-14 shrink-0 text-right font-mono text-ink-800">
                             {language.percentCovered}%
                           </span>
                         </div>

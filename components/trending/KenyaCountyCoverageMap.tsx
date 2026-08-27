@@ -22,6 +22,8 @@ type LanguageMetricLite = {
   totalEntries: number
   phraseEntries: number
   maturity: LanguageMaturity
+  /** Share of core meanings covered. The only figure here that actually varies. */
+  coveragePct: number
 }
 
 type CountyCoverageMapProps = {
@@ -34,31 +36,31 @@ type CountyCoverageMapProps = {
 
 type CountyCoverageView = CountyLanguagePresence & {
   coveredLanguageCount: number
+  coveragePct: number
   maturity: LanguageMaturity
   mappedLanguages: Array<{
     code: string
     name: string
     totalEntries: number
     phraseEntries: number
+    coveragePct: number
     maturity: LanguageMaturity
   }>
 }
 
-const MAP_PATH_CLASSES: Record<LanguageMaturity, string> = {
-  phrase_ready: 'fill-ink-900 stroke-ink-950',
-  growing: 'fill-petrol-400 stroke-petrol-600',
-  starter: 'fill-sand-200 stroke-sand-400',
-  review_heavy: 'fill-signal-100 stroke-signal-300',
-  not_yet_covered: 'fill-paper-warm stroke-ink-200',
+const COVERAGE_BUCKETS = [
+  { min: 70, fill: 'fill-petrol-600', label: '70% and above' },
+  { min: 50, fill: 'fill-petrol-400', label: '50 to 70%' },
+  { min: 30, fill: 'fill-petrol-200', label: '30 to 50%' },
+  { min: 1, fill: 'fill-petrol-50', label: 'under 30%' },
+  { min: 0, fill: 'fill-paper-warm', label: 'nothing yet' },
+] as const
+
+function bucketFor(pct: number) {
+  return COVERAGE_BUCKETS.find((bucket) => pct >= bucket.min) ?? COVERAGE_BUCKETS[4]
 }
 
-const MAP_MARKER_CLASSES: Record<LanguageMaturity, string> = {
-  phrase_ready: 'fill-paper stroke-ink-900 text-ink-900',
-  growing: 'fill-paper stroke-petrol-500 text-petrol-600',
-  starter: 'fill-paper stroke-sand-500 text-sand-700',
-  review_heavy: 'fill-paper stroke-signal-400 text-signal-600',
-  not_yet_covered: 'fill-paper stroke-ink-300 text-ink-500',
-}
+const MARKER_CLASSES = 'fill-paper stroke-ink-700 text-ink-900'
 
 function strongestMaturity(maturities: LanguageMaturity[]) {
   const order: LanguageMaturity[] = [
@@ -94,9 +96,19 @@ export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyC
           totalEntries: language!.totalEntries,
           phraseEntries: language!.phraseEntries,
           maturity: language!.maturity,
+          coveragePct: language!.coveragePct,
         }))
 
       const coveredLanguageCount = mappedLanguages.filter((language) => language.totalEntries > 0).length
+
+      // A county is shaded by its best-covered language. Averaging would drag
+      // a well-documented county down for every additional language mapped to
+      // it, which would punish the counties doing best.
+      const coveragePct = mappedLanguages.reduce(
+        (best, language) => Math.max(best, language.coveragePct),
+        0
+      )
+
       const maturity = strongestMaturity(
         mappedLanguages
           .filter((language) => language.totalEntries > 0 || language.maturity === 'review_heavy')
@@ -106,6 +118,7 @@ export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyC
       return {
         ...county,
         coveredLanguageCount,
+        coveragePct,
         maturity,
         mappedLanguages,
       }
@@ -143,18 +156,13 @@ export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyC
       {/* Legend first. The map is unreadable without it, and putting it below
         * means people scroll past the thing that decodes what they are seeing. */}
       <div className="mb-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-ink-200 py-3">
-        {(
-          ['phrase_ready', 'growing', 'starter', 'review_heavy', 'not_yet_covered'] as LanguageMaturity[]
-        ).map((key) => {
-          const definition = getLanguageMaturityDefinition(key)
-          const swatch = definition.badgeClassName.split(' ')[0]
-          return (
-            <span key={key} className="flex items-center gap-2">
-              <span className={`h-2.5 w-2.5 border border-ink-300 ${swatch}`} />
-              <span className="label text-ink-600">{definition.shortLabel}</span>
-            </span>
-          )
-        })}
+        <span className="label text-ink-600">Core meanings covered</span>
+        {COVERAGE_BUCKETS.slice().reverse().map((bucket) => (
+          <span key={bucket.label} className="flex items-center gap-2">
+            <span className={`h-2.5 w-2.5 border border-ink-300 ${bucket.fill.replace('fill-', 'bg-')}`} />
+            <span className="label text-ink-600">{bucket.label}</span>
+          </span>
+        ))}
         <span className="label ml-auto text-ink-500">
           {covered} of 47 counties have a language with entries
         </span>
@@ -187,16 +195,18 @@ export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyC
                 >
                   <path
                     d={countyPath.d}
-                    className={`${MAP_PATH_CLASSES[county.maturity]} transition-[stroke-width] ${
-                      isActive ? 'stroke-[3.5px]' : 'stroke-[1.2px]'
+                    className={`${bucketFor(county.coveragePct).fill} transition-all ${
+                      isActive
+                        ? 'stroke-signal-500 stroke-[3.5px]'
+                        : 'stroke-ink-300 stroke-[1px]'
                     }`}
                   />
                   {county.coveredLanguageCount > 0 ? (
                     <g transform={`translate(${countyPath.center[0]} ${countyPath.center[1]})`}>
                       <circle
                         r={isActive ? 13 : 10}
-                        className={`${MAP_MARKER_CLASSES[county.maturity]} ${
-                          isActive ? 'stroke-[2.6px]' : 'stroke-[1.6px]'
+                        className={`${MARKER_CLASSES} ${
+                          isActive ? 'stroke-[2.4px]' : 'stroke-[1.4px]'
                         }`}
                       />
                       <text

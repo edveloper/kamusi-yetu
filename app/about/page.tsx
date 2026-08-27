@@ -37,12 +37,13 @@ export default async function AboutPage() {
         <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 md:py-24">
           <p className="mark label mb-6 text-signal-300">About</p>
           <h1 className="display reveal-wipe text-4xl sm:text-5xl md:text-6xl">
-            Most Kenyan languages have never been written down in a form a computer can read
+            Why this exists
           </h1>
           <p className="definition mt-8 max-w-xl text-ink-300">
-            Not because nobody speaks them. Because nobody has been paid to type them out,
-            record them, and put the result somewhere a keyboard or a translation model could
-            reach it.
+            Kenyan languages are documented in dictionaries, academic work and community
+            projects going back decades. Very little of it sits in one place, in a format
+            software can read, under a licence that lets anyone build on it. That is the gap
+            this is trying to close.
           </p>
         </div>
       </header>
@@ -54,7 +55,7 @@ export default async function AboutPage() {
             <h2 className="mark label mb-3 text-ink-600">Who is doing this</h2>
             <p className="display text-2xl text-ink-900">Eddie Ezekiel Ochieng</p>
             <p className="mt-1.5 text-sm text-ink-600">
-              Founder, and currently the only engineer
+              Founder and engineer
             </p>
             <a
               href="https://www.eddie-ezekiel.com"
@@ -114,13 +115,13 @@ export default async function AboutPage() {
       {headline && (
         <section className="border-b border-ink-200">
           <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
-            <h2 className="mark label mb-8 text-ink-600">Where it stands, honestly</h2>
+            <h2 className="mark label mb-8 text-ink-600">Where it stands</h2>
             <dl className="reveal-rows grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4">
               {[
                 { value: headline.indigenous_entries, label: 'Words a person has checked' },
                 { value: headline.languages, label: 'Languages' },
                 { value: recordings, label: 'Recordings' },
-                { value: headline.awaiting_curation + headline.awaiting_orthography, label: 'Entries still not good enough to publish' },
+                { value: headline.awaiting_curation + headline.awaiting_orthography, label: 'Entries held back for review' },
               ].map((stat) => (
                 <div key={stat.label}>
                   <dd className="headword tabular text-5xl text-ink-900 md:text-6xl">
@@ -133,17 +134,17 @@ export default async function AboutPage() {
 
             <div className="mt-12 grid gap-8 md:grid-cols-2 md:gap-14">
               <p className="text-ink-700">
-                Most of what is here was seeded from published sources, not contributed by
-                speakers. About {headline.awaiting_curation.toLocaleString()} entries still have
-                a placeholder where a definition should be, and{' '}
-                {headline.awaiting_orthography.toLocaleString()} have spelling corrupted by an
-                old import that we will not guess at. Both are hidden from the public corpus and
-                counted nowhere except here.
+                The corpus was seeded from published sources and is now being checked by
+                speakers. {headline.awaiting_curation.toLocaleString()} entries are held back
+                until someone writes a real definition, and{' '}
+                {headline.awaiting_orthography.toLocaleString()} until a speaker confirms the
+                spelling, because an old import damaged it. Held-back entries are excluded from
+                every public count. We would rather publish a smaller number that is true.
               </p>
               <p className="text-ink-700">
                 {recordings === 0
-                  ? 'There are no recordings at all yet. That is the largest single gap, and it is the one that decides whether any of this can ever support speech.'
-                  : `There are ${recordings.toLocaleString()} recordings so far. Audio is the gap that matters most, because it is the part that cannot be collected later from speakers who are no longer here.`}{' '}
+                  ? 'Audio collection is just beginning. It is the priority, because recordings are the one part that cannot be gathered later from speakers who are no longer here.'
+                  : `${recordings.toLocaleString()} recordings so far. Audio is the priority, because it is the one part that cannot be gathered later from speakers who are no longer here.`}{' '}
                 <Link
                   href="/guidelines"
                   className="font-semibold text-signal-600 underline underline-offset-2"

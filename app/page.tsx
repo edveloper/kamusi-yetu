@@ -31,13 +31,13 @@ export default async function HomePage() {
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-24">
           <p className="mark label mb-6 text-signal-300">Open corpus, CC BY 4.0</p>
           <h1 className="display reveal-wipe max-w-4xl text-5xl sm:text-6xl md:text-7xl lg:text-8xl">
-            A dictionary for the languages
+            Kenya&apos;s languages,
             <br />
-            that <span className="text-signal-300">do not have one</span>
+            in one <span className="text-signal-300">open dataset</span>
           </h1>
           <p className="definition mt-8 max-w-xl text-ink-300">
-            Kenyan languages, written down and recorded by people who speak them, in a form
-            translation and speech software can actually use.
+            Words, phrases and recordings from across the country, gathered in one place and
+            licensed so that anyone building software can use them.
           </p>
 
           <div className="mt-12 border-t border-ink-700 pt-10">

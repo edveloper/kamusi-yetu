@@ -142,10 +142,9 @@ function ContributeGaps() {
       <header className="border-b border-ink-900 bg-ink-900 text-paper">
         <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 md:py-16">
           <p className="mark label mb-5 text-signal-300">Contribute</p>
-          <h1 className="display text-4xl sm:text-5xl md:text-6xl">What do you call this?</h1>
+          <h1 className="display text-4xl sm:text-5xl md:text-6xl">Add a word</h1>
           <p className="definition mt-6 max-w-xl text-ink-300">
-            These meanings already exist in other Kenyan languages. Tell us the word in
-            yours, say it out loud, and move on to the next one.
+            Pick your language and we will show you meanings it is missing, one at a time.
           </p>
 
           {saved.length > 0 && (
