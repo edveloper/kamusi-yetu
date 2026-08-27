@@ -149,10 +149,10 @@ export default function SearchAutocomplete({
         <ul
           id={listboxId}
           role="listbox"
-          className="absolute left-0 right-0 top-full mt-2 z-50 max-h-80 overflow-auto rounded-xl border border-neutral-200 bg-white shadow-strong text-left"
+          className="absolute left-0 right-0 top-full mt-2 z-50 max-h-80 overflow-auto border border-ink-200 bg-card shadow-strong text-left"
         >
           {loading && suggestions.length === 0 && (
-            <li className="px-4 py-3 text-xs font-black uppercase tracking-widest text-neutral-600">
+            <li className="px-4 py-3 text-xs font-semibold uppercase tracking-widest text-ink-600">
               Searching...
             </li>
           )}
@@ -168,27 +168,27 @@ export default function SearchAutocomplete({
                 goToEntry(s.id)
               }}
               onMouseEnter={() => setActiveIndex(i)}
-              className={`cursor-pointer px-4 py-3 border-b border-neutral-100 last:border-b-0 ${
-                i === activeIndex ? 'bg-accent-50' : 'bg-white'
+              className={`cursor-pointer px-4 py-3 border-b border-ink-200 last:border-b-0 ${
+                i === activeIndex ? 'bg-paper-warm' : 'bg-card'
               }`}
             >
               <div className="flex items-center justify-between gap-3">
-                <span className="font-black text-neutral-900 truncate">{s.headword}</span>
+                <span className="font-semibold text-ink-900 truncate">{s.headword}</span>
                 <span className="flex items-center gap-2 shrink-0">
                   {String(s.part_of_speech || '').toLowerCase() === 'phrase' && (
-                    <span className="text-[8px] font-black uppercase tracking-widest text-neutral-500 bg-neutral-100 border border-neutral-200 px-2 py-0.5 rounded">
+                    <span className="label border border-ink-200 bg-paper-warm px-2 py-0.5 text-[0.625rem] text-ink-600">
                       Phrase
                     </span>
                   )}
                   {s.language_name && (
-                    <span className="text-[9px] font-black uppercase tracking-widest text-accent-700 bg-accent-50 border border-accent-100 px-2 py-0.5 rounded">
+                    <span className="label border border-ink-200 bg-paper-warm px-2 py-0.5 text-[0.625rem] text-signal-600">
                       {s.language_name}
                     </span>
                   )}
                 </span>
               </div>
               {s.primary_definition && (
-                <p className="mt-1 text-xs text-neutral-500 font-medium line-clamp-1">{s.primary_definition}</p>
+                <p className="mt-1 text-xs text-ink-600 font-medium line-clamp-1">{s.primary_definition}</p>
               )}
             </li>
           ))}

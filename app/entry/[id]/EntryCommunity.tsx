@@ -300,7 +300,7 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
                       )
                     )
                   }}
-                  className="text-red-600"
+                  className="text-signal-600"
                 >
                   👎 {c.dislikesCount || 0}
                 </button>
@@ -328,7 +328,7 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
                 </button>
                 <button
                   onClick={() => handleDelete(c.id)}
-                  className="text-red-600"
+                  className="text-signal-600"
                 >
                   Delete
                 </button>
