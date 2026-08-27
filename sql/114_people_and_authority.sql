@@ -19,6 +19,10 @@
 -- Kenyan language needing coverage.
 --
 -- DEPLOY ORDER: run before deploying the code that reads these tables.
+--
+-- SUPERSEDES 112: this file redefines language_concept_coverage and
+-- concept_gaps, adding language_role and excluding bridge languages. Do not
+-- re-run 112 after this, or those views revert to the older shape.
 
 begin;
 
@@ -321,7 +325,13 @@ create index if not exists idx_contributor_notices_unread
 -- 7) VIEWS: stop measuring English as if it needed coverage
 -- =========================================================================
 
-create or replace view public.language_concept_coverage as
+-- CREATE OR REPLACE VIEW cannot rename or reorder columns, and this version
+-- inserts language_role where concepts_total used to sit. Drop first.
+-- Nothing depends on either view; the app reads them through PostgREST.
+drop view if exists public.language_concept_coverage;
+drop view if exists public.concept_gaps;
+
+create view public.language_concept_coverage as
 select
   l.id   as language_id,
   l.code as language_code,
@@ -342,7 +352,7 @@ where l.is_active
   and l.role <> 'bridge'   -- English is infrastructure, not a coverage target
 group by l.id, l.code, l.name, l.role;
 
-create or replace view public.concept_gaps as
+create view public.concept_gaps as
 select
   l.id   as language_id,
   l.code as language_code,
@@ -366,7 +376,8 @@ where l.is_active
   );
 
 -- The honest headline numbers, in one place.
-create or replace view public.corpus_headline as
+drop view if exists public.corpus_headline;
+create view public.corpus_headline as
 select
   count(*) filter (
     where e.validation_status = 'verified' and not e.needs_orthography_review
