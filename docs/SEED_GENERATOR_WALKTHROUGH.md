@@ -4,7 +4,7 @@ Date: May 1, 2026
 
 ## Overview
 
-This guide walks you through generating and seeding the first batch of curated seed packs into Kamusi Yetu using the new seed generator system.
+This guide walks you through generating and seeding the first batch of curated seed packs into LughaKonnect using the new seed generator system.
 
 You'll:
 1. Generate CSV files from seed pack definitions
@@ -75,7 +75,7 @@ supabase db push  # (if using local setup)
 ### 2b. Upload via Supabase Table Editor
 
 1. Log in to [supabase.com](https://supabase.com)
-2. Open your Kamusi Yetu project
+2. Open your LughaKonnect project
 3. Go to **SQL Editor**
 4. Run:
 

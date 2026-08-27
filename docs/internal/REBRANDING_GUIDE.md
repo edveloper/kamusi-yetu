@@ -1,4 +1,4 @@
-# 🇰🇪 Kamusi Yetu - Heritage Rebranding Complete
+# 🇰🇪 LughaKonnect - Heritage Rebranding Complete
 
 ## What Was Changed
 
@@ -206,11 +206,11 @@ Use HERITAGE DARKER (#064E2A) for:
 
 ## Brand Promise
 
-This design system ensures every page in Kamusi Yetu **feels like a celebration of Kenyan heritage**, not a corporate tool. The warm palette, organic spacing, and textile patterns create an **inviting, culturally-grounded experience** that honors Kenya's languages and traditions.
+This design system ensures every page in LughaKonnect **feels like a celebration of Kenyan heritage**, not a corporate tool. The warm palette, organic spacing, and textile patterns create an **inviting, culturally-grounded experience** that honors Kenya's languages and traditions.
 
 **Every interaction** should feel warm and welcoming. **Every page** should reflect pride in Kenyan culture.
 
 ---
 
-*Built with 🇰🇪 pride for Kamusi Yetu*  
+*Built with 🇰🇪 pride for LughaKonnect*  
 *Every Kenyan Language, Equal and Alive*

@@ -55,7 +55,7 @@ export default function LoginPage() {
             )}
 
             <div className="space-y-2">
-              <label htmlFor="email" className="block text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
+              <label htmlFor="email" className="block text-xs font-black text-neutral-600 uppercase tracking-widest ml-1">
                 Email Address
               </label>
               <input
@@ -70,13 +70,10 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <div className="flex justify-between items-end mb-1">
-                <label htmlFor="password" className="block text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
+              <div className="mb-1">
+                <label htmlFor="password" className="block text-xs font-black text-neutral-600 uppercase tracking-widest ml-1">
                   Password
                 </label>
-                <Link href="#" className="text-[10px] font-black text-accent-700 uppercase tracking-widest hover:text-accent-800">
-                  Forgot?
-                </Link>
               </div>
               <input
                 id="password"
@@ -106,7 +103,7 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-10 text-center">
-            <p className="text-sm text-neutral-400 font-medium">
+            <p className="text-sm text-neutral-600 font-medium">
               Don't have an account?{' '}
               <Link href="/signup" className="text-accent-600 hover:text-accent-700 font-black decoration-2 underline-offset-4 hover:underline transition-all">
                 Join the Guardians

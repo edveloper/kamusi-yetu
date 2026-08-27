@@ -1,4 +1,4 @@
-# Kamusi Yetu Project Roadmap
+# LughaKonnect Project Roadmap
 
 Date: February 25, 2026
 Status: Active working roadmap
@@ -25,7 +25,7 @@ Checkpoint progress:
 
 ## Vision
 
-Kamusi Yetu is being built in phases:
+LughaKonnect is being built in phases:
 
 1. Preserve and grow high-quality lexical data for Kenyan languages.
 2. Deliver reliable word and phrase translation across those languages.
@@ -103,7 +103,7 @@ What the platform can already do:
 ### Phase 1 - Verified Dictionary Core
 
 Goal:
-- Make Kamusi Yetu the most usable community dictionary for Kenyan languages.
+- Make LughaKonnect the most usable community dictionary for Kenyan languages.
 
 Primary outcomes:
 - Stable entry model

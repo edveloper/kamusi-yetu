@@ -42,20 +42,20 @@ export default function ModeratorsPage() {
 
               <div className="space-y-3">
                 <div className="text-accent-600 font-black text-2xl">02</div>
-                <h3 className="font-black text-gray-900 uppercase text-xs tracking-widest">Community Review</h3>
-                <p className="text-sm text-stone-600 leading-relaxed font-medium">Monitoring the platform to resolve disputes and ensure all contributions remain respectful and accurate.</p>
+                <h3 className="font-black text-neutral-900 uppercase text-xs tracking-widest">Community Review</h3>
+                <p className="text-sm text-neutral-700 leading-relaxed font-medium">Monitoring the platform to resolve disputes and ensure all contributions remain respectful and accurate.</p>
               </div>
 
               <div className="space-y-3">
                 <div className="text-accent-600 font-black text-2xl">03</div>
-                <h3 className="font-black text-gray-900 uppercase text-xs tracking-widest">Data Stewardship</h3>
-                <p className="text-sm text-stone-600 leading-relaxed font-medium">Organizing metadata, regional tags, and phonetic transcriptions for better searchability.</p>
+                <h3 className="font-black text-neutral-900 uppercase text-xs tracking-widest">Data Stewardship</h3>
+                <p className="text-sm text-neutral-700 leading-relaxed font-medium">Organizing metadata, regional tags, and phonetic transcriptions for better searchability.</p>
               </div>
 
               <div className="space-y-3">
                 <div className="text-accent-600 font-black text-2xl">04</div>
-                <h3 className="font-black text-gray-900 uppercase text-xs tracking-widest">Archive Security</h3>
-                <p className="text-sm text-stone-600 leading-relaxed font-medium">Protecting the integrity of the archive by preventing spam, vandalism, or low-quality entries.</p>
+                <h3 className="font-black text-neutral-900 uppercase text-xs tracking-widest">Archive Security</h3>
+                <p className="text-sm text-neutral-700 leading-relaxed font-medium">Protecting the integrity of the archive by preventing spam, vandalism, or low-quality entries.</p>
               </div>
             </div>
           </div>

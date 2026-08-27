@@ -8,13 +8,14 @@ import { useState } from 'react'
 function Logo() {
   return (
     <div className="flex items-center">
-      <div className="flex-shrink-0 w-48 h-28 relative">
+      <div className="flex-shrink-0 w-36 sm:w-44 h-14 relative">
         <Image
           src="/logo.png"
-          alt="Kamusi Yetu logo"
+          alt="LughaKonnect"
           fill
-          className="object-contain"
-          sizes="192px"
+          priority
+          className="object-contain object-left"
+          sizes="(max-width: 640px) 144px, 176px"
         />
       </div>
     </div>
@@ -130,7 +131,7 @@ export default function Header() {
           </div>
         </div>
       )}
-      <header className="sticky top-0 z-50 backdrop-blur-sm bg-[#D4A373]/80 flex items-center py-1 shadow-soft">
+      <header className="sticky top-0 z-50 backdrop-blur-sm bg-[#D4A373]/80 h-20 flex items-center shadow-soft">
         <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 w-full">
           <div className="flex items-center justify-between gap-2">
             <Link href="/" onClick={() => setMenuOpen(false)} className="-ml-2 sm:ml-0">

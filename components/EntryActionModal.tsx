@@ -309,7 +309,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
     <div className="fixed inset-0 bg-neutral-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true">
       <div className="bg-white rounded-[2.5rem] max-w-3xl w-full p-6 md:p-10 shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-4 z-20 flex justify-end">
-          <button onClick={onClose} aria-label="Close" className="text-neutral-400 hover:text-neutral-900 font-black text-xl p-2">x</button>
+          <button onClick={onClose} aria-label="Close" className="text-neutral-600 hover:text-neutral-900 font-black text-xl p-2">x</button>
         </div>
 
         <h2 className="text-3xl font-black mb-2 uppercase tracking-tight">{isEdit ? 'Suggest an Amendment' : 'Report an Issue'}</h2>
@@ -325,7 +325,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
             {isEdit && (
               <>
                 <div>
-                  <label className="block text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2">
+                  <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">
                     {String(form.part_of_speech).toLowerCase() === 'phrase' ? 'Word or Phrase' : 'Headword'}
                   </label>
                   <input
@@ -340,7 +340,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Corrected Definition</label>
+                  <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Corrected Definition</label>
                   <textarea
                     rows={4}
                     value={form.primary_definition}
@@ -353,7 +353,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">English Translation</label>
+                    <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">English Translation</label>
                     <input
                       type="text"
                       value={form.english_translation}
@@ -362,7 +362,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Swahili Translation</label>
+                    <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Swahili Translation</label>
                     <input
                       type="text"
                       value={form.swahili_translation}
@@ -374,7 +374,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Part of Speech</label>
+                    <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Part of Speech</label>
                     <select
                       value={form.part_of_speech}
                       onChange={(e) => update({ part_of_speech: e.target.value })}
@@ -393,7 +393,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Dialect Variant</label>
+                    <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Dialect Variant</label>
                     <input
                       type="text"
                       value={form.dialect_variant}
@@ -402,7 +402,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Pronunciation (IPA)</label>
+                    <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Pronunciation (IPA)</label>
                     <input
                       type="text"
                       value={form.pronunciation_ipa}
@@ -414,7 +414,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Category</label>
+                    <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Category</label>
                     <input
                       type="text"
                       value={form.category}
@@ -423,7 +423,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Register</label>
+                    <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Register</label>
                     <input
                       type="text"
                       value={form.register}
@@ -434,7 +434,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Audio URL</label>
+                  <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Audio URL</label>
                   <input
                     type="url"
                     value={form.audio_url}
@@ -488,7 +488,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Etymology</label>
+                  <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Etymology</label>
                   <textarea
                     rows={3}
                     value={form.etymology}
@@ -498,7 +498,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Usage Example</label>
+                  <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Usage Example</label>
                   <textarea
                     rows={3}
                     value={form.usage_example}
@@ -511,7 +511,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
             )}
 
             <div>
-              <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Reason</label>
+              <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Reason</label>
               <select
                 value={form.reason}
                 onChange={(e) => update({ reason: e.target.value })}
@@ -537,7 +537,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Additional Details</label>
+              <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Additional Details</label>
               <textarea
                 rows={3}
                 placeholder={isEdit ? 'Provide sources or more context...' : 'Please explain the problem...'}
@@ -550,7 +550,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Source Type</label>
+                <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Source Type</label>
                 <select value={form.source_type} onChange={(e) => update({ source_type: e.target.value })} className="w-full p-3 bg-neutral-50 border-2 border-neutral-100 rounded-2xl">
                   <option value="">None</option>
                   <option value="oral">Oral</option>
@@ -561,7 +561,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Source Reference</label>
+                <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Source Reference</label>
                 <input
                   type="text"
                   value={form.source_reference}
@@ -572,7 +572,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Confidence</label>
+                <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Confidence</label>
                 <select value={form.confidence} onChange={(e) => update({ confidence: e.target.value })} className="w-full p-3 bg-neutral-50 border-2 border-neutral-100 rounded-2xl">
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>

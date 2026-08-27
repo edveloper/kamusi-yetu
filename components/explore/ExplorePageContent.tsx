@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { CATEGORIES } from '@/lib/constants'
 import { getLanguageGroupNote } from '@/lib/constants/languageNotes'
 import type { Language } from '@/lib/types/database'
+import SearchAutocomplete from '@/components/SearchAutocomplete'
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
@@ -84,15 +85,16 @@ export default function ExplorePageContent({
           <div className="mt-10 max-w-4xl mx-auto">
             <form action="/search" className="relative">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[minmax(0,1fr)_170px_170px_170px_90px] gap-3">
-                <input
+                <SearchAutocomplete
                   name="q"
+                  formMode
                   placeholder="A word, a phrase, a story..."
-                  className="w-full px-4 py-3 rounded-xl bg-neutral-50 text-neutral-900 font-semibold placeholder:text-neutral-400"
+                  inputClassName="w-full px-4 py-3 rounded-xl bg-neutral-50 text-neutral-900 font-semibold placeholder:text-neutral-600"
                 />
                 <select
                   name="language"
                   defaultValue="all"
-                  className="px-4 py-3 rounded-xl bg-white text-stone-900 font-semibold"
+                  className="px-4 py-3 rounded-xl bg-white text-neutral-900 font-semibold"
                 >
                   <option value="all">All languages</option>
                   {groupedLanguages.map((group) => (
@@ -108,7 +110,7 @@ export default function ExplorePageContent({
                 <select
                   name="category"
                   defaultValue="all"
-                  className="px-4 py-3 rounded-xl bg-white text-stone-900 font-semibold"
+                  className="px-4 py-3 rounded-xl bg-white text-neutral-900 font-semibold"
                 >
                   <option value="all">All topics</option>
                   {CATEGORIES.map((category) => (
@@ -120,7 +122,7 @@ export default function ExplorePageContent({
                 <select
                   name="kind"
                   defaultValue="all"
-                  className="px-4 py-3 rounded-xl bg-white text-stone-900 font-semibold"
+                  className="px-4 py-3 rounded-xl bg-white text-neutral-900 font-semibold"
                 >
                   <option value="all">Words + Phrases</option>
                   <option value="word">Words only</option>
@@ -165,17 +167,17 @@ export default function ExplorePageContent({
               <div className="grid gap-4">
                 {featuredExamples.map((group) => (
                   <div key={group.label} className={`rounded-3xl border p-5 ${group.tone}`}>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 mb-4">{group.label}</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-600 mb-4">{group.label}</p>
                     <div className="space-y-3">
                       {group.items.map((item) => (
-                        <div key={`${item.source}-${item.sourceLang}`} className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] items-center rounded-2xl bg-stone-50/90 px-4 py-3">
+                        <div key={`${item.source}-${item.sourceLang}`} className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] items-center rounded-2xl bg-neutral-50/90 px-4 py-3">
                           <div>
-                            <p className="text-lg font-black text-stone-900">{item.source}</p>
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">{item.sourceLang}</p>
+                            <p className="text-lg font-black text-neutral-900">{item.source}</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-600">{item.sourceLang}</p>
                           </div>
-                          <div className="text-neutral-400 font-black text-right">
+                          <div className="text-neutral-600 font-black text-right">
                             <p className="text-lg font-black text-accent-700">{item.target}</p>
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400">{item.targetLang}</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-600">{item.targetLang}</p>
                           </div>
                         </div>
                       ))}
@@ -187,13 +189,13 @@ export default function ExplorePageContent({
 
             <div className="grid gap-6">
               <div className="surface-card p-6 md:p-8 shadow-medium">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 mb-4">Popular language groups</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-600 mb-4">Popular language groups</p>
                 <div className="space-y-3">
                   {popularLanguages.map((lang) => (
                     <Link key={lang.id} href={`/search?language=${lang.id}`} className="flex items-center justify-between rounded-2xl bg-neutral-100 px-4 py-3 hover:bg-accent-50 transition-colors">
                       <div>
                         <p className="font-black text-heritage-dark">{lang.name}</p>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">{lang.native_name}</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-600">{lang.native_name}</p>
                       </div>
                       <span className="text-sm font-black text-accent-700">{lang.count}</span>
                     </Link>
@@ -208,7 +210,7 @@ export default function ExplorePageContent({
                     <Link key={lang.id} href={`/search?language=${lang.id}`} className="flex items-center justify-between rounded-2xl bg-white px-4 py-3 hover:bg-accent-100/40 transition-colors">
                       <div>
                         <p className="font-black text-heritage-dark">{lang.name}</p>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">{lang.native_name}</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-600">{lang.native_name}</p>
                       </div>
                       <span className="text-sm font-black text-accent-700">{lang.count}</span>
                     </Link>
@@ -251,9 +253,9 @@ export default function ExplorePageContent({
                         </span>
                       </div>
                       <h3 className="text-xl font-black text-heritage-dark mb-1 font-display group-hover:text-accent-700 transition-colors">{lang.name}</h3>
-                      <p className="text-neutral-400 text-xs font-bold italic mb-6">{lang.native_name}</p>
+                      <p className="text-neutral-600 text-xs font-bold italic mb-6">{lang.native_name}</p>
                       <div className="pt-4 border-t border-accent-100 flex justify-between items-center">
-                        <span className="text-xs font-black text-neutral-400 uppercase tracking-widest">
+                        <span className="text-xs font-black text-neutral-600 uppercase tracking-widest">
                           <b className="text-accent-700 text-sm">{lang.count}</b> records
                         </span>
                         <span className="text-accent-500 font-bold group-hover:translate-x-1 transition-transform">→</span>
@@ -312,9 +314,9 @@ export default function ExplorePageContent({
                           <span className="text-[10px] font-black text-accent-700 bg-accent-100 px-3 py-1 rounded-full uppercase tracking-[0.15em]">{lang.code || 'KEN'}</span>
                         </div>
                         <h3 className="text-xl font-black text-heritage-dark mb-2 font-display group-hover:text-accent-700 transition-colors">{lang.name}</h3>
-                        <p className="text-neutral-400 text-xs font-bold italic mb-6">{lang.native_name}</p>
+                        <p className="text-neutral-600 text-xs font-bold italic mb-6">{lang.native_name}</p>
                         <div className="pt-4 border-t border-accent-100 flex justify-between items-center">
-                          <span className="text-xs font-black text-neutral-400 uppercase tracking-widest">
+                          <span className="text-xs font-black text-neutral-600 uppercase tracking-widest">
                             <b className="text-accent-700 text-sm">{languageCounts[lang.id] || 0}</b> records
                           </span>
                           <span className="text-accent-500 font-bold group-hover:translate-x-1 transition-transform">→</span>

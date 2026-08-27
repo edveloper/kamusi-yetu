@@ -13,7 +13,7 @@ export default function GuidelinesPage() {
         <div className="relative max-w-5xl mx-auto text-center">
           <p className="text-xs uppercase tracking-[0.35em] text-accent-300 mb-4 font-semibold">Quality and trust</p>
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-display">Community Standards</h1>
-          <p className="mt-6 text-base md:text-lg text-white max-w-2xl mx-auto leading-8">How we keep Kamusi Yetu accurate and respectful.</p>
+          <p className="mt-6 text-base md:text-lg text-white max-w-2xl mx-auto leading-8">How we keep LughaKonnect accurate and respectful.</p>
         </div>
       </div>
 
@@ -25,7 +25,7 @@ export default function GuidelinesPage() {
             </div>
             <h2 className="text-4xl font-black text-heritage-dark mb-6 font-display">Speak your truth.</h2>
             <p className="text-xl text-neutral-600 leading-relaxed font-medium">
-              Kamusi Yetu is built on <span className="text-accent-600 underline decoration-2 underline-offset-4">lived experience</span>.
+              LughaKonnect is built on <span className="text-accent-600 underline decoration-2 underline-offset-4">lived experience</span>.
               Only contribute to languages you speak fluently. If you aren&apos;t sure, leave it for another guardian of the language.
             </p>
           </section>

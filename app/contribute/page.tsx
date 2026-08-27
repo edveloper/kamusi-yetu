@@ -315,7 +315,7 @@ export default function ContributePage() {
             <button onClick={resetForm} className="btn-primary">
               {isPhrase ? 'Add Another Phrase' : 'Add Another Word'}
             </button>
-            <Link href="/" className="block w-full py-4 text-neutral-400 font-bold hover:text-accent-700 transition-colors uppercase tracking-widest text-xs">Return Home</Link>
+            <Link href="/" className="block w-full py-4 text-neutral-600 font-bold hover:text-accent-700 transition-colors uppercase tracking-widest text-xs">Return Home</Link>
           </div>
         </div>
       </div>
@@ -326,11 +326,11 @@ export default function ContributePage() {
     <div className="min-h-screen bg-neutral-100 pb-20">
       <div className="relative overflow-hidden bg-heritage-dark text-white py-20 md:py-28 px-4 sm:px-6">
         <div className="relative max-w-5xl mx-auto text-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-accent-300 mb-4 font-semibold\">Be a Guardian of Language</p>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-display\">
+          <p className="text-xs uppercase tracking-[0.35em] text-accent-300 mb-4 font-semibold">Be a Guardian of Language</p>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-display">
             {isPhrase ? 'Share a Phrase' : 'Share a Word'}
           </h1>
-          <p className="mt-6 text-base md:text-lg text-white max-w-2xl mx-auto leading-8\">
+          <p className="mt-6 text-base md:text-lg text-white max-w-2xl mx-auto leading-8">
             {isPhrase
               ? 'Document the expressions, proverbs, and sayings that carry your culture. Show the world how your language truly lives.'
               : "The words you know might be the only place they're recorded. Help us preserve them."}
@@ -351,10 +351,12 @@ export default function ContributePage() {
 
             <div className="space-y-10">
               <div className="group">
-                <label className="block text-xs font-black text-neutral-400 uppercase mb-4">Contribution Type</label>
-                <div className="grid md:grid-cols-2 gap-4">
+                <p id="contribution-type-label" className="block text-xs font-black text-neutral-600 uppercase mb-4">Contribution Type</p>
+                <div className="grid md:grid-cols-2 gap-4" role="radiogroup" aria-labelledby="contribution-type-label">
                   <button
                     type="button"
+                    role="radio"
+                    aria-checked={!isPhrase}
                     onClick={() => {
                       setContributionMode('word')
                       setFormData((prev) => ({
@@ -363,7 +365,7 @@ export default function ContributePage() {
                       }))
                     }}
                     className={`rounded-2xl border-2 px-5 py-5 text-left transition-all ${
-                      !isPhrase ? 'border-heritage-dark bg-accent-50' : 'border-neutral-200 bg-neutral-50 hover:border-neutral-300'
+                      !isPhrase ? 'border-heritage-dark bg-accent-100 ring-2 ring-heritage-dark/20' : 'border-neutral-200 bg-neutral-50 hover:border-neutral-300'
                     }`}
                   >
                     <p className="text-sm font-black text-neutral-900 uppercase tracking-widest mb-1">Word Entry</p>
@@ -373,16 +375,18 @@ export default function ContributePage() {
                   </button>
                   <button
                     type="button"
+                    role="radio"
+                    aria-checked={isPhrase}
                     onClick={() => {
                       setContributionMode('phrase')
                       setFormData((prev) => ({ ...prev, part_of_speech: 'phrase' }))
                     }}
                     className={`rounded-2xl border-2 px-5 py-5 text-left transition-all ${
-                      isPhrase ? 'border-heritage-dark bg-accent-50' : 'border-neutral-200 bg-neutral-50 hover:border-neutral-300'
+                      isPhrase ? 'border-heritage-dark bg-accent-100 ring-2 ring-heritage-dark/20' : 'border-neutral-200 bg-neutral-50 hover:border-neutral-300'
                     }`}
                   >
                     <p className="text-sm font-black text-neutral-900 uppercase tracking-widest mb-1">Phrase Entry</p>
-                    <p className="text-sm text-stone-500 font-medium">
+                    <p className="text-sm text-neutral-600 font-medium">
                       Use this for greetings, idioms, proverbs, set expressions, and multi-word speech patterns.
                     </p>
                   </button>
@@ -391,8 +395,9 @@ export default function ContributePage() {
 
               {/* Language */}
               <div className="group">
-                <label className="block text-xs font-black text-neutral-400 uppercase mb-4">Choose Language *</label>
+                <label htmlFor="entry-language" className="block text-xs font-black text-neutral-600 uppercase mb-4">Choose Language *</label>
                 <select
+                  id="entry-language"
                   required
                   value={formData.language}
                   onChange={(e) => setFormData({...formData, language: e.target.value})}
@@ -412,11 +417,15 @@ export default function ContributePage() {
               {/* Word & Category */}
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="group">
-                  <label className="block text-xs font-black text-stone-400 uppercase mb-4">
+                  <label htmlFor="entry-headword" className="block text-xs font-black text-neutral-600 uppercase mb-4">
                     {isPhrase ? 'The Phrase *' : 'The Word *'}
                   </label>
                   <input
+                    id="entry-headword"
                     type="text"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    spellCheck={false}
                     required
                     placeholder={isPhrase ? 'e.g. habari yako' : 'e.g. Amani'}
                     value={formData.word}
@@ -425,8 +434,9 @@ export default function ContributePage() {
                   />
                 </div>
                 <div className="group">
-                  <label className="block text-xs font-black text-neutral-400 uppercase mb-4">Category</label>
+                  <label htmlFor="entry-category" className="block text-xs font-black text-neutral-600 uppercase mb-4">Category</label>
                   <select
+                    id="entry-category"
                     value={formData.category}
                     onChange={(e) => setFormData({...formData, category: e.target.value})}
                     className="w-full px-6 py-5 bg-neutral-50 border-2 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none"
@@ -440,8 +450,9 @@ export default function ContributePage() {
               {/* Linguistic Metadata */}
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="group">
-                  <label className="block text-xs font-black text-neutral-400 uppercase mb-4">Part of Speech</label>
+                  <label htmlFor="entry-part-of-speech" className="block text-xs font-black text-neutral-600 uppercase mb-4">Part of Speech</label>
                   <select
+                    id="entry-part-of-speech"
                     value={formData.part_of_speech}
                     onChange={(e) => {
                       const value = e.target.value
@@ -463,10 +474,11 @@ export default function ContributePage() {
                   </select>
                 </div>
                 <div className="group">
-                  <label className="block text-xs font-black text-neutral-400 uppercase mb-4">
+                  <label htmlFor="entry-ipa" className="block text-xs font-black text-neutral-600 uppercase mb-4">
                     Pronunciation (IPA)
                   </label>
                   <input
+                    id="entry-ipa"
                     type="text"
                     placeholder="e.g. /a.ma.ni/"
                     value={formData.pronunciation_ipa}
@@ -478,10 +490,11 @@ export default function ContributePage() {
 
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="group">
-                  <label className="block text-xs font-black text-neutral-400 uppercase mb-4">
+                  <label htmlFor="entry-dialect" className="block text-xs font-black text-neutral-600 uppercase mb-4">
                     Dialect Variant
                   </label>
                   <input
+                    id="entry-dialect"
                     type="text"
                     placeholder="e.g. Central, Coastal, Urban"
                     value={formData.dialect_variant}
@@ -490,22 +503,24 @@ export default function ContributePage() {
                   />
                 </div>
                 <div className="group">
-                  <label className="block text-xs font-black text-stone-400 uppercase mb-4">
+                  <label htmlFor="entry-audio-url" className="block text-xs font-black text-neutral-600 uppercase mb-4">
                     Audio URL
                   </label>
                   <div className="space-y-3">
                     <input
+                      id="entry-audio-url"
                       type="url"
                       placeholder="https://..."
                       value={formData.audio_url}
                       onChange={(e) => setFormData({ ...formData, audio_url: e.target.value })}
                       className="w-full px-6 py-5 bg-neutral-50 border-2 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none"
                     />
-                    <div className="rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50 p-4">
-                      <label className="block text-[10px] font-black text-stone-500 uppercase tracking-widest mb-2">
+                    <div className="rounded-2xl border-2 border-dashed border-neutral-200 bg-neutral-50 p-4">
+                      <label htmlFor="entry-audio-file" className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">
                         Or Upload Audio File
                       </label>
                       <input
+                        id="entry-audio-file"
                         type="file"
                         accept="audio/*"
                         onChange={handleAudioFileChange}
@@ -518,12 +533,12 @@ export default function ContributePage() {
                       {audioUploadError && (
                         <p className="text-xs text-red-600 font-bold mt-2">{audioUploadError}</p>
                       )}
-                      <p className="text-[11px] text-stone-400 mt-2">
+                      <p className="text-[11px] text-neutral-600 mt-2">
                         Supported: MP3, WAV, M4A, OGG. Max size: 15MB.
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-stone-200 bg-white p-4">
-                      <p className="text-[10px] font-black text-stone-500 uppercase tracking-widest mb-3">
+                    <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+                      <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-3">
                         Record Pronunciation
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -532,7 +547,7 @@ export default function ContributePage() {
                             type="button"
                             onClick={startAudioRecording}
                             disabled={!recordingSupported || uploadingAudio}
-                            className="px-4 py-2 rounded-xl bg-stone-900 text-white text-xs font-black uppercase tracking-widest disabled:opacity-50"
+                            className="px-4 py-2 rounded-xl bg-neutral-900 text-white text-xs font-black uppercase tracking-widest disabled:opacity-50"
                           >
                             Start Recording
                           </button>
@@ -556,14 +571,14 @@ export default function ContributePage() {
                         </button>
                       </div>
                       {!recordingSupported && (
-                        <p className="text-xs text-stone-400 mt-2">
+                        <p className="text-xs text-neutral-600 mt-2">
                           This browser does not support in-app audio recording.
                         </p>
                       )}
                     </div>
                     {recordedPreviewUrl && (
-                      <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4">
-                        <p className="text-[10px] font-black text-stone-500 uppercase tracking-widest mb-2">
+                      <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-4">
+                        <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">
                           Recorded Preview
                         </p>
                         <audio controls className="w-full">
@@ -573,8 +588,8 @@ export default function ContributePage() {
                       </div>
                     )}
                     {formData.audio_url && (
-                      <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4">
-                        <p className="text-[10px] font-black text-stone-500 uppercase tracking-widest mb-2">
+                      <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-4">
+                        <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">
                           Audio Preview
                         </p>
                         <audio controls className="w-full">
@@ -589,10 +604,11 @@ export default function ContributePage() {
 
                             {/* Definition */}
               <div className="group">
-                <label className="block text-xs font-black text-neutral-400 uppercase mb-4">
+                <label htmlFor="entry-definition" className="block text-xs font-black text-neutral-600 uppercase mb-4">
                   {isPhrase ? 'Meaning, Use, and Definition *' : 'Meaning & Definition *'}
                 </label>
                 <textarea
+                  id="entry-definition"
                   required
                   rows={3}
                   placeholder={isPhrase ? 'Explain what this phrase means, when people use it, and what tone or situation it fits...' : 'What does this word mean?'}
@@ -600,16 +616,17 @@ export default function ContributePage() {
                   onChange={(e) =>
                     setFormData({ ...formData, definition: e.target.value })
                   }
-                  className="w-full px-6 py-5 bg-neutral-50 border-2 border-neutral-50 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none font-medium text-gray-800 resize-none leading-relaxed"
+                  className="w-full px-6 py-5 bg-neutral-50 border-2 border-neutral-50 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none font-medium text-neutral-800 resize-none leading-relaxed"
                 />
               </div>
 
               {/* English Translation */}
               <div className="group">
-                <label className="block text-xs font-black text-neutral-400 uppercase mb-4">
+                <label htmlFor="entry-english" className="block text-xs font-black text-neutral-600 uppercase mb-4">
                   English Translation {englishRequired ? '*' : '(Optional)'}
                 </label>
                 <input
+                  id="entry-english"
                   type="text"
                   placeholder="Enter English equivalent..."
                   value={formData.english_translation}
@@ -619,16 +636,17 @@ export default function ContributePage() {
                       english_translation: e.target.value,
                     })
                   }
-                  className="w-full px-6 py-5 bg-neutral-50 border-2 border-neutral-50 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none font-medium text-gray-800"
+                  className="w-full px-6 py-5 bg-neutral-50 border-2 border-neutral-50 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none font-medium text-neutral-800"
                 />
               </div>
 
               {/* Swahili Translation */}
               <div className="group">
-                <label className="block text-xs font-black text-neutral-400 uppercase mb-4">
+                <label htmlFor="entry-swahili" className="block text-xs font-black text-neutral-600 uppercase mb-4">
                   Swahili Translation {swahiliRequired ? '*' : '(Optional)'}
                 </label>
                 <input
+                  id="entry-swahili"
                   type="text"
                   placeholder="Enter Swahili equivalent..."
                   value={formData.swahili_translation}
@@ -638,23 +656,24 @@ export default function ContributePage() {
                       swahili_translation: e.target.value,
                     })
                   }
-                  className="w-full px-6 py-5 bg-neutral-50 border-2 border-neutral-50 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none font-medium text-gray-800"
+                  className="w-full px-6 py-5 bg-neutral-50 border-2 border-neutral-50 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none font-medium text-neutral-800"
                 />
               </div>
 
               {/* Etymology */}
               <div className="group">
-                <label className="block text-xs font-black text-neutral-400 uppercase mb-4">
+                <label htmlFor="entry-usage-example" className="block text-xs font-black text-neutral-600 uppercase mb-4">
                   {isPhrase ? 'Phrase in Use *' : 'Usage Example (Optional)'}
                 </label>
                 <textarea
+                  id="entry-usage-example"
                   rows={2}
                   placeholder={isPhrase ? 'Use the phrase in a natural sentence or dialogue...' : 'Use the word in a sentence or explain its cultural context...'}
                   value={formData.usage_example}
                   onChange={(e) =>
                     setFormData({ ...formData, usage_example: e.target.value })
                   }
-                  className="w-full px-6 py-5 bg-neutral-50 border-2 border-neutral-50 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none font-medium text-gray-800 resize-none leading-relaxed italic"
+                  className="w-full px-6 py-5 bg-neutral-50 border-2 border-neutral-50 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none font-medium text-neutral-800 resize-none leading-relaxed italic"
                 />
               </div>
 
@@ -676,20 +695,21 @@ export default function ContributePage() {
 
               {/* Etymology */}
               <div className="group">
-                <label className="block text-xs font-black text-stone-400 uppercase mb-4">
+                <label htmlFor="entry-etymology" className="block text-xs font-black text-neutral-600 uppercase mb-4">
                   Etymology (Optional)
                 </label>
                 <textarea
+                  id="entry-etymology"
                   rows={3}
                   placeholder="Origin history of this word, borrowings, or root form..."
                   value={formData.etymology}
                   onChange={(e) => setFormData({ ...formData, etymology: e.target.value })}
-                  className="w-full px-6 py-5 bg-neutral-50 border-2 border-neutral-50 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none font-medium text-gray-800 resize-none leading-relaxed"
+                  className="w-full px-6 py-5 bg-neutral-50 border-2 border-neutral-50 rounded-2xl focus:bg-white focus:border-heritage-dark outline-none font-medium text-neutral-800 resize-none leading-relaxed"
                 />
               </div>
             </div>
 
-            <div className="mt-14 pt-10 border-t border-stone-100">
+            <div className="mt-14 pt-10 border-t border-neutral-200">
               <button
                 type="submit"
                 disabled={status === 'submitting' || isDuplicate}

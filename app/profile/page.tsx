@@ -249,13 +249,13 @@ export default function ProfilePage() {
   }
 
   if (!mounted || loading || !user) return (
-    <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+    <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-heritage-dark"></div>
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-stone-50 pb-24 font-sans">
+    <div className="min-h-screen bg-neutral-50 pb-24 font-sans">
       {/* Hero Header */}
       <div className="bg-heritage-dark text-white py-16 md:py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 relative z-10">
@@ -337,7 +337,7 @@ export default function ProfilePage() {
           ].map((s, i) => (
             <div key={i} className="bg-neutral-100 rounded-[2rem] p-8 border border-accent-200 shadow-soft text-center transition-transform hover:translate-y-[-4px]">
               <div className={`text-3xl md:text-5xl font-black font-display mb-1 ${s.color || 'text-heritage-dark'}`}>{loadingData ? '...' : s.value}</div>
-              <div className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">{s.label}</div>
+              <div className="text-[10px] font-black text-neutral-600 uppercase tracking-widest">{s.label}</div>
             </div>
           ))}
         </div>
@@ -350,7 +350,7 @@ export default function ProfilePage() {
             <h2 className="text-3xl font-black text-heritage-dark font-display mb-10 uppercase tracking-tight">Archive Contributions</h2>
             {recentContributions.length === 0 ? (
               <div className="text-center py-16 bg-accent-50 rounded-[2.5rem] border-2 border-dashed border-accent-200">
-                <p className="text-neutral-400 font-bold mb-4">Your contribution starts here.</p>
+                <p className="text-neutral-600 font-bold mb-4">Your contribution starts here.</p>
                 <Link href="/contribute" className="text-accent-700 font-black text-xs uppercase tracking-widest hover:underline">+ Add First Entry</Link>
               </div>
             ) : (
@@ -360,7 +360,7 @@ export default function ProfilePage() {
                     <div className="flex items-center justify-between p-6 rounded-[2rem] border border-accent-50 bg-accent-50/30 hover:border-accent-300 hover:bg-accent-100 transition-all shadow-soft hover:shadow-lg">
                       <div>
                         <h3 className="text-xl font-black text-heritage-dark group-hover:text-accent-700 font-display uppercase tracking-tight">{c.headword}</h3>
-                        <p className="text-[10px] text-neutral-400 font-black uppercase tracking-widest mt-1">{getLanguageName(c.language_id)}</p>
+                        <p className="text-[10px] text-neutral-600 font-black uppercase tracking-widest mt-1">{getLanguageName(c.language_id)}</p>
                       </div>
                       <span className={`text-[9px] font-black px-4 py-2 rounded-xl uppercase tracking-widest border ${c.validation_status === 'verified' ? 'bg-accent-50 text-accent-700 border-accent-100' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
                         {c.validation_status}
@@ -394,9 +394,9 @@ export default function ProfilePage() {
                 <span key={l} className="bg-accent-50 px-4 py-2 rounded-xl text-[9px] font-black text-accent-700 uppercase tracking-widest border border-accent-100">
                   {getLanguageName(l)}
                 </span>
-              )) : <p className="text-neutral-400 text-xs italic">No languages selected.</p>}
+              )) : <p className="text-neutral-600 text-xs italic">No languages selected.</p>}
             </div>
-            <button onClick={() => setShowLanguageSelector(true)} className="w-full py-4 border-2 border-dashed border-neutral-200 rounded-xl text-[9px] font-black text-neutral-400 uppercase tracking-widest hover:border-heritage-dark hover:text-accent-600 transition-all">
+            <button onClick={() => setShowLanguageSelector(true)} className="w-full py-4 border-2 border-dashed border-neutral-200 rounded-xl text-[9px] font-black text-neutral-600 uppercase tracking-widest hover:border-heritage-dark hover:text-accent-600 transition-all">
               Manage My Languages
             </button>
 
@@ -439,7 +439,7 @@ export default function ProfilePage() {
             <h2 className="text-3xl font-black font-display mb-8 text-heritage-dark uppercase">Update Record</h2>
             <form onSubmit={handleUpdateProfile} className="space-y-6">
               <div>
-                <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-3">Profile Photo</label>
+                <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-3">Profile Photo</label>
                 <div className="flex items-center gap-6 p-4 bg-neutral-50 rounded-2xl border-2 border-neutral-100">
                   <div className="w-16 h-16 rounded-2xl bg-white overflow-hidden border border-neutral-200 shadow-inner flex-shrink-0">
                     {editData.avatar_url && <img src={editData.avatar_url} className="w-full h-full object-cover" />}
@@ -456,16 +456,16 @@ export default function ProfilePage() {
                 </div>
               </div>
               <div>
-                <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Display Name</label>
+                <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Display Name</label>
                 <input 
                   type="text" 
                   value={editData.display_name} 
                   onChange={(e) => setEditData({...editData, display_name: e.target.value})}
-                  className="w-full p-5 bg-neutral-50 border-2 border-neutral-100 rounded-2xl focus:border-heritage-dark focus:bg-white outline-none font-bold text-gray-900 transition-all"
+                  className="w-full p-5 bg-neutral-50 border-2 border-neutral-100 rounded-2xl focus:border-heritage-dark focus:bg-white outline-none font-bold text-neutral-900 transition-all"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Biography</label>
+                <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Biography</label>
                 <textarea 
                   rows={3}
                   value={editData.bio} 
@@ -474,7 +474,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div className="flex gap-4 pt-4">
-                <button type="button" onClick={() => setIsEditing(false)} className="flex-1 py-5 font-black text-[10px] uppercase tracking-widest text-neutral-400">Cancel</button>
+                <button type="button" onClick={() => setIsEditing(false)} className="flex-1 py-5 font-black text-[10px] uppercase tracking-widest text-neutral-600">Cancel</button>
                 <button type="submit" disabled={uploading} className="flex-1 py-5 bg-heritage-dark text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest shadow-xl disabled:opacity-50 transition-all">
                   Save Changes
                 </button>

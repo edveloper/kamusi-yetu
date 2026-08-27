@@ -453,7 +453,7 @@ export default function ModeratePage() {
         <div className="grid lg:grid-cols-4 gap-8">
           <div className="lg:col-span-1 space-y-4">
             <div className="bg-neutral-100 p-6 rounded-3xl shadow-soft border border-accent-200">
-              <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-3 ml-1">Filter by Language</label>
+              <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-3 ml-1">Filter by Language</label>
               <select
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value)}
@@ -467,7 +467,7 @@ export default function ModeratePage() {
             </div>
 
             <div className="bg-neutral-100 p-6 rounded-3xl shadow-soft border border-accent-200">
-              <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-3 ml-1">Filter by Content Type</label>
+              <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-3 ml-1">Filter by Content Type</label>
               <select
                 value={selectedContentType}
                 onChange={(e) => setSelectedContentType(e.target.value as 'all' | 'word' | 'phrase' | 'entry' | 'suggestion')}
@@ -498,7 +498,7 @@ export default function ModeratePage() {
             </div>
 
             <div className="bg-neutral-100 p-6 rounded-3xl shadow-soft border border-accent-200">
-              <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-4">Bridge Health</p>
+              <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-4">Bridge Health</p>
               {bridgeHealth ? (
                 <div className="space-y-3 text-[11px]">
                   <div className="flex items-center justify-between">
@@ -535,12 +535,12 @@ export default function ModeratePage() {
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-stone-400">Bridge metrics unavailable.</p>
+                <p className="text-xs text-neutral-600">Bridge metrics unavailable.</p>
               )}
             </div>
 
             <div className="bg-neutral-100 p-6 rounded-3xl shadow-soft border border-accent-200">
-              <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-4">Language Risk</p>
+              <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-4">Language Risk</p>
               {bridgeByLanguage.length > 0 ? (
                 <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
                   {bridgeByLanguage.map((lang) => {
@@ -571,14 +571,14 @@ export default function ModeratePage() {
                   })}
                 </div>
               ) : (
-                <p className="text-xs text-neutral-400">No language metrics yet.</p>
+                <p className="text-xs text-neutral-600">No language metrics yet.</p>
               )}
             </div>
           </div>
 
           <div className="lg:col-span-3 pb-20">
             {loadingData ? (
-              <div className="bg-white p-20 rounded-[2.5rem] border border-stone-200 text-center">
+              <div className="bg-white p-20 rounded-[2.5rem] border border-neutral-200 text-center">
                 <div className="animate-spin rounded-full h-10 w-10 border-4 border-neutral-100 border-t-heritage-dark mx-auto"></div>
               </div>
             ) : (
@@ -633,36 +633,36 @@ export default function ModeratePage() {
 
                         <div className="grid md:grid-cols-2 gap-8 mb-8">
                           <div>
-                            <p className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3">Definition</p>
-                            <p className="text-lg text-stone-700 leading-relaxed font-medium bg-stone-50 p-6 rounded-2xl border border-stone-100 italic font-serif break-words">
+                            <p className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] mb-3">Definition</p>
+                            <p className="text-lg text-neutral-700 leading-relaxed font-medium bg-neutral-50 p-6 rounded-2xl border border-neutral-200 italic font-serif break-words">
                               {submission.primary_definition || '-'}
                             </p>
                           </div>
                           <div className="space-y-4">
                             {submission.part_of_speech && (
                               <div>
-                                <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Part of Speech</p>
-                                <p className="font-bold text-gray-900 uppercase text-sm break-words">{submission.part_of_speech}</p>
+                                <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-1">Part of Speech</p>
+                                <p className="font-bold text-neutral-900 uppercase text-sm break-words">{submission.part_of_speech}</p>
                               </div>
                             )}
                             {submission.dialect_variant && (
                               <div>
-                                <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Dialect Context</p>
-                                <p className="font-bold text-gray-900 uppercase text-sm break-words">{submission.dialect_variant}</p>
+                                <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-1">Dialect Context</p>
+                                <p className="font-bold text-neutral-900 uppercase text-sm break-words">{submission.dialect_variant}</p>
                               </div>
                             )}
                             {(submission.english_translation || submission.swahili_translation) && (
                               <div className="grid grid-cols-1 gap-3">
                                 {submission.english_translation && (
                                   <div>
-                                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">English Bridge</p>
-                                    <p className="font-bold text-gray-900 text-sm break-words">{submission.english_translation}</p>
+                                    <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-1">English Bridge</p>
+                                    <p className="font-bold text-neutral-900 text-sm break-words">{submission.english_translation}</p>
                                   </div>
                                 )}
                                 {submission.swahili_translation && (
                                   <div>
-                                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Swahili Bridge</p>
-                                    <p className="font-bold text-gray-900 text-sm break-words">{submission.swahili_translation}</p>
+                                    <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-1">Swahili Bridge</p>
+                                    <p className="font-bold text-neutral-900 text-sm break-words">{submission.swahili_translation}</p>
                                   </div>
                                 )}
                               </div>
@@ -692,13 +692,13 @@ export default function ModeratePage() {
                               ))}
                             </div>
                           ) : (
-                            <p className="mt-3 text-sm text-stone-600 font-medium">
+                            <p className="mt-3 text-sm text-neutral-700 font-medium">
                               Bridge fields and core metadata are present. Moderator can approve directly or refine further.
                             </p>
                           )}
                         </div>
 
-                        <div className="pt-8 border-t border-stone-100">
+                        <div className="pt-8 border-t border-neutral-200">
                           {reviewingId === submission.id ? (
                             <div className="space-y-6">
                               <textarea
@@ -763,13 +763,13 @@ export default function ModeratePage() {
                               <div className="flex items-center gap-3 self-start sm:self-auto">
                                 <button
                                   onClick={() => handleFlag(submission)}
-                                  className="p-3 text-stone-400 hover:text-red-500 transition-colors font-black text-xs uppercase tracking-widest"
+                                  className="p-3 text-neutral-600 hover:text-red-500 transition-colors font-black text-xs uppercase tracking-widest"
                                   title="Flag for discussion"
                                   aria-label="Flag suggestion"
                                 >
                                   Flag
                                 </button>
-                                {isProcessing && <div className="text-sm text-stone-400">Processing...</div>}
+                                {isProcessing && <div className="text-sm text-neutral-600">Processing...</div>}
                               </div>
                             </div>
                           )}

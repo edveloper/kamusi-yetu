@@ -1,4 +1,4 @@
-# Kamusi Yetu - Heritage Design System
+# LughaKonnect - Heritage Design System
 
 ## Overview
 This design system implements a **cultural, heritage-focused Kenyan brand** with warm, inviting aesthetics inspired by African textiles and traditional craftsmanship.
@@ -259,4 +259,4 @@ Example: `text-lg md:text-xl lg:text-2xl`
 ---
 
 **Last Updated**: April 2026  
-**Brand**: Kamusi Yetu - Every Kenyan Language, Equal and Alive
+**Brand**: LughaKonnect - Every Kenyan Language, Equal and Alive

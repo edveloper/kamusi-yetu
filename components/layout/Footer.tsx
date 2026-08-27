@@ -9,12 +9,12 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="space-y-5 md:col-span-1">
             <Link href="/" className="text-heritage-light font-black text-3xl leading-tight tracking-tight font-display">
-              Kamusi Yetu
+              LughaKonnect
             </Link>
             <p className="text-neutral-200 font-medium leading-relaxed text-sm">
-              Every Kenyan language, equal and alive — a living archive preserving our diverse voices.
+              An open corpus of Kenya&apos;s languages, documented by the people who speak them.
             </p>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-300">
               Crafted by{' '}
               <a
                 href="https://www.eddie-ezekiel.com"
@@ -25,8 +25,19 @@ export function Footer() {
                 Eddie Ezekiel
               </a>
             </p>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-400 hidden md:block">
-              &copy; {new Date().getFullYear()} Kamusi Yetu — Built with pride in Kenya.
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-300 hidden md:block">
+              &copy; {new Date().getFullYear()} LughaKonnect. Built with pride in Kenya.
+            </p>
+            <p className="text-[11px] text-neutral-300 hidden md:block">
+              Corpus data licensed{' '}
+              <a
+                href="https://creativecommons.org/licenses/by/4.0/"
+                target="_blank"
+                rel="license noopener noreferrer"
+                className="text-heritage-light hover:text-accent-300 transition-colors font-bold"
+              >
+                CC BY 4.0
+              </a>
             </p>
           </div>
 
@@ -94,8 +105,8 @@ export function Footer() {
           </div>
         </div>
         <div className="md:hidden pt-8 border-t border-heritage-darker/30 mt-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-400">
-            &copy; {new Date().getFullYear()} Kamusi Yetu — Built with pride in Kenya.
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-300">
+            &copy; {new Date().getFullYear()} LughaKonnect. Built with pride in Kenya.
           </p>
         </div>
       </div>

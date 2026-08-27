@@ -329,9 +329,9 @@ export default function TrendingPage() {
     <div className="min-h-screen bg-neutral-100 pb-24 font-sans">
       <div className="relative overflow-hidden bg-heritage-dark text-white py-20 md:py-28 px-4 sm:px-6">
         <div className="relative max-w-5xl mx-auto text-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-accent-300 mb-4 font-semibold\">Where We Stand. Where We Need Help.</p>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-display\">The State of Our Languages</h1>
-          <p className="mt-6 text-base md:text-lg text-white max-w-2xl mx-auto leading-8\">
+          <p className="text-xs uppercase tracking-[0.35em] text-accent-300 mb-4 font-semibold">Where We Stand. Where We Need Help.</p>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-display">The State of Our Languages</h1>
+          <p className="mt-6 text-base md:text-lg text-white max-w-2xl mx-auto leading-8">
             See which languages are thriving. Discover which ones need your voice. Every contribution writes the next chapter of Kenya's linguistic story.
           </p>
         </div>
@@ -371,7 +371,7 @@ export default function TrendingPage() {
         <section className="mb-16">
           <div className="mb-6">
             <h2 className="text-3xl font-black text-heritage-dark font-display mb-2">Geographic Reach</h2>
-            <p className="text-neutral-600 font-medium">Community presence across Kenya—where languages are strongest and where growth is needed most.</p>
+            <p className="text-neutral-600 font-medium">Community presence across Kenya, showing where languages are strongest and where growth is needed most.</p>
           </div>
           <KenyaCountyCoverageMap
             languageMetrics={languageMetrics.map((language) => ({
@@ -442,7 +442,7 @@ export default function TrendingPage() {
                       </div>
                       <p className="text-sm text-neutral-600 font-medium mb-3">
                         {language.phraseEntries > 0
-                          ? 'Phrase coverage live—add examples to improve translation quality.'
+                          ? 'Phrase coverage live. Add examples to improve translation quality.'
                           : 'Ready for phrase expansion. Your contributions have immediate impact.'}
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -544,13 +544,13 @@ export default function TrendingPage() {
                       </p>
                       <p className="text-sm text-neutral-300 italic mb-2">&quot;{phrase.englishTranslation}&quot;</p>
                       {phrase.swahiliTranslation && (
-                        <p className="text-sm text-neutral-400">(SW: {phrase.swahiliTranslation})</p>
+                        <p className="text-sm text-neutral-600">(SW: {phrase.swahiliTranslation})</p>
                       )}
                     </div>
                   </Link>
                 ))}
                 {!loading && phraseSpotlights.length === 0 && (
-                  <p className="text-sm text-neutral-400">Phrases coming soon.</p>
+                  <p className="text-sm text-neutral-600">Phrases coming soon.</p>
                 )}
               </div>
             </div>

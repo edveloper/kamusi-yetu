@@ -91,9 +91,9 @@ export default function SavedWordsList({
       </div>
 
       {loading ? (
-        <div className="py-8 text-center text-neutral-400">Loading...</div>
+        <div className="py-8 text-center text-neutral-600">Loading...</div>
       ) : items.length === 0 ? (
-        <div className="py-8 text-center text-neutral-400">
+        <div className="py-8 text-center text-neutral-600">
           No saved words yet.
           <div className="mt-4">
             <Link href="/explore" className="text-accent-600 font-black text-xs uppercase tracking-widest">Explore words</Link>
@@ -109,7 +109,7 @@ export default function SavedWordsList({
                 <div key={s.id} className="flex items-center justify-between p-3 rounded-xl border border-neutral-100 bg-neutral-50" role="listitem">
                   <div className="min-w-0">
                     <div className="font-black text-sm text-neutral-900 truncate">[Entry unavailable]</div>
-                    <div className="text-[10px] text-neutral-400">This saved item references an entry that could not be loaded.</div>
+                    <div className="text-[10px] text-neutral-600">This saved item references an entry that could not be loaded.</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -145,7 +145,7 @@ export default function SavedWordsList({
                   <div className="min-w-0">
                     <Link href={`/entry/${e.id}`} className="block">
                       <div className="font-black text-sm text-neutral-900 truncate">{e.headword}</div>
-                      <div className="text-[10px] text-neutral-400 uppercase tracking-widest">
+                      <div className="text-[10px] text-neutral-600 uppercase tracking-widest">
                         {langName(e.language_id)}{e.part_of_speech ? ` • ${e.part_of_speech}` : ''}
                       </div>
                     </Link>

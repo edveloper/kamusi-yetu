@@ -10,7 +10,7 @@ export default function TeamPage() {
           <p className="text-xs uppercase tracking-[0.35em] text-accent-300 mb-4 font-semibold">Our team and vision</p>
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-display">Team</h1>
           <p className="mt-6 text-base md:text-lg text-white max-w-2xl mx-auto leading-8">
-            Kamusi Yetu is founder-led today, with the long-term aim of growing into a wider network of engineers, linguists, educators, and community reviewers.
+            LughaKonnect is founder-led today, with the long-term aim of growing into a wider network of engineers, linguists, educators, and community reviewers.
           </p>
         </div>
       </div>
@@ -29,14 +29,14 @@ export default function TeamPage() {
 
           <div className="space-y-8">
             <p className="text-xl md:text-2xl text-neutral-800 leading-relaxed font-medium">
-              I started Kamusi Yetu because too many Kenyan languages remain digitally underrepresented at the very moment language technology is accelerating globally. If our languages are missing from dictionaries, phrase banks, and machine-readable systems today, they risk falling even further behind in the AI era.
+              I started LughaKonnect because too many Kenyan languages remain digitally underrepresented at the very moment language technology is accelerating globally. If our languages are missing from dictionaries, phrase banks, and machine-readable systems today, they risk falling even further behind in the AI era.
             </p>
             <p className="text-lg text-neutral-600 leading-relaxed font-medium">
-              My role here is not only technical. I am shaping the product direction, data model, moderation workflow, and long-term translation architecture so this can become both a cultural asset and practical language infrastructure. The goal is to preserve vocabulary, support learning, improve translation, and eventually create better access to information across Kenyan and African languages.
+              My role isn't only technical. I own the product direction, the data model, the moderation workflow, and the translation architecture. The aim is practical: preserve vocabulary, support learners, and build translation data good enough to make Kenyan languages usable in real software.
             </p>
             <div className="border-l-4 border-accent-300/40 pl-8 py-4 bg-accent-50/30 rounded-r-3xl">
               <p className="text-xl text-neutral-800 leading-relaxed font-bold">
-                &ldquo;If our languages are absent from the systems shaping the future, then our communities are absent from that future too. Kamusi Yetu is one way of changing that.&rdquo;
+                &ldquo;If our languages are absent from the systems shaping the future, then our communities are absent from that future too. LughaKonnect is one way of changing that.&rdquo;
               </p>
             </div>
             <p className="text-lg text-neutral-600 leading-relaxed font-medium">
@@ -79,10 +79,10 @@ export default function TeamPage() {
           </div>
           <div className="space-y-6">
             <p className="text-lg text-neutral-600 leading-relaxed font-medium">
-              Kamusi Yetu also connects naturally with another project I am building: <span className="font-black text-neutral-900">Usalama Voice</span>, a Kenyan anti-GBV platform focused on emergency response, protected reporting, county referral access, and practical survivor-support guidance. The connection matters because language access is not abstract. In safety, justice, and support systems, a person may need to understand instructions, describe harm, or ask for help in the language they trust most.
+              LughaKonnect also connects naturally with another project I am building: <span className="font-black text-neutral-900">Usalama Voice</span>, a Kenyan anti-GBV platform focused on emergency response, protected reporting, county referral access, and practical survivor-support guidance. The connection matters because language access is not abstract. In safety, justice, and support systems, a person may need to understand instructions, describe harm, or ask for help in the language they trust most.
             </p>
             <p className="text-lg text-neutral-600 leading-relaxed font-medium">
-              Over time, the two projects could reinforce each other directly. Kamusi Yetu can help supply multilingual vocabulary, phrase packs, and translation infrastructure for reporting flows, safety prompts, learning modules, and county support directories inside Usalama Voice, making those systems more accessible to survivors, allies, and responders across Kenya.
+              Over time, the two projects could reinforce each other directly. LughaKonnect can help supply multilingual vocabulary, phrase packs, and translation infrastructure for reporting flows, safety prompts, learning modules, and county support directories inside Usalama Voice, making those systems more accessible to survivors, allies, and responders across Kenya.
             </p>
             <p className="text-lg text-neutral-600 leading-relaxed font-medium">
               That is part of the larger vision here: language infrastructure should not end at preservation. It should improve real systems that people rely on in education, healthcare, safety, research, and daily life, especially when clear communication can change outcomes.
@@ -94,7 +94,7 @@ export default function TeamPage() {
           <div className="text-center">
             <h2 className="text-4xl font-black font-display mb-4">Build With Us</h2>
             <p className="text-white text-lg font-medium mb-8 max-w-3xl mx-auto">
-              If you work in language, research, moderation, education, or engineering, there is space to help shape the next stage of Kamusi Yetu.
+              If you work in language, research, moderation, education, or engineering, there is space to help shape the next stage of LughaKonnect.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/contact" className="px-8 py-4 rounded-lg bg-accent-300 text-heritage-dark font-black text-lg hover:bg-accent-400 transition shadow-soft">

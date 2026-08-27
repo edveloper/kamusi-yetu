@@ -9,7 +9,7 @@ export default function SearchPage() {
           {/* Using heritage-dark for the spinner to match your header */}
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-heritage-dark mx-auto mb-6"></div>
           {/* Using the subtle wide-tracked uppercase style for the text */}
-          <p className="text-neutral-400 font-black uppercase tracking-[0.3em] text-[10px]">
+          <p className="text-neutral-600 font-black uppercase tracking-[0.3em] text-[10px]">
             Accessing Archive...
           </p>
         </div>

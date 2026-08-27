@@ -131,7 +131,7 @@ export default function SignupPage() {
 
       <div className="max-w-2xl w-full mx-auto relative z-10">
         <div className="text-center mb-10">
-          <h2 className="text-4xl font-black text-white font-display tracking-tight mb-3 italic">Kamusi Yetu</h2>
+          <h2 className="text-4xl font-black text-white font-display tracking-tight mb-3 italic">LughaKonnect</h2>
           <p className="text-white/60 font-black text-[10px] uppercase tracking-[0.3em]">
             Join the Cultural Archive
           </p>
@@ -152,7 +152,7 @@ export default function SignupPage() {
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="email" className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                <label htmlFor="email" className="block text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] mb-3 ml-1">
                   Email
                 </label>
                 <input
@@ -167,7 +167,7 @@ export default function SignupPage() {
               </div>
 
               <div>
-                <label htmlFor="username" className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                <label htmlFor="username" className="block text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] mb-3 ml-1">
                   Username
                 </label>
                 <input
@@ -184,7 +184,7 @@ export default function SignupPage() {
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="password" className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                <label htmlFor="password" className="block text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] mb-3 ml-1">
                   Password
                 </label>
                 <input
@@ -199,7 +199,7 @@ export default function SignupPage() {
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em] mb-3 ml-1">
+                <label htmlFor="confirmPassword" className="block text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] mb-3 ml-1">
                   Confirm Password
                 </label>
                 <input
@@ -215,7 +215,7 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em] mb-3 ml-1">Bio</label>
+              <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] mb-3 ml-1">Bio</label>
               <textarea
                 rows={3}
                 value={bio}
@@ -226,7 +226,7 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em] mb-3 ml-1">Profile Photo (Optional)</label>
+              <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] mb-3 ml-1">Profile Photo (Optional)</label>
               <input
                 type="file"
                 accept="image/*"
@@ -236,7 +236,7 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-3 ml-1">Languages (Optional)</label>
+              <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] mb-3 ml-1">Languages (Optional)</label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {languages.map((lang) => {
                   const selected = selectedLanguages.includes(lang.id)
@@ -274,8 +274,8 @@ export default function SignupPage() {
             </button>
           </form>
 
-          <div className="mt-10 pt-8 border-t border-stone-100 text-center">
-            <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest">
+          <div className="mt-10 pt-8 border-t border-neutral-200 text-center">
+            <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest">
               Part of the tribe?{' '}
               <Link href="/login" className="text-accent-600 hover:text-accent-700 ml-2 border-b border-accent-100 pb-1">
                 Sign In

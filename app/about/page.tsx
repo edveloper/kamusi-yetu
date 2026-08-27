@@ -29,7 +29,7 @@ export default function AboutPage() {
           <p className="text-xs uppercase tracking-[0.35em] text-accent-300 mb-4 font-semibold">Our Mission</p>
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-display">Preserving Our Voice</h1>
           <p className="mt-6 text-base md:text-lg text-white max-w-2xl mx-auto leading-8">
-            Every language carries a story. Every word holds memory. We're building a digital home for Kenya's languages before they fade into silence.
+            Kenya speaks more than 40 languages. We're building a digital home for them: recorded, searchable, and owned by the people who speak them.
           </p>
         </div>
       </div>
@@ -42,13 +42,13 @@ export default function AboutPage() {
           </div>
           <div className="space-y-8">
             <p className="text-xl text-neutral-700 leading-relaxed font-medium">
-              <span className="text-accent-700 font-black">Kamusi Yetu</span> is not just a dictionary. It's a sanctuary for Kenya's linguistic heritage. From the Swahili coasts to the Kikuyu highlands, from the Samburu pasturelands to the Luo lakes—every language is a treasure we're fighting to preserve.
+              <span className="text-accent-700 font-black">LughaKonnect</span> is a dictionary built by the people who speak the languages in it, from the Swahili coast to the Kikuyu highlands, the Samburu pasturelands to the shores of Lake Victoria. Each entry is contributed and verified by native speakers, not scraped or machine-guessed.
             </p>
             <p className="text-xl text-neutral-700 leading-relaxed italic border-l-4 border-accent-100 pl-8 py-2">
               &ldquo;When a language dies, a way of seeing the world dies with it. We're here to keep our languages alive.&rdquo;
             </p>
             <p className="text-lg text-neutral-700 leading-relaxed font-medium">
-              Right now, our dictionary holds verified words across 37 Kenyan languages. We're deepening our collection with phrases, proverbs, and the living context of how people actually speak. This is heritage work. This is preservation work. This is necessary work.
+              Today the dictionary holds verified words across dozens of Kenyan languages, and we're adding the phrases, proverbs, and usage notes that show how people actually speak. It's slow, careful work, and the kind that doesn't happen unless someone decides it matters.
             </p>
           </div>
         </section>
@@ -72,7 +72,7 @@ export default function AboutPage() {
 
         <div className="text-center mb-12">
           <h2 className="text-4xl font-black text-heritage-dark font-display mb-4">How it Works</h2>
-          <p className="text-neutral-500 font-bold uppercase tracking-widest text-xs">The Guardian's Journey</p>
+          <p className="text-neutral-500 font-bold uppercase tracking-widest text-xs">From your language to the dictionary</p>
         </div>
 
         <div className="grid gap-6 mb-24">
@@ -108,15 +108,15 @@ export default function AboutPage() {
           </div>
           <div className="grid md:grid-cols-3 gap-5 mb-10">
             <div className="rounded-2xl border border-neutral-100 bg-neutral-50 p-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 mb-2">Available Today</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-600 mb-2">Available Today</p>
               <p className="text-neutral-700 font-medium">Verified word entries, bridge translation, moderation workflows, and active language expansion.</p>
             </div>
             <div className="rounded-2xl border border-neutral-100 bg-neutral-50 p-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 mb-2">Growing Next</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-600 mb-2">Growing Next</p>
               <p className="text-neutral-700 font-medium">Phrase packs, usage examples, subgroup rollouts, and phrase-aware search and moderation.</p>
             </div>
             <div className="rounded-2xl border border-neutral-100 bg-neutral-50 p-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 mb-2">Why Context Matters</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-600 mb-2">Why Context Matters</p>
               <p className="text-neutral-700 font-medium">Enough contextual data to support sentence translation that is better than simple word substitution.</p>
             </div>
           </div>
@@ -196,7 +196,7 @@ export default function AboutPage() {
           <div className="text-center">
             <h2 className="text-4xl font-black font-display mb-4">Join the Movement</h2>
             <p className="text-white text-lg font-medium mb-8 max-w-3xl mx-auto">
-              Our target is to preserve 10,000 unique Kenyan words this year. Will your mother tongue be represented?
+              Our target is to preserve 10,000 unique Kenyan words. Will your mother tongue be represented?
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/contribute" className="px-8 py-4 rounded-lg bg-accent-300 text-heritage-dark font-black text-lg hover:bg-accent-400 transition shadow-soft">

@@ -201,7 +201,7 @@ All requested design elements have been implemented site-wide:
 - ✅ Serif headings
 - ✅ No generic SaaS look
 
-**Kamusi Yetu is now a distinctly cultural, Kenyan-focused platform.**
+**LughaKonnect is now a distinctly cultural, Kenyan-focused platform.**
 
 ---
 

@@ -1,32 +1,74 @@
 @import "tailwindcss";
 
-/* Define custom colors using Tailwind v4 syntax */
+/* ---------------------------------------------------------------------------
+ * LughaKonnect palette — Tailwind v4 CSS-first theme.
+ *
+ * This block is the ONLY source of truth for colour. tailwind.config.ts was
+ * deleted: Tailwind v4 ignores it unless loaded with an explicit @config
+ * directive, so the scales it defined were silently absent from the build and
+ * ~131 class usages across the app rendered as nothing.
+ *
+ * Every step of every scale is defined here. Leaving a step undefined does not
+ * fall back to "close enough" — for the accent/primary namespaces the class
+ * simply does not exist, and for the neutral namespace Tailwind's own COOL grey
+ * leaks in beside our warm cream, which is what made the UI look muddy.
+ *
+ * Neutrals are warm (biased toward the ochre accent) so they sit correctly on
+ * the cream ground. Contrast on --color-neutral-100 is noted per step.
+ * ------------------------------------------------------------------------- */
 @theme {
+  /* Retire Tailwind's cool grey families. They are what leaked in beside the
+   * warm cream and made the UI look muddy; clearing them means a stray
+   * `text-gray-400` now fails loudly at build time instead of shipping a
+   * mismatched grey. Semantic families (red, amber, blue) are left intact for
+   * error and warning states. */
+  --color-gray-*: initial;
+  --color-slate-*: initial;
+  --color-zinc-*: initial;
+  --color-stone-*: initial;
+
   /* Kenyan Heritage Color Palette */
   --color-heritage-dark: #0B6B3A;     /* Primary - deep forest green */
   --color-heritage-darker: #064E2A;   /* Darker shade for depth */
   --color-heritage-light: #D4A373;    /* Warm accent - ochre/earth tone */
   --color-heritage-bg: #F5F1E8;       /* Warm cream background */
-  
+
+  /* Green — brand primary */
+  --color-primary-50:  #F0F7F4;
   --color-primary-100: #E6F4F0;
+  --color-primary-200: #C4E3D6;
   --color-primary-300: #4DA87F;
+  --color-primary-400: #2A8A5C;
   --color-primary-500: #0B6B3A;
   --color-primary-600: #064E2A;
   --color-primary-700: #053C20;
+  --color-primary-800: #04321A;
   --color-primary-900: #032815;
-  
+
+  /* Ochre / earth — brand accent */
+  --color-accent-50:  #FBF6EF;
   --color-accent-100: #F5E8D4;
+  --color-accent-200: #EBD6B8;
   --color-accent-300: #D4A373;
+  --color-accent-400: #C4915F;
   --color-accent-500: #B8885F;
-  --color-accent-700: #9C6B47;
-  
-  --color-neutral-100: #F5F1E8;
+  --color-accent-600: #A67750;
+  --color-accent-700: #8A5C3B;        /* 5.3:1 on accent-50 */
+  --color-accent-800: #71492E;
+  --color-accent-900: #5E3F28;
+
+  /* Warm neutrals — every step defined so Tailwind's cool greys never leak in */
+  --color-neutral-50:  #FAF8F3;       /* card surface, warmer than the page */
+  --color-neutral-100: #F5F1E8;       /* page ground */
   --color-neutral-200: #E5DFCE;
   --color-neutral-300: #C0B5A0;
-  --color-neutral-500: #808080;
-  --color-neutral-700: #4A4A4A;
-  --color-neutral-900: #1A1A1A;
-  
+  --color-neutral-400: #9A8F7E;       /* decorative / borders only — 2.8:1 */
+  --color-neutral-500: #6E6659;       /* smallest safe text — 5.0:1 */
+  --color-neutral-600: #574F44;       /* labels, secondary text — 7.2:1 */
+  --color-neutral-700: #423B32;       /* body text — 9.7:1 */
+  --color-neutral-800: #2E2921;
+  --color-neutral-900: #1C1811;       /* headings */
+
   /* Shadows with warmer tone */
   --shadow-soft: 0 2px 8px rgba(11, 107, 58, 0.08);
   --shadow-medium: 0 4px 16px rgba(11, 107, 58, 0.12);
@@ -127,21 +169,21 @@ img {
 /* Shared surface and button styles */
 .surface-card {
   background-color: #ffffff;
-  border: 1px solid #E5DFCE;
+  border: 1px solid var(--color-neutral-200);
   box-shadow: 0 2px 8px rgba(11, 107, 58, 0.08);
   border-radius: 3rem;
 }
 
 .surface-card-strong {
   background-color: #ffffff;
-  border: 1px solid #E5DFCE;
+  border: 1px solid var(--color-neutral-200);
   box-shadow: 0 4px 16px rgba(11, 107, 58, 0.12);
   border-radius: 3rem;
 }
 
 .surface-card-subtle {
-  background-color: #F5F1E8;
-  border: 1px solid #E5DFCE;
+  background-color: var(--color-neutral-100);
+  border: 1px solid var(--color-neutral-200);
   border-radius: 3rem;
 }
 
@@ -150,7 +192,7 @@ img {
   align-items: center;
   justify-content: center;
   border-radius: 2.5rem;
-  background-color: #0B6B3A;
+  background-color: var(--color-heritage-dark);
   color: white;
   font-weight: 900;
   text-transform: uppercase;
@@ -161,7 +203,7 @@ img {
 }
 
 .btn-primary:hover {
-  background-color: #064E2A;
+  background-color: var(--color-heritage-darker);
 }
 
 .btn-secondary {
@@ -169,9 +211,9 @@ img {
   align-items: center;
   justify-content: center;
   border-radius: 2.5rem;
-  border: 2px solid #0B6B3A;
+  border: 2px solid var(--color-heritage-dark);
   background-color: white;
-  color: #0B6B3A;
+  color: var(--color-heritage-dark);
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.22em;
@@ -180,7 +222,7 @@ img {
 }
 
 .btn-secondary:hover {
-  background-color: #F5F1E8;
+  background-color: var(--color-neutral-100);
 }
 
 .btn-accent {
@@ -188,7 +230,7 @@ img {
   align-items: center;
   justify-content: center;
   border-radius: 2.5rem;
-  background-color: #D4A373;
+  background-color: var(--color-accent-300);
   color: white;
   font-weight: 900;
   text-transform: uppercase;
@@ -199,7 +241,7 @@ img {
 }
 
 .btn-accent:hover {
-  background-color: #9C6B47;
+  background-color: var(--color-accent-700);
 }
 
 /* Status ribbon ticker animation (mobile) */

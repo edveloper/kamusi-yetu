@@ -1,7 +1,7 @@
-# Kamusi Yetu - Application Factsheet
+# LughaKonnect - Application Factsheet
 
 ## Problem
-Kenyan languages are underrepresented in digital tools, risking cultural and linguistic loss. Kamusi Yetu addresses this by building a community-driven dictionary and translation platform.
+Kenyan languages are underrepresented in digital tools, risking cultural and linguistic loss. LughaKonnect addresses this by building a community-driven dictionary and translation platform.
 
 ## Current Scale
 - **Active Languages:** 37

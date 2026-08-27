@@ -1,12 +1,12 @@
 # Grant Application Factsheet
 
 Date: April 2026
-Project: Kamusi Yetu
+Project: LughaKonnect
 Site: https://kamusi-yetu.vercel.app/
 
 ## One-Line Description
 
-Kamusi Yetu is a community-built dictionary and language infrastructure platform for Kenyan languages, designed to preserve underrepresented languages and build the lexical and phrase data needed for better translation systems.
+LughaKonnect is a community-built dictionary and language infrastructure platform for Kenyan languages, designed to preserve underrepresented languages and build the lexical and phrase data needed for better translation systems.
 
 ## Problem
 
@@ -16,7 +16,7 @@ If these languages are absent from machine-readable dictionaries, phrase banks, 
 
 ## What Exists Today
 
-Kamusi Yetu already supports:
+LughaKonnect already supports:
 
 - multilingual dictionary entries across active Kenyan languages
 - contribution and moderation workflows
@@ -26,7 +26,7 @@ Kamusi Yetu already supports:
 
 ## Current Product Position
 
-Kamusi Yetu is currently in the dictionary and phrase foundation stage.
+LughaKonnect is currently in the dictionary and phrase foundation stage.
 
 What works today:
 
@@ -63,9 +63,9 @@ Funding would accelerate the next practical milestone:
 
 ## Near-Term Milestone
 
-The next milestone is to make Kamusi Yetu clearly usable as public language infrastructure rather than only a promising prototype.
+The next milestone is to make LughaKonnect clearly usable as public language infrastructure rather than only a promising prototype.
 That means tighter trust signals, visible metrics, richer phrase/context coverage, and stronger public proof of quality controls.
 
 ## Reviewer Takeaway
 
-Kamusi Yetu should be evaluated as foundational language infrastructure for Kenyan languages: a technically serious, culturally important project that is early, real, and capable of compounding with focused support.
+LughaKonnect should be evaluated as foundational language infrastructure for Kenyan languages: a technically serious, culturally important project that is early, real, and capable of compounding with focused support.

@@ -64,7 +64,7 @@ export default function LanguagesPage() {
                         {lang.name}
                       </h3>
                       {lang.native_name && lang.native_name !== lang.name && (
-                        <p className="text-neutral-400 font-bold italic text-sm">
+                        <p className="text-neutral-600 font-bold italic text-sm">
                           &ldquo;{lang.native_name}&rdquo;
                         </p>
                       )}
@@ -76,9 +76,9 @@ export default function LanguagesPage() {
                   
                   <div className="mt-auto">
                     <div className="flex items-center justify-between py-4 border-t border-accent-100">
-                      <span className="text-xs font-black text-neutral-400 uppercase tracking-widest">Database</span>
+                      <span className="text-xs font-black text-neutral-600 uppercase tracking-widest">Database</span>
                       <span className="font-display font-black text-accent-700 text-xl">
-                        {languageCounts[lang.id] || 0} <span className="text-xs text-neutral-400 tracking-normal font-sans">words</span>
+                        {languageCounts[lang.id] || 0} <span className="text-xs text-neutral-600 tracking-normal font-sans">words</span>
                       </span>
                     </div>
                     

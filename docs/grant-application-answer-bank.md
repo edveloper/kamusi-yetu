@@ -1,16 +1,16 @@
 # Grant Application Answer Bank
 
 Date: April 2026
-Project: Kamusi Yetu
+Project: LughaKonnect
 Purpose: Reusable draft answers for fellowship and grant applications.
 
 ## Project Summary
 
-Kamusi Yetu is a community-built dictionary and language infrastructure platform for Kenyan languages. The project combines contribution workflows, moderation, bridge-based translation support, and language growth tracking to help preserve underrepresented languages and make them more usable in digital systems.
+LughaKonnect is a community-built dictionary and language infrastructure platform for Kenyan languages. The project combines contribution workflows, moderation, bridge-based translation support, and language growth tracking to help preserve underrepresented languages and make them more usable in digital systems.
 
 ## What Problem Are You Solving?
 
-Many Kenyan languages remain digitally underrepresented at the exact moment language technology is becoming more important. If a language is missing from searchable dictionaries, phrase banks, and machine-readable translation data, it is far less likely to be supported well in education tools, search, civic communication, and AI systems. Kamusi Yetu exists to help close that gap.
+Many Kenyan languages remain digitally underrepresented at the exact moment language technology is becoming more important. If a language is missing from searchable dictionaries, phrase banks, and machine-readable translation data, it is far less likely to be supported well in education tools, search, civic communication, and AI systems. LughaKonnect exists to help close that gap.
 
 ## Why Does This Matter?
 
@@ -18,7 +18,7 @@ Language absence becomes infrastructure absence. When a community's language is 
 
 ## What Have You Built So Far?
 
-So far, Kamusi Yetu includes a live public product with multilingual dictionary entries, search and discovery surfaces, contributor submission flows, moderation workflows, and bridge-assisted translation candidate generation through English and Swahili. The project also includes data-ingestion and quality-control workflows that support controlled language expansion.
+So far, LughaKonnect includes a live public product with multilingual dictionary entries, search and discovery surfaces, contributor submission flows, moderation workflows, and bridge-assisted translation candidate generation through English and Swahili. The project also includes data-ingestion and quality-control workflows that support controlled language expansion.
 
 ## What Works Today?
 
@@ -30,11 +30,11 @@ The platform is still deepening its phrase layer, usage-example coverage, and co
 
 ## What Makes This Different?
 
-Kamusi Yetu is not positioned as a generic content site. It is being built as foundational language infrastructure. That means the focus is not only on collecting words, but on building the review systems, bridge logic, contribution workflows, and machine-usable data structures needed to support better translation and broader language access over time.
+LughaKonnect is not positioned as a generic content site. It is being built as foundational language infrastructure. That means the focus is not only on collecting words, but on building the review systems, bridge logic, contribution workflows, and machine-usable data structures needed to support better translation and broader language access over time.
 
 ## Why Are You the Right Person To Build This?
 
-I am building Kamusi Yetu because I see a clear gap between the importance of Kenyan languages and their current representation in digital systems. My role has included product direction, data modeling, moderation architecture, and implementation. The work is founder-led, but the long-term model is to grow into a broader network of contributors, reviewers, linguists, and partner communities.
+I am building LughaKonnect because I see a clear gap between the importance of Kenyan languages and their current representation in digital systems. My role has included product direction, data modeling, moderation architecture, and implementation. The work is founder-led, but the long-term model is to grow into a broader network of contributors, reviewers, linguists, and partner communities.
 
 ## Why Now?
 
@@ -58,7 +58,7 @@ The long-term vision is to build high-quality African language infrastructure th
 
 ## Why Is This Fellowship A Fit?
 
-This fellowship is a strong fit if it is looking for founder-led projects that are early but real, technically serious, and capable of compounding with focused support. Kamusi Yetu already has meaningful infrastructure in place, and fellowship support would help convert that foundation into a stronger, more defensible public milestone.
+This fellowship is a strong fit if it is looking for founder-led projects that are early but real, technically serious, and capable of compounding with focused support. LughaKonnect already has meaningful infrastructure in place, and fellowship support would help convert that foundation into a stronger, more defensible public milestone.
 
 ## Traction Framing
 
@@ -66,4 +66,4 @@ The traction story should be framed as executional progress rather than inflated
 
 ## Short Founder Pitch
 
-I am building Kamusi Yetu to help ensure Kenyan languages are not left out of the digital systems shaping the future. The project starts with dictionary and phrase infrastructure, but the deeper goal is to build the data, review processes, and translation foundations needed for much better language access over time.
+I am building LughaKonnect to help ensure Kenyan languages are not left out of the digital systems shaping the future. The project starts with dictionary and phrase infrastructure, but the deeper goal is to build the data, review processes, and translation foundations needed for much better language access over time.

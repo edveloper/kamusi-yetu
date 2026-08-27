@@ -12,7 +12,7 @@ The goal is to evolve `Trending` from a metrics-and-missions page into a more vi
 1. shows where coverage is growing
 2. helps users discover active and underdocumented communities
 3. invites targeted contribution
-4. stays visually consistent with the rest of Kamusi Yetu
+4. stays visually consistent with the rest of LughaKonnect
 
 ## Product Role
 
@@ -36,7 +36,7 @@ So `Trending` should answer:
 The page should feel:
 
 - more visual than the current implementation
-- still grounded in the existing Kamusi Yetu visual language
+- still grounded in the existing LughaKonnect visual language
 - editorial rather than dashboard-heavy
 - rich in signal without feeling corporate or sterile
 
@@ -77,7 +77,7 @@ Important:
 
 - it must not imply one county belongs to only one language
 - it must not claim exact demographic or linguistic precision
-- it should represent curated dominant or notable language presence plus Kamusi Yetu coverage state
+- it should represent curated dominant or notable language presence plus LughaKonnect coverage state
 
 ### Recommended First Version
 

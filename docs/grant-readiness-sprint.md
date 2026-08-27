@@ -2,7 +2,7 @@
 
 Date: April 2026
 Status: Proposed tactical sprint
-Purpose: Raise Kamusi Yetu from a credible prototype to a stronger fellowship/grant application in 2 to 4 weeks.
+Purpose: Raise LughaKonnect from a credible prototype to a stronger fellowship/grant application in 2 to 4 weeks.
 
 ## Sprint Goal
 
@@ -13,7 +13,7 @@ It is about making the current project legible, credible, and defensible to an e
 
 ## Core Outcome
 
-At the end of this sprint, Kamusi Yetu should be able to demonstrate:
+At the end of this sprint, LughaKonnect should be able to demonstrate:
 
 1. A working public product with no obvious trust-breaking gaps.
 2. Precise public claims about what works today versus what is still in progress.

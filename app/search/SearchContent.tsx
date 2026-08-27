@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { searchEntries } from '@/lib/api/entries'
 import { getLanguages } from '@/lib/api/languages'
+import SearchAutocomplete from '@/components/SearchAutocomplete'
 import { getLanguageNote } from '@/lib/constants/languageNotes'
 import { groupLanguages } from '@/lib/constants/languageGroups'
 import { CATEGORIES } from '@/lib/constants'
@@ -31,15 +32,10 @@ export default function SearchContent() {
   const sortParam = (searchParams.get('sort') as SearchSort) || 'headword_asc'
   const kindParam = (searchParams.get('kind') as EntryKind) || 'all'
 
-  const [searchQuery, setSearchQuery] = useState(queryParam)
   const [results, setResults] = useState<any[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [languages, setLanguages] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    setSearchQuery(queryParam)
-  }, [queryParam])
 
   useEffect(() => {
     async function loadLanguages() {
@@ -101,16 +97,14 @@ export default function SearchContent() {
             {langParam !== 'all' && activeLanguage && (
               <p className="text-white/90 mb-6 text-sm md:text-base max-w-2xl">{getLanguageNote(activeLanguage.code)}</p>
             )}
-            <div className="relative group">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && updateUrl({ q: searchQuery })}
-                placeholder="Search headword or meaning..."
-                className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white px-6 py-4 rounded-xl focus:bg-white focus:text-neutral-900 transition-all font-bold placeholder:text-accent-100/40"
-              />
-            </div>
+            <SearchAutocomplete
+              key={queryParam}
+              defaultValue={queryParam}
+              language={langParam}
+              onPlainEnter={(value) => updateUrl({ q: value })}
+              placeholder="Search headword or meaning..."
+              inputClassName="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white px-6 py-4 rounded-xl focus:bg-white focus:text-neutral-900 transition-all font-bold placeholder:text-accent-100/40"
+            />
           </div>
         </div>
       </div>
@@ -256,7 +250,7 @@ export default function SearchContent() {
                     </div>
                   )}
                   <div className="pt-4 border-t border-neutral-50 flex justify-between items-center">
-                    <span className="text-[9px] font-black text-neutral-400 uppercase tracking-widest">Score: {entry.trust_score}%</span>
+                    <span className="text-[9px] font-black text-neutral-600 uppercase tracking-widest">Score: {entry.trust_score}%</span>
                     <span className="text-accent-600 text-xs font-black group-hover:translate-x-1 transition-transform">{'->'}</span>
                   </div>
                       </>

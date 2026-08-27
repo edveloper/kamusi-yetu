@@ -1,4 +1,4 @@
-# Before & After: Kamusi Yetu Rebranding
+# Before & After: LughaKonnect Rebranding
 
 ## Color Palette Transformation
 
@@ -113,7 +113,7 @@ Result: Distinctly Kenyan, culturally grounded, memorable
 ```jsx
 // Stone-950 (almost black) - Harsh, unwelcoming
 <footer className="bg-stone-950 text-stone-200 border-t border-stone-800">
-  <p className="text-emerald-300">Kamusi Yetu</p>
+  <p className="text-emerald-300">LughaKonnect</p>
   {/* Cold, corporate footer */}
 </footer>
 ```
@@ -123,7 +123,7 @@ Result: Distinctly Kenyan, culturally grounded, memorable
 // Heritage darker with pattern - Warm, rich, cultural
 <footer className="bg-heritage-darker text-neutral-100 border-t border-heritage-dark/30 pattern-kente">
   <h2 className="text-heritage-light font-display">
-    Kamusi Yetu
+    LughaKonnect
   </h2>
   {/* Warm, inviting, heritage-focused footer */}
 </footer>
@@ -136,7 +136,7 @@ Result: Distinctly Kenyan, culturally grounded, memorable
 #### BEFORE
 ```jsx
 <h1 className="text-7xl font-black text-stone-900">
-  Kamusi Yetu
+  LughaKonnect
 </h1>
 
 /* Sans-serif, looks like a tech company */
@@ -145,7 +145,7 @@ Result: Distinctly Kenyan, culturally grounded, memorable
 #### AFTER
 ```jsx
 <h1 className="text-7xl font-black font-display text-heritage-dark">
-  Kamusi Yetu
+  LughaKonnect
 </h1>
 
 /* Serif (Playfair Display), looks culturally grounded
@@ -258,7 +258,7 @@ Result:             Organic, welcoming, natural feel
 - Cultural reference: None
 
 ### AFTER
-- Looks like: Kamusi Yetu specifically
+- Looks like: LughaKonnect specifically
 - Color scheme: Distinctly Kenyan heritage
 - Emotion: Warm, welcoming, proud
 - Cultural reference: Maasai shuka, Kente cloth, beadwork, African aesthetics
@@ -330,10 +330,10 @@ Generic Green → Boring Grays → SaaS Dashboard Look
 AFTER:
 Heritage Green → Warm Cream → Distinctly Kenyan
 (#0B6B3A primary, #F5F1E8 background, textile patterns)
-(Could only be Kamusi Yetu - unique, memorable)
+(Could only be LughaKonnect - unique, memorable)
 ```
 
-The redesign transforms Kamusi Yetu from a **generic SaaS interface** into a **culturally grounded, heritage-focused platform** that celebrates and respects Kenyan languages and traditions.
+The redesign transforms LughaKonnect from a **generic SaaS interface** into a **culturally grounded, heritage-focused platform** that celebrates and respects Kenyan languages and traditions.
 
 ---
 
