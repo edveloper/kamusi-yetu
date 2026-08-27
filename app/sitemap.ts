@@ -9,8 +9,6 @@ const STATIC_PATHS: Array<{ path: string; priority: number; changeFrequency: Met
   { path: '', priority: 1.0, changeFrequency: 'daily' },
   { path: '/explore', priority: 0.9, changeFrequency: 'daily' },
   { path: '/translate', priority: 0.9, changeFrequency: 'weekly' },
-  { path: '/languages', priority: 0.8, changeFrequency: 'weekly' },
-  { path: '/categories', priority: 0.7, changeFrequency: 'weekly' },
   { path: '/trending', priority: 0.7, changeFrequency: 'daily' },
   { path: '/contribute', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/about', priority: 0.6, changeFrequency: 'monthly' },

@@ -508,3 +508,109 @@ export const getLanguageDirectory = unstable_cache(
   ['public-language-directory'],
   { revalidate: 300 }
 )
+
+export type BrowseParams = {
+  q?: string
+  language?: string
+  category?: string
+  letter?: string
+  kind?: 'all' | 'word' | 'phrase'
+  page?: number
+}
+
+export type BrowseRow = {
+  id: string
+  headword: string
+  primary_definition: string | null
+  english_translation: string | null
+  swahili_translation: string | null
+  part_of_speech: string | null
+  language: { id: string; name: string; code: string } | null
+  hasAudio: boolean
+}
+
+export const BROWSE_PAGE_SIZE = 40
+
+/**
+ * The single browse surface, rendered on the server.
+ *
+ * Results used to be fetched in the browser, which meant no filtered view was
+ * ever indexable and the first paint was always empty. Doing it here means
+ * /explore?language=luo&category=family is a real page a search engine can
+ * read, and every filter is a plain link rather than a click handler.
+ */
+export async function getBrowseResults(params: BrowseParams) {
+  const page = Math.max(0, params.page ?? 0)
+  const from = page * BROWSE_PAGE_SIZE
+  const q = String(params.q ?? '').trim()
+
+  let query = supabase
+    .from('entries')
+    .select(
+      'id, headword, primary_definition, english_translation, swahili_translation, part_of_speech, language:languages(id, name, code)',
+      { count: 'exact' }
+    )
+    .eq('validation_status', 'verified')
+    .eq('needs_orthography_review', false)
+
+  if (q) {
+    const safe = q.replace(/[%,()]/g, ' ').trim()
+    query = query.or(
+      [
+        `headword.ilike.${safe}%`,
+        `headword.ilike.%${safe}%`,
+        `english_translation.ilike.%${safe}%`,
+        `swahili_translation.ilike.%${safe}%`,
+        `primary_definition.ilike.%${safe}%`,
+      ].join(',')
+    )
+  }
+  if (params.language && params.language !== 'all') query = query.eq('language_id', params.language)
+  if (params.category && params.category !== 'all') query = query.eq('category', params.category)
+  if (params.letter && params.letter !== 'all') query = query.ilike('headword', `${params.letter}%`)
+  if (params.kind === 'phrase') query = query.eq('part_of_speech', 'phrase')
+  if (params.kind === 'word') query = query.or('part_of_speech.is.null,part_of_speech.neq.phrase')
+
+  const { data, count, error } = await query
+    .order('headword', { ascending: true })
+    .range(from, from + BROWSE_PAGE_SIZE - 1)
+
+  if (error) return { rows: [], total: 0, page, hasMore: false }
+
+  const rows = (data ?? []) as Array<Record<string, unknown>>
+  const ids = rows.map((row) => String(row.id))
+
+  // Which of these can be heard. One query rather than one per row.
+  const withAudio = new Set<string>()
+  if (ids.length > 0) {
+    const { data: recordings } = await supabase
+      .from('recordings')
+      .select('entry_id')
+      .in('entry_id', ids)
+      .eq('validation_status', 'verified')
+      .eq('is_withdrawn', false)
+    for (const row of (recordings ?? []) as Array<{ entry_id: string }>) {
+      withAudio.add(row.entry_id)
+    }
+  }
+
+  const total = count ?? 0
+  return {
+    rows: rows.map((row) => {
+      const lang = Array.isArray(row.language) ? row.language[0] : row.language
+      return {
+        id: String(row.id),
+        headword: String(row.headword ?? ''),
+        primary_definition: (row.primary_definition as string | null) ?? null,
+        english_translation: (row.english_translation as string | null) ?? null,
+        swahili_translation: (row.swahili_translation as string | null) ?? null,
+        part_of_speech: (row.part_of_speech as string | null) ?? null,
+        language: (lang as BrowseRow['language']) ?? null,
+        hasAudio: withAudio.has(String(row.id)),
+      } satisfies BrowseRow
+    }),
+    total,
+    page,
+    hasMore: from + rows.length < total,
+  }
+}

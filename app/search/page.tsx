@@ -1,21 +1,18 @@
-import { Suspense } from 'react'
-import SearchContent from './SearchContent'
+import { redirect } from 'next/navigation'
 
-export default function SearchPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center font-sans">
-        <div className="text-center">
-          {/* Using heritage-dark for the spinner to match your header */}
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-heritage-dark mx-auto mb-6"></div>
-          {/* Using the subtle wide-tracked uppercase style for the text */}
-          <p className="text-neutral-600 font-black uppercase tracking-[0.3em] text-[10px]">
-            Accessing Archive...
-          </p>
-        </div>
-      </div>
-    }>
-      <SearchContent />
-    </Suspense>
-  )
+// /search was a separate results page. Browse now does this, server-rendered,
+// so old links and bookmarks carry their query straight across.
+export default async function SearchRedirect({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+  const params = await searchParams
+  const search = new URLSearchParams()
+  for (const [key, value] of Object.entries(params)) {
+    const v = Array.isArray(value) ? value[0] : value
+    if (v) search.set(key, v)
+  }
+  const qs = search.toString()
+  redirect(qs ? `/explore?${qs}` : '/explore')
 }

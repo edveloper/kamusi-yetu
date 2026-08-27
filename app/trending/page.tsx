@@ -398,7 +398,7 @@ export default function TrendingPage() {
                 {popularCommunities.map((language) => {
                   const maturity = getLanguageMaturityDefinition(language.maturity)
                   return (
-                    <Link key={language.id} href={`/search?language=${encodeURIComponent(language.id)}`} className="block">
+                    <Link key={language.id} href={`/explore?language=${encodeURIComponent(language.id)}`} className="block">
                     <div key={language.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 hover:bg-neutral-100 hover:border-ink-200 transition">
                         <div className="flex items-start justify-between gap-4 mb-3">
                           <div>
