@@ -115,12 +115,21 @@ create index if not exists idx_entries_orthography_review
 select count(*) as flagged_for_orthography_review
   from public.entries where needs_orthography_review;
 
--- Block the corruption from ever being written again.
+-- Block new corruption, while still allowing the flagged rows to be repaired.
+--
+-- NOTE: the first version of this used `not valid`, intending to exempt the
+-- existing 80 rows. That is not what NOT VALID does - it only skips the one-off
+-- validation scan, and the constraint still fires on every later UPDATE. That
+-- broke the concept backfill in 112 and, worse, would have made the quarantined
+-- rows impossible for a moderator to correct. Corrected here and in 113.
 alter table public.entries
   drop constraint if exists entries_headword_no_replacement_char;
 alter table public.entries
   add constraint entries_headword_no_replacement_char
-  check (headword not like '%' || U&'\FFFD' || '%') not valid;
+  check (
+    headword not like '%' || U&'\FFFD' || '%'
+    or needs_orthography_review
+  );
 
 
 -- =========================================================================
