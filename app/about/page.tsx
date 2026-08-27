@@ -1,214 +1,243 @@
-'use client'
-
+import type { Metadata } from 'next'
 import Link from 'next/link'
+import { SITE_URL } from '@/lib/constants/site'
+import { getCorpusHeadline, getLanguageCoverage } from '@/lib/public-site'
+import CountUp from '@/components/ui/CountUp'
 
-export default function AboutPage() {
-  const maturityLevels = [
-    {
-      title: 'Starter',
-      desc: 'A language has enough verified seed entries to appear in the product, but still needs more words, phrases, and examples.',
-    },
-    {
-      title: 'Growing',
-      desc: 'Word coverage is improving and phrase packs are underway, making the dictionary increasingly useful for daily lookups.',
-    },
-    {
-      title: 'Phrase-Ready',
-      desc: 'A language has meaningful phrase coverage and usage context, so translation quality improves beyond isolated words.',
-    },
-    {
-      title: 'Review-Heavy',
-      desc: 'A language is visible, but entries still need deeper expert or community review before it can be treated as broadly reliable.',
-    },
-  ]
+// Funders, journalists and prospective collaborators land here. The job is to
+// establish that this is serious and that the person behind it knows why, in
+// about thirty seconds of reading.
+//
+// It absorbs the old Team page. Two pages said overlapping things in two
+// different voices, and the weaker voice was on the more-visited one.
+
+export const revalidate = 300
+
+export const metadata: Metadata = {
+  title: 'About',
+  description:
+    'Why LughaKonnect exists, what it has so far, and what it is trying to become. Written by the person building it.',
+  alternates: { canonical: `${SITE_URL}/about` },
+}
+
+export default async function AboutPage() {
+  const [headline, coverage] = await Promise.all([getCorpusHeadline(), getLanguageCoverage()])
+  const recordings = coverage.reduce((sum, l) => sum + l.verified_recordings, 0)
 
   return (
-    <div className="min-h-screen bg-neutral-100 pb-20">
-      <div className="relative overflow-hidden bg-heritage-dark text-white py-20 md:py-28 px-4 sm:px-6">
-        <div className="relative max-w-5xl mx-auto text-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-accent-300 mb-4 font-semibold">Our Mission</p>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-display">Preserving Our Voice</h1>
-          <p className="mt-6 text-base md:text-lg text-white max-w-2xl mx-auto leading-8">
-            Kenya speaks more than 40 languages. We're building a digital home for them: recorded, searchable, and owned by the people who speak them.
+    <div className="min-h-screen bg-paper">
+      {/* Scroll progress. No listener, no state, just a scroll timeline. */}
+      <div
+        aria-hidden="true"
+        className="read-progress fixed inset-x-0 top-0 z-[60] h-[3px] origin-left bg-signal-500"
+      />
+
+      {/* ------------------------------------------------------------ open */}
+      <header className="border-b border-ink-900 bg-ink-900 text-paper">
+        <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 md:py-24">
+          <p className="mark label mb-6 text-signal-300">About</p>
+          <h1 className="display reveal-wipe text-4xl sm:text-5xl md:text-6xl">
+            Most Kenyan languages have never been written down in a form a computer can read
+          </h1>
+          <p className="definition mt-8 max-w-xl text-ink-300">
+            Not because nobody speaks them. Because nobody has been paid to type them out,
+            record them, and put the result somewhere a keyboard or a translation model could
+            reach it.
           </p>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-4xl mx-auto px-4 -mt-16 relative z-20">
-        <section className="bg-neutral-100 shadow-soft border border-ink-200 p-10 md:p-16 mb-12">
-          <div className="flex items-center gap-4 mb-8">
-            <span className="text-4xl text-accent-700">KE</span>
-            <h2 className="text-4xl font-black text-heritage-dark font-display">The Mission</h2>
-          </div>
-          <div className="space-y-8">
-            <p className="text-xl text-neutral-700 leading-relaxed font-medium">
-              <span className="text-accent-700 font-black">LughaKonnect</span> is a dictionary built by the people who speak the languages in it, from the Swahili coast to the Kikuyu highlands, the Samburu pasturelands to the shores of Lake Victoria. Each entry is contributed and verified by native speakers, not scraped or machine-guessed.
+      {/* -------------------------------------------------------- the person */}
+      <section className="border-b border-ink-200">
+        <div className="mx-auto grid max-w-5xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1fr_1.6fr] md:gap-16">
+          <div className="md:sticky md:top-24 md:self-start">
+            <h2 className="mark label mb-3 text-ink-600">Who is doing this</h2>
+            <p className="display text-2xl text-ink-900">Eddie Ezekiel Ochieng</p>
+            <p className="mt-1.5 text-sm text-ink-600">
+              Founder, and currently the only engineer
             </p>
-            <p className="text-xl text-neutral-700 leading-relaxed italic border-l-4 border-accent-100 pl-8 py-2">
-              &ldquo;When a language dies, a way of seeing the world dies with it. We're here to keep our languages alive.&rdquo;
-            </p>
-            <p className="text-lg text-neutral-700 leading-relaxed font-medium">
-              Today the dictionary holds verified words across dozens of Kenyan languages, and we're adding the phrases, proverbs, and usage notes that show how people actually speak. It's slow, careful work, and the kind that doesn't happen unless someone decides it matters.
-            </p>
-          </div>
-        </section>
-
-        <section className="grid md:grid-cols-2 gap-8 mb-20">
-          <div className="bg-accent-50 p-10 border border-ink-200 shadow-soft hover:shadow-medium transition-all">
-            <div className="w-14 h-14 bg-accent-100 rounded-2xl flex items-center justify-center text-3xl mb-6 text-heritage-dark">DB</div>
-            <h3 className="text-2xl font-black text-heritage-dark mb-4 font-display">Preservation</h3>
-            <p className="text-neutral-700 leading-relaxed font-medium">
-              We focus on recording rare dialects, proverbs, and specialized vocabulary before they fade from daily conversation.
-            </p>
-          </div>
-          <div className="bg-heritage-dark p-10 text-white shadow-soft relative overflow-hidden">
-            <div className="w-14 h-14 bg-accent-100 text-heritage-dark rounded-2xl flex items-center justify-center text-3xl mb-6">OK</div>
-            <h3 className="text-2xl font-black mb-4 font-display">Community</h3>
-            <p className="text-accent-100 opacity-90 leading-relaxed font-medium">
-              Native speakers are the ultimate authorities, and reviewing rights are granted per language. Most of what is here was seeded from published sources and is waiting for native speakers to check it.
-            </p>
-          </div>
-        </section>
-
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-black text-heritage-dark font-display mb-4">How it Works</h2>
-          <p className="text-neutral-500 font-bold uppercase tracking-widest text-xs">From your language to the dictionary</p>
-        </div>
-
-        <div className="grid gap-6 mb-24">
-          {[
-            { step: 1, title: 'Contribute', desc: 'Document words, pronunciations, and usage from your home language.' },
-            { step: 2, title: 'Verify', desc: 'Community elders and language experts review entries for cultural accuracy.' },
-            { step: 3, title: 'Learn', desc: 'Students, writers, and linguists search and preserve the vocabulary.' },
-          ].map((item) => (
-            <div
-              key={item.step}
-              className="group flex flex-col md:flex-row items-center gap-8 bg-neutral-100 p-8 rounded-3xl border border-accent-200 shadow-soft hover:border-accent-300 transition-all"
+            <a
+              href="https://www.eddie-ezekiel.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-block text-sm font-semibold text-signal-600 underline underline-offset-4"
             >
-              <div className="w-20 h-20 bg-accent-50 text-accent-700 flex items-center justify-center text-4xl font-black shrink-0 group-hover:bg-accent-300 group-hover:text-white transition-all duration-500 font-display">
-                {item.step}
-              </div>
-              <div className="text-center md:text-left">
-                <h3 className="text-2xl font-black text-heritage-dark mb-2 font-display">{item.title}</h3>
-                <p className="text-lg text-neutral-500 font-medium leading-relaxed">{item.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+              eddie-ezekiel.com
+            </a>
+          </div>
 
-        <section className="bg-neutral-100 shadow-soft border border-ink-200 p-8 md:p-16 mb-16">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
-            <div>
-              <span className="text-sm font-black uppercase tracking-widest text-accent-700">Our Progress</span>
-              <h2 className="text-3xl md:text-4xl font-black text-heritage-dark font-display mt-2">Where We Are Now</h2>
-            </div>
-            <span className="inline-flex items-center rounded-full bg-accent-50 border border-accent-100 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-accent-700">
-              Phase 2 In Progress
-            </span>
+          <div className="reveal">
+            <p className="definition mb-5 text-ink-800">
+              I started this because too many Kenyan languages are digitally invisible at exactly
+              the moment language technology is moving fastest. If a language is missing from
+              dictionaries, phrase banks and machine-readable datasets today, it does not simply
+              stay where it is. It falls further behind, and the people who speak it lose access
+              to tools everyone else gets by default.
+            </p>
+            <p className="mb-5 text-ink-700">
+              My role here is not only technical. I am deciding the data model, the moderation
+              rules, what counts as verified and what does not, and how the translation layer
+              should work as it grows past single words. Those choices matter more than the code.
+            </p>
+            <p className="text-ink-700">
+              I also build{' '}
+              <a
+                href="https://www.usalama-voice.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-signal-600 underline underline-offset-2"
+              >
+                Usalama Voice
+              </a>
+              , an anti-GBV platform for emergency response and survivor support in Kenya. The
+              two are connected. In a crisis, a person needs to understand instructions and
+              describe what happened in the language they trust most, and that only works if
+              the language exists in the system.
+            </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-5 mb-10">
-            <div className="rounded-2xl border border-neutral-100 bg-neutral-50 p-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-600 mb-2">Available Today</p>
-              <p className="text-neutral-700 font-medium">Verified word entries, bridge translation, moderation workflows, and active language expansion.</p>
-            </div>
-            <div className="rounded-2xl border border-neutral-100 bg-neutral-50 p-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-600 mb-2">Growing Next</p>
-              <p className="text-neutral-700 font-medium">Phrase packs, usage examples, subgroup rollouts, and phrase-aware search and moderation.</p>
-            </div>
-            <div className="rounded-2xl border border-neutral-100 bg-neutral-50 p-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-600 mb-2">Why Context Matters</p>
-              <p className="text-neutral-700 font-medium">Enough contextual data to support sentence translation that is better than simple word substitution.</p>
-            </div>
-          </div>
-          <div>
-            <h3 className="text-2xl font-black text-heritage-dark font-display mb-5">Quality & Trust</h3>
-            <div className="grid md:grid-cols-3 gap-4 mb-8">
-              <div className="rounded-2xl border border-accent-100 bg-accent-50 p-5">
-                <p className="font-black text-heritage-dark mb-2">Verified Entries</p>
-                <p className="text-neutral-600 font-medium text-sm">Every entry is reviewed by a moderator for accuracy, completeness, and cultural appropriateness.</p>
-              </div>
-              <div className="rounded-2xl border border-accent-100 bg-accent-50 p-5">
-                <p className="font-black text-heritage-dark mb-2">Bridge Coverage</p>
-                <p className="text-neutral-600 font-medium text-sm">All entries have English and/or Swahili translations to ensure discoverability and cross-language search.</p>
-              </div>
-              <div className="rounded-2xl border border-accent-100 bg-accent-50 p-5">
-                <p className="font-black text-heritage-dark mb-2">Open & Transparent</p>
-                <p className="text-neutral-600 font-medium text-sm">Contributions, moderation decisions, and data gaps are visible. Community feedback shapes decisions.</p>
-              </div>
-            </div>
-          </div>
-          <div>
-            <h3 className="text-2xl font-black text-heritage-dark font-display mb-5">How Language Growth Works</h3>
-            <div className="grid md:grid-cols-2 gap-4">
-              {maturityLevels.map((item) => (
-                <div key={item.title} className="rounded-2xl border border-accent-200 bg-neutral-100 p-5">
-                  <p className="text-lg font-black text-heritage-dark mb-2">{item.title}</p>
-                  <p className="text-neutral-600 font-medium leading-relaxed">{item.desc}</p>
+        </div>
+      </section>
+
+      {/* --------------------------------------------------------- the quote */}
+      <section className="border-b border-ink-200 bg-ink-900 text-paper">
+        <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 md:py-20">
+          <blockquote className="reveal">
+            <p className="display text-3xl leading-tight sm:text-4xl md:text-5xl">
+              If our languages are absent from the systems shaping the future, our communities
+              are absent from that future too
+            </p>
+          </blockquote>
+        </div>
+      </section>
+
+      {/* -------------------------------------------------------- the numbers */}
+      {headline && (
+        <section className="border-b border-ink-200">
+          <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
+            <h2 className="mark label mb-8 text-ink-600">Where it stands, honestly</h2>
+            <dl className="reveal-rows grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4">
+              {[
+                { value: headline.indigenous_entries, label: 'Words a person has checked' },
+                { value: headline.languages, label: 'Languages' },
+                { value: recordings, label: 'Recordings' },
+                { value: headline.awaiting_curation + headline.awaiting_orthography, label: 'Entries still not good enough to publish' },
+              ].map((stat) => (
+                <div key={stat.label}>
+                  <dd className="headword tabular text-5xl text-ink-900 md:text-6xl">
+                    <CountUp value={stat.value} />
+                  </dd>
+                  <dt className="mt-2 text-sm font-semibold text-ink-700">{stat.label}</dt>
                 </div>
               ))}
+            </dl>
+
+            <div className="mt-12 grid gap-8 md:grid-cols-2 md:gap-14">
+              <p className="text-ink-700">
+                Most of what is here was seeded from published sources, not contributed by
+                speakers. About {headline.awaiting_curation.toLocaleString()} entries still have
+                a placeholder where a definition should be, and{' '}
+                {headline.awaiting_orthography.toLocaleString()} have spelling corrupted by an
+                old import that we will not guess at. Both are hidden from the public corpus and
+                counted nowhere except here.
+              </p>
+              <p className="text-ink-700">
+                {recordings === 0
+                  ? 'There are no recordings at all yet. That is the largest single gap, and it is the one that decides whether any of this can ever support speech.'
+                  : `There are ${recordings.toLocaleString()} recordings so far. Audio is the gap that matters most, because it is the part that cannot be collected later from speakers who are no longer here.`}{' '}
+                <Link
+                  href="/guidelines"
+                  className="font-semibold text-signal-600 underline underline-offset-2"
+                >
+                  How we decide what counts
+                </Link>
+                .
+              </p>
             </div>
           </div>
         </section>
+      )}
 
-        <section className="bg-neutral-100 shadow-soft border border-accent-200 p-8 md:p-16 mb-16 overflow-hidden">
-          <div className="flex flex-col gap-3 mb-8">
-            <span className="text-sm font-black uppercase tracking-widest text-accent-700">Roadmap</span>
-            <h2 className="text-3xl md:text-4xl font-black text-heritage-dark font-display leading-tight break-words">
-              From Dictionary to Translation Platform
-            </h2>
-          </div>
-          <div className="space-y-5">
+      {/* ------------------------------------------------------ what it is for */}
+      <section className="border-b border-ink-200">
+        <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
+          <h2 className="mark display mb-8 text-2xl md:text-3xl">What it is for</h2>
+          <ul className="reveal-rows border-t border-ink-200">
             {[
               {
-                title: 'Phase 1 - Dictionary Foundation',
-                desc: 'Build verified word entries, bridge translations (EN/SW), moderation workflows, and language expansion.',
+                title: 'A dictionary that works on a phone',
+                body: 'Search any Kenyan language, in English, Kiswahili, or the language itself, and hear how a word is actually said.',
               },
               {
-                title: 'Phase 2 - Phrase Layer (Current)',
-                desc: 'Add high-frequency phrase packs with usage context, formality, and domain tags for real conversational meaning.',
+                title: 'Translation between Kenyan languages',
+                body: 'Not only to and from English. Two languages that record a word for the same meaning can reach each other directly.',
               },
               {
-                title: 'Phase 3 - Sentence Translation',
-                desc: 'Use phrase memory, bridge logic, and curated examples to improve sentence-level translation quality.',
+                title: 'Training data anyone can use',
+                body: 'Licensed CC BY 4.0 so a keyboard maker, a researcher or a speech company can build on it, provided they credit the people it came from.',
               },
               {
-                title: 'Phase 4 - Document Translation',
-                desc: 'Support full document workflows with glossary consistency, quality scoring, and human-in-the-loop review.',
-              },
-              {
-                title: 'Phase 5 - Live Speech Translation',
-                desc: 'Expand into real-time speech-to-text and text-to-speech translation for multilingual conversations and events.',
-              },
-              {
-                title: 'Phase 6 - Domain Intelligence',
-                desc: 'Develop academic, healthcare, legal, research, and wearable-device translation use cases with safer terminology controls.',
+                title: 'A record that outlasts its speakers',
+                body: 'Some of these languages have few fluent speakers left. Written entries with recorded audio are what survive them.',
               },
             ].map((item) => (
-              <div key={item.title} className="rounded-2xl border border-neutral-100 bg-neutral-50 p-5">
-                <h3 className="text-lg font-black text-neutral-900 mb-1">{item.title}</h3>
-                <p className="text-neutral-600 font-medium">{item.desc}</p>
+              <li
+                key={item.title}
+                className="grid gap-x-10 gap-y-2 border-b border-ink-200 py-6 md:grid-cols-[1fr_1.4fr]"
+              >
+                <h3 className="text-lg font-semibold text-ink-900">{item.title}</h3>
+                <p className="text-ink-700">{item.body}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* ---------------------------------------------------------- who helps */}
+      <section className="border-b border-ink-200">
+        <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
+          <h2 className="mark display mb-4 text-2xl md:text-3xl">Who should be doing this with me</h2>
+          <p className="mb-8 max-w-2xl text-ink-700">
+            It started as a community project and it still is, but the more I look at what
+            it has to become, the clearer it is that community contribution alone will not get
+            there. Reviewing rights are granted per language, so a speaker of one language never
+            has authority over another.
+          </p>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ['First-language speakers', 'The final authority on their language. No degree required, and none implied.'],
+              ['Linguists and students', 'Structure, orthography, and the judgement calls that need training.'],
+              ['Institutions', 'Universities, archives and language bodies with material already collected.'],
+              ['Engineers', 'The speech layer, the export formats, and everything after the dictionary.'],
+            ].map(([title, body]) => (
+              <div key={title} className="border-t-2 border-ink-900 pt-4">
+                <h3 className="font-semibold text-ink-900">{title}</h3>
+                <p className="mt-2 text-sm text-ink-700">{body}</p>
               </div>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        <div className="bg-heritage-dark rounded-2xl p-12 md:p-16 text-white shadow-strong">
-          <div className="text-center">
-            <h2 className="text-4xl font-black font-display mb-4">Join the Movement</h2>
-            <p className="text-white text-lg font-medium mb-8 max-w-3xl mx-auto">
-              Our target is 10,000 verified Kenyan words with audio. Will your mother tongue be represented?
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link href="/contribute" className="px-8 py-4 rounded-lg bg-accent-300 text-heritage-dark font-black text-lg hover:bg-accent-400 transition shadow-soft">
-                Start Contributing
-              </Link>
-              <Link href="/explore" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-ink-800 transition">
-                Explore Dictionary
-              </Link>
-            </div>
+      {/* ------------------------------------------------------------- close */}
+      <section className="bg-paper-warm">
+        <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
+          <h2 className="display mb-4 max-w-2xl text-2xl md:text-3xl">
+            If you speak one of these languages, you already have what this needs
+          </h2>
+          <p className="mb-7 max-w-2xl text-ink-700">
+            A word takes about a minute. A recording takes ten seconds. If you work in language,
+            research or education and want to do something larger, get in touch.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/contribute/gaps" className="btn-primary">
+              Add a word
+            </Link>
+            <Link href="/contact" className="btn-secondary">
+              Get in touch
+            </Link>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   )
 }

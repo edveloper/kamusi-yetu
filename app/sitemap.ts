@@ -13,7 +13,6 @@ const STATIC_PATHS: Array<{ path: string; priority: number; changeFrequency: Met
   { path: '/contribute', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/about', priority: 0.6, changeFrequency: 'monthly' },
   { path: '/guidelines', priority: 0.5, changeFrequency: 'monthly' },
-  { path: '/team', priority: 0.4, changeFrequency: 'monthly' },
   { path: '/contact', priority: 0.3, changeFrequency: 'yearly' },
 ]
 

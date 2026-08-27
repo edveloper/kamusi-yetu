@@ -497,3 +497,42 @@ img {
   ::view-transition-old(*),
   ::view-transition-new(*) { animation: none !important; }
 }
+
+
+/* ---------------------------------------------------------------------------
+ * Reading motion, for long-form pages.
+ * Scroll-progress via animation-timeline: scroll(), which needs no listener and
+ * no state. Unsupported browsers get a bar that simply sits at zero width, so
+ * it is hidden from them entirely rather than left looking broken.
+ * ------------------------------------------------------------------------- */
+
+@keyframes lk-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.read-progress { display: none; }
+
+@supports (animation-timeline: scroll()) {
+  .read-progress {
+    display: block;
+    transform-origin: 0 50%;
+    animation: lk-progress linear;
+    animation-timeline: scroll(root block);
+  }
+
+  /* A heading that dims as it leaves, so the section you are in is the one that
+   * reads brightest. Cheap, and it does something true. */
+  .fade-out-up {
+    animation: lk-dim linear both;
+    animation-timeline: view();
+    animation-range: exit 0% exit 90%;
+  }
+}
+
+@keyframes lk-dim { to { opacity: .25; } }
+
+/* Chapter rail: the current section marker fills. */
+.rail-dot { transition: background-color 200ms ease-out, transform 200ms ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .read-progress { display: none; }
+  .fade-out-up { animation: none; opacity: 1; }
+}

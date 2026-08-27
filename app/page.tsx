@@ -29,15 +29,15 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------- hero */}
       <section className="border-b border-ink-900 bg-ink-900 text-paper">
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-24">
-          <p className="label mb-6 text-signal-300">An open corpus of Kenyan languages</p>
+          <p className="mark label mb-6 text-signal-300">Open corpus, CC BY 4.0</p>
           <h1 className="display reveal-wipe max-w-4xl text-5xl sm:text-6xl md:text-7xl lg:text-8xl">
-            Kenya speaks over 40 languages.
+            A dictionary for the languages
             <br />
-            <span className="text-signal-300">Your phone speaks two.</span>
+            that <span className="text-signal-300">do not have one</span>
           </h1>
           <p className="definition mt-8 max-w-xl text-ink-300">
-            We are writing the rest of them into the systems being built right now. Word by
-            word, voice by voice, by the people who actually speak them.
+            Kenyan languages, written down and recorded by people who speak them, in a form
+            translation and speech software can actually use.
           </p>
 
           <div className="mt-12 border-t border-ink-700 pt-10">
