@@ -536,3 +536,89 @@ img {
   .read-progress { display: none; }
   .fade-out-up { animation: none; opacity: 1; }
 }
+
+
+/* ===========================================================================
+ * Motion, part two.
+ *
+ * One idea per page rather than reveals sprinkled everywhere:
+ *   Coverage   the map plots itself, and every bar fills to its real value
+ *   Browse     results stagger, and filtering morphs instead of jumping
+ *   Translate  the answer lands, and morphs into the next answer
+ *   Contribute each prompt arrives as its own card
+ *
+ * Everything here is either compositor-driven or scroll-timeline driven, so
+ * none of it runs JavaScript on scroll.
+ * ======================================================================== */
+
+/* --- bars that fill to their real value when you reach them -------------- */
+@keyframes lk-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.bar-fill {
+  transform-origin: 0 50%;
+  transform: scaleX(1);
+}
+
+@supports (animation-timeline: view()) {
+  .bar-fill {
+    animation: lk-fill 700ms cubic-bezier(.2,.7,.3,1) both;
+    animation-timeline: view();
+    animation-range: entry 10% cover 22%;
+  }
+}
+
+/* --- staggered entry, index passed in as --i ---------------------------- */
+@keyframes lk-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.stagger > * {
+  animation: lk-in 420ms cubic-bezier(.2,.7,.3,1) both;
+  animation-delay: calc(var(--i, 0) * 28ms);
+}
+
+/* --- the map plotting itself ------------------------------------------- */
+@keyframes lk-plot {
+  from { opacity: 0; transform: translateY(6px) scale(.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+.county {
+  animation: lk-plot 520ms cubic-bezier(.2,.7,.3,1) both;
+  animation-delay: calc(var(--i, 0) * 11ms);
+  transform-origin: center;
+}
+
+@keyframes lk-pin { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: scale(1); } }
+
+.county-pin {
+  animation: lk-pin 340ms cubic-bezier(.34,1.56,.5,1) both;
+  animation-delay: calc(600ms + var(--i, 0) * 11ms);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* --- an answer arriving ------------------------------------------------- */
+@keyframes lk-land {
+  from { opacity: 0; transform: translateY(14px) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+.land { animation: lk-land 460ms cubic-bezier(.2,.75,.25,1) both; }
+.land-late { animation-delay: 140ms; }
+
+/* --- morphing between server-rendered states ---------------------------- */
+/* Filtering Browse and re-translating both navigate, so the pieces that
+ * persist across the navigation are named and the browser tweens them. */
+.vt-results { view-transition-name: results; }
+.vt-answer  { view-transition-name: answer; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-fill, .stagger > *, .county, .county-pin, .land {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+  .vt-results, .vt-answer { view-transition-name: none; }
+}

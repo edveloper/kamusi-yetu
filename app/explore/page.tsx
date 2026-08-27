@@ -239,9 +239,13 @@ export default async function BrowsePage({ searchParams }: { searchParams: Searc
                 </Link>
               </div>
             ) : (
-              <ul className="reveal-rows border-t border-ink-200">
-                {rows.map((row) => (
-                  <li key={row.id} className="border-b border-ink-200">
+              <ul className="vt-results stagger border-t border-ink-200">
+                {rows.map((row, index) => (
+                  <li
+                    key={row.id}
+                    style={{ '--i': index } as React.CSSProperties}
+                    className="border-b border-ink-200"
+                  >
                     <Link
                       href={`/entry/${row.id}`}
                       className="group grid gap-x-6 gap-y-1 py-4 transition-colors hover:bg-paper-warm sm:grid-cols-[minmax(9rem,14rem)_1fr]"

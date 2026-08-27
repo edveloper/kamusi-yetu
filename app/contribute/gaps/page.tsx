@@ -182,7 +182,8 @@ function ContributeGaps() {
             <div className="mt-4">
               <div className="flex h-1.5 w-full bg-ink-200">
                 <div
-                  className="h-full bg-signal-500"
+                  key={coverage.language_id}
+                  className="bar-fill h-full bg-signal-500"
                   style={{ width: `${Math.min(100, Math.max(1, coverage.percent_covered))}%` }}
                 />
               </div>
@@ -219,7 +220,7 @@ function ContributeGaps() {
               {current.domain && <p className="label text-signal-500">{current.domain}</p>}
             </div>
 
-            <div className="border-y-2 border-ink-900 py-8">
+            <div key={current.concept_id} className="land border-y-2 border-ink-900 py-8">
               <p className="headword text-5xl text-ink-900 sm:text-6xl">
                 {current.gloss_en || current.gloss_sw}
               </p>
@@ -277,7 +278,7 @@ function ContributeGaps() {
 
         {justSaved && (
           <div>
-            <div className="border-y-2 border-ink-900 py-8">
+            <div className="land border-y-2 border-ink-900 py-8">
               <p className="mark label mb-3 text-signal-500">Saved</p>
               <p className="headword text-5xl text-ink-900 sm:text-6xl">{justSaved.headword}</p>
               {justSaved.gloss && <p className="mt-3 text-lg text-ink-600">{justSaved.gloss}</p>}
@@ -328,10 +329,11 @@ function ContributeGaps() {
         {saved.length > 0 && (
           <div className="mt-14 border-t border-ink-200 pt-8">
             <h2 className="mark label mb-4 text-ink-600">Added this session</h2>
-            <ul className="reveal-rows border-t border-ink-200">
-              {saved.slice(0, 10).map((item) => (
+            <ul className="stagger border-t border-ink-200">
+              {saved.slice(0, 10).map((item, index) => (
                 <li
                   key={item.id}
+                  style={{ '--i': index } as React.CSSProperties}
                   className="flex flex-wrap items-baseline justify-between gap-x-6 border-b border-ink-200 py-3"
                 >
                   <Link

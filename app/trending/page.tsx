@@ -134,10 +134,14 @@ export default async function CoveragePage() {
                   <th className="label py-3 text-right text-ink-600">Voices</th>
                 </tr>
               </thead>
-              <tbody>
-                {strongest.map((language) => {
+              <tbody className="stagger">
+                {strongest.map((language, index) => {
                   return (
-                    <tr key={language.language_id} className="border-b border-ink-200">
+                    <tr
+                      key={language.language_id}
+                      style={{ '--i': index } as React.CSSProperties}
+                      className="border-b border-ink-200"
+                    >
                       <td className="py-3 pr-4">
                         <Link
                           href={`/explore?language=${language.language_id}`}
@@ -156,7 +160,7 @@ export default async function CoveragePage() {
                         <div className="flex items-center justify-end gap-3">
                           <div className="hidden h-1.5 w-20 shrink-0 bg-ink-200 sm:block">
                             <div
-                              className="h-full bg-petrol-500"
+                              className="bar-fill h-full bg-petrol-500"
                               style={{ width: `${Math.min(100, Math.max(2, language.percentCovered))}%` }}
                             />
                           </div>

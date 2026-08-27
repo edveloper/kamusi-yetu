@@ -119,11 +119,11 @@ export default async function TranslatePage({ searchParams }: { searchParams: Se
             <p className="label mb-3 text-ink-500">
               {fromLang?.name} to {toLang?.name}
             </p>
-            <p className="headword break-words text-5xl text-ink-900 sm:text-6xl md:text-7xl">
+            <p className="vt-answer land headword break-words text-5xl text-ink-900 sm:text-6xl md:text-7xl">
               {best.translation}
             </p>
 
-            <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="land land-late mt-5 flex flex-wrap items-center gap-x-3 gap-y-2">
               <span className="border border-ink-900 bg-ink-900 px-2.5 py-1 text-xs font-semibold text-paper">
                 {PATH_LABEL[best.path_type]}
               </span>
@@ -140,7 +140,7 @@ export default async function TranslatePage({ searchParams }: { searchParams: Se
               )}
             </div>
 
-            <p className="mt-3 max-w-xl text-[0.9375rem] text-ink-600">
+            <p className="land land-late mt-3 max-w-xl text-[0.9375rem] text-ink-600">
               {PATH_NOTE[best.path_type]}
             </p>
 
@@ -175,9 +175,13 @@ export default async function TranslatePage({ searchParams }: { searchParams: Se
         {alternates.length > 0 && (
           <section className="mt-12 border-t border-ink-200 pt-8">
             <h2 className="mark label mb-4 text-ink-600">Other candidates</h2>
-            <ul className="border-t border-ink-200">
+            <ul className="stagger border-t border-ink-200">
               {alternates.map((candidate, index) => (
-                <li key={`${candidate.translation}-${index}`} className="border-b border-ink-200">
+                <li
+                  key={`${candidate.translation}-${index}`}
+                  style={{ '--i': index } as React.CSSProperties}
+                  className="border-b border-ink-200"
+                >
                   <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-3.5">
                     <span className="text-xl font-semibold text-ink-900">
                       {candidate.translation}
@@ -198,7 +202,7 @@ export default async function TranslatePage({ searchParams }: { searchParams: Se
 
         {/* ------------------------------------------------------------- miss */}
         {q && results.length === 0 && (
-          <section className="border-y-2 border-ink-900 py-12">
+          <section className="land border-y-2 border-ink-900 py-12">
             <p className="label mb-3 text-signal-500">Not recorded yet</p>
             <p className="display max-w-2xl text-3xl text-ink-900 sm:text-4xl">
               No {toLang?.name} word for {q} yet

@@ -176,7 +176,7 @@ export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyC
             role="img"
             aria-label="Kenya county language coverage map"
           >
-            {countyCoverage.map((county) => {
+            {countyCoverage.map((county, index) => {
               const countyPath = countyPathMap.get(county.countyName)
               if (!countyPath) return null
 
@@ -185,13 +185,14 @@ export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyC
               return (
                 <g
                   key={county.countyCode}
+                  style={{ '--i': index } as React.CSSProperties}
                   onMouseEnter={() => setActiveCountyCode(county.countyCode)}
                   onFocus={() => setActiveCountyCode(county.countyCode)}
                   onClick={() => setActiveCountyCode(county.countyCode)}
                   tabIndex={0}
                   role="button"
                   aria-label={`${county.countyName}, ${county.coveredLanguageCount} languages with entries`}
-                  className="cursor-pointer focus:outline-none"
+                  className="county cursor-pointer focus:outline-none"
                 >
                   <path
                     d={countyPath.d}
@@ -202,7 +203,11 @@ export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyC
                     }`}
                   />
                   {county.coveredLanguageCount > 0 ? (
-                    <g transform={`translate(${countyPath.center[0]} ${countyPath.center[1]})`}>
+                    <g
+                      transform={`translate(${countyPath.center[0]} ${countyPath.center[1]})`}
+                      className="county-pin"
+                      style={{ '--i': index } as React.CSSProperties}
+                    >
                       <circle
                         r={isActive ? 13 : 10}
                         className={`${MARKER_CLASSES} ${
