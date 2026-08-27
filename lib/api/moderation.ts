@@ -6,6 +6,8 @@ type ModerationPayload =
   | { action: 'flag_entry'; itemId: string }
   | { action: 'review_suggestion'; itemId: string; suggestionAction: 'accept' | 'reject'; note?: string }
   | { action: 'apply_suggestion'; itemId: string; note?: string; updates?: Record<string, string> }
+  | { action: 'approve_recording'; itemId: string }
+  | { action: 'reject_recording'; itemId: string; note?: string }
 
 export async function runModerationAction(payload: ModerationPayload) {
   const { data, error } = await supabase.auth.getSession()

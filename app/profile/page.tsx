@@ -16,6 +16,7 @@ import { getRecentEntriesByUser, getSavedWordsCursor, removeSavedWord } from '@/
 import { getLanguages } from '@/lib/api/languages'
 import LanguageSelector from '@/components/LanguageSelector'
 import SavedWordsList from '@/components/SavedWordsList'
+import ConsentSettings from '@/components/recording/ConsentSettings'
 import { supabase } from '@/lib/supabase'
 
 export default function ProfilePage() {
@@ -399,6 +400,11 @@ export default function ProfilePage() {
             <button onClick={() => setShowLanguageSelector(true)} className="w-full py-4 border-2 border-dashed border-neutral-200 rounded-xl text-[9px] font-black text-neutral-600 uppercase tracking-widest hover:border-heritage-dark hover:text-accent-600 transition-all">
               Manage My Languages
             </button>
+
+            {/* Consent is only meaningful if it can be withdrawn here. */}
+            <div className="mt-6">
+              <ConsentSettings />
+            </div>
 
             {/* Saved words list inserted here */}
             <div className="mt-6">

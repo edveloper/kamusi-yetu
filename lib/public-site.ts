@@ -1,6 +1,7 @@
 import { unstable_cache } from 'next/cache'
 import { attachLanguageGroup } from '@/lib/constants/languageGroups'
 import { supabase } from '@/lib/supabase'
+import { createServerSupabaseClient } from '@/lib/supabase-server'
 
 type LanguageRow = {
   id: string
@@ -285,4 +286,68 @@ export async function getEntryEquivalents(entry: PublicEntry, limit = 12) {
       language: (lang as { id: string; name: string; code: string } | null) ?? null,
     }
   })
+}
+
+// ---------------------------------------------------------------------------
+// Recordings (Wave 4)
+//
+// Audio lives in a PRIVATE bucket, so playback is served through short-lived
+// signed URLs generated here on the server. A withdrawn recording therefore
+// stops being reachable, rather than lingering on a public URL forever — which
+// is the whole point of the consent model.
+// ---------------------------------------------------------------------------
+
+const RECORDINGS_BUCKET =
+  process.env.NEXT_PUBLIC_SUPABASE_RECORDINGS_BUCKET || 'recordings'
+
+export type EntryRecording = {
+  id: string
+  url: string
+  durationMs: number | null
+  speakerType: string | null
+  homeCounty: string | null
+  ageBand: string | null
+}
+
+export async function getEntryRecordings(entryId: string): Promise<EntryRecording[]> {
+  const admin = createServerSupabaseClient()
+
+  const { data, error } = await admin
+    .from('recordings')
+    .select('id, storage_path, duration_ms, speaker:speaker_profiles(speaker_type, home_county, age_band)')
+    .eq('entry_id', entryId)
+    .eq('validation_status', 'verified')
+    .eq('is_withdrawn', false)
+    .order('created_at', { ascending: true })
+    .limit(12)
+
+  if (error || !data) return []
+
+  const rows = data as Array<Record<string, unknown>>
+  const signed = await Promise.all(
+    rows.map(async (row) => {
+      const path = String(row.storage_path)
+      const { data: link } = await admin.storage
+        .from(RECORDINGS_BUCKET)
+        .createSignedUrl(path, 60 * 60)
+
+      if (!link?.signedUrl) return null
+
+      const speakerValue = row.speaker
+      const speaker = (Array.isArray(speakerValue) ? speakerValue[0] : speakerValue) as
+        | { speaker_type?: string; home_county?: string; age_band?: string }
+        | null
+
+      return {
+        id: String(row.id),
+        url: link.signedUrl,
+        durationMs: (row.duration_ms as number | null) ?? null,
+        speakerType: speaker?.speaker_type ?? null,
+        homeCounty: speaker?.home_county ?? null,
+        ageBand: speaker?.age_band ?? null,
+      } satisfies EntryRecording
+    })
+  )
+
+  return signed.filter((item): item is EntryRecording => item !== null)
 }

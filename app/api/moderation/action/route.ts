@@ -9,6 +9,8 @@ type ModerationAction =
   | { action: 'flag_entry'; itemId: string }
   | { action: 'review_suggestion'; itemId: string; suggestionAction: 'accept' | 'reject'; note?: string }
   | { action: 'apply_suggestion'; itemId: string; note?: string; updates?: Record<string, string> }
+  | { action: 'approve_recording'; itemId: string }
+  | { action: 'reject_recording'; itemId: string; note?: string }
 
 type TrustScoreEntry = {
   part_of_speech: string | null
@@ -432,6 +434,36 @@ export async function POST(req: Request) {
           body.note
         )
         return NextResponse.json({ ok: true, result })
+      }
+      case 'approve_recording': {
+        const { data, error } = await admin
+          .from('recordings')
+          .update({
+            validation_status: 'verified',
+            reviewed_by: authData.user.id,
+            reviewed_at: new Date().toISOString(),
+            reject_reason: null
+          })
+          .eq('id', body.itemId)
+          .select('id, entry_id, validation_status')
+          .single()
+        if (error) throw error
+        return NextResponse.json({ ok: true, result: data })
+      }
+      case 'reject_recording': {
+        const { data, error } = await admin
+          .from('recordings')
+          .update({
+            validation_status: 'rejected',
+            reviewed_by: authData.user.id,
+            reviewed_at: new Date().toISOString(),
+            reject_reason: body.note ?? null
+          })
+          .eq('id', body.itemId)
+          .select('id, entry_id, validation_status')
+          .single()
+        if (error) throw error
+        return NextResponse.json({ ok: true, result: data })
       }
       case 'apply_suggestion': {
         const result = await applySuggestionAdmin(admin, body.itemId, authData.user.id, body.note, body.updates)

@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getPublicEntry, getEntryEquivalents } from '@/lib/public-site'
+import { getPublicEntry, getEntryEquivalents, getEntryRecordings } from '@/lib/public-site'
+import RecordEntryAudio from '@/components/recording/RecordEntryAudio'
 import { SITE_NAME, SITE_URL } from '@/lib/constants/site'
 import EntryCommunity from './EntryCommunity'
 
@@ -55,7 +56,10 @@ export default async function EntryPage({ params }: Params) {
   const entry = await getPublicEntry(id)
   if (!entry) notFound()
 
-  const equivalents = await getEntryEquivalents(entry)
+  const [equivalents, recordings] = await Promise.all([
+    getEntryEquivalents(entry),
+    getEntryRecordings(entry.id),
+  ])
 
   // Structured data so search engines read this as a dictionary entry rather
   // than an unlabelled page of text.
@@ -118,7 +122,31 @@ export default async function EntryPage({ params }: Params) {
             </p>
           </header>
 
-          {entry.audio_url ? (
+          {recordings.length > 0 ? (
+            <div className="mb-8 bg-accent-50 border border-accent-100 rounded-2xl p-5">
+              <h2 className="text-[10px] font-black text-accent-700 uppercase tracking-[0.2em] mb-3">
+                Heard from {recordings.length} {recordings.length === 1 ? 'speaker' : 'speakers'}
+              </h2>
+              <ul className="space-y-3">
+                {recordings.map((recording) => (
+                  <li key={recording.id}>
+                    {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+                    <audio controls preload="none" src={recording.url} className="w-full" />
+                    <p className="mt-1 text-xs text-neutral-600">
+                      {[
+                        recording.speakerType === 'native' ? 'First-language speaker' : null,
+                        recording.speakerType === 'heritage' ? 'Heritage speaker' : null,
+                        recording.speakerType === 'learner' ? 'Learner' : null,
+                        recording.homeCounty ? `learned in ${recording.homeCounty}` : null,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : entry.audio_url ? (
             <div className="mb-8 bg-accent-50 border border-accent-100 rounded-2xl p-4">
               <h2 className="text-[10px] font-black text-accent-700 uppercase tracking-[0.2em] mb-2">
                 Pronunciation
@@ -128,23 +156,17 @@ export default async function EntryPage({ params }: Params) {
                 Your browser does not support audio playback.
               </audio>
             </div>
-          ) : (
-            <div className="mb-8 bg-accent-50 border border-accent-200 rounded-2xl p-5">
-              <p className="text-sm font-semibold text-accent-700">
-                No one has recorded {entry.headword} yet.
-              </p>
-              <p className="text-sm text-neutral-700 mt-1">
-                If you speak {entry.language?.name}, a few seconds of audio makes this
-                entry usable by voice technology.
-              </p>
-              <Link
-                href={`/contribute?lang=${entry.language?.code ?? ''}&entry=${entry.id}`}
-                className="btn-primary mt-4 text-xs"
-              >
-                Record this word
-              </Link>
-            </div>
-          )}
+          ) : null}
+
+          <div className="mb-8">
+            <RecordEntryAudio
+              entryId={entry.id}
+              headword={entry.headword}
+              languageId={entry.language?.id ?? ''}
+              languageCode={entry.language?.code ?? ''}
+              languageName={entry.language?.name ?? 'this language'}
+            />
+          </div>
 
           <div className="space-y-10">
             <section>
