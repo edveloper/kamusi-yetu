@@ -1,202 +1,185 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { useAuth } from '@/lib/contexts/AuthContext'
-import { useState } from 'react'
 
-function Logo() {
+/**
+ * Four items, not nine.
+ *
+ * The old navigation was organised around the product's internals — Explore,
+ * Translate, Trending, About, Team, plus Guidelines and Moderators in the
+ * footer nav. Four of those routes were different doors onto one intent (find a
+ * word) and two were relevant to a handful of people. This is organised around
+ * what someone came to do.
+ */
+const NAV = [
+  { name: 'Browse', href: '/explore' },
+  { name: 'Translate', href: '/translate' },
+  { name: 'Contribute', href: '/contribute/gaps' },
+  { name: 'Coverage', href: '/trending' },
+]
+
+/** Typographic wordmark. Replaces a 388KB PNG of the previous brand. */
+function Wordmark({ onDark = false }: { onDark?: boolean }) {
   return (
-    <div className="flex items-center">
-      <div className="flex-shrink-0 w-36 sm:w-44 h-14 relative">
-        <Image
-          src="/logo.png"
-          alt="LughaKonnect"
-          fill
-          priority
-          className="object-contain object-left"
-          sizes="(max-width: 640px) 144px, 176px"
-        />
-      </div>
-    </div>
+    <span className="font-logo text-[1.35rem] leading-none sm:text-[1.5rem]">
+      <span className={onDark ? 'text-paper' : 'text-ink-900'}>Lugha</span>
+      <span className="text-signal-500">Konnect</span>
+    </span>
   )
 }
 
 export default function Header() {
   const { user, signOut, loading } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
+  const pathname = usePathname()
 
-  // Close menu when clicking outside
-  const handleBackgroundClick = () => {
-    if (menuOpen) {
-      setMenuOpen(false)
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [pathname])
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
     }
-  }
+  }, [menuOpen])
 
-  // Explicit logout handler for mobile to ensure the menu closes and state clears
-  const handleSignOut = async () => {
-    try {
-      setMenuOpen(false)
-      await signOut()
-    } catch (error) {
-      console.error('Logout failed:', error)
-    }
-  }
-
-  if (loading) {
-    return (
-      <header className="bg-[#D4A373]/80 sticky top-0 z-50 backdrop-blur-sm h-20 flex items-center shadow-soft">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="flex items-center justify-between">
-            <Logo />
-            <div className="w-24 h-8 bg-neutral-200 animate-pulse rounded-lg"></div>
-          </div>
-        </div>
-      </header>
-    )
-  }
-
-  const navLinks = [
-    { name: 'Explore', href: '/explore' },
-    { name: 'Translate', href: '/translate' },
-    { name: 'Trending', href: '/trending' },
-    { name: 'About', href: '/about' },
-    { name: 'Team', href: '/team' }
-  ]
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
 
   return (
     <>
-      {/* Mobile Menu Drawer - Full Screen Overlay */}
-      {menuOpen && (
-        <div 
-          className="fixed inset-0 z-40 md:hidden bg-black/40 backdrop-blur-sm transition-opacity duration-300"
-          onClick={handleBackgroundClick}
-        />
-      )}
-      
-      {/* Mobile Navigation Drawer */}
-      {menuOpen && (
-        <div className="fixed top-0 left-0 bottom-0 w-full max-w-sm bg-heritage-dark z-[60] md:hidden flex flex-col shadow-strong overflow-y-auto transform transition-transform duration-300 ease-in-out">
-          {/* Close Button */}
-          <div className="sticky top-0 flex justify-end p-4 bg-heritage-dark border-b border-heritage-darker shrink-0">
-            <button 
-              onClick={() => setMenuOpen(false)}
-              className="text-white p-2 hover:bg-heritage-darker rounded-lg transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+      <header className="sticky top-0 z-50 border-b border-ink-200 bg-paper/90 backdrop-blur-sm">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+          <Link href="/" aria-label="LughaKonnect home" className="shrink-0">
+            <Wordmark />
+          </Link>
 
-          {/* Menu Content - Scrollable */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
-            <nav className="space-y-4">
-              {navLinks.map((link) => (
-                <Link 
-                  key={link.name} 
-                  href={link.href} 
-                  onClick={() => setMenuOpen(false)} 
-                  className="block text-sm font-semibold text-white uppercase tracking-[0.25em] hover:text-accent-300 transition-colors"
-                >
-                  {link.name}
-                </Link>
-              ))}
-            </nav>
-            
-            <div className="pt-6 border-t border-heritage-darker">
-              {user ? (
-                <div className="space-y-4">
-                  <Link 
-                    href="/profile" 
-                    onClick={() => setMenuOpen(false)} 
-                    className="block text-sm font-semibold text-accent-300 uppercase tracking-[0.25em] hover:text-white transition-colors"
+          <nav aria-label="Main" className="hidden md:block">
+            <ul className="flex items-center gap-7">
+              {NAV.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    aria-current={isActive(item.href) ? 'page' : undefined}
+                    className={`text-[0.9375rem] font-semibold transition-colors ${
+                      isActive(item.href)
+                        ? 'text-signal-500'
+                        : 'text-ink-700 hover:text-ink-900'
+                    }`}
                   >
-                    View Profile
+                    {item.name}
                   </Link>
-                  <button 
-                    onClick={handleSignOut} 
-                    className="block w-full text-left text-sm font-semibold text-red-300 uppercase tracking-[0.25em] hover:text-red-200 transition-colors"
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className="flex items-center gap-3">
+            {!loading &&
+              (user ? (
+                <div className="hidden items-center gap-3 md:flex">
+                  <Link href="/profile" className="text-[0.9375rem] font-semibold text-ink-700 hover:text-ink-900">
+                    Your work
+                  </Link>
+                  <button
+                    onClick={() => signOut()}
+                    className="text-[0.9375rem] font-semibold text-ink-500 hover:text-ink-900"
                   >
-                    Logout
+                    Sign out
                   </button>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  <Link href="/login" onClick={() => setMenuOpen(false)} className="block text-sm font-semibold text-white uppercase tracking-[0.25em] hover:text-accent-300 transition-colors">Login</Link>
-                  <Link href="/signup" onClick={() => setMenuOpen(false)} className="block text-sm font-semibold text-accent-300 uppercase tracking-[0.25em] hover:text-white transition-colors">Join Archive</Link>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-      <header className="sticky top-0 z-50 backdrop-blur-sm bg-[#D4A373]/80 h-20 flex items-center shadow-soft">
-        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 w-full">
-          <div className="flex items-center justify-between gap-2">
-            <Link href="/" onClick={() => setMenuOpen(false)} className="-ml-2 sm:ml-0">
-              <Logo />
-            </Link>
-
-            <nav className="hidden md:flex items-center space-x-8">
-              {navLinks.map((link) => (
-                <Link 
-                  key={link.name} 
-                  href={link.href} 
-                  className="text-sm font-semibold text-heritage-dark hover:text-white uppercase tracking-[0.25em] transition-all duration-200"
-                >
-                  {link.name}
+                <Link href="/login" className="hidden btn-secondary py-2 text-sm md:inline-flex">
+                  Sign in
                 </Link>
               ))}
-            </nav>
 
-            <div className="flex items-center gap-4">
-              <div className="hidden md:flex items-center gap-6">
-                {user ? (
-                  <>
-                    <Link href="/contribute">
-                      <button className="bg-accent-300 text-heritage-dark px-6 py-2.5 rounded-lg font-semibold text-sm uppercase tracking-[0.2em] hover:bg-accent-400 transition-all shadow-soft">
-                        + Add Word
-                      </button>
-                    </Link>
-                    <Link href="/profile" className="text-sm font-semibold text-heritage-dark uppercase tracking-[0.2em] border-b-2 border-transparent hover:text-white hover:border-white transition-all">
-                      Profile
-                    </Link>
-                    <button onClick={() => signOut()} className="text-sm font-semibold text-heritage-dark uppercase tracking-[0.2em] hover:text-white transition-all">
-                      Logout
-                    </button>
-                  </>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((open) => !open)}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-nav"
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              className="grid h-10 w-10 place-items-center rounded-md border border-ink-200 text-ink-900 md:hidden"
+            >
+              <svg width="18" height="14" viewBox="0 0 18 14" aria-hidden="true">
+                {menuOpen ? (
+                  <path
+                    d="M1 1l16 12M17 1L1 13"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
                 ) : (
-                  <div className="flex items-center gap-3">
-                    <Link href="/login" className="text-heritage-dark font-semibold text-sm uppercase tracking-[0.2em] px-4 hover:text-white transition-all">Login</Link>
-                    <Link href="/signup">
-                      <button className="bg-accent-300 text-heritage-dark px-6 py-2.5 rounded-lg font-semibold text-sm uppercase tracking-[0.2em] hover:bg-accent-400 transition-all shadow-soft">Join</button>
-                    </Link>
-                  </div>
+                  <path
+                    d="M0 1h18M0 7h18M0 13h18"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
                 )}
-              </div>
-
-              <div className="md:hidden flex items-center gap-3">
-                {user && (
-                  <Link href="/contribute" onClick={() => setMenuOpen(false)}>
-                    <button className="bg-accent-300 text-heritage-dark w-10 h-10 rounded-lg flex items-center justify-center font-semibold hover:bg-accent-400 transition-all shadow-soft">
-                      +
-                    </button>
-                  </Link>
-                )}
-                <button 
-                  onClick={() => setMenuOpen(!menuOpen)} 
-                  className="text-heritage-dark p-2 bg-white/50 rounded-lg border border-heritage-dark/20 z-[70]"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={menuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
-                  </svg>
-                </button>
-              </div>
-            </div>
+              </svg>
+            </button>
           </div>
         </div>
       </header>
+
+      {menuOpen && (
+        <div
+          id="mobile-nav"
+          className="fixed inset-x-0 bottom-0 top-16 z-40 overflow-y-auto bg-ink-900 px-6 py-8 md:hidden"
+        >
+          <ul className="space-y-1">
+            {NAV.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className="display block py-3 text-3xl text-paper hover:text-sand-300"
+                >
+                  {item.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-8 space-y-1 border-t border-ink-800 pt-6">
+            {user ? (
+              <>
+                <Link href="/profile" className="block py-2 text-lg font-semibold text-paper">
+                  Your work
+                </Link>
+                <button
+                  onClick={() => signOut()}
+                  className="block py-2 text-lg font-semibold text-ink-300"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <Link href="/login" className="btn-on-dark mt-2 w-full">
+                Sign in
+              </Link>
+            )}
+          </div>
+
+          <ul className="mt-8 space-y-2 border-t border-ink-800 pt-6">
+            {[
+              { name: 'About', href: '/about' },
+              { name: 'Method', href: '/guidelines' },
+              { name: 'Contact', href: '/contact' },
+            ].map((item) => (
+              <li key={item.href}>
+                <Link href={item.href} className="label block py-1 text-ink-300">
+                  {item.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </>
   )
 }

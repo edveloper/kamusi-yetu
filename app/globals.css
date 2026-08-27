@@ -1,134 +1,212 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
- * LughaKonnect palette — Tailwind v4 CSS-first theme.
+ * LughaKonnect — design tokens.
  *
- * This block is the ONLY source of truth for colour. tailwind.config.ts was
- * deleted: Tailwind v4 ignores it unless loaded with an explicit @config
- * directive, so the scales it defined were silently absent from the build and
- * ~131 class usages across the app rendered as nothing.
+ * Tailwind v4 CSS-first theme. This block is the only source of truth for
+ * colour and type; there is no tailwind.config.ts (v4 ignores it without an
+ * explicit @config directive, which is how ~131 class usages ended up
+ * rendering as nothing).
  *
- * Every step of every scale is defined here. Leaving a step undefined does not
- * fall back to "close enough" — for the accent/primary namespaces the class
- * simply does not exist, and for the neutral namespace Tailwind's own COOL grey
- * leaks in beside our warm cream, which is what made the UI look muddy.
- *
- * Neutrals are warm (biased toward the ochre accent) so they sit correctly on
- * the cream ground. Contrast on --color-neutral-100 is noted per step.
+ * The identity argues infrastructure, not heritage. Ink and paper carry the
+ * page, a single vermilion signal carries the one action that matters, petrol
+ * carries structure and data, sand carries warmth and warnings. The previous
+ * cream / forest green / ochre combination was both the "African heritage"
+ * visual cliche and the most common look in generated web design.
  * ------------------------------------------------------------------------- */
 @theme {
-  /* Retire Tailwind's cool grey families. They are what leaked in beside the
-   * warm cream and made the UI look muddy; clearing them means a stray
-   * `text-gray-400` now fails loudly at build time instead of shipping a
-   * mismatched grey. Semantic families (red, amber, blue) are left intact for
-   * error and warning states. */
+  /* Retire Tailwind's stock greys. They are cool, ours are warm, and a stray
+   * `text-gray-400` should fail at build time rather than ship a mismatch. */
   --color-gray-*: initial;
   --color-slate-*: initial;
   --color-zinc-*: initial;
   --color-stone-*: initial;
 
-  /* Kenyan Heritage Color Palette */
-  --color-heritage-dark: #0B6B3A;     /* Primary - deep forest green */
-  --color-heritage-darker: #064E2A;   /* Darker shade for depth */
-  --color-heritage-light: #D4A373;    /* Warm accent - ochre/earth tone */
-  --color-heritage-bg: #F5F1E8;       /* Warm cream background */
+  /* ==== Fonts ==================================================== */
+  --font-sans:    var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-serif:   var(--font-literata), Georgia, serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-mono), ui-monospace, SFMono-Regular, monospace;
 
-  /* Green — brand primary */
-  --color-primary-50:  #F0F7F4;
-  --color-primary-100: #E6F4F0;
-  --color-primary-200: #C4E3D6;
-  --color-primary-300: #4DA87F;
-  --color-primary-400: #2A8A5C;
-  --color-primary-500: #0B6B3A;
-  --color-primary-600: #064E2A;
-  --color-primary-700: #053C20;
-  --color-primary-800: #04321A;
-  --color-primary-900: #032815;
+  /* ==== Ground =================================================== */
+  --color-paper:      #FBFAF7;   /* page */
+  --color-paper-warm: #F3F1EC;   /* recessed surfaces */
+  --color-card:       #FFFFFF;
 
-  /* Ochre / earth — brand accent */
-  --color-accent-50:  #FBF6EF;
-  --color-accent-100: #F5E8D4;
-  --color-accent-200: #EBD6B8;
-  --color-accent-300: #D4A373;
-  --color-accent-400: #C4915F;
-  --color-accent-500: #B8885F;
-  --color-accent-600: #A67750;
-  --color-accent-700: #8A5C3B;        /* 5.3:1 on accent-50 */
-  --color-accent-800: #71492E;
-  --color-accent-900: #5E3F28;
+  /* ==== Ink — warm near-black neutrals ==========================
+   * Contrast on --color-paper is noted per step. Anything below 4.5:1
+   * is decorative and must not carry text. */
+  --color-ink-50:  #F3F1EC;
+  --color-ink-100: #EAE7E0;
+  --color-ink-200: #DCD8D0;      /* rules, borders */
+  --color-ink-300: #C2BBB1;      /* 2.0:1 — decorative only */
+  --color-ink-400: #9A9289;      /* 3.1:1 — large text only */
+  --color-ink-500: #6E6862;      /* 5.9:1 — smallest safe text */
+  --color-ink-600: #565049;      /* 8.2:1 — labels */
+  --color-ink-700: #3A3733;      /* 11.4:1 — body */
+  --color-ink-800: #221F1C;
+  --color-ink-900: #12100E;      /* 16.9:1 — headings, hero ground */
+  --color-ink-950: #0A0908;
 
-  /* Warm neutrals — every step defined so Tailwind's cool greys never leak in */
-  --color-neutral-50:  #FAF8F3;       /* card surface, warmer than the page */
-  --color-neutral-100: #F5F1E8;       /* page ground */
-  --color-neutral-200: #E5DFCE;
-  --color-neutral-300: #C0B5A0;
-  --color-neutral-400: #9A8F7E;       /* decorative / borders only — 2.8:1 */
-  --color-neutral-500: #6E6659;       /* smallest safe text — 5.0:1 */
-  --color-neutral-600: #574F44;       /* labels, secondary text — 7.2:1 */
-  --color-neutral-700: #423B32;       /* body text — 9.7:1 */
-  --color-neutral-800: #2E2921;
-  --color-neutral-900: #1C1811;       /* headings */
+  /* ==== Signal — deep vermilion. One action per screen. ========== */
+  --color-signal-50:  #FBE9E4;
+  --color-signal-100: #F6D3C9;
+  --color-signal-200: #EDA893;
+  --color-signal-300: #E07D62;
+  --color-signal-400: #D65A3C;
+  --color-signal-500: #C93A22;   /* 5.1:1 on paper */
+  --color-signal-600: #A82D18;
+  --color-signal-700: #872413;
+  --color-signal-800: #661B0E;
+  --color-signal-900: #4A130A;
 
-  /* Shadows with warmer tone */
-  --shadow-soft: 0 2px 8px rgba(11, 107, 58, 0.08);
-  --shadow-medium: 0 4px 16px rgba(11, 107, 58, 0.12);
-  --shadow-strong: 0 8px 24px rgba(11, 107, 58, 0.16);
+  /* ==== Petrol — calm structure, data, secondary surfaces ======== */
+  --color-petrol-50:  #E2EDEB;
+  --color-petrol-100: #C6DBD8;
+  --color-petrol-200: #93BDB7;
+  --color-petrol-300: #5F9B94;
+  --color-petrol-400: #397873;
+  --color-petrol-500: #1F4E4A;   /* 8.7:1 on paper */
+  --color-petrol-600: #193F3C;
+  --color-petrol-700: #13302E;
+  --color-petrol-800: #0D2120;
+  --color-petrol-900: #081514;
+
+  /* ==== Sand — warmth, warnings, the dark-ground accent ========== */
+  --color-sand-50:  #F7EEDF;
+  --color-sand-100: #EFDCBE;
+  --color-sand-200: #E2C289;
+  --color-sand-300: #D6A85C;
+  --color-sand-400: #C6913F;
+  --color-sand-500: #B9822F;     /* 4.6:1 on paper */
+  --color-sand-600: #986A26;
+  --color-sand-700: #77531E;
+  --color-sand-800: #563C15;
+  --color-sand-900: #3B290F;
+
+  /* ==== Semantic ================================================= */
+  --color-good: #1F6B4E;
+  --color-warn: #B9822F;
+  --color-bad:  #C93A22;
+
+  /* ==== Legacy aliases ==========================================
+   * The old heritage/accent/primary/neutral names are still used across
+   * pages not yet rebuilt. Pointing them at the new palette means the whole
+   * app moves together instead of looking half-repainted. They are deleted
+   * as each page is rebuilt. */
+  --color-heritage-dark:   var(--color-ink-900);
+  --color-heritage-darker: var(--color-ink-950);
+  --color-heritage-light:  var(--color-sand-300);
+  --color-heritage-bg:     var(--color-paper);
+
+  --color-primary-50:  var(--color-petrol-50);
+  --color-primary-100: var(--color-petrol-50);
+  --color-primary-200: var(--color-petrol-100);
+  --color-primary-300: var(--color-petrol-200);
+  --color-primary-400: var(--color-petrol-300);
+  --color-primary-500: var(--color-petrol-500);
+  --color-primary-600: var(--color-petrol-600);
+  --color-primary-700: var(--color-petrol-700);
+  --color-primary-800: var(--color-petrol-800);
+  --color-primary-900: var(--color-petrol-900);
+
+  --color-accent-50:  var(--color-sand-50);
+  --color-accent-100: var(--color-sand-100);
+  --color-accent-200: var(--color-sand-200);
+  --color-accent-300: var(--color-sand-300);
+  --color-accent-400: var(--color-sand-400);
+  --color-accent-500: var(--color-sand-500);
+  --color-accent-600: var(--color-sand-600);
+  --color-accent-700: var(--color-sand-700);
+  --color-accent-800: var(--color-sand-800);
+  --color-accent-900: var(--color-sand-900);
+
+  --color-neutral-50:  var(--color-paper);
+  --color-neutral-100: var(--color-paper-warm);
+  --color-neutral-200: var(--color-ink-200);
+  --color-neutral-300: var(--color-ink-300);
+  --color-neutral-400: var(--color-ink-400);
+  --color-neutral-500: var(--color-ink-500);
+  --color-neutral-600: var(--color-ink-600);
+  --color-neutral-700: var(--color-ink-700);
+  --color-neutral-800: var(--color-ink-800);
+  --color-neutral-900: var(--color-ink-900);
+
+  /* ==== Elevation — neutral, not tinted green ==================== */
+  --shadow-soft:   0 1px 2px rgba(18, 16, 14, .05), 0 6px 16px -10px rgba(18, 16, 14, .18);
+  --shadow-medium: 0 1px 3px rgba(18, 16, 14, .07), 0 10px 28px -12px rgba(18, 16, 14, .22);
+  --shadow-strong: 0 2px 6px rgba(18, 16, 14, .09), 0 20px 48px -16px rgba(18, 16, 14, .28);
+
+  /* ==== Radii — the old 2.5–3rem pill look reads as generated ==== */
+  --radius-xs:  2px;
+  --radius-sm:  4px;
+  --radius-md:  6px;
+  --radius-lg:  10px;
+  --radius-xl:  14px;
 }
 
-/* African Textile-Inspired Patterns */
+/* The waveform is the signature graphic now: audio is the thing no competitor
+ * has and the thing the end goal depends on, so it earns the visual weight the
+ * textile patterns used to take. See components/ui/Waveform.tsx. */
 @layer utilities {
-  /* Kente-inspired diagonal weave pattern */
-  .pattern-kente {
-    background-image: 
-      linear-gradient(45deg, rgba(212, 163, 115, 0.08) 25%, transparent 25%, transparent 50%, rgba(212, 163, 115, 0.08) 50%, rgba(212, 163, 115, 0.08) 75%, transparent 75%, transparent),
-      linear-gradient(45deg, rgba(11, 107, 58, 0.05) 25%, transparent 25%, transparent 50%, rgba(11, 107, 58, 0.05) 50%, rgba(11, 107, 58, 0.05) 75%, transparent 75%, transparent);
-    background-size: 60px 60px;
-    background-position: 0 0, 30px 30px;
-  }
-
-  /* Maasai shuka dot pattern */
-  .pattern-shuka {
-    background-image: 
-      radial-gradient(circle, rgba(212, 163, 115, 0.12) 2px, transparent 2px),
-      radial-gradient(circle, rgba(11, 107, 58, 0.08) 1px, transparent 1px);
-    background-size: 24px 24px, 24px 24px;
-    background-position: 0 0, 12px 12px;
-  }
-
-  /* Beaded pattern inspired by Kenyan beadwork */
-  .pattern-beads {
-    background-image: 
-      repeating-linear-gradient(0deg, rgba(212, 163, 115, 0.1) 0px, rgba(212, 163, 115, 0.1) 2px, transparent 2px, transparent 6px),
-      repeating-linear-gradient(90deg, rgba(11, 107, 58, 0.06) 0px, rgba(11, 107, 58, 0.06) 2px, transparent 2px, transparent 6px);
-    background-size: 8px 8px;
-  }
-
-  /* Sisal basket weave */
-  .pattern-weave {
-    background-image: 
-      linear-gradient(0deg, transparent 24%, rgba(212, 163, 115, 0.06) 25%, rgba(212, 163, 115, 0.06) 26%, transparent 27%, transparent 74%, rgba(212, 163, 115, 0.06) 75%, rgba(212, 163, 115, 0.06) 76%, transparent 77%, transparent),
-      linear-gradient(90deg, transparent 24%, rgba(212, 163, 115, 0.06) 25%, rgba(212, 163, 115, 0.06) 26%, transparent 27%, transparent 74%, rgba(212, 163, 115, 0.06) 75%, rgba(212, 163, 115, 0.06) 76%, transparent 77%, transparent);
-    background-size: 50px 50px;
-  }
+  .rule-strong { border-color: var(--color-ink-900); }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .measure { max-width: 68ch; }
 }
 
-/* Font classes */
+/* Headwords are a dictionary's hero. The width axis is what gives them
+ * presence without reaching for an editorial serif. */
 .font-logo {
-  font-family: var(--font-playfair), serif;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 118;
+  letter-spacing: -0.035em;
 }
 
-.font-heritage {
-  font-family: var(--font-playfair), serif;
+.headword {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 125;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variation-settings: 'wdth' 112;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+/* Definitions read as reference material. */
+.definition {
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: var(--color-ink-800);
+}
+
+/* Small uppercase metadata: language codes, counts, statuses. */
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-600);
 }
 
 /* Base styles */
 body {
-  background-color: var(--color-heritage-bg);
-  color: var(--color-neutral-900);
+  background-color: var(--color-paper);
+  color: var(--color-ink-900);
+}
+
+::selection {
+  background-color: var(--color-signal-500);
+  color: #fff;
 }
 
 html {
@@ -167,87 +245,111 @@ img {
 }
 
 /* Shared surface and button styles */
+/* Cards. The old 2.5-3rem radius pill look is one of the strongest tells of
+ * generated design; these are close to square, doing their work with a rule
+ * and a little elevation instead. */
 .surface-card {
-  background-color: #ffffff;
-  border: 1px solid var(--color-neutral-200);
-  box-shadow: 0 2px 8px rgba(11, 107, 58, 0.08);
-  border-radius: 3rem;
+  background-color: var(--color-card);
+  border: 1px solid var(--color-ink-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
 }
 
 .surface-card-strong {
-  background-color: #ffffff;
-  border: 1px solid var(--color-neutral-200);
-  box-shadow: 0 4px 16px rgba(11, 107, 58, 0.12);
-  border-radius: 3rem;
+  background-color: var(--color-card);
+  border: 1px solid var(--color-ink-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-medium);
 }
 
 .surface-card-subtle {
-  background-color: var(--color-neutral-100);
-  border: 1px solid var(--color-neutral-200);
-  border-radius: 3rem;
+  background-color: var(--color-paper-warm);
+  border: 1px solid var(--color-ink-200);
+  border-radius: var(--radius-lg);
 }
 
+/* One signal action per screen. */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 2.5rem;
-  background-color: var(--color-heritage-dark);
-  color: white;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.22em;
-  padding: 0.75rem 1.5rem;
-  box-shadow: 0 1px 3px rgba(11, 107, 58, 0.08);
-  transition: all 200ms ease-out;
+  gap: 0.5rem;
+  border-radius: var(--radius-md);
+  background-color: var(--color-signal-500);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  letter-spacing: -0.005em;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid transparent;
+  transition: background-color 150ms ease-out, transform 150ms ease-out;
 }
 
-.btn-primary:hover {
-  background-color: var(--color-heritage-darker);
+.btn-primary:hover { background-color: var(--color-signal-600); }
+.btn-primary:active { transform: translateY(1px); }
+.btn-primary:focus-visible {
+  outline: 2px solid var(--color-signal-500);
+  outline-offset: 2px;
 }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; }
 
 .btn-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 2.5rem;
-  border: 2px solid var(--color-heritage-dark);
-  background-color: white;
-  color: var(--color-heritage-dark);
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.22em;
-  padding: 0.75rem 1.5rem;
-  transition: all 200ms ease-out;
+  gap: 0.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-ink-300);
+  background-color: transparent;
+  color: var(--color-ink-900);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  padding: 0.75rem 1.25rem;
+  transition: border-color 150ms ease-out, background-color 150ms ease-out;
 }
 
 .btn-secondary:hover {
-  background-color: var(--color-neutral-100);
+  border-color: var(--color-ink-900);
+  background-color: var(--color-paper-warm);
+}
+.btn-secondary:focus-visible {
+  outline: 2px solid var(--color-signal-500);
+  outline-offset: 2px;
 }
 
+/* On the ink ground: sand reads warm where vermilion would fight the dark. */
+.btn-on-dark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: var(--radius-md);
+  background-color: var(--color-sand-300);
+  color: var(--color-ink-900);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  padding: 0.75rem 1.25rem;
+  transition: background-color 150ms ease-out;
+}
+.btn-on-dark:hover { background-color: var(--color-sand-200); }
+.btn-on-dark:focus-visible {
+  outline: 2px solid var(--color-sand-300);
+  outline-offset: 2px;
+}
+
+.btn-accent { composes: btn-on-dark; }
 .btn-accent {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 2.5rem;
-  background-color: var(--color-accent-300);
-  color: white;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.22em;
-  padding: 0.75rem 1.5rem;
-  box-shadow: 0 1px 3px rgba(11, 107, 58, 0.08);
-  transition: all 200ms ease-out;
-}
-
-.btn-accent:hover {
-  background-color: var(--color-accent-700);
-}
-
-/* Status ribbon ticker animation (mobile) */
-@keyframes ticker {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  border-radius: var(--radius-md);
+  background-color: var(--color-sand-300);
+  color: var(--color-ink-900);
+  font-weight: 600;
+  padding: 0.75rem 1.25rem;
 }
 
 .ticker-track {

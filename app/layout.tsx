@@ -1,15 +1,33 @@
 // app/layout.tsx
 import type { Metadata } from 'next'
-import { Inter, Playfair_Display } from 'next/font/google'
+import { Archivo, Literata, IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { AuthProvider } from '@/lib/contexts/AuthContext' 
 
-const inter = Inter({ subsets: ['latin'] })
-const playfair = Playfair_Display({ 
+// Archivo carries a width axis, which is what gives headwords real presence
+// without reaching for the editorial serif every generated site uses.
+const archivo = Archivo({
   subsets: ['latin'],
-  variable: '--font-playfair',
+  variable: '--font-archivo',
+  axes: ['wdth'],
+  display: 'swap',
+})
+
+// Definitions are reference material and read better set in a serif built for
+// sustained reading.
+const literata = Literata({
+  subsets: ['latin'],
+  variable: '--font-literata',
+  display: 'swap',
+})
+
+// Counts, language codes, IPA and metadata.
+const plexMono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-mono',
   display: 'swap',
 })
 
@@ -49,8 +67,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={playfair.variable} data-scroll-behavior="smooth">
-      <body className={`${inter.className} bg-neutral-100`}>
+    <html
+      lang="en"
+      className={`${archivo.variable} ${literata.variable} ${plexMono.variable}`}
+      data-scroll-behavior="smooth"
+    >
+      <body className="font-sans bg-paper text-ink-900 antialiased">
         {/* Wrap the layout content in the Provider */}
         <AuthProvider>
           <Header />

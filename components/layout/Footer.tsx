@@ -1,112 +1,93 @@
-﻿'use client'
-
 import Link from 'next/link'
+import { CORPUS_LICENCE } from '@/lib/constants/site'
+
+const COLUMNS = [
+  {
+    heading: 'Use it',
+    links: [
+      { name: 'Browse', href: '/explore' },
+      { name: 'Translate', href: '/translate' },
+      { name: 'Coverage', href: '/trending' },
+    ],
+  },
+  {
+    heading: 'Build it',
+    links: [
+      { name: 'Fill a gap', href: '/contribute/gaps' },
+      { name: 'Add a word', href: '/contribute' },
+      { name: 'Standards', href: '/guidelines' },
+      { name: 'Reviewers', href: '/moderators' },
+    ],
+  },
+  {
+    heading: 'About',
+    links: [
+      { name: 'The project', href: '/about' },
+      { name: 'Contact', href: '/contact' },
+    ],
+  },
+]
 
 export function Footer() {
   return (
-    <footer className="bg-heritage-dark text-neutral-100 border-t border-heritage-darker/30 font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-          <div className="space-y-5 md:col-span-1">
-            <Link href="/" className="text-heritage-light font-black text-3xl leading-tight tracking-tight font-display">
-              LughaKonnect
+    <footer className="border-t border-ink-800 bg-ink-900 text-ink-300">
+      <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+        <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+          <div>
+            <Link href="/" className="font-logo text-2xl leading-none">
+              <span className="text-paper">Lugha</span>
+              <span className="text-signal-300">Konnect</span>
             </Link>
-            <p className="text-neutral-200 font-medium leading-relaxed text-sm">
-              An open corpus of Kenya&apos;s languages, documented by the people who speak them.
-            </p>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-300">
-              Crafted by{' '}
-              <a
-                href="https://www.eddie-ezekiel.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-heritage-light hover:text-accent-500 transition-colors font-bold"
-              >
-                Eddie Ezekiel
-              </a>
-            </p>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-300 hidden md:block">
-              &copy; {new Date().getFullYear()} LughaKonnect. Built with pride in Kenya.
-            </p>
-            <p className="text-[11px] text-neutral-300 hidden md:block">
-              Corpus data licensed{' '}
-              <a
-                href="https://creativecommons.org/licenses/by/4.0/"
-                target="_blank"
-                rel="license noopener noreferrer"
-                className="text-heritage-light hover:text-accent-300 transition-colors font-bold"
-              >
-                CC BY 4.0
-              </a>
+            <p className="mt-4 max-w-xs text-[0.9375rem] leading-relaxed text-ink-300">
+              An open corpus of Kenya&apos;s languages, documented by the people who speak
+              them &mdash; so they are usable by the technology being built now.
             </p>
           </div>
 
-          <div>
-            <h4 className="text-heritage-light font-black text-sm uppercase tracking-[0.22em] mb-5 font-display">Explore</h4>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link href="/explore" className="text-neutral-200 font-semibold transition duration-200 ease-out transform hover:text-heritage-light hover:scale-105">
-                  Explore
-                </Link>
-              </li>
-              <li>
-                <Link href="/translate" className="text-neutral-200 font-semibold transition duration-200 ease-out transform hover:text-heritage-light hover:scale-105">
-                  Translate
-                </Link>
-              </li>
-              <li>
-                <Link href="/trending" className="text-neutral-200 font-semibold transition duration-200 ease-out transform hover:text-heritage-light hover:scale-105">
-                  Trending
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-heritage-light font-black text-sm uppercase tracking-[0.22em] mb-5 font-display">Community</h4>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link href="/contribute" className="text-neutral-200 font-semibold transition duration-200 ease-out transform hover:text-heritage-light hover:scale-105">
-                  Contribute
-                </Link>
-              </li>
-              <li>
-                <Link href="/guidelines" className="text-neutral-200 font-semibold transition duration-200 ease-out transform hover:text-heritage-light hover:scale-105">
-                  Guidelines
-                </Link>
-              </li>
-              <li>
-                <Link href="/moderators" className="text-neutral-200 font-semibold transition duration-200 ease-out transform hover:text-heritage-light hover:scale-105">
-                  Moderators
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-heritage-light font-black text-sm uppercase tracking-[0.22em] mb-5 font-display">Contact</h4>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link href="/about" className="text-neutral-200 font-semibold transition duration-200 ease-out transform hover:text-heritage-light hover:scale-105">
-                  Our Mission
-                </Link>
-              </li>
-              <li>
-                <Link href="/team" className="text-neutral-200 font-semibold transition duration-200 ease-out transform hover:text-heritage-light hover:scale-105">
-                  Team
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="text-neutral-200 font-semibold transition duration-200 ease-out transform hover:text-heritage-light hover:scale-105">
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {COLUMNS.map((column) => (
+            <nav key={column.heading} aria-labelledby={`footer-${column.heading}`}>
+              <h2 id={`footer-${column.heading}`} className="label text-sand-300">
+                {column.heading}
+              </h2>
+              <ul className="mt-4 space-y-2.5">
+                {column.links.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="text-[0.9375rem] text-ink-300 transition-colors hover:text-paper"
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
         </div>
-        <div className="md:hidden pt-8 border-t border-heritage-darker/30 mt-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-300">
-            &copy; {new Date().getFullYear()} LughaKonnect. Built with pride in Kenya.
+
+        <div className="mt-12 flex flex-col gap-3 border-t border-ink-800 pt-6 text-[0.8125rem] text-ink-400 sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            Corpus data licensed{' '}
+            <a
+              href={CORPUS_LICENCE.url}
+              target="_blank"
+              rel="license noopener noreferrer"
+              className="font-semibold text-ink-300 underline underline-offset-2 hover:text-paper"
+            >
+              {CORPUS_LICENCE.name}
+            </a>
+            . Credit contributors and their communities.
+          </p>
+          <p>
+            Built in Kenya by{' '}
+            <a
+              href="https://www.eddie-ezekiel.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-ink-300 underline underline-offset-2 hover:text-paper"
+            >
+              Eddie Ezekiel
+            </a>
           </p>
         </div>
       </div>

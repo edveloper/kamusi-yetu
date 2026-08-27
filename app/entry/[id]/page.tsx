@@ -2,21 +2,23 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getPublicEntry, getEntryEquivalents, getEntryRecordings } from '@/lib/public-site'
-import RecordEntryAudio from '@/components/recording/RecordEntryAudio'
 import { SITE_NAME, SITE_URL } from '@/lib/constants/site'
+import Waveform from '@/components/ui/Waveform'
+import Provenance from '@/components/ui/Provenance'
+import RecordEntryAudio from '@/components/recording/RecordEntryAudio'
 import EntryCommunity from './EntryCommunity'
 
-// Entry pages were client-rendered, so the server returned only a spinner and
-// every entry in the corpus was invisible to search engines and link previews.
-// The lexical content is now server-rendered; only the community layer below it
-// runs on the client.
+// This is the front door. Most visitors arrive here from a search for one word,
+// never having seen the homepage — so the page has to answer in two seconds and
+// then earn a second action, rather than ending the visit.
 
 export const revalidate = 3600
 
 type Params = { params: Promise<{ id: string }> }
+type Entry = NonNullable<Awaited<ReturnType<typeof getPublicEntry>>>
 
-/** "Mother in Kikuyu" — the phrasing people actually search for. */
-function describeEntry(entry: NonNullable<Awaited<ReturnType<typeof getPublicEntry>>>) {
+/** "Mother in Kikuyu" — the phrasing people actually type into a search box. */
+function describeEntry(entry: Entry) {
   const language = entry.language?.name ?? 'a Kenyan language'
   const gloss =
     String(entry.english_translation ?? '').trim() ||
@@ -29,8 +31,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const entry = await getPublicEntry(id)
   if (!entry) return { title: 'Entry not found' }
 
-  const summary = describeEntry(entry)
-  const title = `${entry.headword} — ${summary}`
+  const title = `${entry.headword} — ${describeEntry(entry)}`
   const description = [
     `${entry.headword} (${entry.language?.name ?? 'Kenyan language'})`,
     String(entry.primary_definition ?? '').trim(),
@@ -41,7 +42,6 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     .slice(0, 300)
 
   const url = `${SITE_URL}/entry/${entry.id}`
-
   return {
     title,
     description,
@@ -61,8 +61,6 @@ export default async function EntryPage({ params }: Params) {
     getEntryRecordings(entry.id),
   ])
 
-  // Structured data so search engines read this as a dictionary entry rather
-  // than an unlabelled page of text.
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'DefinedTerm',
@@ -77,196 +75,194 @@ export default async function EntryPage({ params }: Params) {
     url: `${SITE_URL}/entry/${entry.id}`,
   }
 
-  const meta = [
-    entry.pronunciation_ipa && { label: 'Pronunciation (IPA)', value: entry.pronunciation_ipa },
-    entry.dialect_variant && { label: 'Dialect variant', value: entry.dialect_variant },
-    entry.etymology && { label: 'Etymology', value: entry.etymology, wide: true },
-  ].filter(Boolean) as Array<{ label: string; value: string; wide?: boolean }>
+  const speakerCaption = (r: (typeof recordings)[number]) =>
+    [
+      r.speakerType === 'native' ? 'First-language speaker' : null,
+      r.speakerType === 'heritage' ? 'Heritage speaker' : null,
+      r.speakerType === 'learner' ? 'Learner' : null,
+      r.homeCounty ? `learned in ${r.homeCounty}` : null,
+    ]
+      .filter(Boolean)
+      .join(' · ')
+
+  const detail = [
+    entry.pronunciation_ipa && { label: 'Pronunciation', value: entry.pronunciation_ipa, mono: true },
+    entry.dialect_variant && { label: 'Dialect', value: entry.dialect_variant },
+    entry.part_of_speech && { label: 'Part of speech', value: entry.part_of_speech },
+    entry.category && { label: 'Domain', value: entry.category },
+  ].filter(Boolean) as Array<{ label: string; value: string; mono?: boolean }>
 
   return (
-    <div className="entry-root min-h-screen bg-neutral-50 pb-20 font-sans">
+    <div className="entry-root min-h-screen bg-paper">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <main className="max-w-4xl mx-auto px-4 pt-10">
-        <nav aria-label="Breadcrumb" className="mb-6">
-          <ol className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] text-neutral-600">
-            <li><Link href="/explore" className="hover:text-accent-700">Explore</Link></li>
-            <li aria-hidden="true">/</li>
-            <li>
-              <Link
-                href={`/explore?language=${entry.language?.id ?? ''}`}
-                className="hover:text-accent-700"
-              >
-                {entry.language?.name ?? 'Language'}
-              </Link>
-            </li>
-          </ol>
-        </nav>
+      {/* ---- The answer, on the ink ground, above everything else ---- */}
+      <header className="border-b border-ink-900 bg-ink-900 text-paper">
+        <div className="mx-auto max-w-4xl px-4 pb-10 pt-8 sm:px-6">
+          <nav aria-label="Breadcrumb" className="mb-8">
+            <ol className="flex flex-wrap items-center gap-2 text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-ink-300">
+              <li>
+                <Link href="/explore" className="transition-colors hover:text-sand-300">
+                  Browse
+                </Link>
+              </li>
+              <li aria-hidden="true">/</li>
+              <li>
+                <Link
+                  href={`/explore?language=${entry.language?.id ?? ''}`}
+                  className="transition-colors hover:text-sand-300"
+                >
+                  {entry.language?.name ?? 'Language'}
+                </Link>
+              </li>
+            </ol>
+          </nav>
 
-        <article className="bg-neutral-100 rounded-[3rem] border border-accent-300/30 p-8 md:p-14 shadow-soft">
-          <header className="mb-10">
-            <div className="flex flex-col md:flex-row md:items-end gap-3">
-              <h1 className="text-4xl md:text-6xl font-black font-display text-heritage-dark tracking-tight break-words">
-                {entry.headword}
-              </h1>
-              <p className="text-accent-700 font-display text-lg italic mb-1 md:mb-3">
-                / {entry.part_of_speech || 'word'} /
-              </p>
-            </div>
-            <p className="mt-3 text-sm font-black uppercase tracking-[0.25em] text-neutral-600">
-              {entry.language?.name}
-              {entry.language?.native_name ? ` · ${entry.language.native_name}` : ''}
-            </p>
-          </header>
+          <h1 className="headword break-words text-5xl sm:text-6xl md:text-7xl">
+            {entry.headword}
+          </h1>
+
+          <p className="label mt-4 text-sand-300">
+            {entry.language?.name}
+            {entry.language?.native_name ? ` · ${entry.language.native_name}` : ''}
+            {entry.part_of_speech ? ` · ${entry.part_of_speech}` : ''}
+          </p>
+
+          <p className="definition mt-6 max-w-2xl text-paper">{entry.primary_definition}</p>
+
+          {(entry.english_translation || entry.swahili_translation) && (
+            <dl className="mt-7 flex flex-wrap gap-x-10 gap-y-3 border-t border-ink-800 pt-5">
+              {entry.english_translation && (
+                <div>
+                  <dt className="label text-ink-400">English</dt>
+                  <dd className="mt-0.5 text-lg text-paper">{entry.english_translation}</dd>
+                </div>
+              )}
+              {entry.swahili_translation && (
+                <div>
+                  <dt className="label text-ink-400">Kiswahili</dt>
+                  <dd className="mt-0.5 text-lg text-paper">{entry.swahili_translation}</dd>
+                </div>
+              )}
+            </dl>
+          )}
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+        {/* ---- Voice: the signature element, directly under the answer ---- */}
+        <section aria-labelledby="voice-heading" className="mb-10">
+          <h2 id="voice-heading" className="label mb-3">
+            {recordings.length > 0
+              ? `Heard from ${recordings.length} ${recordings.length === 1 ? 'speaker' : 'speakers'}`
+              : 'Pronunciation'}
+          </h2>
 
           {recordings.length > 0 ? (
-            <div className="mb-8 bg-accent-50 border border-accent-100 rounded-2xl p-5">
-              <h2 className="text-[10px] font-black text-accent-700 uppercase tracking-[0.2em] mb-3">
-                Heard from {recordings.length} {recordings.length === 1 ? 'speaker' : 'speakers'}
-              </h2>
-              <ul className="space-y-3">
-                {recordings.map((recording) => (
-                  <li key={recording.id}>
-                    {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                    <audio controls preload="none" src={recording.url} className="w-full" />
-                    <p className="mt-1 text-xs text-neutral-600">
-                      {[
-                        recording.speakerType === 'native' ? 'First-language speaker' : null,
-                        recording.speakerType === 'heritage' ? 'Heritage speaker' : null,
-                        recording.speakerType === 'learner' ? 'Learner' : null,
-                        recording.homeCounty ? `learned in ${recording.homeCounty}` : null,
-                      ]
-                        .filter(Boolean)
-                        .join(' · ')}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : entry.audio_url ? (
-            <div className="mb-8 bg-accent-50 border border-accent-100 rounded-2xl p-4">
-              <h2 className="text-[10px] font-black text-accent-700 uppercase tracking-[0.2em] mb-2">
-                Pronunciation
-              </h2>
-              {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-              <audio controls preload="none" className="w-full" src={entry.audio_url}>
-                Your browser does not support audio playback.
-              </audio>
-            </div>
-          ) : null}
-
-          <div className="mb-8">
-            <RecordEntryAudio
-              entryId={entry.id}
-              headword={entry.headword}
-              languageId={entry.language?.id ?? ''}
-              languageCode={entry.language?.code ?? ''}
-              languageName={entry.language?.name ?? 'this language'}
+            <ul className="space-y-5">
+              {recordings.map((recording) => (
+                <li key={recording.id}>
+                  <Waveform src={recording.url} caption={speakerCaption(recording)} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <Waveform
+              src={entry.audio_url}
+              emptyLabel={`No one has recorded ${entry.headword} yet`}
             />
-          </div>
+          )}
+        </section>
 
-          <div className="space-y-10">
-            <section>
-              <h2 className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em] mb-4">
-                Definition
-              </h2>
-              <p className="text-lg md:text-2xl font-medium text-neutral-800 leading-relaxed font-serif">
-                {entry.primary_definition}
-              </p>
-            </section>
+        {/* ---- Provenance: credibility, honesty and invitation in one line ---- */}
+        <div className="mb-10">
+          <Provenance
+            sourceType={entry.source_type}
+            sourceReference={entry.source_reference}
+            affirmations={entry.attestations.affirmations}
+            disputes={entry.attestations.disputes}
+            nativeSpeakerConfirmed={entry.attestations.nativeSpeakerConfirmed}
+            recordings={recordings.length}
+            languageName={entry.language?.name}
+            languageCode={entry.language?.code}
+          />
+        </div>
 
-            {(entry.english_translation || entry.swahili_translation) && (
-              <section className="grid md:grid-cols-2 gap-6">
-                {entry.english_translation && (
-                  <div className="bg-neutral-50 p-5 rounded-2xl border border-neutral-200">
-                    <h2 className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] mb-2">
-                      English
-                    </h2>
-                    <p className="text-lg font-medium text-neutral-700">{entry.english_translation}</p>
-                  </div>
-                )}
-                {entry.swahili_translation && (
-                  <div className="bg-neutral-50 p-5 rounded-2xl border border-neutral-200">
-                    <h2 className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] mb-2">
-                      Kiswahili
-                    </h2>
-                    <p className="text-lg font-medium text-neutral-700">{entry.swahili_translation}</p>
-                  </div>
-                )}
-              </section>
-            )}
-
-            {meta.length > 0 && (
-              <section className="grid md:grid-cols-2 gap-6">
-                {meta.map((item) => (
-                  <div
-                    key={item.label}
-                    className={`bg-neutral-50 p-5 rounded-2xl border border-neutral-200 ${item.wide ? 'md:col-span-2' : ''}`}
-                  >
-                    <h2 className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] mb-2">
-                      {item.label}
-                    </h2>
-                    <p className="text-neutral-700 font-medium leading-relaxed">{item.value}</p>
-                  </div>
-                ))}
-              </section>
-            )}
-
-            {entry.usage_examples.length > 0 && (
-              <section>
-                <h2 className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em] mb-6">
-                  In context
-                </h2>
-                <div className="space-y-6">
-                  {entry.usage_examples.map((example, index) => (
-                    <figure
-                      key={index}
-                      className="bg-neutral-50 p-4 md:p-8 rounded-[2rem] border-l-4 border-accent-300 break-words"
-                    >
-                      <blockquote className="italic text-neutral-700 text-lg">
-                        {example.text}
-                      </blockquote>
-                      {(example.english || example.swahili) && (
-                        <figcaption className="mt-3 text-sm text-neutral-600">
-                          {example.english || example.swahili}
-                        </figcaption>
-                      )}
-                    </figure>
-                  ))}
+        {detail.length > 0 && (
+          <section className="mb-10 border-t border-ink-200 pt-6">
+            <dl className="grid gap-x-10 gap-y-5 sm:grid-cols-2">
+              {detail.map((item) => (
+                <div key={item.label}>
+                  <dt className="label">{item.label}</dt>
+                  <dd className={`mt-1 text-ink-800 ${item.mono ? 'font-mono text-[0.95rem]' : ''}`}>
+                    {item.value}
+                  </dd>
                 </div>
-              </section>
-            )}
+              ))}
+            </dl>
+          </section>
+        )}
 
-            {equivalents.length > 0 && (
-              <section>
-                <h2 className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em] mb-4">
-                  The same meaning in other languages
-                </h2>
-                <ul className="flex flex-wrap gap-2">
-                  {equivalents.map((item) => (
-                    <li key={item.id}>
-                      <Link
-                        href={`/entry/${item.id}`}
-                        className="inline-flex items-baseline gap-2 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2 hover:border-accent-300 transition-colors"
-                      >
-                        <span className="font-bold text-neutral-900">{item.headword}</span>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-neutral-600">
-                          {item.language?.name}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-          </div>
-        </article>
+        {entry.usage_examples.length > 0 && (
+          <section className="mb-10 border-t border-ink-200 pt-6">
+            <h2 className="label mb-4">In context</h2>
+            <ul className="space-y-5">
+              {entry.usage_examples.map((example, index) => (
+                <li key={index} className="border-l-2 border-signal-500 pl-5">
+                  <p className="definition italic">{example.text}</p>
+                  {(example.english || example.swahili) && (
+                    <p className="mt-1.5 text-sm text-ink-600">
+                      {example.english || example.swahili}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {entry.etymology && (
+          <section className="mb-10 border-t border-ink-200 pt-6">
+            <h2 className="label mb-3">Etymology</h2>
+            <p className="text-ink-800 leading-relaxed">{entry.etymology}</p>
+          </section>
+        )}
+
+        {/* ---- The second action: same meaning, other languages ---- */}
+        {equivalents.length > 0 && (
+          <section className="mb-10 border-t border-ink-200 pt-6">
+            <h2 className="label mb-4">The same meaning elsewhere</h2>
+            <ul className="flex flex-wrap gap-2">
+              {equivalents.map((item) => (
+                <li key={item.id}>
+                  <Link
+                    href={`/entry/${item.id}`}
+                    className="inline-flex items-baseline gap-2 rounded-md border border-ink-200 bg-card px-3.5 py-2 transition-colors hover:border-ink-900"
+                  >
+                    <span className="font-semibold text-ink-900">{item.headword}</span>
+                    <span className="label">{item.language?.name}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* ---- The third action: add your voice ---- */}
+        <section className="mb-10 border-t border-ink-200 pt-6">
+          <RecordEntryAudio
+            entryId={entry.id}
+            headword={entry.headword}
+            languageId={entry.language?.id ?? ''}
+            languageCode={entry.language?.code ?? ''}
+            languageName={entry.language?.name ?? 'this language'}
+          />
+        </section>
       </main>
 
-      {/* Likes, comments, saving, reporting and editing — client only. */}
       <EntryCommunity entryId={entry.id} />
     </div>
   )

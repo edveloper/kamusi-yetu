@@ -225,8 +225,12 @@ export type PublicEntry = {
   swahili_translation: string | null
   trust_score: number | null
   updated_at: string | null
+  source_type: string | null
+  source_reference: string | null
   language: { id: string; name: string; code: string; native_name: string | null } | null
   usage_examples: Array<{ text: string; english: string | null; swahili: string | null }>
+  /** Who has vouched for this entry, and in what capacity. */
+  attestations: { affirmations: number; disputes: number; nativeSpeakerConfirmed: boolean }
 }
 
 /**
@@ -242,6 +246,7 @@ export async function getPublicEntry(id: string): Promise<PublicEntry | null> {
       `id, headword, primary_definition, part_of_speech, category, pronunciation_ipa,
        dialect_variant, etymology, audio_url, english_translation, swahili_translation,
        trust_score, updated_at, validation_status, needs_orthography_review,
+       source_type, source_reference,
        language:languages(id, name, code, native_name)`
     )
     .eq('id', id)
@@ -252,11 +257,30 @@ export async function getPublicEntry(id: string): Promise<PublicEntry | null> {
   const row = data as Record<string, unknown>
   if (row.validation_status !== 'verified' || row.needs_orthography_review === true) return null
 
-  const { data: exampleRows } = await supabase
-    .from('entry_usage_examples')
-    .select('example_text, english_translation, swahili_translation')
-    .eq('entry_id', id)
-    .order('created_at', { ascending: true })
+  type AttestationRow = { verdict: string; user_id: string; credential_kind: string }
+
+  const [exampleResult, attestationResult] = await Promise.all([
+    supabase
+      .from('entry_usage_examples')
+      .select('example_text, english_translation, swahili_translation')
+      .eq('entry_id', id)
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('attestations')
+      .select('verdict, user_id, credential_kind')
+      .eq('entry_id', id),
+  ])
+
+  const exampleRows = exampleResult.data
+  const attestationRows = (attestationResult.data ?? []) as AttestationRow[]
+  const affirmations = attestationRows.filter((a) => a.verdict === 'affirm')
+  const attestations = {
+    affirmations: affirmations.length,
+    disputes: attestationRows.filter((a) => a.verdict === 'dispute').length,
+    nativeSpeakerConfirmed: affirmations.some(
+      (a) => a.credential_kind === 'native_speaker' || a.credential_kind === 'heritage_speaker'
+    ),
+  }
 
   const languageValue = row.language
   const language = Array.isArray(languageValue) ? languageValue[0] : languageValue
@@ -264,6 +288,7 @@ export async function getPublicEntry(id: string): Promise<PublicEntry | null> {
   return {
     ...(row as unknown as PublicEntry),
     language: (language as PublicEntry['language']) ?? null,
+    attestations,
     usage_examples: ((exampleRows ?? []) as Array<Record<string, string | null>>)
       .map((example) => ({
         text: String(example.example_text ?? '').trim(),
