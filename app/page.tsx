@@ -52,7 +52,7 @@ export default async function HomePage() {
       {headline && (
         <section aria-labelledby="state-heading" className="border-b border-ink-200">
           <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-            <h2 id="state-heading" className="label mb-8 text-signal-500">
+            <h2 id="state-heading" className="mark label mb-8 text-signal-500">
               Where it stands today
             </h2>
             <dl className="reveal-rows grid grid-cols-2 gap-x-8 gap-y-8 md:grid-cols-4">

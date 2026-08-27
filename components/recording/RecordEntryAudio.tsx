@@ -244,11 +244,11 @@ export default function RecordEntryAudio({
   const Shell = ({ children }: { children: React.ReactNode }) => (
     <section
       aria-labelledby="record-heading"
-      className="bg-accent-50 border border-accent-200 rounded-2xl p-5 md:p-6"
+      className="border-2 border-ink-900 bg-card p-5 md:p-6"
     >
       <h2
         id="record-heading"
-        className="text-[10px] font-black text-accent-700 uppercase tracking-[0.22em] mb-3"
+        className="mark label mb-4 text-signal-500"
       >
         Record this word
       </h2>
@@ -262,13 +262,13 @@ export default function RecordEntryAudio({
   )
 
   if (stage === 'loading') {
-    return <Shell><p className="text-sm text-neutral-700">Checking your details…</p></Shell>
+    return <Shell><p className="text-sm text-ink-700">Checking your details…</p></Shell>
   }
 
   if (stage === 'signed_out') {
     return (
       <Shell>
-        <p className="text-sm text-neutral-700 mb-4">
+        <p className="text-sm text-ink-700 mb-4">
           If you speak {languageName}, a few seconds of audio makes <strong>{headword}</strong>{' '}
           usable by voice technology. Sign in to record it.
         </p>
@@ -280,7 +280,7 @@ export default function RecordEntryAudio({
   if (stage === 'consent') {
     return (
       <Shell>
-        <ul className="text-sm text-neutral-700 space-y-1.5 mb-4">
+        <ul className="text-sm text-ink-700 space-y-1.5 mb-4">
           {CONSENT_SUMMARY.map((line) => <li key={line}>{line}</li>)}
         </ul>
         <ul className="space-y-3 mb-5">
@@ -290,7 +290,7 @@ export default function RecordEntryAudio({
                 {scope.required ? '•' : '○'}
               </span>
               <div>
-                <p className="text-sm font-semibold text-neutral-900">
+                <p className="text-sm font-semibold text-ink-900">
                   {scope.label}
                   {!scope.required && (
                     <label className="ml-3 inline-flex items-center gap-2 font-medium text-neutral-700">
@@ -303,7 +303,7 @@ export default function RecordEntryAudio({
                     </label>
                   )}
                 </p>
-                <p className="text-sm text-neutral-700">{scope.detail}</p>
+                <p className="text-sm text-ink-700">{scope.detail}</p>
               </div>
             </li>
           ))}
@@ -311,7 +311,7 @@ export default function RecordEntryAudio({
         <button onClick={handleConsent} disabled={busy} className="btn-primary text-xs disabled:opacity-50">
           {busy ? 'Saving…' : 'I agree, and I am 18 or over'}
         </button>
-        <p className="text-xs text-neutral-600 mt-3">
+        <p className="text-xs text-ink-600 mt-3">
           You can withdraw at any time from your profile, and we will delete your recordings.
         </p>
       </Shell>
@@ -321,13 +321,13 @@ export default function RecordEntryAudio({
   if (stage === 'profile') {
     return (
       <Shell>
-        <p className="text-sm text-neutral-700 mb-4">
+        <p className="text-sm text-ink-700 mb-4">
           Three quick questions. They decide whether a model trained on this data works
           for everyone or only for some people.
         </p>
         <div className="space-y-4">
           <fieldset>
-            <legend className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] mb-2">
+            <legend className="label mb-2 text-ink-600">
               Your {languageName}
             </legend>
             <div className="space-y-2">
@@ -354,12 +354,12 @@ export default function RecordEntryAudio({
             <label htmlFor="speaker-county" className="block text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] mb-1">
               Where you learned it
             </label>
-            <p className="text-xs text-neutral-600 mb-2">{WHY_WE_ASK.county}</p>
+            <p className="text-xs text-ink-600 mb-2">{WHY_WE_ASK.county}</p>
             <select
               id="speaker-county"
               value={form.home_county}
               onChange={(event) => setForm({ ...form, home_county: event.target.value })}
-              className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl"
+              className="w-full border border-ink-300 bg-card px-4 py-3 text-ink-900 outline-none focus:border-ink-900"
             >
               <option value="">Prefer not to say</option>
               {countyChoices.map((county) => (
@@ -377,7 +377,7 @@ export default function RecordEntryAudio({
                 id="speaker-age"
                 value={form.age_band}
                 onChange={(event) => setForm({ ...form, age_band: event.target.value })}
-                className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl"
+                className="w-full border border-ink-300 bg-card px-4 py-3 text-ink-900 outline-none focus:border-ink-900"
               >
                 <option value="">Prefer not to say</option>
                 {AGE_BANDS.map((band) => (
@@ -393,7 +393,7 @@ export default function RecordEntryAudio({
                 id="speaker-gender"
                 value={form.gender}
                 onChange={(event) => setForm({ ...form, gender: event.target.value })}
-                className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl"
+                className="w-full border border-ink-300 bg-card px-4 py-3 text-ink-900 outline-none focus:border-ink-900"
               >
                 {GENDER_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
@@ -412,8 +412,8 @@ export default function RecordEntryAudio({
   if (stage === 'done') {
     return (
       <Shell>
-        <p className="text-sm font-semibold text-neutral-900 mb-1">Asante. Your recording is saved.</p>
-        <p className="text-sm text-neutral-700">
+        <p className="text-sm font-semibold text-ink-900 mb-1">Asante. Your recording is saved.</p>
+        <p className="text-sm text-ink-700">
           A moderator will check it, then it appears on this page for everyone.
         </p>
       </Shell>
@@ -425,7 +425,7 @@ export default function RecordEntryAudio({
   if (!supported) {
     return (
       <Shell>
-        <p className="text-sm text-neutral-700">
+        <p className="text-sm text-ink-700">
           This browser cannot record audio. Chrome or Firefox on Android, or Safari on
           iPhone, will work.
         </p>
@@ -435,8 +435,8 @@ export default function RecordEntryAudio({
 
   return (
     <Shell>
-      <p className="text-sm text-neutral-700 mb-2">Say this word clearly, once:</p>
-      <p className="text-3xl font-black font-display text-heritage-dark mb-5 break-words">{headword}</p>
+      <p className="text-sm text-ink-700 mb-2">Say this word clearly, once:</p>
+      <p className="headword mb-5 break-words text-4xl text-ink-900">{headword}</p>
 
       {!blob ? (
         <div className="flex flex-wrap items-center gap-3">
@@ -451,7 +451,7 @@ export default function RecordEntryAudio({
               Stop ({MAX_SECONDS - seconds}s)
             </button>
           )}
-          <span className="text-xs text-neutral-600">Up to {MAX_SECONDS} seconds.</span>
+          <span className="text-xs text-ink-600">Up to {MAX_SECONDS} seconds.</span>
         </div>
       ) : (
         <div className="space-y-4">
@@ -466,7 +466,7 @@ export default function RecordEntryAudio({
             <button
               onClick={discard}
               disabled={busy}
-              className="text-xs font-black uppercase tracking-[0.22em] text-neutral-600 hover:text-accent-700"
+              className="text-[0.9375rem] font-semibold text-ink-600 underline underline-offset-4 hover:text-ink-900"
             >
               Record again
             </button>

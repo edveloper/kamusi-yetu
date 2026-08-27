@@ -155,7 +155,7 @@ export default async function EntryPage({ params }: Params) {
       <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
         {/* ---- Voice: the signature element, directly under the answer ---- */}
         <section aria-labelledby="voice-heading" className="mb-10">
-          <h2 id="voice-heading" className="label text-ink-600 mb-3">
+          <h2 id="voice-heading" className="mark label mb-3 text-ink-600">
             {recordings.length > 0
               ? `Heard from ${recordings.length} ${recordings.length === 1 ? 'speaker' : 'speakers'}`
               : 'Pronunciation'}
@@ -208,7 +208,7 @@ export default async function EntryPage({ params }: Params) {
 
         {entry.usage_examples.length > 0 && (
           <section className="mb-10 border-t border-ink-200 pt-6">
-            <h2 className="label text-ink-600 mb-4">In context</h2>
+            <h2 className="mark label mb-4 text-ink-600">In context</h2>
             <ul className="space-y-5">
               {entry.usage_examples.map((example, index) => (
                 <li key={index} className="border-l-2 border-signal-500 pl-5">
@@ -226,7 +226,7 @@ export default async function EntryPage({ params }: Params) {
 
         {entry.etymology && (
           <section className="mb-10 border-t border-ink-200 pt-6">
-            <h2 className="label text-ink-600 mb-3">Etymology</h2>
+            <h2 className="mark label mb-3 text-ink-600">Etymology</h2>
             <p className="text-ink-800 leading-relaxed">{entry.etymology}</p>
           </section>
         )}
@@ -234,7 +234,7 @@ export default async function EntryPage({ params }: Params) {
         {/* ---- The second action: same meaning, other languages ---- */}
         {equivalents.length > 0 && (
           <section className="mb-10 border-t border-ink-200 pt-6">
-            <h2 className="label text-ink-600 mb-4">The same meaning elsewhere</h2>
+            <h2 className="mark label mb-4 text-ink-600">The same meaning elsewhere</h2>
             <ul className="flex flex-wrap gap-2">
               {equivalents.map((item) => (
                 <li key={item.id}>

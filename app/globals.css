@@ -221,6 +221,25 @@
   color: inherit;
 }
 
+/* The mark. Borrowed from The Test Card, where a repeated glyph before every
+ * section title is a large part of why the page reads as authored rather than
+ * assembled. It suits this project twice over: it is a record button, and it
+ * is a fisheye, which is what a vowel with a diacritic looks like at a glance.
+ *
+ * Applied through a pseudo-element so it never lands in the accessible name
+ * and no screen reader has to announce a decorative circle. */
+.mark::before {
+  content: "C9";
+  color: var(--color-signal-500);
+  margin-right: 0.55em;
+  font-size: 0.9em;
+  line-height: 1;
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.mark-ink::before { color: var(--color-sand-300); }
+
 /* Small uppercase metadata: language codes, counts, statuses. */
 .label {
   font-family: var(--font-mono);

@@ -99,7 +99,7 @@ export default async function GuidelinesPage() {
         </section>
 
         <section className="mb-16">
-          <h2 className="display mb-2 text-2xl">How an entry is made</h2>
+          <h2 className="mark display mb-2 text-2xl">How an entry is made</h2>
           <p className="mb-8 text-ink-700">Four stages. An entry can sit at any of them.</p>
           <ol className="border-t border-ink-200">
             {STAGES.map((stage) => (
@@ -118,7 +118,7 @@ export default async function GuidelinesPage() {
         </section>
 
         <section className="mb-16">
-          <h2 className="display mb-2 text-2xl">What the statuses mean</h2>
+          <h2 className="mark display mb-2 text-2xl">What the statuses mean</h2>
           <p className="mb-8 text-ink-700">
             Our public figures count only the first of these. An entry nobody has checked is not
             a verified entry, however good it looks.
@@ -155,7 +155,7 @@ export default async function GuidelinesPage() {
         </section>
 
         <section className="mb-16">
-          <h2 className="display mb-2 text-2xl">The spelling problem, stated plainly</h2>
+          <h2 className="mark display mb-2 text-2xl">The spelling problem, stated plainly</h2>
           <p className="mb-4 text-ink-700">
             An encoding fault upstream of our earliest imports destroyed the vowels that
             distinguish Kikuyu, Embu, Meru and Gusii orthography.{' '}
@@ -177,7 +177,7 @@ export default async function GuidelinesPage() {
         </section>
 
         <section className="mb-16">
-          <h2 className="display mb-2 text-2xl">Who may verify what</h2>
+          <h2 className="mark display mb-2 text-2xl">Who may verify what</h2>
           <p className="mb-6 text-ink-700">
             Authority is granted per language, not globally. A linguist working on Dholuo has no
             standing over Kipsigis, and a Kipsigis first-language speaker with no degree has the
@@ -201,7 +201,7 @@ export default async function GuidelinesPage() {
         </section>
 
         <section className="mb-16">
-          <h2 className="display mb-2 text-2xl">What belongs here</h2>
+          <h2 className="mark display mb-2 text-2xl">What belongs here</h2>
           <div className="grid gap-8 sm:grid-cols-2">
             <div>
               <p className="label mb-3 text-petrol-500">Yes</p>
@@ -232,7 +232,7 @@ export default async function GuidelinesPage() {
         </section>
 
         <section className="mb-16">
-          <h2 className="display mb-2 text-2xl">Recordings and consent</h2>
+          <h2 className="mark display mb-2 text-2xl">Recordings and consent</h2>
           <p className="mb-4 text-ink-700">
             Your voice is personal data. We record only with explicit consent, stored against the
             exact wording you agreed to, and you can withdraw at any time from your profile. That
@@ -251,7 +251,7 @@ export default async function GuidelinesPage() {
         </section>
 
         <section className="mb-16">
-          <h2 className="display mb-2 text-2xl">Using the data</h2>
+          <h2 className="mark display mb-2 text-2xl">Using the data</h2>
           <p className="mb-4 text-ink-700">
             The corpus is licensed{' '}
             <a
