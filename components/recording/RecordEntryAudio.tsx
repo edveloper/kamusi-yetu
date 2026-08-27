@@ -309,7 +309,7 @@ export default function RecordEntryAudio({
           ))}
         </ul>
         <button onClick={handleConsent} disabled={busy} className="btn-primary text-xs disabled:opacity-50">
-          {busy ? 'Saving…' : 'I agree — I am 18 or over'}
+          {busy ? 'Saving…' : 'I agree, and I am 18 or over'}
         </button>
         <p className="text-xs text-neutral-600 mt-3">
           You can withdraw at any time from your profile, and we will delete your recordings.

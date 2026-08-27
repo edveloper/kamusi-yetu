@@ -420,7 +420,7 @@ export default function TranslatePage() {
             <div className="grid md:grid-cols-3 gap-4 text-sm text-neutral-700">
               <div><strong>Match strength</strong> reflects how the result was found, not how many people have reviewed it. A direct match is the strongest; each additional language a result is routed through weakens it.</div>
               <div><strong>Direct:</strong> Both languages have a verified entry for this word. <strong>Bridge:</strong> Found through the entry&apos;s English or Swahili translation. <strong>Pivot:</strong> Routed through a second language to get here.</div>
-              <div><strong>Found more than one way:</strong> when a result lists several routes, independent paths agreed on it — that is corroboration, and a good sign.</div>
+              <div><strong>Found more than one way:</strong> when a result lists several routes, independent paths agreed on it. That is corroboration, and a good sign.</div>
               <div><strong>Phrase vs Word:</strong> Phrase matches are multi-word expressions with specific meaning. Word matches are single lexical units.</div>
             </div>
           </div>

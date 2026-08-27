@@ -101,7 +101,7 @@ export default function ConsentSettings() {
           <p className="text-sm text-neutral-700 mb-4">
             {recordings.length === 0
               ? 'You have agreed to record, but have not made a recording yet.'
-              : `${recordings.length} ${recordings.length === 1 ? 'recording' : 'recordings'} — ${verified} published, ${pending} awaiting review.`}
+              : `${recordings.length} ${recordings.length === 1 ? 'recording' : 'recordings'}. ${verified} published, ${pending} awaiting review.`}
           </p>
 
           {recordings.length > 0 && (

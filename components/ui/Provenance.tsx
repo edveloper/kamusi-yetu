@@ -44,7 +44,7 @@ export default function Provenance({
     : nativeSpeakerConfirmed
       ? `Confirmed by ${affirmations} reviewer${affirmations === 1 ? '' : 's'}, including a first-language speaker`
       : affirmations > 0
-        ? `Reviewed by ${affirmations} contributor${affirmations === 1 ? '' : 's'} — no first-language speaker yet`
+        ? `Reviewed by ${affirmations} contributor${affirmations === 1 ? '' : 's'}. No first-language speaker yet.`
         : seeded
           ? 'Seeded from a published source. No speaker has checked it yet.'
           : 'Contributed by the community. Not yet independently confirmed.'

@@ -161,7 +161,7 @@ export default function ConceptGapsPage() {
             {coverage && (
               <p className="mt-3 text-sm text-neutral-700">
                 <strong>{language?.name}</strong> has {coverage.concepts_covered} of{' '}
-                {coverage.concepts_total} core meanings — {coverage.percent_covered}%.
+                {coverage.concepts_total} core meanings, {coverage.percent_covered}%.
               </p>
             )}
           </div>
@@ -293,7 +293,7 @@ export default function ConceptGapsPage() {
                 {filled.slice(0, 8).map((item, i) => (
                   <li key={`${item.headword}-${i}`} className="text-sm text-neutral-700">
                     <strong className="text-neutral-900">{item.headword}</strong>
-                    {item.gloss ? ` — ${item.gloss}` : ''}
+                    {item.gloss ? `, ${item.gloss}` : ''}
                   </li>
                 ))}
               </ul>

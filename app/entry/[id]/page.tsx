@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const entry = await getPublicEntry(id)
   if (!entry) return { title: 'Entry not found' }
 
-  const title = `${entry.headword} — ${describeEntry(entry)}`
+  const title = `${entry.headword}. ${describeEntry(entry)}`
   const description = [
     `${entry.headword} (${entry.language?.name ?? 'Kenyan language'})`,
     String(entry.primary_definition ?? '').trim(),
@@ -68,7 +68,7 @@ export default async function EntryPage({ params }: Params) {
     description: entry.primary_definition ?? undefined,
     inDefinedTermSet: {
       '@type': 'DefinedTermSet',
-      name: `${SITE_NAME} — ${entry.language?.name ?? 'Kenyan languages'}`,
+      name: `${SITE_NAME}, ${entry.language?.name ?? 'Kenyan languages'}`,
       url: SITE_URL,
     },
     inLanguage: entry.language?.code ?? undefined,

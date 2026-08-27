@@ -20,7 +20,7 @@ const STAGES = [
   {
     n: '01',
     name: 'Contributed',
-    body: 'Someone who speaks the language supplies a word — either by filling a gap we asked for, or by adding one we did not know to ask about. Nothing is machine-generated in an indigenous language, ever.',
+    body: 'Someone who speaks the language supplies a word. Either by filling a gap we asked for, or by adding one we did not know to ask about. Nothing is machine-generated in an indigenous language, ever.',
   },
   {
     n: '02',
@@ -35,7 +35,7 @@ const STAGES = [
   {
     n: '04',
     name: 'Voiced',
-    body: 'Speakers record it. We keep many recordings per word rather than one, because a speech model learns from variation across age, region and device — one perfect recording teaches it nothing.',
+    body: 'Speakers record it. We keep many recordings per word rather than one, because a speech model learns from variation across age, region and device. One perfect recording teaches it nothing.',
   },
 ]
 
@@ -158,13 +158,13 @@ export default async function GuidelinesPage() {
           <h2 className="display mb-2 text-2xl">The spelling problem, stated plainly</h2>
           <p className="mb-4 text-ink-700">
             An encoding fault upstream of our earliest imports destroyed the vowels that
-            distinguish Kikuyu, Embu, Meru and Gusii orthography —{' '}
+            distinguish Kikuyu, Embu, Meru and Gusii orthography.{' '}
             <span className="font-mono text-ink-900">ĩ</span> and{' '}
             <span className="font-mono text-ink-900">ũ</span> became question marks. It affects{' '}
             <strong className="text-ink-900">358 entries</strong>.
           </p>
           <p className="mb-4 text-ink-700">
-            There is no clean copy to restore from: the spreadsheets those imports came from are
+            There is no clean copy to restore from. The spreadsheets those imports came from are
             corrupted too. Only twelve can be repaired mechanically, by matching against an intact
             duplicate already in the corpus.
           </p>
@@ -196,7 +196,7 @@ export default async function GuidelinesPage() {
           </div>
           <p className="mt-6 text-ink-700">
             A claim is not a credential until a moderator has checked it. Nobody can vouch for an
-            entry they contributed themselves — enforced by the database, not by policy.
+            entry they contributed themselves. That is enforced by the database, not by policy.
           </p>
         </section>
 
@@ -208,7 +208,7 @@ export default async function GuidelinesPage() {
               <ul className="space-y-2 text-ink-700">
                 <li>Everyday words, as people actually say them</li>
                 <li>Greetings, idioms, proverbs, set phrases</li>
-                <li>Regional and dialect variants — say which</li>
+                <li>Regional and dialect variants, saying which</li>
                 <li>Farming, fishing, craft and ceremonial vocabulary</li>
                 <li>Words falling out of use, marked as such</li>
               </ul>
@@ -235,16 +235,16 @@ export default async function GuidelinesPage() {
           <h2 className="display mb-2 text-2xl">Recordings and consent</h2>
           <p className="mb-4 text-ink-700">
             Your voice is personal data. We record only with explicit consent, stored against the
-            exact wording you agreed to, and you can withdraw at any time from your profile — which
+            exact wording you agreed to, and you can withdraw at any time from your profile. That
             removes your recordings from the corpus and deletes the audio.
           </p>
           <p className="mb-4 text-ink-700">
-            Consent is split into separate permissions rather than one blanket agreement: publishing
-            on the site, training speech models, and redistribution under the corpus licence. Being
+            Consent is split into separate permissions rather than one blanket agreement. You choose publishing
+            on the site, training speech models, and redistribution under the corpus licence separately. Being
             credited by name is optional and separate. You must be 18 or over.
           </p>
           <p className="text-ink-700">
-            We ask where you learned the language, your age band and your voice — not out of
+            We ask where you learned the language, your age band and your voice. Not out of
             curiosity. A speech model trained mostly on one kind of voice from one region works
             badly for everyone else.
           </p>

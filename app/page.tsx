@@ -1,220 +1,233 @@
 import Link from 'next/link'
-import { getLanguageNote } from '@/lib/constants/languageNotes'
-import { getHomepageData } from '@/lib/public-site'
+import { getCorpusHeadline, getLanguageDirectory } from '@/lib/public-site'
+import LanguagePicker from '@/components/home/LanguagePicker'
 import SearchAutocomplete from '@/components/SearchAutocomplete'
 
-export default async function HomePage() {
-  const { languages, latest, wordOfTheDay, stats } = await getHomepageData()
-  const maturityLevels = ['Starter', 'Growing', 'Phrase-Ready', 'Review-Heavy']
+// Searchers do not arrive here. They find a word through a web search and land
+// on its entry page. The people who arrive at the homepage are speakers,
+// heritage learners and funders, so the page answers their questions instead of
+// offering a search box none of them came for.
 
-  const projectStats = [
-    { label: 'Languages', value: stats.totalLanguages },
-    { label: 'Verified Entries', value: stats.totalEntries },
-    { label: 'Phrase Packs', value: stats.totalPhrases },
-  ]
+export const revalidate = 300
+
+export default async function HomePage() {
+  const [languages, headline] = await Promise.all([
+    getLanguageDirectory(),
+    getCorpusHeadline(),
+  ])
+
+  const withAudio = languages.filter((language) => language.recordings > 0).length
+  const emptiest = [...languages]
+    .filter((language) => language.entries > 0)
+    .sort((a, b) => a.percentCovered - b.percentCovered)
+    .slice(0, 6)
 
   return (
-    <div className="min-h-screen bg-neutral-100 font-sans pb-20">
-      {/* Project Status Ribbon */}
-      <div className="bg-primary-100 text-primary-700 border-b border-primary-300">
-        {/* Mobile: auto-scrolling ticker */}
-        <div className="md:hidden overflow-hidden py-2">
-          <div className="ticker-track">
-            {[0, 1].map((copy) => (
-              <div key={copy} className="flex items-center gap-5 px-6 whitespace-nowrap" aria-hidden={copy === 1 ? true : undefined}>
-                <span className="text-primary-600 text-sm font-semibold uppercase tracking-[0.18em]">Live Dictionary Status</span>
-                <span className="inline-block h-4 w-px bg-primary-300" />
-                {projectStats.map((stat) => (
-                  <span key={stat.label} className="inline-flex items-center gap-2 rounded-full bg-neutral-100 border border-primary-300 px-3 py-1.5 text-primary-900 text-sm font-semibold uppercase tracking-[0.18em]">
-                    <span>{stat.label}:</span>
-                    <strong className="font-black text-primary-600">{stat.value.toLocaleString()}</strong>
-                  </span>
-                ))}
-                <span className="inline-block w-8" />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Desktop: static centered layout */}
-        <div className="hidden md:block px-6 py-2">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-center gap-4 text-sm font-semibold uppercase tracking-[0.18em]">
-              <span className="text-primary-600">Live Dictionary Status</span>
-              <span className="inline-block h-4 w-px bg-primary-300" />
-              {projectStats.map((stat) => (
-                <span key={stat.label} className="inline-flex items-center gap-2 rounded-full bg-neutral-100 border border-primary-300 px-3 py-2 text-primary-900">
-                  <span>{stat.label}:</span>
-                  <strong className="font-black text-primary-600">{stat.value.toLocaleString()}</strong>
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="relative overflow-hidden bg-heritage-dark text-white py-20 md:py-28 px-4 sm:px-6">
-        <div className="relative max-w-5xl mx-auto text-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-accent-300 mb-4 font-semibold">Our Languages, Our Heritage</p>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-display">LughaKonnect</h1>
-          <p className="mt-6 text-base md:text-lg text-white max-w-2xl mx-auto leading-8">
-            A living archive where Kenya's languages breathe. Discover words your grandmother spoke. Share the phrases that carry your culture forward.
+    <div className="min-h-screen bg-paper">
+      {/* ---------------------------------------------------------- hero */}
+      <section className="border-b border-ink-900 bg-ink-900 text-paper">
+        <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-24">
+          <h1 className="display max-w-3xl text-4xl sm:text-5xl md:text-6xl">
+            Kenyan languages, written down and spoken aloud, by the people who speak them
+          </h1>
+          <p className="definition mt-6 max-w-2xl text-ink-300">
+            Most of Kenya&apos;s languages are missing from the dictionaries, keyboards and
+            translation systems being built right now. This is where they get written into
+            them.
           </p>
 
-          <div className="mt-10 max-w-2xl mx-auto">
+          <div className="mt-12 border-t border-ink-700 pt-10">
+            <LanguagePicker languages={languages} />
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------- the state */}
+      {headline && (
+        <section aria-labelledby="state-heading" className="border-b border-ink-200">
+          <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+            <h2 id="state-heading" className="label mb-6">
+              Where the corpus stands today
+            </h2>
+            <dl className="grid grid-cols-2 gap-x-8 gap-y-8 md:grid-cols-4">
+              {[
+                {
+                  value: headline.indigenous_entries.toLocaleString(),
+                  label: 'Verified words',
+                  note: 'Checked, and not counting English',
+                },
+                {
+                  value: headline.languages.toLocaleString(),
+                  label: 'Languages',
+                  note: `${withAudio} with a recording`,
+                },
+                {
+                  value: headline.awaiting_curation.toLocaleString(),
+                  label: 'Awaiting a definition',
+                  note: 'Imported, never checked',
+                },
+                {
+                  value: headline.awaiting_orthography.toLocaleString(),
+                  label: 'Awaiting a speaker',
+                  note: 'Spelling we will not guess at',
+                },
+              ].map((stat) => (
+                <div key={stat.label}>
+                  <dd className="tabular font-mono text-3xl font-semibold text-ink-900 md:text-4xl">
+                    {stat.value}
+                  </dd>
+                  <dt className="mt-1.5 font-semibold text-ink-900">{stat.label}</dt>
+                  <p className="mt-0.5 text-sm text-ink-600">{stat.note}</p>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-8 max-w-2xl text-ink-700">
+              The last two numbers are the honest part. We publish them because a corpus that
+              only reports its good figures is not one you should build on.{' '}
+              <Link
+                href="/guidelines"
+                className="font-semibold text-signal-500 underline underline-offset-2"
+              >
+                How we decide what counts
+              </Link>
+              .
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* ------------------------------------------------------ what it is */}
+      <section className="border-b border-ink-200">
+        <div className="mx-auto grid max-w-5xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-2 md:gap-16">
+          <div>
+            <h2 className="display mb-4 text-2xl md:text-3xl">What this is</h2>
+            <p className="mb-4 text-ink-700">
+              An open corpus of Kenyan languages. Words, phrases, usage and recordings,
+              contributed by speakers and checked by reviewers with standing in that language.
+            </p>
+            <p className="mb-4 text-ink-700">
+              It is not a museum piece. The goal is machine-readable language data good enough
+              to build on, so that translation, speech recognition and the devices that use them
+              work in Kipsigis and Dholuo and Rendille, not only in English.
+            </p>
+            <p className="text-ink-700">
+              Everything here is licensed CC BY 4.0, so anyone can build with it as long as they
+              credit the people it came from.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="display mb-4 text-2xl md:text-3xl">Look something up</h2>
+            <p className="mb-5 text-ink-700">
+              Search across every language at once, in English, Kiswahili, or the language
+              itself.
+            </p>
             <form action="/search" className="relative">
               <SearchAutocomplete
                 name="q"
                 formMode
-                placeholder="Find a word, a phrase, a memory..."
-                inputClassName="w-full rounded-2xl border border-ink-200 bg-neutral-100 text-neutral-900 placeholder:text-neutral-600 px-6 py-4 pr-28 font-semibold shadow-soft focus:border-accent-300 focus:ring-4 focus:ring-heritage-light/20 outline-none transition"
+                placeholder="A word in any language"
+                inputClassName="w-full border border-ink-300 bg-card px-4 py-3.5 pr-24 text-ink-900 outline-none placeholder:text-ink-400 focus:border-ink-900"
               />
               <button
                 type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 btn-primary px-7 py-3.5"
+                className="btn-primary absolute right-1.5 top-1/2 -translate-y-1/2 px-4 py-2 text-sm"
               >
                 Search
               </button>
             </form>
-            <div className="mt-4 flex flex-wrap justify-center gap-3 text-xs text-white">
-              <span className="rounded-full bg-ink-800 px-4 py-2">{stats.totalLanguages} languages preserved</span>
-              <span className="rounded-full bg-ink-800 px-4 py-2">{stats.totalEntries.toLocaleString()} verified entries</span>
-              <span className="rounded-full bg-ink-800 px-4 py-2">
-                {stats.totalPhrases > 0 ? `${stats.totalPhrases.toLocaleString()} phrase packs` : 'Growing phrase collection'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 -mt-10 relative z-20">
-        <div className="mb-10 surface-card p-6 md:p-8 border-ink-200">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-heritage-dark mb-2">Our Progress</p>
-              <h2 className="text-3xl md:text-4xl font-black text-neutral-900 font-display">What we've preserved. What's coming.</h2>
-              <p className="text-neutral-700 font-medium mt-4 max-w-3xl leading-relaxed">
-                Today you can search verified words and their meanings. Soon you'll find the full phrases and stories that bring language to life.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {maturityLevels.map((level) => (
-                <span
-                  key={level}
-                  className="rounded-lg border border-ink-200 bg-accent-50 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-accent-700"
-                >
-                  {level}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <Link href={wordOfTheDay ? `/entry/${wordOfTheDay.id}` : '#'}>
-              <div className="surface-card group h-full border-ink-200 transition hover:border-accent-300 hover:shadow-medium">
-                <div className="p-8 md:p-10 space-y-6">
-                  <div className="inline-flex items-center rounded-lg bg-accent-100 px-4 py-2 text-sm font-semibold text-accent-900">
-                    Word to Remember
-                  </div>
-                  <div>
-                    <h2 className="text-5xl md:text-6xl font-black text-neutral-900 mb-2 font-display group-hover:text-heritage-dark transition-colors">
-                      {wordOfTheDay?.headword || 'Salama'}
-                    </h2>
-                    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-heritage-dark">{wordOfTheDay?.language?.name || 'Swahili'}</p>
-                  </div>
-                  <div className="space-y-4 border-t border-neutral-200 pt-4">
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-[0.2em] text-neutral-500 mb-2">Definition</p>
-                      <p className="text-lg text-neutral-700 leading-relaxed font-medium">
-                        {wordOfTheDay?.primary_definition || 'A state of peace, safety, and well-being.'}
-                      </p>
-                    </div>
-                    {wordOfTheDay?.part_of_speech && (
-                      <div>
-                        <p className="text-xs font-black uppercase tracking-[0.2em] text-neutral-500 mb-2">Part of Speech</p>
-                        <p className="text-base text-neutral-700 font-medium italic">{wordOfTheDay.part_of_speech}</p>
-                      </div>
-                    )}
-                    <div className="pt-2">
-                      <p className="text-xs font-black text-heritage-dark hover:text-heritage-darker transition">View full entry →</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </div>
-
-          <div className="space-y-6">
-            <div className="surface-card h-full p-8 pattern-shuka">
-              <h3 className="text-base font-black font-display uppercase tracking-[0.3em] mb-6 text-heritage-dark">Latest additions</h3>
-              <div className="space-y-5">
-                {latest.map((entry) => (
-                  <Link key={entry.id} href={`/entry/${entry.id}`} className="block">
-                    <div className="rounded-lg border border-ink-200 bg-accent-50 p-5 hover:border-accent-300 hover:shadow-soft transition">
-                      <p className="text-lg font-bold text-neutral-900 mb-1">{entry.headword}</p>
-                      <p className="text-[10px] uppercase tracking-[0.25em] text-heritage-dark font-bold mb-3">{entry.language?.name}</p>
-                      <p className="text-sm text-neutral-700 italic line-clamp-2">"{entry.primary_definition}"</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-24">
-          <div className="flex items-center gap-6 mb-12">
-            <h2 className="text-2xl font-black text-neutral-900 font-display uppercase tracking-tight">Communities</h2>
-            <div className="h-px flex-1 bg-neutral-300"></div>
-            <Link href="/explore" className="text-[10px] font-black uppercase tracking-widest text-heritage-dark">
-              View All
-            </Link>
-          </div>
-          <div className="mb-6 rounded-lg border border-ink-200 bg-accent-50 px-5 py-4 pattern-beads">
-            <p className="text-sm text-accent-900 font-semibold leading-relaxed">
-              Language expansion is in progress. If your language has fewer entries, your contributions have immediate impact.
+            <p className="mt-4 text-sm text-ink-600">
+              Or{' '}
+              <Link
+                href="/translate"
+                className="font-semibold text-signal-500 underline underline-offset-2"
+              >
+                move a word between two Kenyan languages
+              </Link>
+              .
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {languages.slice(0, 6).map((lang) => (
-              <Link key={lang.id} href={`/search?language=${lang.id}`} className="group">
-                <div className="bg-neutral-100 border border-ink-200 p-6 rounded-lg hover:border-accent-300 hover:shadow-soft hover:bg-accent-50/50 transition-all h-full flex flex-col">
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="font-black text-neutral-900 group-hover:text-heritage-dark transition-colors">{lang.name}</p>
-                    <span className="text-[9px] font-black uppercase tracking-widest text-heritage-dark bg-accent-100 border border-ink-200 px-2 py-1 rounded-md">
-                      {(lang.code || 'KE').toUpperCase()}
+        </div>
+      </section>
+
+      {/* --------------------------------------------------- where to help */}
+      <section className="border-b border-ink-200">
+        <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
+          <h2 className="display mb-3 text-2xl md:text-3xl">These need the most work</h2>
+          <p className="mb-8 max-w-2xl text-ink-700">
+            Ranked by how much of the core vocabulary is still missing. If you speak one of
+            these, an hour of your time goes further here than anywhere else on the site.
+          </p>
+
+          <ul className="border-t border-ink-200">
+            {emptiest.map((language) => (
+              <li key={language.id} className="border-b border-ink-200">
+                <Link
+                  href={`/contribute/gaps?lang=${language.code}`}
+                  className="grid grid-cols-[1fr_auto] items-center gap-4 py-4 transition-colors hover:bg-paper-warm sm:grid-cols-[1fr_8rem_8rem_auto]"
+                >
+                  <div>
+                    <p className="font-semibold text-ink-900">{language.name}</p>
+                    {language.nativeName && (
+                      <p className="text-sm text-ink-600">{language.nativeName}</p>
+                    )}
+                  </div>
+                  <p className="tabular hidden font-mono text-sm text-ink-600 sm:block">
+                    {language.entries.toLocaleString()} words
+                  </p>
+                  <p className="tabular hidden font-mono text-sm text-ink-600 sm:block">
+                    {language.recordings} recordings
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div className="hidden h-1.5 w-20 bg-ink-200 sm:block">
+                      <div
+                        className="h-full bg-signal-500"
+                        style={{
+                          width: `${Math.min(100, Math.max(2, language.percentCovered))}%`,
+                        }}
+                      />
+                    </div>
+                    <span className="tabular font-mono text-sm font-semibold text-ink-900">
+                      {language.percentCovered}%
                     </span>
                   </div>
-                  <p className="text-xs text-neutral-700 leading-relaxed line-clamp-3 flex-grow">{getLanguageNote(lang.code)}</p>
-                </div>
-              </Link>
+                </Link>
+              </li>
             ))}
-          </div>
-        </div>
+          </ul>
 
-        <div className="bg-heritage-dark rounded-2xl p-12 md:p-16 text-white shadow-strong mt-16">
-          <div className="text-center">
-            <h2 className="text-4xl font-black font-display mb-4">Your language is missing words</h2>
-            <p className="text-white text-lg font-medium mb-8 max-w-3xl mx-auto">
-              We can show you exactly which ones. Pick your language and we&apos;ll ask you
-              for meanings it does not have yet — one word at a time.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link href="/contribute/gaps" className="px-8 py-4 rounded-lg bg-accent-300 text-heritage-dark font-black text-lg hover:bg-accent-400 transition shadow-soft">
-                Show me what&apos;s missing
-              </Link>
-              <Link href="/contribute" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-ink-800 transition">
-                Add any word
-              </Link>
-              <Link href="/contribute?type=phrase" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-ink-800 transition">
-                Add a phrase
-              </Link>
-            </div>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/contribute/gaps" className="btn-primary">
+              Fill a gap
+            </Link>
+            <Link href="/trending" className="btn-secondary">
+              See every language
+            </Link>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* --------------------------------------------------------- closing */}
+      <section className="bg-paper-warm">
+        <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
+          <h2 className="display mb-4 max-w-2xl text-2xl md:text-3xl">
+            If your language is not in a system, neither are you
+          </h2>
+          <p className="mb-6 max-w-2xl text-ink-700">
+            Every word added and every voice recorded is one more piece of evidence that these
+            languages can be worked with. That is what makes them worth supporting in the tools
+            people actually use.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/contribute/gaps" className="btn-primary">
+              Add a word from your language
+            </Link>
+            <Link href="/about" className="btn-secondary">
+              Why this exists
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

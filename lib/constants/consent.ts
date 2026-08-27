@@ -37,7 +37,7 @@ export const CONSENT_SCOPES: ConsentScope[] = [
     key: 'allow_redistribution',
     label: 'Share it under the CC BY 4.0 licence',
     detail:
-      'Others — researchers, app makers, translators — may reuse it, including commercially, as long as they credit LughaKonnect and the community it came from.',
+      'Researchers, app makers and translators may reuse it, including commercially, as long as they credit LughaKonnect and the community it came from.',
     required: true,
   },
   {
@@ -55,10 +55,10 @@ export const CONSENT_SUMMARY = [
 ] as const
 
 export const AGE_BANDS = [
-  { value: '18_24', label: '18–24' },
-  { value: '25_34', label: '25–34' },
-  { value: '35_49', label: '35–49' },
-  { value: '50_64', label: '50–64' },
+  { value: '18_24', label: '18 to 24' },
+  { value: '25_34', label: '25 to 34' },
+  { value: '35_49', label: '35 to 49' },
+  { value: '50_64', label: '50 to 64' },
   { value: '65_plus', label: '65 or older' },
 ] as const
 

@@ -410,3 +410,101 @@ export const getCorpusHeadline = unstable_cache(
   ['public-corpus-headline'],
   { revalidate: 300 }
 )
+
+export type LanguageState = {
+  id: string
+  code: string
+  name: string
+  nativeName: string | null
+  entries: number
+  conceptsCovered: number
+  conceptsTotal: number
+  percentCovered: number
+  recordings: number
+  speakers: number
+  entriesWithAudio: number
+}
+
+/**
+ * Everything the homepage needs to answer "how is my language doing".
+ *
+ * The homepage is not where searchers arrive. They come to an entry page from a
+ * web search. The people who do arrive here are speakers, heritage learners and
+ * funders, and all three arrive with one question already answered in their
+ * head, which is which language they care about. So the page leads with that
+ * rather than with a search box.
+ */
+export const getLanguageDirectory = unstable_cache(
+  async (): Promise<LanguageState[]> => {
+    // languages.role arrives in migration 114. Until it is applied the filtered
+    // query errors, so fall back to every active language rather than rendering
+    // an empty homepage. Bridge languages simply appear until then.
+    const withRole = await supabase
+      .from('languages')
+      .select('id, code, name, native_name, role')
+      .eq('is_active', true)
+      .neq('role', 'bridge')
+      .order('name')
+
+    let languageRows = (withRole.data ?? []) as Array<Record<string, unknown>>
+
+    if (withRole.error) {
+      const fallback = await supabase
+        .from('languages')
+        .select('id, code, name, native_name')
+        .eq('is_active', true)
+        .order('name')
+      languageRows = (fallback.data ?? []) as Array<Record<string, unknown>>
+    }
+
+    const [concepts, voice, counts] = await Promise.all([
+      supabase.from('language_concept_coverage').select('*'),
+      supabase.from('language_voice_coverage').select('*'),
+      supabase
+        .from('entries')
+        .select('language_id')
+        .eq('validation_status', 'verified')
+        .eq('needs_orthography_review', false)
+        .limit(10000),
+    ])
+
+    const conceptRows = new Map(
+      ((concepts.data ?? []) as Array<Record<string, unknown>>).map((row) => [
+        String(row.language_id),
+        row,
+      ])
+    )
+    const voiceRows = new Map(
+      ((voice.data ?? []) as Array<Record<string, unknown>>).map((row) => [
+        String(row.language_id),
+        row,
+      ])
+    )
+
+    const entryCounts: Record<string, number> = {}
+    for (const row of (counts.data ?? []) as Array<{ language_id: string }>) {
+      entryCounts[row.language_id] = (entryCounts[row.language_id] ?? 0) + 1
+    }
+
+    return languageRows.map((language) => {
+      const id = String(language.id)
+      const concept = conceptRows.get(id)
+      const sound = voiceRows.get(id)
+      return {
+        id,
+        code: String(language.code ?? ''),
+        name: String(language.name ?? ''),
+        nativeName: (language.native_name as string | null) ?? null,
+        entries: entryCounts[id] ?? 0,
+        conceptsCovered: Number(concept?.concepts_covered ?? 0),
+        conceptsTotal: Number(concept?.concepts_total ?? 0),
+        percentCovered: Number(concept?.percent_covered ?? 0),
+        recordings: Number(sound?.verified_recordings ?? 0),
+        speakers: Number(sound?.distinct_speakers ?? 0),
+        entriesWithAudio: Number(sound?.entries_with_audio ?? 0),
+      }
+    })
+  },
+  ['public-language-directory'],
+  { revalidate: 300 }
+)
