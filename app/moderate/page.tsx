@@ -10,6 +10,8 @@ import { getLanguages } from '@/lib/api/languages'
 import { isModerator, getModeratorStats } from '@/lib/api/users'
 import { runModerationAction, getBridgeHealth, type BridgeHealthResponse } from '@/lib/api/moderation'
 import EntryActionModal from '@/components/EntryActionModal'
+import RecordingsQueue from '@/components/moderate/RecordingsQueue'
+import OrthographyQueue from '@/components/moderate/OrthographyQueue'
 
 type ModerationItem = {
   id: string
@@ -64,6 +66,9 @@ export default function ModeratePage() {
   const [languages, setLanguages] = useState<Language[]>([])
   const [selectedLanguage, setSelectedLanguage] = useState('all')
   const [selectedContentType, setSelectedContentType] = useState<'all' | 'word' | 'phrase' | 'entry' | 'suggestion'>('all')
+  // Three separate jobs, not one list. Recordings and damaged spellings both
+  // existed in the database with nothing surfacing them.
+  const [queue, setQueue] = useState<'entries' | 'recordings' | 'spelling'>('entries')
 
   const [items, setItems] = useState<ModerationItem[]>([])
   const [loadingData, setLoadingData] = useState(true)
@@ -418,54 +423,98 @@ export default function ModeratePage() {
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-neutral-100 flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-4 border-accent-100 border-t-accent-300"></div>
+    <div className="min-h-screen bg-paper flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-4 border-ink-200 border-t-sand-300"></div>
     </div>
   )
 
   if (!isUserModerator) return (
-    <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-4">
-      <div className="bg-neutral-100 p-12 shadow-soft text-center max-w-md border border-accent-200">
-        <h2 className="text-3xl font-black text-heritage-dark mb-4 font-display tracking-tighter uppercase">Access Denied</h2>
-        <p className="text-neutral-500 font-medium mb-8">This chamber is reserved for community elders and guardians.</p>
-        <Link href="/profile" className="inline-block bg-heritage-dark text-white px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-heritage-darker transition">Return to Profile</Link>
+    <div className="flex min-h-screen items-center justify-center bg-paper px-4">
+      <div className="max-w-md border-t-2 border-ink-900 pt-8 text-center">
+        <h2 className="display mb-3 text-3xl text-ink-900">Not your queue</h2>
+        <p className="mb-8 text-ink-700">
+          Reviewing rights are granted per language. If you speak one of these languages and
+          want to review it, ask and say which.
+        </p>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link href="/contact" className="btn-primary">Ask to review</Link>
+          <Link href="/moderators" className="btn-secondary">How reviewing works</Link>
+        </div>
       </div>
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-neutral-100">
-      <div className="bg-heritage-dark text-white pt-20 pb-24 border-b border-heritage-darker">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
-            <div className="max-w-2xl">
-              <h1 className="text-4xl md:text-5xl font-black font-display tracking-tight mb-4 uppercase">Moderator Dashboard</h1>
-              <p className="text-white/80 text-lg font-medium italic font-serif">Reviewing and validating the community&apos;s collective wisdom.</p>
+    <div className="min-h-screen bg-paper">
+      <header className="border-b border-ink-900 bg-ink-900 text-paper">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+          <p className="mark label mb-4 text-signal-300">Review</p>
+          <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
+            <div>
+              <h1 className="display text-4xl sm:text-5xl">Review Queue</h1>
+              <p className="definition mt-5 max-w-lg text-ink-300">
+                Nothing here is published until someone with standing in that language says so.
+              </p>
             </div>
-
-            <div className="flex flex-wrap gap-4">
-              <div className="bg-card p-4 rounded-2xl border border-white/20">
-                <div className="text-[10px] font-black text-neutral-500 uppercase tracking-widest mb-1">Weekly Reviews</div>
-                <div className="text-3xl font-black text-heritage-dark">{loadingData ? '...' : modStats.thisWeek}</div>
+            <dl className="flex gap-10">
+              <div>
+                <dd className="headword tabular text-4xl">{loadingData ? '0' : modStats.thisWeek}</dd>
+                <dt className="label mt-1 text-ink-400">Reviewed This Week</dt>
               </div>
-              <div className="bg-card p-4 rounded-2xl border border-white/20">
-                <div className="text-[10px] font-black text-neutral-500 uppercase tracking-widest mb-1">Guardian Score</div>
-                <div className="text-3xl font-black text-heritage-dark">{loadingData ? '...' : modStats.score}</div>
+              <div>
+                <dd className="headword tabular text-4xl">{loadingData ? '0' : modStats.score}</dd>
+                <dt className="label mt-1 text-ink-400">Reviewer Score</dt>
               </div>
-            </div>
+            </dl>
           </div>
+        </div>
+      </header>
+
+      <div className="border-b border-ink-200">
+        <div className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4 sm:px-6">
+          {([
+            ['entries', 'Entries And Suggestions'],
+            ['recordings', 'Recordings'],
+            ['spelling', 'Damaged Spellings'],
+          ] as const).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setQueue(key)}
+              aria-current={queue === key ? 'page' : undefined}
+              className={`shrink-0 border-b-2 px-4 py-3.5 text-[0.9375rem] font-semibold transition-colors ${
+                queue === key
+                  ? 'border-signal-500 text-ink-900'
+                  : 'border-transparent text-ink-600 hover:text-ink-900'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
+      {queue === 'recordings' && (
+        <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+          <RecordingsQueue />
+        </div>
+      )}
+
+      {queue === 'spelling' && (
+        <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+          <OrthographyQueue />
+        </div>
+      )}
+
+      {queue === 'entries' && (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10">
         <div className="grid lg:grid-cols-4 gap-8">
           <div className="lg:col-span-1 space-y-4">
-            <div className="bg-neutral-100 p-6 rounded-3xl shadow-soft border border-accent-200">
-              <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-3 ml-1">Filter by Language</label>
+            <div className="bg-paper p-6 rounded-3xl shadow-soft border border-ink-200">
+              <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-3 ml-1">Filter by Language</label>
               <select
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value)}
-                className="w-full px-4 py-3 bg-neutral-50 border-2 border-neutral-50 rounded-xl focus:bg-white focus:border-accent-300 transition-all outline-none font-bold text-heritage-dark appearance-none cursor-pointer"
+                className="w-full px-4 py-3 bg-card border-2 border-card rounded-xl focus:bg-white focus:border-ink-200 transition-all outline-none font-bold text-ink-900 appearance-none cursor-pointer"
               >
                 <option value="all">All Dialects</option>
                 {languages.map((lang) => (
@@ -474,12 +523,12 @@ export default function ModeratePage() {
               </select>
             </div>
 
-            <div className="bg-neutral-100 p-6 rounded-3xl shadow-soft border border-accent-200">
-              <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-3 ml-1">Filter by Content Type</label>
+            <div className="bg-paper p-6 rounded-3xl shadow-soft border border-ink-200">
+              <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-3 ml-1">Filter by Content Type</label>
               <select
                 value={selectedContentType}
                 onChange={(e) => setSelectedContentType(e.target.value as 'all' | 'word' | 'phrase' | 'entry' | 'suggestion')}
-                className="w-full px-4 py-3 bg-neutral-50 border-2 border-neutral-50 rounded-xl focus:bg-white focus:border-accent-300 transition-all outline-none font-bold text-heritage-dark appearance-none cursor-pointer"
+                className="w-full px-4 py-3 bg-card border-2 border-card rounded-xl focus:bg-white focus:border-ink-200 transition-all outline-none font-bold text-ink-900 appearance-none cursor-pointer"
               >
                 <option value="all">All Items</option>
                 <option value="phrase">Phrases</option>
@@ -489,87 +538,87 @@ export default function ModeratePage() {
               </select>
             </div>
 
-            <div className="flex items-center justify-between p-5 rounded-2xl font-black uppercase text-[11px] tracking-widest bg-heritage-dark text-white shadow-soft">
+            <div className="flex items-center justify-between p-5 rounded-2xl font-semibold uppercase text-[11px] tracking-widest bg-ink-900 text-white shadow-soft">
               <span>Pending Review</span>
-              <span className="px-2 py-1 rounded-lg text-[10px] bg-accent-100 text-heritage-dark">{filteredList.length}</span>
+              <span className="px-2 py-1 rounded-lg text-[10px] bg-sand-50 text-ink-900">{filteredList.length}</span>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center justify-between p-5 rounded-2xl font-black uppercase text-[11px] tracking-widest bg-accent-100 text-heritage-dark shadow-soft">
+              <div className="flex items-center justify-between p-5 rounded-2xl font-semibold uppercase text-[11px] tracking-widest bg-sand-50 text-ink-900 shadow-soft">
                 <span>Pending Phrases</span>
-                <span className="px-2 py-1 rounded-lg text-[10px] bg-accent-200 text-accent-700">{pendingPhraseCount}</span>
+                <span className="px-2 py-1 rounded-lg text-[10px] bg-sand-200 text-signal-600">{pendingPhraseCount}</span>
               </div>
-              <div className="flex items-center justify-between p-5 rounded-2xl font-black uppercase text-[11px] tracking-widest bg-amber-500 text-white shadow-soft">
+              <div className="flex items-center justify-between p-5 rounded-2xl font-semibold uppercase text-[11px] tracking-widest bg-amber-500 text-white shadow-soft">
                 <span>Needs Completion</span>
                 <span className="px-2 py-1 rounded-lg text-[10px] bg-amber-400">{incompleteCount}</span>
               </div>
             </div>
 
-            <div className="bg-neutral-100 p-6 rounded-3xl shadow-soft border border-accent-200">
-              <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-4">Bridge Health</p>
+            <div className="bg-paper p-6 rounded-3xl shadow-soft border border-ink-200">
+              <p className="text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-4">Bridge Health</p>
               {bridgeHealth ? (
                 <div className="space-y-3 text-[11px]">
                   <div className="flex items-center justify-between">
-                    <span className="text-neutral-500 font-bold uppercase tracking-wide">Total</span>
-                    <span className="font-black text-heritage-dark">{bridgeHealth.total}</span>
+                    <span className="text-ink-600 font-bold uppercase tracking-wide">Total</span>
+                    <span className="font-semibold text-ink-900">{bridgeHealth.total}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-neutral-500 font-bold uppercase tracking-wide">With Bridge</span>
-                    <span className="font-black text-accent-700">{bridgeHealth.with_bridge}</span>
+                    <span className="text-ink-600 font-bold uppercase tracking-wide">With Bridge</span>
+                    <span className="font-semibold text-signal-600">{bridgeHealth.with_bridge}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-neutral-500 font-bold uppercase tracking-wide">Missing Both</span>
-                    <span className="font-black text-red-600">{bridgeHealth.missing_both}</span>
+                    <span className="text-ink-600 font-bold uppercase tracking-wide">Missing Both</span>
+                    <span className="font-semibold text-signal-600">{bridgeHealth.missing_both}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-neutral-500 font-bold uppercase tracking-wide">EN w/o SW</span>
-                    <span className="font-black text-accent-700">{bridgeHealth.english_without_swahili}</span>
+                    <span className="text-ink-600 font-bold uppercase tracking-wide">EN w/o SW</span>
+                    <span className="font-semibold text-signal-600">{bridgeHealth.english_without_swahili}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-neutral-500 font-bold uppercase tracking-wide">SW w/o EN</span>
-                    <span className="font-black text-accent-700">{bridgeHealth.swahili_without_english}</span>
+                    <span className="text-ink-600 font-bold uppercase tracking-wide">SW w/o EN</span>
+                    <span className="font-semibold text-signal-600">{bridgeHealth.swahili_without_english}</span>
                   </div>
-                  <div className="pt-3 border-t border-accent-100 flex items-center justify-between">
-                    <span className="text-neutral-500 font-bold uppercase tracking-wide">Phrases</span>
-                    <span className="font-black text-heritage-dark">{bridgeHealth.phrase_total}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-neutral-500 font-bold uppercase tracking-wide">Phrase Examples</span>
-                    <span className="font-black text-accent-700">{bridgeHealth.phrase_with_examples}</span>
+                  <div className="pt-3 border-t border-ink-200 flex items-center justify-between">
+                    <span className="text-ink-600 font-bold uppercase tracking-wide">Phrases</span>
+                    <span className="font-semibold text-ink-900">{bridgeHealth.phrase_total}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-neutral-500 font-bold uppercase tracking-wide">Phrases Missing Examples</span>
-                    <span className="font-black text-amber-700">{bridgeHealth.phrase_missing_examples}</span>
+                    <span className="text-ink-600 font-bold uppercase tracking-wide">Phrase Examples</span>
+                    <span className="font-semibold text-signal-600">{bridgeHealth.phrase_with_examples}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-ink-600 font-bold uppercase tracking-wide">Phrases Missing Examples</span>
+                    <span className="font-semibold text-amber-700">{bridgeHealth.phrase_missing_examples}</span>
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-neutral-600">Bridge metrics unavailable.</p>
+                <p className="text-xs text-ink-600">Bridge metrics unavailable.</p>
               )}
             </div>
 
-            <div className="bg-neutral-100 p-6 rounded-3xl shadow-soft border border-accent-200">
-              <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-4">Language Risk</p>
+            <div className="bg-paper p-6 rounded-3xl shadow-soft border border-ink-200">
+              <p className="text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-4">Language Risk</p>
               {bridgeByLanguage.length > 0 ? (
                 <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
                   {bridgeByLanguage.map((lang) => {
                     const risk = lang.missing_both + lang.english_without_swahili + lang.swahili_without_english
                     const gapPct = lang.total > 0 ? Math.round((risk / lang.total) * 100) : 0
                     return (
-                      <div key={lang.language_id} className="rounded-xl border border-accent-100 bg-accent-50 p-3">
+                      <div key={lang.language_id} className="rounded-xl border border-ink-200 bg-paper-warm p-3">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-xs font-black text-heritage-dark truncate">{lang.language_name}</p>
-                          <span className={`text-[10px] font-black px-2 py-1 rounded-md ${
-                            risk > 0 ? 'bg-red-100 text-red-700' : 'bg-accent-100 text-accent-700'
+                          <p className="text-xs font-semibold text-ink-900 truncate">{lang.language_name}</p>
+                          <span className={`text-[10px] font-semibold px-2 py-1 rounded-md ${
+                            risk > 0 ? 'bg-signal-200 text-signal-700' : 'bg-sand-50 text-signal-600'
                           }`}>
                             Issues {risk}
                           </span>
                         </div>
-                        <div className="mt-2 text-[10px] text-neutral-500 font-bold uppercase tracking-wide flex items-center justify-between">
+                        <div className="mt-2 text-[10px] text-ink-600 font-bold uppercase tracking-wide flex items-center justify-between">
                           <span>Total {lang.total}</span>
                           <span>Gap {gapPct}%</span>
                         </div>
                         {lang.phrase_total > 0 && (
-                          <div className="mt-2 text-[10px] text-neutral-500 font-bold uppercase tracking-wide flex items-center justify-between">
+                          <div className="mt-2 text-[10px] text-ink-600 font-bold uppercase tracking-wide flex items-center justify-between">
                             <span>Phrases {lang.phrase_total}</span>
                             <span>Missing examples {lang.phrase_missing_examples}</span>
                           </div>
@@ -579,31 +628,31 @@ export default function ModeratePage() {
                   })}
                 </div>
               ) : (
-                <p className="text-xs text-neutral-600">No language metrics yet.</p>
+                <p className="text-xs text-ink-600">No language metrics yet.</p>
               )}
             </div>
           </div>
 
           <div className="lg:col-span-3 pb-20">
             {loadingData ? (
-              <div className="bg-white p-20 border border-neutral-200 text-center">
-                <div className="animate-spin rounded-full h-10 w-10 border-4 border-neutral-100 border-t-heritage-dark mx-auto"></div>
+              <div className="bg-white p-20 border border-ink-200 text-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-ink-200 border-t-ink-900 mx-auto"></div>
               </div>
             ) : (
               <div className="space-y-6">
                 {filteredList.some((item) => isPhraseItem(item) && getModerationGaps(item).includes('usage example')) && (
-                  <div className="bg-accent-50 border border-accent-100 p-6 shadow-soft">
+                  <div className="bg-paper-warm border border-ink-200 p-6 shadow-soft">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div>
-                        <p className="text-[10px] font-black text-accent-700 uppercase tracking-[0.2em] mb-2">Phrase Review Priority</p>
-                        <h3 className="text-2xl font-black text-heritage-dark font-display">Phrases Missing Usage Examples</h3>
-                        <p className="text-sm text-neutral-600 mt-2 max-w-2xl">
+                        <p className="text-[10px] font-semibold text-signal-600 uppercase tracking-[0.12em] mb-2">Phrase Review Priority</p>
+                        <h3 className="text-2xl font-semibold text-ink-900 font-display">Phrases Missing Usage Examples</h3>
+                        <p className="text-sm text-ink-600 mt-2 max-w-2xl">
                           These phrase submissions need context before they should be treated as strong translation material.
                         </p>
                       </div>
                       <button
                         onClick={() => setSelectedContentType('phrase')}
-                        className="px-5 py-3 rounded-xl bg-heritage-dark text-white font-black text-xs uppercase tracking-widest hover:bg-heritage-darker"
+                        className="px-5 py-3 rounded-xl bg-ink-900 text-white font-semibold text-xs uppercase tracking-widest hover:bg-ink-950"
                       >
                         Focus Phrase Queue
                       </button>
@@ -616,61 +665,61 @@ export default function ModeratePage() {
                   const isPhrase = isPhraseItem(submission)
                   const gaps = getModerationGaps(submission)
                   return (
-                    <div key={submission.id} className={`bg-neutral-50 border-2 transition-all overflow-hidden ${reviewingId === submission.id ? 'border-heritage-dark shadow-2xl scale-[1.01]' : 'border-neutral-50 shadow-sm hover:shadow-md'}`}>
+                    <div key={submission.id} className={`bg-card border-2 transition-all overflow-hidden ${reviewingId === submission.id ? 'border-ink-900 shadow-2xl scale-[1.01]' : 'border-card shadow-sm hover:shadow-md'}`}>
                       <div className="p-8 md:p-10">
                         <div className="flex flex-wrap items-center gap-4 mb-6">
-                          <span className="bg-accent-50 text-accent-700 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                          <span className="bg-paper-warm text-signal-600 px-4 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-widest">
                             {submission.language?.name || 'Unknown'}
                           </span>
-                          <span className="bg-accent-100 text-accent-700 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                          <span className="bg-sand-50 text-signal-600 px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-widest">
                             {submission.item_type}
                           </span>
                           {isPhrase && (
-                            <span className="bg-heritage-dark text-white px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                            <span className="bg-ink-900 text-white px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-widest">
                               phrase
                             </span>
                           )}
-                          <span className="text-[10px] font-black text-neutral-500 uppercase tracking-widest">
+                          <span className="text-[10px] font-semibold text-ink-600 uppercase tracking-widest">
                             By {submission.contributor?.display_name || 'Anonymous'} | {formatDate(submission.created_at)}
                           </span>
                         </div>
 
-                        <h3 className="text-3xl md:text-4xl font-black text-heritage-dark mb-6 font-display leading-tight uppercase tracking-tighter break-words">
+                        <h3 className="text-3xl md:text-4xl font-semibold text-ink-900 mb-6 font-display leading-tight uppercase tracking-tighter break-words">
                           {submission.headword || '(no headword)'}
                         </h3>
 
                         <div className="grid md:grid-cols-2 gap-8 mb-8">
                           <div>
-                            <p className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.2em] mb-3">Definition</p>
-                            <p className="text-lg text-neutral-700 leading-relaxed font-medium bg-neutral-50 p-6 rounded-2xl border border-neutral-200 italic font-serif break-words">
+                            <p className="text-[10px] font-semibold text-ink-600 uppercase tracking-[0.12em] mb-3">Definition</p>
+                            <p className="text-lg text-ink-700 leading-relaxed font-medium bg-card p-6 rounded-2xl border border-ink-200 italic font-serif break-words">
                               {submission.primary_definition || '-'}
                             </p>
                           </div>
                           <div className="space-y-4">
                             {submission.part_of_speech && (
                               <div>
-                                <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-1">Part of Speech</p>
-                                <p className="font-bold text-neutral-900 uppercase text-sm break-words">{submission.part_of_speech}</p>
+                                <p className="text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-1">Part of Speech</p>
+                                <p className="font-bold text-ink-900 uppercase text-sm break-words">{submission.part_of_speech}</p>
                               </div>
                             )}
                             {submission.dialect_variant && (
                               <div>
-                                <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-1">Dialect Context</p>
-                                <p className="font-bold text-neutral-900 uppercase text-sm break-words">{submission.dialect_variant}</p>
+                                <p className="text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-1">Dialect Context</p>
+                                <p className="font-bold text-ink-900 uppercase text-sm break-words">{submission.dialect_variant}</p>
                               </div>
                             )}
                             {(submission.english_translation || submission.swahili_translation) && (
                               <div className="grid grid-cols-1 gap-3">
                                 {submission.english_translation && (
                                   <div>
-                                    <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-1">English Bridge</p>
-                                    <p className="font-bold text-neutral-900 text-sm break-words">{submission.english_translation}</p>
+                                    <p className="text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-1">English Bridge</p>
+                                    <p className="font-bold text-ink-900 text-sm break-words">{submission.english_translation}</p>
                                   </div>
                                 )}
                                 {submission.swahili_translation && (
                                   <div>
-                                    <p className="text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-1">Swahili Bridge</p>
-                                    <p className="font-bold text-neutral-900 text-sm break-words">{submission.swahili_translation}</p>
+                                    <p className="text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-1">Swahili Bridge</p>
+                                    <p className="font-bold text-ink-900 text-sm break-words">{submission.swahili_translation}</p>
                                   </div>
                                 )}
                               </div>
@@ -678,15 +727,15 @@ export default function ModeratePage() {
                           </div>
                         </div>
 
-                        <div className="mb-8 rounded-2xl border border-accent-100 bg-accent-50 p-5">
+                        <div className="mb-8 rounded-2xl border border-ink-200 bg-paper-warm p-5">
                           <div className="flex flex-wrap items-center gap-3 justify-between">
-                            <p className="text-[10px] font-black text-neutral-500 uppercase tracking-[0.2em]">Review Summary</p>
+                            <p className="text-[10px] font-semibold text-ink-600 uppercase tracking-[0.12em]">Review Summary</p>
                             {gaps.length > 0 ? (
-                              <span className="text-[10px] font-black px-3 py-1 rounded-full bg-amber-100 text-amber-800 uppercase tracking-widest">
+                              <span className="text-[10px] font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800 uppercase tracking-widest">
                                 needs completion
                               </span>
                             ) : (
-                              <span className="text-[10px] font-black px-3 py-1 rounded-full bg-accent-100 text-accent-700 uppercase tracking-widest">
+                              <span className="text-[10px] font-semibold px-3 py-1 rounded-full bg-sand-50 text-signal-600 uppercase tracking-widest">
                                 ready to approve
                               </span>
                             )}
@@ -694,33 +743,33 @@ export default function ModeratePage() {
                           {gaps.length > 0 ? (
                             <div className="mt-3 flex flex-wrap gap-2">
                               {gaps.map((gap) => (
-                                <span key={gap} className="text-[10px] font-black px-3 py-1 rounded-full bg-white border border-amber-200 text-amber-900 uppercase tracking-widest">
+                                <span key={gap} className="text-[10px] font-semibold px-3 py-1 rounded-full bg-white border border-amber-200 text-amber-900 uppercase tracking-widest">
                                   Missing {gap}
                                 </span>
                               ))}
                             </div>
                           ) : (
-                            <p className="mt-3 text-sm text-neutral-700 font-medium">
+                            <p className="mt-3 text-sm text-ink-700 font-medium">
                               Bridge fields and core metadata are present. Moderator can approve directly or refine further.
                             </p>
                           )}
                         </div>
 
-                        <div className="pt-8 border-t border-neutral-200">
+                        <div className="pt-8 border-t border-ink-200">
                           {reviewingId === submission.id ? (
                             <div className="space-y-6">
                               <textarea
                                 value={actionNote}
                                 onChange={(e) => setActionNote(e.target.value)}
                                 placeholder="Internal moderator notes (optional)..."
-                                className="w-full px-6 py-4 bg-neutral-50 border-2 border-accent-100 rounded-2xl focus:bg-white focus:border-accent-300 transition-all outline-none font-medium text-heritage-dark italic font-serif"
+                                className="w-full px-6 py-4 bg-card border-2 border-ink-200 rounded-2xl focus:bg-white focus:border-ink-200 transition-all outline-none font-medium text-ink-900 italic font-serif"
                                 rows={2}
                               />
                               <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
                                 <button
                                   onClick={() => handleReviewAction(submission, 'accept')}
                                   disabled={isProcessing}
-                                  className="w-full sm:flex-1 sm:min-w-[140px] bg-heritage-dark text-white px-6 py-4 rounded-xl hover:bg-heritage-darker transition font-black flex items-center justify-center gap-2 shadow-lg shadow-heritage-dark/10 disabled:opacity-50 uppercase text-[10px] tracking-widest"
+                                  className="w-full sm:flex-1 sm:min-w-[140px] bg-ink-900 text-white px-6 py-4 rounded-xl hover:bg-ink-950 transition font-semibold flex items-center justify-center gap-2 shadow-lg shadow-ink-900/10 disabled:opacity-50 uppercase text-[10px] tracking-widest"
                                   aria-label="Approve entry"
                                 >
                                   {isProcessing ? '...' : `Approve ${isPhrase ? 'Phrase' : 'Entry'}`}
@@ -728,14 +777,14 @@ export default function ModeratePage() {
                                 <button
                                   onClick={() => handleReviewAction(submission, 'reject')}
                                   disabled={isProcessing}
-                                  className="w-full sm:flex-1 sm:min-w-[140px] bg-red-600 text-white px-6 py-4 rounded-xl hover:bg-red-700 transition font-black flex items-center justify-center gap-2 shadow-lg shadow-red-900/10 disabled:opacity-50 uppercase text-[10px] tracking-widest"
+                                  className="w-full sm:flex-1 sm:min-w-[140px] bg-signal-500 text-white px-6 py-4 rounded-xl hover:bg-signal-700 transition font-semibold flex items-center justify-center gap-2 shadow-lg shadow-signal-800/10 disabled:opacity-50 uppercase text-[10px] tracking-widest"
                                   aria-label="Discard suggestion"
                                 >
                                   {isProcessing ? '...' : 'Discard'}
                                 </button>
                                 <button
                                   onClick={() => { setReviewingId(null); setActionNote('') }}
-                                  className="w-full sm:w-auto px-6 py-4 text-neutral-500 font-black hover:text-heritage-dark transition tracking-widest text-[10px] uppercase"
+                                  className="w-full sm:w-auto px-6 py-4 text-ink-600 font-semibold hover:text-ink-900 transition tracking-widest text-[10px] uppercase"
                                 >
                                   Cancel
                                 </button>
@@ -746,7 +795,7 @@ export default function ModeratePage() {
                               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                                 <button
                                   onClick={() => { setReviewingId(submission.id); setActionNote('') }}
-                                  className="w-full sm:w-auto bg-heritage-dark text-white px-8 py-3.5 rounded-xl hover:bg-heritage-darker transition font-black text-[11px] tracking-widest uppercase"
+                                  className="w-full sm:w-auto bg-ink-900 text-white px-8 py-3.5 rounded-xl hover:bg-ink-950 transition font-semibold text-[11px] tracking-widest uppercase"
                                   aria-label="Open review panel"
                                 >
                                   Review Submission
@@ -754,14 +803,14 @@ export default function ModeratePage() {
 
                                 <button
                                   onClick={() => setEditingItem({ ...submission, currentUserId: user?.id } as ModerationItem)}
-                                  className="w-full sm:w-auto px-4 py-3 text-sm bg-accent-300 text-heritage-dark rounded-xl hover:bg-accent-400 transition font-black uppercase tracking-widest"
+                                  className="w-full sm:w-auto px-4 py-3 text-sm bg-sand-300 text-ink-900 rounded-xl hover:bg-sand-400 transition font-semibold uppercase tracking-widest"
                                 >
                                   {gaps.length > 0 ? `Complete ${isPhrase ? 'Phrase' : 'Entry'} + Approve` : `Refine ${isPhrase ? 'Phrase' : 'Entry'}`}
                                 </button>
 
                                 <button
                                   onClick={() => handleApply(submission)}
-                                  className="w-full sm:w-auto px-4 py-3 text-sm bg-heritage-dark text-white rounded-xl hover:bg-heritage-darker transition font-black uppercase tracking-widest"
+                                  className="w-full sm:w-auto px-4 py-3 text-sm bg-ink-900 text-white rounded-xl hover:bg-ink-950 transition font-semibold uppercase tracking-widest"
                                   aria-label="Apply suggestion to entry"
                                 >
                                   Apply
@@ -771,13 +820,13 @@ export default function ModeratePage() {
                               <div className="flex items-center gap-3 self-start sm:self-auto">
                                 <button
                                   onClick={() => handleFlag(submission)}
-                                  className="p-3 text-neutral-600 hover:text-red-500 transition-colors font-black text-xs uppercase tracking-widest"
+                                  className="p-3 text-ink-600 hover:text-signal-500 transition-colors font-semibold text-xs uppercase tracking-widest"
                                   title="Flag for discussion"
                                   aria-label="Flag suggestion"
                                 >
                                   Flag
                                 </button>
-                                {isProcessing && <div className="text-sm text-neutral-600">Processing...</div>}
+                                {isProcessing && <div className="text-sm text-ink-600">Processing...</div>}
                               </div>
                             </div>
                           )}
@@ -788,9 +837,9 @@ export default function ModeratePage() {
                 })}
 
                 {filteredList.length === 0 && (
-                  <div className="bg-neutral-100 p-24 border border-accent-200 text-center shadow-soft">
-                    <h3 className="text-2xl font-black text-heritage-dark mb-2 font-display uppercase tracking-tighter">Clear Horizon</h3>
-                    <p className="text-neutral-500 font-medium font-serif italic">No pending submissions to review right now.</p>
+                  <div className="bg-paper p-24 border border-ink-200 text-center shadow-soft">
+                    <h3 className="text-2xl font-semibold text-ink-900 mb-2 font-display uppercase tracking-tighter">Clear Horizon</h3>
+                    <p className="text-ink-600 font-medium font-serif italic">No pending submissions to review right now.</p>
                   </div>
                 )}
               </div>
@@ -798,6 +847,7 @@ export default function ModeratePage() {
           </div>
         </div>
       </div>
+      )}
 
       {editingItem && (
         <EntryActionModal

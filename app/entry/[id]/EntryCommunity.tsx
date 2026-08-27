@@ -472,7 +472,7 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
               </div>
             ) : (
               <p className="mb-8 text-sm text-ink-600">
-                <Link href="/login" className="font-semibold text-signal-600 underline underline-offset-2">
+                <Link href={`/login?next=/entry/${entryId}`} className="font-semibold text-signal-600 underline underline-offset-2">
                   Sign in
                 </Link>{' '}
                 to join the discussion.

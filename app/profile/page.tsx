@@ -50,7 +50,7 @@ export default function ProfilePage() {
 
   // Identicon Logic (defensive)
   const identiconBg = useMemo(() => {
-    const colors = ['bg-amber-500', 'bg-heritage-dark', 'bg-blue-600', 'bg-rose-600', 'bg-violet-600', 'bg-teal-600']
+    const colors = ['bg-amber-500', 'bg-ink-900', 'bg-blue-600', 'bg-rose-600', 'bg-violet-600', 'bg-teal-600']
     const rawName = profile?.display_name || user?.email || 'A'
     const firstChar = (typeof rawName === 'string' && rawName.length > 0) ? rawName[0] : 'A'
     const charCode = firstChar.charCodeAt(0)
@@ -59,7 +59,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     setMounted(true)
-    if (!loading && !user) router.push('/login')
+    if (!loading && !user) router.push('/login?next=/profile')
   }, [user, loading, router])
 
   useEffect(() => {
@@ -250,15 +250,15 @@ export default function ProfilePage() {
   }
 
   if (!mounted || loading || !user) return (
-    <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-heritage-dark"></div>
+    <div className="min-h-screen bg-card flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-900"></div>
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-24 font-sans">
+    <div className="min-h-screen bg-card pb-24 font-sans">
       {/* Hero Header */}
-      <div className="bg-heritage-dark text-white py-16 md:py-24 relative overflow-hidden">
+      <div className="bg-ink-900 text-white py-16 md:py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           {syncWarning && (
             <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50/95 px-5 py-4 text-amber-900 text-sm font-bold">
@@ -269,12 +269,12 @@ export default function ProfilePage() {
             
             {/* Profile Avatar Section */}
             <div className="flex flex-col items-center gap-5">
-              <div className="w-32 h-32 md:w-44 md:h-44 bg-white overflow-hidden border-4 border-heritage-dark shadow-soft flex items-center justify-center">
+              <div className="w-32 h-32 md:w-44 md:h-44 bg-white overflow-hidden border-4 border-ink-900 shadow-soft flex items-center justify-center">
                 {profile?.avatar_url ? (
                   <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
                   <div className={`w-full h-full ${identiconBg} flex items-center justify-center`}>
-                    <span className="text-white text-6xl font-black font-display uppercase drop-shadow-md">
+                    <span className="text-white text-6xl font-semibold font-display uppercase drop-shadow-md">
                       {displayName[0]}
                     </span>
                   </div>
@@ -285,14 +285,14 @@ export default function ProfilePage() {
               <div className="flex flex-wrap justify-center gap-2">
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="bg-ink-800 hover:bg-accent-300 border border-white/30 text-white px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
+                  className="bg-ink-800 hover:bg-sand-300 border border-ink-800 text-white px-5 py-2.5 rounded-xl text-[9px] font-semibold uppercase tracking-widest transition-all"
                 >
                   Edit Profile
                 </button>
                 {profile?.avatar_url && (
                   <button 
                     onClick={handleRemovePhoto}
-                    className="bg-red-500/10 hover:bg-red-600 border border-red-500/20 text-red-200 px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
+                    className="bg-signal-500/10 hover:bg-signal-500 border border-signal-500/20 text-signal-200 px-5 py-2.5 rounded-xl text-[9px] font-semibold uppercase tracking-widest transition-all"
                   >
                     Remove Photo
                   </button>
@@ -301,22 +301,22 @@ export default function ProfilePage() {
             </div>
             
             <div className="text-center md:text-left flex-1 min-w-0">
-              <h1 className="text-4xl md:text-7xl font-black font-display tracking-tight mb-2 truncate">{displayName}</h1>
+              <h1 className="text-4xl md:text-7xl font-semibold font-display tracking-tight mb-2 truncate">{displayName}</h1>
               <p className="text-white/70 max-w-xl text-lg font-medium mb-6 italic leading-relaxed">
                 {profile?.bio || "Preserving the echoes of our ancestors, one word at a time."}
               </p>
               <div className="flex flex-wrap gap-3 justify-center md:justify-start items-center min-w-0">
-                <span className="bg-ink-800 text-accent-700 px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-ink-200">Contributor</span>
+                <span className="bg-ink-800 text-signal-600 px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest border border-ink-200">Contributor</span>
                 {isUserModerator && (
-                  <span className="bg-amber-500/20 text-amber-300 px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-amber-500/30 shadow-lg shadow-amber-900/20">
+                  <span className="bg-amber-500/20 text-amber-300 px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest border border-amber-500/30 shadow-lg shadow-amber-900/20">
                     Moderator
                   </span>
                 )}
-                <span className="text-accent-100/40 py-1.5 text-[9px] font-black uppercase tracking-widest">Since {stats.joinedDate}</span>
+                <span className="text-sand-100/40 py-1.5 text-[9px] font-semibold uppercase tracking-widest">Since {stats.joinedDate}</span>
 
                 {/* Saved count badge */}
                 {savedCount !== null && (
-                  <span className="bg-ink-800 text-accent-100 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-accent-200/10">
+                  <span className="bg-ink-800 text-sand-100 px-3 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-widest border border-ink-200/10">
                     Saved {savedCount}
                   </span>
                 )}
@@ -334,11 +334,11 @@ export default function ProfilePage() {
             { label: 'Words Added', value: stats.wordsAdded },
             { label: 'Validated', value: stats.validated },
             { label: 'Examples', value: stats.usageExamples },
-            { label: 'Reputation', value: stats.reputation, color: 'text-accent-700' }
+            { label: 'Reputation', value: stats.reputation, color: 'text-signal-600' }
           ].map((s, i) => (
-            <div key={i} className="bg-neutral-100 p-8 border border-accent-200 shadow-soft text-center transition-transform hover:translate-y-[-4px]">
-              <div className={`text-3xl md:text-5xl font-black font-display mb-1 ${s.color || 'text-heritage-dark'}`}>{loadingData ? '...' : s.value}</div>
-              <div className="text-[10px] font-black text-neutral-600 uppercase tracking-widest">{s.label}</div>
+            <div key={i} className="bg-paper p-8 border border-ink-200 shadow-soft text-center transition-transform hover:translate-y-[-4px]">
+              <div className={`text-3xl md:text-5xl font-semibold font-display mb-1 ${s.color || 'text-ink-900'}`}>{loadingData ? '...' : s.value}</div>
+              <div className="text-[10px] font-semibold text-ink-600 uppercase tracking-widest">{s.label}</div>
             </div>
           ))}
         </div>
@@ -347,23 +347,23 @@ export default function ProfilePage() {
       {/* Main Content Restored */}
       <div className="max-w-7xl mx-auto px-4 mt-16 grid lg:grid-cols-3 gap-12">
         <div className="lg:col-span-2">
-          <section className="bg-neutral-100 border border-accent-200 p-8 md:p-12 shadow-soft">
-            <h2 className="text-3xl font-black text-heritage-dark font-display mb-10 uppercase tracking-tight">Archive Contributions</h2>
+          <section className="bg-paper border border-ink-200 p-8 md:p-12 shadow-soft">
+            <h2 className="text-3xl font-semibold text-ink-900 font-display mb-10 uppercase tracking-tight">Archive Contributions</h2>
             {recentContributions.length === 0 ? (
-              <div className="text-center py-16 bg-accent-50 border-2 border-dashed border-accent-200">
-                <p className="text-neutral-600 font-bold mb-4">Your contribution starts here.</p>
-                <Link href="/contribute" className="text-accent-700 font-black text-xs uppercase tracking-widest hover:underline">+ Add First Entry</Link>
+              <div className="text-center py-16 bg-paper-warm border-2 border-dashed border-ink-200">
+                <p className="text-ink-600 font-bold mb-4">Your contribution starts here.</p>
+                <Link href="/contribute" className="text-signal-600 font-semibold text-xs uppercase tracking-widest hover:underline">+ Add First Entry</Link>
               </div>
             ) : (
               <div className="space-y-4">
                 {recentContributions.map((c) => (
                   <Link href={`/entry/${c.id}`} key={c.id} className="block group">
-                    <div className="flex items-center justify-between p-6 border border-accent-50 bg-accent-50/30 hover:border-accent-300 hover:bg-accent-100 transition-all shadow-soft hover:shadow-lg">
+                    <div className="flex items-center justify-between p-6 border border-sand-50 bg-paper-warm/30 hover:border-ink-200 hover:bg-sand-50 transition-all shadow-soft hover:shadow-lg">
                       <div>
-                        <h3 className="text-xl font-black text-heritage-dark group-hover:text-accent-700 font-display uppercase tracking-tight">{c.headword}</h3>
-                        <p className="text-[10px] text-neutral-600 font-black uppercase tracking-widest mt-1">{getLanguageName(c.language_id)}</p>
+                        <h3 className="text-xl font-semibold text-ink-900 group-hover:text-signal-600 font-display uppercase tracking-tight">{c.headword}</h3>
+                        <p className="text-[10px] text-ink-600 font-semibold uppercase tracking-widest mt-1">{getLanguageName(c.language_id)}</p>
                       </div>
-                      <span className={`text-[9px] font-black px-4 py-2 rounded-xl uppercase tracking-widest border ${c.validation_status === 'verified' ? 'bg-accent-50 text-accent-700 border-accent-100' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
+                      <span className={`text-[9px] font-semibold px-4 py-2 rounded-xl uppercase tracking-widest border ${c.validation_status === 'verified' ? 'bg-paper-warm text-signal-600 border-ink-200' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
                         {c.validation_status}
                       </span>
                     </div>
@@ -376,11 +376,11 @@ export default function ProfilePage() {
 
         <div className="space-y-8">
           {isUserModerator && (
-            <section className="bg-heritage-dark p-10 text-white shadow-soft relative overflow-hidden group">
+            <section className="bg-ink-900 p-10 text-white shadow-soft relative overflow-hidden group">
               <div className="relative z-10">
-                <h2 className="text-2xl font-black font-display mb-3 uppercase italic tracking-tight">Moderator Dashboard</h2>
+                <h2 className="text-2xl font-semibold font-display mb-3 uppercase italic tracking-tight">Moderator Dashboard</h2>
                 <p className="text-white/50 text-xs mb-8 leading-relaxed">Discernment is the foundation of truth.</p>
-                <Link href="/moderate" className="block text-center bg-white text-heritage-dark py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-neutral-200 transition-all shadow-soft">
+                <Link href="/moderate" className="block text-center bg-white text-ink-900 py-4 rounded-xl font-semibold text-[10px] uppercase tracking-widest hover:bg-ink-200 transition-all shadow-soft">
                   Launch Moderator Dashboard
                 </Link>
               </div>
@@ -388,16 +388,16 @@ export default function ProfilePage() {
             </section>
           )}
 
-          <section className="bg-neutral-100 border border-accent-200 p-10 shadow-soft">
-            <h2 className="text-lg font-black text-heritage-dark font-display mb-6 uppercase tracking-widest">My Languages</h2>
+          <section className="bg-paper border border-ink-200 p-10 shadow-soft">
+            <h2 className="text-lg font-semibold text-ink-900 font-display mb-6 uppercase tracking-widest">My Languages</h2>
             <div className="flex flex-wrap gap-2 mb-8">
               {userLanguages.length > 0 ? userLanguages.map((l) => (
-                <span key={l} className="bg-accent-50 px-4 py-2 rounded-xl text-[9px] font-black text-accent-700 uppercase tracking-widest border border-accent-100">
+                <span key={l} className="bg-paper-warm px-4 py-2 rounded-xl text-[9px] font-semibold text-signal-600 uppercase tracking-widest border border-ink-200">
                   {getLanguageName(l)}
                 </span>
-              )) : <p className="text-neutral-600 text-xs italic">No languages selected.</p>}
+              )) : <p className="text-ink-600 text-xs italic">No languages selected.</p>}
             </div>
-            <button onClick={() => setShowLanguageSelector(true)} className="w-full py-4 border-2 border-dashed border-neutral-200 rounded-xl text-[9px] font-black text-neutral-600 uppercase tracking-widest hover:border-heritage-dark hover:text-accent-600 transition-all">
+            <button onClick={() => setShowLanguageSelector(true)} className="w-full py-4 border-2 border-dashed border-ink-200 rounded-xl text-[9px] font-semibold text-ink-600 uppercase tracking-widest hover:border-ink-900 hover:text-signal-500 transition-all">
               Manage My Languages
             </button>
 
@@ -440,14 +440,14 @@ export default function ProfilePage() {
 
       {/* EDIT MODAL Restored */}
       {isEditing && (
-        <div className="fixed inset-0 bg-heritage-dark/60 z-[100] flex items-center justify-center p-4">
-          <div className="bg-neutral-100 max-w-lg w-full p-8 md:p-12 shadow-soft border border-accent-200 overflow-hidden">
-            <h2 className="text-3xl font-black font-display mb-8 text-heritage-dark uppercase">Update Record</h2>
+        <div className="fixed inset-0 bg-ink-900/60 z-[100] flex items-center justify-center p-4">
+          <div className="bg-paper max-w-lg w-full p-8 md:p-12 shadow-soft border border-ink-200 overflow-hidden">
+            <h2 className="text-3xl font-semibold font-display mb-8 text-ink-900 uppercase">Update Record</h2>
             <form onSubmit={handleUpdateProfile} className="space-y-6">
               <div>
-                <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-3">Profile Photo</label>
-                <div className="flex items-center gap-6 p-4 bg-neutral-50 rounded-2xl border-2 border-neutral-100">
-                  <div className="w-16 h-16 rounded-2xl bg-white overflow-hidden border border-neutral-200 shadow-inner flex-shrink-0">
+                <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-3">Profile Photo</label>
+                <div className="flex items-center gap-6 p-4 bg-card rounded-2xl border-2 border-ink-200">
+                  <div className="w-16 h-16 rounded-2xl bg-white overflow-hidden border border-ink-200 shadow-inner flex-shrink-0">
                     {editData.avatar_url && <img src={editData.avatar_url} className="w-full h-full object-cover" />}
                   </div>
                   <div className="min-w-0">
@@ -455,33 +455,33 @@ export default function ProfilePage() {
                       type="file" 
                       accept="image/*"
                       onChange={handleFileChange}
-                      className="text-[10px] text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-heritage-dark file:text-white cursor-pointer w-full"
+                      className="text-[10px] text-ink-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-semibold file:bg-ink-900 file:text-white cursor-pointer w-full"
                     />
-                    {uploading && <p className="text-[10px] text-accent-600 mt-2 font-bold animate-pulse">Updating archive...</p>}
+                    {uploading && <p className="text-[10px] text-signal-500 mt-2 font-bold animate-pulse">Updating archive...</p>}
                   </div>
                 </div>
               </div>
               <div>
-                <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Display Name</label>
+                <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Display Name</label>
                 <input 
                   type="text" 
                   value={editData.display_name} 
                   onChange={(e) => setEditData({...editData, display_name: e.target.value})}
-                  className="w-full p-5 bg-neutral-50 border-2 border-neutral-100 rounded-2xl focus:border-heritage-dark focus:bg-white outline-none font-bold text-neutral-900 transition-all"
+                  className="w-full p-5 bg-card border-2 border-ink-200 rounded-2xl focus:border-ink-900 focus:bg-white outline-none font-bold text-ink-900 transition-all"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Biography</label>
+                <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Biography</label>
                 <textarea 
                   rows={3}
                   value={editData.bio} 
                   onChange={(e) => setEditData({...editData, bio: e.target.value})}
-                  className="w-full p-5 bg-neutral-50 border-2 border-neutral-100 rounded-2xl focus:border-heritage-dark focus:bg-white outline-none font-medium text-sm transition-all resize-none"
+                  className="w-full p-5 bg-card border-2 border-ink-200 rounded-2xl focus:border-ink-900 focus:bg-white outline-none font-medium text-sm transition-all resize-none"
                 />
               </div>
               <div className="flex gap-4 pt-4">
-                <button type="button" onClick={() => setIsEditing(false)} className="flex-1 py-5 font-black text-[10px] uppercase tracking-widest text-neutral-600">Cancel</button>
-                <button type="submit" disabled={uploading} className="flex-1 py-5 bg-heritage-dark text-white font-black text-[10px] uppercase tracking-widest shadow-xl disabled:opacity-50 transition-all">
+                <button type="button" onClick={() => setIsEditing(false)} className="flex-1 py-5 font-semibold text-[10px] uppercase tracking-widest text-ink-600">Cancel</button>
+                <button type="submit" disabled={uploading} className="flex-1 py-5 bg-ink-900 text-white font-semibold text-[10px] uppercase tracking-widest shadow-xl disabled:opacity-50 transition-all">
                   Save Changes
                 </button>
               </div>

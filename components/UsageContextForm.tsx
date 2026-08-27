@@ -52,12 +52,12 @@ export default function UsageContextForm({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-neutral-200">
+        <div className="p-6 border-b border-ink-200">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-neutral-900">Add Usage Example</h2>
+            <h2 className="text-2xl font-bold text-ink-900">Add Usage Example</h2>
             <button 
               onClick={onCancel}
-              className="text-neutral-600 hover:text-neutral-600 text-2xl"
+              className="text-ink-600 hover:text-ink-600 text-2xl"
             >
               ×
             </button>
@@ -67,13 +67,13 @@ export default function UsageContextForm({
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Context Type */}
           <div>
-            <label className="block text-sm font-bold text-neutral-700 mb-2">
+            <label className="block text-sm font-bold text-ink-700 mb-2">
               Context Type (Optional)
             </label>
             <select
               value={contextType}
               onChange={(e) => setContextType(e.target.value)}
-              className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full px-4 py-2 border border-ink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
               <option value="">Choose context...</option>
               <option value="formal">Formal</option>
@@ -87,35 +87,35 @@ export default function UsageContextForm({
 
           {/* Usage Description */}
           <div>
-            <label className="block text-sm font-bold text-neutral-700 mb-2">
-              How is this word used? <span className="text-red-500">*</span>
+            <label className="block text-sm font-bold text-ink-700 mb-2">
+              How is this word used? <span className="text-signal-500">*</span>
             </label>
             <textarea
               value={usageText}
               onChange={(e) => setUsageText(e.target.value)}
               placeholder="Describe when and how this word is typically used..."
-              className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full px-4 py-3 border border-ink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               rows={3}
               required
             />
-            <p className="text-xs text-neutral-600 mt-1">
+            <p className="text-xs text-ink-600 mt-1">
               Example: "Used when greeting elders" or "Common in casual conversations"
             </p>
           </div>
 
           {/* Example Sentence */}
           <div>
-            <label className="block text-sm font-bold text-neutral-700 mb-2">
+            <label className="block text-sm font-bold text-ink-700 mb-2">
               Example Sentence (Optional)
             </label>
             <textarea
               value={exampleSentence}
               onChange={(e) => setExampleSentence(e.target.value)}
               placeholder="Show this word in a complete sentence..."
-              className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full px-4 py-3 border border-ink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               rows={2}
             />
-            <p className="text-xs text-neutral-600 mt-1">
+            <p className="text-xs text-ink-600 mt-1">
               A real-world example helps others understand better
             </p>
           </div>
@@ -132,7 +132,7 @@ export default function UsageContextForm({
             <button
               type="button"
               onClick={onCancel}
-              className="px-6 py-3 border-2 border-neutral-300 text-neutral-700 rounded-lg hover:border-neutral-300 transition font-medium"
+              className="px-6 py-3 border-2 border-ink-300 text-ink-700 rounded-lg hover:border-ink-300 transition font-medium"
             >
               Cancel
             </button>

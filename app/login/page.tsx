@@ -1,124 +1,130 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/contexts/AuthContext'
 
-export default function LoginPage() {
+// Who lands here: almost always someone part-way through doing something else,
+// usually adding a word or a recording. So the page returns them to where they
+// were rather than dumping them on the homepage, and says why they are here.
+
+function SignIn() {
+  const { signIn, user } = useAuth()
   const router = useRouter()
-  const { signIn } = useAuth()
+  const searchParams = useSearchParams()
+
+  const next = searchParams.get('next') || '/contribute/gaps'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  useEffect(() => {
+    if (user) router.replace(next)
+  }, [user, next, router])
+
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    setBusy(true)
     setError('')
-    setLoading(true)
-
     try {
       await signIn(email, password)
-      router.push('/')
+      router.replace(next)
     } catch (err) {
-      setError('Invalid email or password. Please try again.')
+      setError(
+        err instanceof Error && /invalid/i.test(err.message)
+          ? 'That email and password do not match an account.'
+          : err instanceof Error
+            ? err.message
+            : 'Could not sign you in.'
+      )
     } finally {
-      setLoading(false)
+      setBusy(false)
     }
   }
 
-  return (
-    <div className="min-h-screen bg-neutral-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-heritage-dark"></div>
-      <div className="absolute -top-24 -right-24 w-96 h-96 bg-accent-100 rounded-full blur-3xl opacity-50"></div>
-      <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-accent-100 rounded-full blur-3xl opacity-50"></div>
+  const field =
+    'w-full border border-ink-300 bg-card px-4 py-3 text-ink-900 outline-none placeholder:text-ink-400 focus:border-ink-900'
 
-      <div className="max-w-md w-full relative z-10">
-        <div className="text-center mb-10">
-          <Link href="/" className="inline-block mb-6">
-            <span className="text-3xl font-black text-heritage-dark font-display tracking-tighter italic">
-              Kamusi<span className="text-accent-700 text-4xl">.</span>Yetu
-            </span>
-          </Link>
-          <h2 className="text-4xl font-black text-heritage-dark mb-3 font-display tracking-tight">Karibu Tena</h2>
-          <p className="text-neutral-500 font-medium">Sign in to continue your preservation work.</p>
+  return (
+    <div className="min-h-screen bg-paper">
+      <div className="mx-auto grid max-w-5xl gap-12 px-4 py-14 sm:px-6 md:grid-cols-2 md:gap-20 md:py-20">
+        <div>
+          <p className="mark label mb-5 text-signal-500">Sign In</p>
+          <h1 className="display text-4xl text-ink-900 sm:text-5xl">Welcome back</h1>
+          <p className="definition mt-6 max-w-sm text-ink-700">
+            Signing in lets your contributions be credited to you, and lets you withdraw a
+            recording later if you change your mind.
+          </p>
+
+          <p className="mt-8 text-ink-700">
+            No account yet?{' '}
+            <Link
+              href={`/signup${next !== '/contribute/gaps' ? `?next=${encodeURIComponent(next)}` : ''}`}
+              className="font-semibold text-signal-600 underline underline-offset-4"
+            >
+              Create one
+            </Link>
+            . It takes a minute and needs nothing but an email.
+          </p>
         </div>
 
-        <div className="bg-neutral-100 shadow-soft shadow-heritage-dark/5 border border-accent-200 p-8 md:p-12">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="bg-red-50 border border-red-100 text-red-700 px-5 py-4 rounded-2xl text-sm font-bold flex items-center gap-3">
-                <span>⚠️</span> {error}
-              </div>
-            )}
+        <form onSubmit={submit} className="border-t-2 border-ink-900 pt-8">
+          {error && (
+            <p
+              role="alert"
+              className="mb-6 border border-signal-200 bg-signal-50 px-4 py-3 text-sm font-semibold text-signal-700"
+            >
+              {error}
+            </p>
+          )}
 
-            <div className="space-y-2">
-              <label htmlFor="email" className="block text-xs font-black text-neutral-600 uppercase tracking-widest ml-1">
-                Email Address
+          <div className="space-y-6">
+            <div>
+              <label htmlFor="login-email" className="label mb-2 block text-ink-600">
+                Email
               </label>
               <input
-                id="email"
+                id="login-email"
                 type="email"
                 required
+                autoComplete="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-6 py-4 bg-neutral-50 border-2 border-neutral-50 rounded-2xl focus:bg-white focus:border-accent-300 focus:ring-0 transition-all outline-none font-medium text-heritage-dark"
-                placeholder="you@heritage.ke"
+                onChange={(event) => setEmail(event.target.value)}
+                className={field}
               />
             </div>
 
-            <div className="space-y-2">
-              <div className="mb-1">
-                <label htmlFor="password" className="block text-xs font-black text-neutral-600 uppercase tracking-widest ml-1">
-                  Password
-                </label>
-              </div>
+            <div>
+              <label htmlFor="login-password" className="label mb-2 block text-ink-600">
+                Password
+              </label>
               <input
-                id="password"
+                id="login-password"
                 type="password"
                 required
+                autoComplete="current-password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-6 py-4 bg-neutral-50 border-2 border-neutral-50 rounded-2xl focus:bg-white focus:border-heritage-dark focus:ring-0 transition-all outline-none font-medium text-neutral-900"
-                placeholder="••••••••"
+                onChange={(event) => setPassword(event.target.value)}
+                className={field}
               />
             </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-heritage-dark text-white px-6 py-5 rounded-2xl font-black text-lg hover:bg-heritage-darker transition-all shadow-xl shadow-heritage-dark/10 disabled:opacity-50 flex items-center justify-center gap-3 group"
-            >
-              {loading ? (
-                <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              ) : (
-                <>
-                  Enter the Archive
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
-                </>
-              )}
-            </button>
-          </form>
-
-          <div className="mt-10 text-center">
-            <p className="text-sm text-neutral-600 font-medium">
-              Don't have an account?{' '}
-              <Link href="/signup" className="text-accent-600 hover:text-accent-700 font-black decoration-2 underline-offset-4 hover:underline transition-all">
-                Join the Guardians
-              </Link>
-            </p>
           </div>
-        </div>
-        
-        {/* Simple Footer Link */}
-        <div className="mt-12 text-center">
-            <Link href="/" className="text-xs font-black text-neutral-300 uppercase tracking-[0.2em] hover:text-accent-600 transition-colors">
-                ← Back to Home
-            </Link>
-        </div>
+
+          <button type="submit" disabled={busy} className="btn-primary mt-8 w-full">
+            {busy ? 'Signing in' : 'Sign In'}
+          </button>
+        </form>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignIn />
+    </Suspense>
   )
 }

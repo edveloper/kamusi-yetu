@@ -49,7 +49,7 @@ function ContributeGaps() {
   const [justSaved, setJustSaved] = useState<Saved | null>(null)
 
   useEffect(() => {
-    if (!authLoading && !user) router.push('/login')
+    if (!authLoading && !user) router.push('/login?next=/contribute/gaps')
   }, [user, authLoading, router])
 
   useEffect(() => {

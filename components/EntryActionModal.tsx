@@ -306,26 +306,26 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
   const update = (patch: Partial<FormState>) => setForm((prev) => ({ ...prev, ...patch }))
 
   return (
-    <div className="fixed inset-0 bg-neutral-900/60 z-[100] flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 bg-ink-900/60 z-[100] flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true">
       <div className="bg-white max-w-3xl w-full p-6 md:p-10 shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-4 z-20 flex justify-end">
-          <button onClick={onClose} aria-label="Close" className="text-neutral-600 hover:text-neutral-900 font-black text-xl p-2">x</button>
+          <button onClick={onClose} aria-label="Close" className="text-ink-600 hover:text-ink-900 font-semibold text-xl p-2">x</button>
         </div>
 
-        <h2 className="text-3xl font-black mb-2 uppercase tracking-tight">{isEdit ? 'Suggest an Amendment' : 'Report an Issue'}</h2>
-        <p className="text-neutral-500 text-sm mb-6">{isEdit ? 'Your suggestion will be reviewed by the Guardian Authority.' : 'Help us maintain the integrity of the Archive.'}</p>
+        <h2 className="text-3xl font-semibold mb-2 uppercase tracking-tight">{isEdit ? 'Suggest an Amendment' : 'Report an Issue'}</h2>
+        <p className="text-ink-600 text-sm mb-6">{isEdit ? 'Your suggestion will be reviewed by the Guardian Authority.' : 'Help us maintain the integrity of the Archive.'}</p>
 
         {submitted ? (
           <div className="p-8 text-center">
-            <div className="text-accent-600 text-3xl font-black mb-4">Thanks</div>
-            <div className="text-neutral-600">Your suggestion has been sent to the Guardian Authority for review.</div>
+            <div className="text-signal-500 text-3xl font-semibold mb-4">Thanks</div>
+            <div className="text-ink-600">Your suggestion has been sent to the Guardian Authority for review.</div>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             {isEdit && (
               <>
                 <div>
-                  <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">
+                  <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">
                     {String(form.part_of_speech).toLowerCase() === 'phrase' ? 'Word or Phrase' : 'Headword'}
                   </label>
                   <input
@@ -333,19 +333,19 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                     type="text"
                     value={form.headword}
                     onChange={(e) => update({ headword: e.target.value })}
-                    className="w-full p-4 bg-neutral-50 border-2 border-neutral-100 rounded-2xl focus:border-heritage-dark outline-none font-bold"
+                    className="w-full p-4 bg-card border-2 border-ink-200 rounded-2xl focus:border-ink-900 outline-none font-bold"
                     aria-required
                     maxLength={120}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Corrected Definition</label>
+                  <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Corrected Definition</label>
                   <textarea
                     rows={4}
                     value={form.primary_definition}
                     onChange={(e) => update({ primary_definition: e.target.value })}
-                    className="w-full p-4 bg-neutral-50 border-2 border-neutral-100 rounded-2xl focus:border-heritage-dark outline-none font-medium text-sm"
+                    className="w-full p-4 bg-card border-2 border-ink-200 rounded-2xl focus:border-ink-900 outline-none font-medium text-sm"
                     maxLength={2000}
                     aria-required
                   />
@@ -353,32 +353,32 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">English Translation</label>
+                    <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">English Translation</label>
                     <input
                       type="text"
                       value={form.english_translation}
                       onChange={(e) => update({ english_translation: e.target.value })}
-                      className="w-full p-3 bg-neutral-50 border-2 border-neutral-100 rounded-2xl"
+                      className="w-full p-3 bg-card border-2 border-ink-200 rounded-2xl"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Swahili Translation</label>
+                    <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Swahili Translation</label>
                     <input
                       type="text"
                       value={form.swahili_translation}
                       onChange={(e) => update({ swahili_translation: e.target.value })}
-                      className="w-full p-3 bg-neutral-50 border-2 border-neutral-100 rounded-2xl"
+                      className="w-full p-3 bg-card border-2 border-ink-200 rounded-2xl"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Part of Speech</label>
+                    <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Part of Speech</label>
                     <select
                       value={form.part_of_speech}
                       onChange={(e) => update({ part_of_speech: e.target.value })}
-                      className="w-full p-3 bg-neutral-50 border-2 border-neutral-100 rounded-2xl"
+                      className="w-full p-3 bg-card border-2 border-ink-200 rounded-2xl"
                     >
                       <option value="">Select part of speech...</option>
                       <option value="noun">Noun</option>
@@ -393,62 +393,62 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Dialect Variant</label>
+                    <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Dialect Variant</label>
                     <input
                       type="text"
                       value={form.dialect_variant}
                       onChange={(e) => update({ dialect_variant: e.target.value })}
-                      className="w-full p-3 bg-neutral-50 border-2 border-neutral-100 rounded-2xl"
+                      className="w-full p-3 bg-card border-2 border-ink-200 rounded-2xl"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Pronunciation (IPA)</label>
+                    <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Pronunciation (IPA)</label>
                     <input
                       type="text"
                       value={form.pronunciation_ipa}
                       onChange={(e) => update({ pronunciation_ipa: e.target.value })}
-                      className="w-full p-3 bg-neutral-50 border-2 border-neutral-100 rounded-2xl"
+                      className="w-full p-3 bg-card border-2 border-ink-200 rounded-2xl"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Category</label>
+                    <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Category</label>
                     <input
                       type="text"
                       value={form.category}
                       onChange={(e) => update({ category: e.target.value })}
-                      className="w-full p-3 bg-neutral-50 border-2 border-neutral-100 rounded-2xl"
+                      className="w-full p-3 bg-card border-2 border-ink-200 rounded-2xl"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Register</label>
+                    <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Register</label>
                     <input
                       type="text"
                       value={form.register}
                       onChange={(e) => update({ register: e.target.value })}
-                      className="w-full p-3 bg-neutral-50 border-2 border-neutral-100 rounded-2xl"
+                      className="w-full p-3 bg-card border-2 border-ink-200 rounded-2xl"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Audio URL</label>
+                  <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Audio URL</label>
                   <input
                     type="url"
                     value={form.audio_url}
                     onChange={(e) => update({ audio_url: e.target.value })}
                     placeholder="https://..."
-                    className="w-full p-3 bg-neutral-50 border-2 border-neutral-100 rounded-2xl"
+                    className="w-full p-3 bg-card border-2 border-ink-200 rounded-2xl"
                   />
-                  <div className="mt-3 space-y-3 rounded-2xl border border-neutral-100 bg-neutral-50 p-4">
+                  <div className="mt-3 space-y-3 rounded-2xl border border-ink-200 bg-card p-4">
                     <input
                       type="file"
                       accept="audio/*"
                       onChange={handleAudioFileChange}
                       disabled={uploadingAudio}
-                      className="w-full text-xs text-neutral-500 file:mr-3 file:rounded-lg file:border-0 file:bg-heritage-dark file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
+                      className="w-full text-xs text-ink-600 file:mr-3 file:rounded-lg file:border-0 file:bg-ink-900 file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
                     />
                     <div className="flex flex-wrap gap-2">
                       {!isRecording ? (
@@ -456,7 +456,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                           type="button"
                           onClick={startAudioRecording}
                           disabled={!recordingSupported || uploadingAudio}
-                          className="px-4 py-2 rounded-xl bg-neutral-900 text-white text-xs font-black uppercase tracking-widest disabled:opacity-50"
+                          className="px-4 py-2 rounded-xl bg-ink-900 text-white text-xs font-semibold uppercase tracking-widest disabled:opacity-50"
                         >
                           Start Recording
                         </button>
@@ -464,7 +464,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                         <button
                           type="button"
                           onClick={stopAudioRecording}
-                          className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-black uppercase tracking-widest"
+                          className="px-4 py-2 rounded-xl bg-signal-500 text-white text-xs font-semibold uppercase tracking-widest"
                         >
                           Stop Recording
                         </button>
@@ -473,12 +473,12 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                         type="button"
                         onClick={uploadRecordedAudio}
                         disabled={!recordedBlob || uploadingAudio}
-                        className="px-4 py-2 rounded-xl bg-heritage-dark text-white text-xs font-black uppercase tracking-widest disabled:opacity-50"
+                        className="px-4 py-2 rounded-xl bg-ink-900 text-white text-xs font-semibold uppercase tracking-widest disabled:opacity-50"
                       >
                         Upload Recording
                       </button>
                     </div>
-                    {audioUploadError && <p className="text-xs text-red-600 font-bold">{audioUploadError}</p>}
+                    {audioUploadError && <p className="text-xs text-signal-600 font-bold">{audioUploadError}</p>}
                     {recordedPreviewUrl && (
                       <audio controls className="w-full">
                         <source src={recordedPreviewUrl} />
@@ -488,35 +488,35 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Etymology</label>
+                  <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Etymology</label>
                   <textarea
                     rows={3}
                     value={form.etymology}
                     onChange={(e) => update({ etymology: e.target.value })}
-                    className="w-full p-4 bg-neutral-50 border-2 border-neutral-100 rounded-2xl"
+                    className="w-full p-4 bg-card border-2 border-ink-200 rounded-2xl"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Usage Example</label>
+                  <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Usage Example</label>
                   <textarea
                     rows={3}
                     value={form.usage_example}
                     onChange={(e) => update({ usage_example: e.target.value })}
                     placeholder="Show the word or phrase in context..."
-                    className="w-full p-4 bg-neutral-50 border-2 border-neutral-100 rounded-2xl"
+                    className="w-full p-4 bg-card border-2 border-ink-200 rounded-2xl"
                   />
                 </div>
               </>
             )}
 
             <div>
-              <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Reason</label>
+              <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Reason</label>
               <select
                 value={form.reason}
                 onChange={(e) => update({ reason: e.target.value })}
                 required
-                className="w-full p-4 bg-neutral-50 border-2 border-neutral-100 rounded-2xl focus:border-heritage-dark outline-none font-bold text-sm"
+                className="w-full p-4 bg-card border-2 border-ink-200 rounded-2xl focus:border-ink-900 outline-none font-bold text-sm"
               >
                 <option value="">Select a reason...</option>
                 {isEdit ? (
@@ -537,21 +537,21 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Additional Details</label>
+              <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Additional Details</label>
               <textarea
                 rows={3}
                 placeholder={isEdit ? 'Provide sources or more context...' : 'Please explain the problem...'}
                 value={form.details}
                 onChange={(e) => update({ details: e.target.value })}
-                    className="w-full p-4 bg-neutral-50 border-2 border-neutral-100 rounded-2xl focus:border-heritage-dark outline-none font-medium text-sm"
+                    className="w-full p-4 bg-card border-2 border-ink-200 rounded-2xl focus:border-ink-900 outline-none font-medium text-sm"
                 maxLength={3000}
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Source Type</label>
-                <select value={form.source_type} onChange={(e) => update({ source_type: e.target.value })} className="w-full p-3 bg-neutral-50 border-2 border-neutral-100 rounded-2xl">
+                <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Source Type</label>
+                <select value={form.source_type} onChange={(e) => update({ source_type: e.target.value })} className="w-full p-3 bg-card border-2 border-ink-200 rounded-2xl">
                   <option value="">None</option>
                   <option value="oral">Oral</option>
                   <option value="written">Written</option>
@@ -561,19 +561,19 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Source Reference</label>
+                <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Source Reference</label>
                 <input
                   type="text"
                   value={form.source_reference}
                   onChange={(e) => update({ source_reference: e.target.value })}
                   placeholder={form.source_type === 'url' ? 'https://example.com' : 'Citation or notes'}
-                  className="w-full p-3 bg-neutral-50 border-2 border-neutral-100 rounded-2xl"
+                  className="w-full p-3 bg-card border-2 border-ink-200 rounded-2xl"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-neutral-600 uppercase tracking-widest mb-2">Confidence</label>
-                <select value={form.confidence} onChange={(e) => update({ confidence: e.target.value })} className="w-full p-3 bg-neutral-50 border-2 border-neutral-100 rounded-2xl">
+                <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Confidence</label>
+                <select value={form.confidence} onChange={(e) => update({ confidence: e.target.value })} className="w-full p-3 bg-card border-2 border-ink-200 rounded-2xl">
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
                   <option value="high">High</option>
@@ -582,30 +582,30 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
             </div>
 
             <div className="flex gap-3">
-              <button type="button" onClick={() => setShowPreview((s) => !s)} className="flex-1 py-4 font-black text-[10px] uppercase tracking-widest text-neutral-600 rounded-2xl border border-neutral-200">
+              <button type="button" onClick={() => setShowPreview((s) => !s)} className="flex-1 py-4 font-semibold text-[10px] uppercase tracking-widest text-ink-600 rounded-2xl border border-ink-200">
                 {showPreview ? 'Hide Preview' : 'Preview'}
               </button>
 
-              <button type="submit" disabled={loading} className="flex-1 py-4 bg-heritage-dark text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:bg-heritage-darker transition-all disabled:opacity-50">
+              <button type="submit" disabled={loading} className="flex-1 py-4 bg-ink-900 text-white rounded-2xl font-semibold text-[10px] uppercase tracking-[0.12em] hover:bg-ink-950 transition-all disabled:opacity-50">
                 {loading ? 'Submitting...' : isEdit ? 'Send Suggestion' : 'Report Issue'}
               </button>
             </div>
 
             {showPreview && (
-              <div className="mt-4 p-4 bg-neutral-50 border border-neutral-100 rounded-xl">
-                <h4 className="font-black mb-2">Preview</h4>
+              <div className="mt-4 p-4 bg-card border border-ink-200 rounded-xl">
+                <h4 className="font-semibold mb-2">Preview</h4>
                 {isEdit && (
                   <>
                     <div className="text-sm font-bold">{form.headword || entry?.headword}</div>
-                    <div className="text-sm text-neutral-700 mt-2">{form.primary_definition || entry?.primary_definition}</div>
+                    <div className="text-sm text-ink-700 mt-2">{form.primary_definition || entry?.primary_definition}</div>
                     {form.english_translation && <div className="text-sm mt-2">EN: {form.english_translation}</div>}
                     {form.swahili_translation && <div className="text-sm">SW: {form.swahili_translation}</div>}
                     {form.usage_example && <div className="text-sm mt-2 italic">Example: {form.usage_example}</div>}
                   </>
                 )}
                 <div className="mt-3 text-[13px]">
-                  <div className="font-black">Reason</div>
-                  <div className="text-neutral-700">{form.reason}</div>
+                  <div className="font-semibold">Reason</div>
+                  <div className="text-ink-700">{form.reason}</div>
                 </div>
               </div>
             )}

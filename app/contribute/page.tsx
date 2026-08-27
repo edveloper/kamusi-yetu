@@ -64,7 +64,7 @@ function AddWord() {
   const code = String(language?.code ?? '').toLowerCase()
 
   useEffect(() => {
-    if (!authLoading && !user) router.push('/login')
+    if (!authLoading && !user) router.push('/login?next=/contribute')
   }, [user, authLoading, router])
 
   useEffect(() => {

@@ -272,7 +272,7 @@ export default function RecordEntryAudio({
           If you speak {languageName}, a few seconds of audio makes <strong>{headword}</strong>{' '}
           usable by voice technology. Sign in to record it.
         </p>
-        <Link href="/login" className="btn-primary text-xs">Sign in to record</Link>
+        <Link href={`/login?next=/entry/${entryId}`} className="btn-primary text-xs">Sign in to record</Link>
       </Shell>
     )
   }

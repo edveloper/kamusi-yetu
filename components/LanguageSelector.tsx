@@ -50,12 +50,12 @@ export default function LanguageSelector({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
-        <div className="p-6 border-b border-neutral-200">
+        <div className="p-6 border-b border-ink-200">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-neutral-900">Select Your Languages</h2>
+            <h2 className="text-2xl font-bold text-ink-900">Select Your Languages</h2>
             <button
               onClick={onClose}
-              className="text-neutral-600 hover:text-neutral-600 text-2xl leading-none"
+              className="text-ink-600 hover:text-ink-600 text-2xl leading-none"
             >
               x
             </button>
@@ -66,7 +66,7 @@ export default function LanguageSelector({
             placeholder="Search languages..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full px-4 py-2 border border-ink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
         </div>
 
@@ -76,7 +76,7 @@ export default function LanguageSelector({
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
             </div>
           ) : filteredLanguages.length === 0 ? (
-            <div className="text-center py-8 text-neutral-600">
+            <div className="text-center py-8 text-ink-600">
               No languages found matching "{searchQuery}"
             </div>
           ) : (
@@ -84,8 +84,8 @@ export default function LanguageSelector({
               {groupedLanguages.map((group) => (
                 <div key={group.key}>
                   <div className="mb-3 flex items-center gap-3">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-neutral-600">{group.label}</p>
-                    <div className="h-px flex-1 bg-neutral-100"></div>
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-ink-600">{group.label}</p>
+                    <div className="h-px flex-1 bg-paper"></div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {group.languages.map((lang) => {
@@ -97,14 +97,14 @@ export default function LanguageSelector({
                           className={`p-4 rounded-lg border-2 transition text-left ${
                             isSelected
                               ? 'border-primary-500 bg-primary-50'
-                              : 'border-neutral-200 hover:border-primary-300'
+                              : 'border-ink-200 hover:border-primary-300'
                           }`}
                         >
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="font-bold text-neutral-900">{lang.name}</p>
+                              <p className="font-bold text-ink-900">{lang.name}</p>
                               {lang.native_name && lang.native_name !== lang.name && (
-                                <p className="text-sm text-neutral-600">{lang.native_name}</p>
+                                <p className="text-sm text-ink-600">{lang.native_name}</p>
                               )}
                             </div>
                             {isSelected && (
@@ -121,9 +121,9 @@ export default function LanguageSelector({
           )}
         </div>
 
-        <div className="p-6 border-t border-neutral-200 bg-neutral-50">
+        <div className="p-6 border-t border-ink-200 bg-card">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-neutral-600">
+            <p className="text-sm text-ink-600">
               {selectedLanguages.length} language{selectedLanguages.length !== 1 ? 's' : ''} selected
             </p>
             <button
