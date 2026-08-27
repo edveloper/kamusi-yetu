@@ -101,9 +101,15 @@ function CreateAccount() {
           </p>
 
           <ul className="mt-8 space-y-3 border-t border-ink-200 pt-6 text-[0.9375rem] text-ink-700">
-            <li>We ask for an email, a password and a name.</li>
             <li>Your email is never shown to anyone else.</li>
-            <li>Recordings are only ever made with your explicit consent.</li>
+            <li>Recordings are only ever made with your explicit consent, and you can withdraw them later.</li>
+            <li>
+              Forgotten the password later? You can{' '}
+              <Link href="/login" className="font-semibold text-signal-600 underline underline-offset-2">
+                sign in with an emailed link
+              </Link>{' '}
+              instead.
+            </li>
           </ul>
 
           <p className="mt-8 text-ink-700">

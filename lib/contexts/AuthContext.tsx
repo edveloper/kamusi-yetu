@@ -14,6 +14,12 @@ type AuthContextType = {
     metadata?: Record<string, unknown>
   ) => Promise<{ user: User | null; session: Session | null }>
   signOut: () => Promise<void>
+  /** Send a one-time sign-in link. No password involved. */
+  sendSignInLink: (email: string, redirectTo?: string) => Promise<void>
+  /** Send a password reset email. */
+  sendPasswordReset: (email: string) => Promise<void>
+  /** Set a new password, once the recovery link has established a session. */
+  updatePassword: (password: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -57,8 +63,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error
   }
 
+  // Contributors here come back occasionally, often months apart. A password
+  // they set once and never used again is a wall, so there is a way in that
+  // does not involve remembering one.
+  const sendSignInLink = async (email: string, redirectTo?: string) => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo:
+          typeof window !== 'undefined'
+            ? `${window.location.origin}${redirectTo || '/profile'}`
+            : undefined,
+      },
+    })
+    if (error) throw error
+  }
+
+  // There was no way to recover an account at all before this. Forgetting the
+  // password meant losing every contribution and every recording attached to it.
+  const sendPasswordReset = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/reset` : undefined,
+    })
+    if (error) throw error
+  }
+
+  const updatePassword = async (password: string) => {
+    const { error } = await supabase.auth.updateUser({ password })
+    if (error) throw error
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut, sendSignInLink, sendPasswordReset, updatePassword }}>
       {children}
     </AuthContext.Provider>
   )

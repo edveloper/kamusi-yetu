@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: '*',
         allow: '/',
         // Signed-in and operational surfaces hold nothing a crawler should index.
-        disallow: ['/api/', '/moderate', '/profile', '/login', '/signup'],
+        disallow: ['/api/', '/moderate', '/profile', '/login', '/signup', '/reset'],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
