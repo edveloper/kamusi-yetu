@@ -1,502 +1,371 @@
 'use client'
 
-import { useAuth } from '@/lib/contexts/AuthContext'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState, useMemo } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { 
-  getUserStats, 
-  getUserProfile, 
-  isModerator, 
-  updateUserProfile, 
-  uploadAvatar,
-  deleteAvatar 
-} from '@/lib/api/users'
-import { getRecentEntriesByUser, getSavedWordsCursor, removeSavedWord } from '@/lib/api/entries'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/contexts/AuthContext'
+import { getUserProfile, getUserStats, isModerator, updateUserProfile } from '@/lib/api/users'
+import {
+  getRecentEntriesByUser,
+  getContributorNotices,
+  markNoticesRead,
+  getSavedWordsCursor,
+  removeSavedWord,
+  type ContributorNotice,
+} from '@/lib/api/entries'
 import { getLanguages } from '@/lib/api/languages'
-import LanguageSelector from '@/components/LanguageSelector'
-import SavedWordsList from '@/components/SavedWordsList'
+import { getConceptGaps, getCoverageForLanguage } from '@/lib/api/concepts'
 import ConsentSettings from '@/components/recording/ConsentSettings'
-import { supabase } from '@/lib/supabase'
+
+// Who lands here: a returning contributor. The job is to show that what they
+// added mattered, tell them anything a reviewer said, and hand them the next
+// thing to do.
+//
+// It was an account page. Saved words, a bio, an avatar uploader, a language
+// picker. None of that answers "did my work go anywhere", which is the only
+// question someone comes back with.
+
+type Language = { id: string; name: string; code?: string | null }
+type Contribution = {
+  id: string
+  headword: string
+  validation_status: string
+  created_at: string
+  language_id: string
+}
+
+const STATUS_LABEL: Record<string, string> = {
+  verified: 'Published',
+  pending: 'Waiting for review',
+  disputed: 'Sent back',
+  flagged: 'Needs a second look',
+  seeded: 'Held back',
+}
+
+const STATUS_TONE: Record<string, string> = {
+  verified: 'border-petrol-200 bg-petrol-50 text-petrol-600',
+  pending: 'border-ink-200 bg-paper-warm text-ink-600',
+  disputed: 'border-signal-200 bg-signal-50 text-signal-700',
+  flagged: 'border-sand-200 bg-sand-50 text-sand-700',
+  seeded: 'border-ink-200 bg-paper-warm text-ink-600',
+}
 
 export default function ProfilePage() {
-  const { user, loading } = useAuth()
+  const { user, loading, signOut } = useAuth()
   const router = useRouter()
-  const [mounted, setMounted] = useState(false)
-  
-  // UI States
-  const [isEditing, setIsEditing] = useState(false)
-  const [uploading, setUploading] = useState(false)
-  const [loadingData, setLoadingData] = useState(true)
-  const [showLanguageSelector, setShowLanguageSelector] = useState(false)
-  const [syncWarning, setSyncWarning] = useState<string | null>(null)
 
-  // Data States
-  const [profile, setProfile] = useState<any>(null)
-  const [editData, setEditData] = useState({ display_name: '', bio: '', avatar_url: '' })
-  const [stats, setStats] = useState({ wordsAdded: 0, validated: 0, usageExamples: 0, reputation: 0, joinedDate: 'Recently' })
-  const [recentContributions, setRecentContributions] = useState<any[]>([])
-  const [userLanguages, setUserLanguages] = useState<string[]>([])
-  const [allLanguages, setAllLanguages] = useState<any[]>([])
-  const [isUserModerator, setIsUserModerator] = useState(false)
-
-  // Saved words states (cursor pagination)
-  const [savedWords, setSavedWords] = useState<any[]>([])
-  const [savedLoading, setSavedLoading] = useState(true)
-  const [savedCursor, setSavedCursor] = useState<string | null>(null) // ISO timestamp of last item
-  const SAVED_PAGE_SIZE = 12
-  const [savedFilterLang, setSavedFilterLang] = useState<string | null>(null)
-  const [savedCount, setSavedCount] = useState<number | null>(null)
-
-  // Identicon Logic (defensive)
-  const identiconBg = useMemo(() => {
-    const colors = ['bg-amber-500', 'bg-ink-900', 'bg-blue-600', 'bg-rose-600', 'bg-violet-600', 'bg-teal-600']
-    const rawName = profile?.display_name || user?.email || 'A'
-    const firstChar = (typeof rawName === 'string' && rawName.length > 0) ? rawName[0] : 'A'
-    const charCode = firstChar.charCodeAt(0)
-    return colors[charCode % colors.length]
-  }, [profile?.display_name, user?.email])
+  const [name, setName] = useState('')
+  const [savingName, setSavingName] = useState(false)
+  const [stats, setStats] = useState({ wordsAdded: 0, validated: 0, reputation: 0 })
+  const [contributions, setContributions] = useState<Contribution[]>([])
+  const [notices, setNotices] = useState<ContributorNotice[]>([])
+  const [languages, setLanguages] = useState<Language[]>([])
+  const [primaryLanguage, setPrimaryLanguage] = useState<Language | null>(null)
+  const [nextGaps, setNextGaps] = useState<Array<{ id: string; label: string }>>([])
+  const [coverage, setCoverage] = useState<{ covered: number; total: number } | null>(null)
+  const [reviewer, setReviewer] = useState(false)
+  const [ready, setReady] = useState(false)
+  // The Save button on entry pages still writes here, so this has to have
+  // somewhere to appear or people are saving into nothing.
+  const [saved, setSaved] = useState<Array<{ id: string; entryId: string; headword: string }>>([])
 
   useEffect(() => {
-    setMounted(true)
     if (!loading && !user) router.push('/login?next=/profile')
   }, [user, loading, router])
 
-  useEffect(() => {
-    async function loadUserData() {
-      if (!user) return
-      setSyncWarning(null)
-      try {
-        const [langsRes, userProfileRes, userStatsRes, modStatusRes, recentContribsRes] = await Promise.allSettled([
-          getLanguages(),
-          getUserProfile(user.id),
-          getUserStats(user.id),
-          isModerator(user.id),
-          getRecentEntriesByUser(user.id, 5)
-        ])
+  const load = useCallback(async () => {
+    if (!user) return
+    const [profile, userStats, recent, noticeList, langs, isMod, savedPage] = await Promise.all([
+      getUserProfile(user.id).catch(() => null),
+      getUserStats(user.id).catch(() => null),
+      getRecentEntriesByUser(user.id, 12).catch(() => []),
+      getContributorNotices(user.id).catch(() => []),
+      getLanguages().catch(() => []),
+      isModerator(user.id).catch(() => false),
+      getSavedWordsCursor(user.id, { limit: 12 }).catch(() => null),
+    ])
 
-        const langs = langsRes.status === 'fulfilled' ? langsRes.value : []
-        const userProfile = userProfileRes.status === 'fulfilled' ? userProfileRes.value : null
-        const userStats = userStatsRes.status === 'fulfilled'
-          ? userStatsRes.value
-          : { wordsAdded: 0, validated: 0, usageExamples: 0 }
-        const modStatus = modStatusRes.status === 'fulfilled' ? modStatusRes.value : false
-        const recentContribs = recentContribsRes.status === 'fulfilled' ? recentContribsRes.value : []
-
-        setAllLanguages(langs || [])
-
-        if (userProfile) {
-          setProfile(userProfile)
-          setEditData({
-            display_name: userProfile.display_name || '',
-            bio: userProfile.bio || '',
-            avatar_url: userProfile.avatar_url || ''
-          })
-          setUserLanguages(userProfile.languages || [])
-        } else {
-          setProfile(null)
-          setEditData({ display_name: '', bio: '', avatar_url: '' })
-          setUserLanguages([])
-        }
-
-        setIsUserModerator(!!modStatus)
-
-        setStats({
-          wordsAdded: userStats.wordsAdded,
-          validated: userStats.validated,
-          usageExamples: userStats.usageExamples,
-          reputation: (userStats.wordsAdded * 10) + (userStats.validated * 5),
-          joinedDate: new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    const savedRows = ((savedPage as { items?: unknown[] } | null)?.items ??
+      (Array.isArray(savedPage) ? savedPage : [])) as Array<Record<string, unknown>>
+    setSaved(
+      savedRows
+        .map((row) => {
+          const entry = (Array.isArray(row.entry) ? row.entry[0] : row.entry) as
+            | { id?: string; headword?: string }
+            | null
+          return {
+            id: String(row.id ?? ''),
+            entryId: String(entry?.id ?? ''),
+            headword: String(entry?.headword ?? ''),
+          }
         })
-        setRecentContributions(recentContribs || [])
+        .filter((row) => row.headword)
+    )
 
-        const hasCoreFailures = [langsRes, userProfileRes, userStatsRes, modStatusRes, recentContribsRes]
-          .some((r) => r.status === 'rejected')
-        if (hasCoreFailures) {
-          setSyncWarning('Some profile data could not be loaded right now. This may be a temporary backend outage.')
-        }
+    const list = (langs ?? []) as Language[]
+    setLanguages(list)
+    setReviewer(Boolean(isMod))
+    setName(String((profile as { display_name?: string } | null)?.display_name ?? ''))
+    setStats({
+      wordsAdded: Number((userStats as { wordsAdded?: number } | null)?.wordsAdded ?? 0),
+      validated: Number((userStats as { validated?: number } | null)?.validated ?? 0),
+      reputation: Number((userStats as { reputation?: number } | null)?.reputation ?? 0),
+    })
+    setContributions((recent ?? []) as Contribution[])
+    setNotices(noticeList)
 
-        // Fetch saved words first page using cursor API
-        setSavedLoading(true)
-        try {
-          const firstPage = await getSavedWordsCursor(user.id, { limit: SAVED_PAGE_SIZE })
-          setSavedWords(firstPage)
-          setSavedCursor(firstPage.length ? firstPage[firstPage.length - 1].created_at : null)
-        } catch (err) {
-          setSavedWords([])
-          setSavedCursor(null)
-          setSyncWarning('Saved words are temporarily unavailable.')
-        }
-
-        // Fetch saved count (safe direct count)
-        try {
-          const { count, error } = await supabase
-            .from('saved_words')
-            .select('id', { count: 'exact', head: true })
-            .eq('user_id', user.id)
-          if (!error) setSavedCount(count ?? 0)
-        } catch (e) {
-          setSavedCount(null)
-        }
-
-      } catch (err: any) {
-        console.error('Failed to sync archive data:', {
-          message: err?.message ?? String(err),
-          code: err?.code ?? null,
-          details: err?.details ?? null,
-          hint: err?.hint ?? null,
-          original: err?.original ?? null,
-          stack: err?.stack ?? null,
-          raw: err
-        })
-        setSyncWarning('Profile sync failed due to a temporary network/backend error.')
-      } finally {
-        setLoadingData(false)
-        setSavedLoading(false)
-      }
+    // Their language is whichever they contribute in most, which is a better
+    // guess than asking again.
+    const counts: Record<string, number> = {}
+    for (const row of (recent ?? []) as Contribution[]) {
+      counts[row.language_id] = (counts[row.language_id] ?? 0) + 1
     }
-    if (user) loadUserData()
+    const topId = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0]
+    const chosen =
+      list.find((l) => l.id === topId) ??
+      list.find((l) => l.id === (profile as { languages?: string[] } | null)?.languages?.[0]) ??
+      null
+    setPrimaryLanguage(chosen)
+
+    if (chosen) {
+      const [gaps, cov] = await Promise.all([
+        getConceptGaps(chosen.id, 5).catch(() => []),
+        getCoverageForLanguage(chosen.id).catch(() => null),
+      ])
+      setNextGaps(
+        gaps.map((gap) => ({
+          id: gap.concept_id,
+          label: gap.gloss_en || gap.gloss_sw || gap.concept_key,
+        }))
+      )
+      if (cov) setCoverage({ covered: cov.concepts_covered, total: cov.concepts_total })
+    }
+
+    setReady(true)
+    if (noticeList.some((notice) => !notice.read_at)) {
+      markNoticesRead(user.id).catch(() => undefined)
+    }
   }, [user])
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0 || !user) return
-    try {
-      setUploading(true)
-      const file = e.target.files[0]
-      const publicUrl = await uploadAvatar(user.id, file)
-      setEditData(prev => ({ ...prev, avatar_url: publicUrl }))
-    } catch (err: any) {
-      alert(err.message || 'Upload failed.')
-    } finally {
-      setUploading(false)
-    }
-  }
+  useEffect(() => {
+    load()
+  }, [load])
 
-  const handleRemovePhoto = async () => {
-    if (!user || !profile?.avatar_url) return
-    if (!confirm("Remove this photo from the archive?")) return
-
-    try {
-      setUploading(true)
-      const urlParts = profile.avatar_url.split('/avatars/')
-      const path = urlParts[1]
-      if (path) await deleteAvatar(path)
-      
-      const updatedData = { ...editData, avatar_url: '' }
-      await updateUserProfile(user.id, updatedData)
-      setProfile((prev: any) => ({ ...prev, avatar_url: '' }))
-      setEditData(updatedData)
-    } catch (err) {
-      alert('Failed to remove photo.')
-    } finally {
-      setUploading(false)
-    }
-  }
-
-  const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const saveName = async (event: React.FormEvent) => {
+    event.preventDefault()
     if (!user) return
+    setSavingName(true)
     try {
-      await updateUserProfile(user.id, editData)
-      setProfile({ ...profile, ...editData })
-      setIsEditing(false)
-    } catch (err) {
-      alert('Failed to update record.')
-    }
-  }
-
-  const getLanguageName = (id: string) => allLanguages.find(l => l.id === id)?.name || id
-  const displayName = profile?.display_name || user?.email?.split('@')[0] || 'Contributor'
-
-  // Cursor-based load more
-  const loadMoreSaved = async () => {
-    if (!user) return
-    // if savedCursor is null, there is no more data
-    if (!savedCursor) return
-    try {
-      setSavedLoading(true)
-      const more = await getSavedWordsCursor(user.id, { limit: SAVED_PAGE_SIZE, before: savedCursor, language: savedFilterLang ?? undefined })
-      setSavedWords(prev => [...prev, ...more])
-      setSavedCursor(more.length ? more[more.length - 1].created_at : null)
-    } catch (err) {
-      console.error('Failed to load more saved words:', err)
+      await updateUserProfile(user.id, { display_name: name.trim() })
     } finally {
-      setSavedLoading(false)
+      setSavingName(false)
     }
   }
 
-  const handleUnsave = async (entryOrSavedId: string) => {
-    if (!user) return
-    const prev = savedWords
-    // optimistic remove by matching entry.id, saved row id, or entry_id
-    setSavedWords(prev => prev.filter(s => s.entry?.id !== entryOrSavedId && s.id !== entryOrSavedId && s.entry_id !== entryOrSavedId))
-    try {
-      const savedRow = prev.find(s => s.id === entryOrSavedId)
-      if (savedRow) {
-        // delete by entry_id using existing API
-        await removeSavedWord(user.id, savedRow.entry_id)
-      } else {
-        // assume it's an entry id
-        await removeSavedWord(user.id, entryOrSavedId)
-      }
+  if (loading || !user || !ready) return null
 
-      // update savedCount if present
-      setSavedCount((c) => (typeof c === 'number' ? Math.max(0, c - 1) : c))
-    } catch (err) {
-      // rollback
-      setSavedWords(prev)
-      alert('Could not remove saved word.')
-    }
-  }
-
-  if (!mounted || loading || !user) return (
-    <div className="min-h-screen bg-card flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-900"></div>
-    </div>
-  )
+  const unread = notices.filter((notice) => !notice.read_at)
+  const languageName = (id: string) => languages.find((l) => l.id === id)?.name ?? ''
 
   return (
-    <div className="min-h-screen bg-card pb-24 font-sans">
-      {/* Hero Header */}
-      <div className="bg-ink-900 text-white py-16 md:py-24 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 relative z-10">
-          {syncWarning && (
-            <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50/95 px-5 py-4 text-amber-900 text-sm font-bold">
-              {syncWarning}
-            </div>
-          )}
-          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-            
-            {/* Profile Avatar Section */}
-            <div className="flex flex-col items-center gap-5">
-              <div className="w-32 h-32 md:w-44 md:h-44 bg-white overflow-hidden border-4 border-ink-900 shadow-soft flex items-center justify-center">
-                {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <div className={`w-full h-full ${identiconBg} flex items-center justify-center`}>
-                    <span className="text-white text-6xl font-semibold font-display uppercase drop-shadow-md">
-                      {displayName[0]}
-                    </span>
-                  </div>
-                )}
+    <div className="min-h-screen bg-paper">
+      <header className="border-b border-ink-900 bg-ink-900 text-paper">
+        <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+          <p className="mark label mb-4 text-signal-300">Your Work</p>
+          <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
+            <h1 className="display text-4xl sm:text-5xl">
+              {name ? name : 'Your contributions'}
+            </h1>
+            <dl className="flex gap-10">
+              <div>
+                <dd className="headword tabular text-4xl">{stats.wordsAdded}</dd>
+                <dt className="label mt-1 text-ink-400">Words Added</dt>
               </div>
-              
-              {/* Action Buttons */}
-              <div className="flex flex-wrap justify-center gap-2">
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="bg-ink-800 hover:bg-sand-300 border border-ink-800 text-white px-5 py-2.5 rounded-xl text-[9px] font-semibold uppercase tracking-widest transition-all"
-                >
-                  Edit Profile
-                </button>
-                {profile?.avatar_url && (
-                  <button 
-                    onClick={handleRemovePhoto}
-                    className="bg-signal-500/10 hover:bg-signal-500 border border-signal-500/20 text-signal-200 px-5 py-2.5 rounded-xl text-[9px] font-semibold uppercase tracking-widest transition-all"
-                  >
-                    Remove Photo
-                  </button>
-                )}
+              <div>
+                <dd className="headword tabular text-4xl">{stats.validated}</dd>
+                <dt className="label mt-1 text-ink-400">Published</dt>
               </div>
-            </div>
-            
-            <div className="text-center md:text-left flex-1 min-w-0">
-              <h1 className="text-4xl md:text-7xl font-semibold font-display tracking-tight mb-2 truncate">{displayName}</h1>
-              <p className="text-white/70 max-w-xl text-lg font-medium mb-6 italic leading-relaxed">
-                {profile?.bio || "Preserving the echoes of our ancestors, one word at a time."}
-              </p>
-              <div className="flex flex-wrap gap-3 justify-center md:justify-start items-center min-w-0">
-                <span className="bg-ink-800 text-signal-600 px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest border border-ink-200">Contributor</span>
-                {isUserModerator && (
-                  <span className="bg-amber-500/20 text-amber-300 px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest border border-amber-500/30 shadow-lg shadow-amber-900/20">
-                    Moderator
-                  </span>
-                )}
-                <span className="text-sand-100/40 py-1.5 text-[9px] font-semibold uppercase tracking-widest">Since {stats.joinedDate}</span>
-
-                {/* Saved count badge */}
-                {savedCount !== null && (
-                  <span className="bg-ink-800 text-sand-100 px-3 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-widest border border-ink-200/10">
-                    Saved {savedCount}
-                  </span>
-                )}
-              </div>
-            </div>
+            </dl>
           </div>
         </div>
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-ink-800 rounded-full blur-3xl"></div>
-      </div>
+      </header>
 
-      {/* Stats Grid Restored */}
-      <div className="max-w-7xl mx-auto px-4 -mt-12 relative z-30">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: 'Words Added', value: stats.wordsAdded },
-            { label: 'Validated', value: stats.validated },
-            { label: 'Examples', value: stats.usageExamples },
-            { label: 'Reputation', value: stats.reputation, color: 'text-signal-600' }
-          ].map((s, i) => (
-            <div key={i} className="bg-paper p-8 border border-ink-200 shadow-soft text-center transition-transform hover:translate-y-[-4px]">
-              <div className={`text-3xl md:text-5xl font-semibold font-display mb-1 ${s.color || 'text-ink-900'}`}>{loadingData ? '...' : s.value}</div>
-              <div className="text-[10px] font-semibold text-ink-600 uppercase tracking-widest">{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Main Content Restored */}
-      <div className="max-w-7xl mx-auto px-4 mt-16 grid lg:grid-cols-3 gap-12">
-        <div className="lg:col-span-2">
-          <section className="bg-paper border border-ink-200 p-8 md:p-12 shadow-soft">
-            <h2 className="text-3xl font-semibold text-ink-900 font-display mb-10 uppercase tracking-tight">Archive Contributions</h2>
-            {recentContributions.length === 0 ? (
-              <div className="text-center py-16 bg-paper-warm border-2 border-dashed border-ink-200">
-                <p className="text-ink-600 font-bold mb-4">Your contribution starts here.</p>
-                <Link href="/contribute" className="text-signal-600 font-semibold text-xs uppercase tracking-widest hover:underline">+ Add First Entry</Link>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {recentContributions.map((c) => (
-                  <Link href={`/entry/${c.id}`} key={c.id} className="block group">
-                    <div className="flex items-center justify-between p-6 border border-sand-50 bg-paper-warm/30 hover:border-ink-200 hover:bg-sand-50 transition-all shadow-soft hover:shadow-lg">
-                      <div>
-                        <h3 className="text-xl font-semibold text-ink-900 group-hover:text-signal-600 font-display uppercase tracking-tight">{c.headword}</h3>
-                        <p className="text-[10px] text-ink-600 font-semibold uppercase tracking-widest mt-1">{getLanguageName(c.language_id)}</p>
-                      </div>
-                      <span className={`text-[9px] font-semibold px-4 py-2 rounded-xl uppercase tracking-widest border ${c.validation_status === 'verified' ? 'bg-paper-warm text-signal-600 border-ink-200' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
-                        {c.validation_status}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
+      <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+        {/* What a reviewer said. This is the reason to come back, and until now
+          * the message went into the database and stopped there. */}
+        {notices.length > 0 && (
+          <section className="mb-12">
+            <h2 className="mark label mb-4 text-ink-600">
+              {unread.length > 0 ? `${unread.length} new from reviewers` : 'From reviewers'}
+            </h2>
+            <ul className="stagger border-t border-ink-200">
+              {notices.slice(0, 6).map((notice, index) => (
+                <li
+                  key={notice.id}
+                  style={{ '--i': index } as React.CSSProperties}
+                  className={`border-b border-l-2 border-ink-200 py-4 pl-4 ${
+                    notice.kind === 'approved' || notice.kind === 'recording_approved'
+                      ? 'border-l-petrol-500'
+                      : 'border-l-signal-500'
+                  }`}
+                >
+                  <p className="text-ink-800">{notice.message}</p>
+                  <p className="label mt-1 text-ink-500">
+                    {notice.entry?.headword ? notice.entry.headword : 'Your contribution'}
+                  </p>
+                </li>
+              ))}
+            </ul>
           </section>
-        </div>
+        )}
 
-        <div className="space-y-8">
-          {isUserModerator && (
-            <section className="bg-ink-900 p-10 text-white shadow-soft relative overflow-hidden group">
-              <div className="relative z-10">
-                <h2 className="text-2xl font-semibold font-display mb-3 uppercase italic tracking-tight">Moderator Dashboard</h2>
-                <p className="text-white/50 text-xs mb-8 leading-relaxed">Discernment is the foundation of truth.</p>
-                <Link href="/moderate" className="block text-center bg-white text-ink-900 py-4 rounded-xl font-semibold text-[10px] uppercase tracking-widest hover:bg-ink-200 transition-all shadow-soft">
-                  Launch Moderator Dashboard
-                </Link>
-              </div>
-              <div className="absolute -bottom-10 -right-10 w-40 h-40 border-[20px] border-white/5 rounded-full group-hover:scale-125 transition-transform duration-700"></div>
-            </section>
+        {/* The next thing to do, in their language, without asking again. */}
+        {primaryLanguage && (
+          <section className="mb-12 border-t-2 border-ink-900 pt-6">
+            <h2 className="mark label mb-3 text-ink-600">Next in {primaryLanguage.name}</h2>
+            {coverage && (
+              <p className="mb-5 text-ink-700">
+                {primaryLanguage.name} has {coverage.covered} of {coverage.total} core meanings.{' '}
+                {coverage.total - coverage.covered} still missing.
+              </p>
+            )}
+            {nextGaps.length > 0 && (
+              <ul className="mb-6 flex flex-wrap gap-2">
+                {nextGaps.map((gap) => (
+                  <li
+                    key={gap.id}
+                    className="border border-ink-200 bg-paper-warm px-3 py-1.5 text-sm text-ink-700"
+                  >
+                    {gap.label}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Link
+              href={`/contribute/gaps?lang=${primaryLanguage.code ?? ''}`}
+              className="btn-primary"
+            >
+              Add The Next Word
+            </Link>
+          </section>
+        )}
+
+        {/* What they have added, and where each one got to. */}
+        <section className="mb-12">
+          <h2 className="mark label mb-4 text-ink-600">What you have added</h2>
+          {contributions.length === 0 ? (
+            <div className="border-y-2 border-ink-900 py-10 text-center">
+              <p className="display mb-2 text-2xl text-ink-900">Nothing yet</p>
+              <p className="mb-6 text-ink-600">
+                Pick a language and we will show you a meaning it is missing.
+              </p>
+              <Link href="/contribute/gaps" className="btn-primary">Add Your First Word</Link>
+            </div>
+          ) : (
+            <ul className="stagger border-t border-ink-200">
+              {contributions.map((row, index) => (
+                <li
+                  key={row.id}
+                  style={{ '--i': index } as React.CSSProperties}
+                  className="border-b border-ink-200"
+                >
+                  <Link
+                    href={`/entry/${row.id}`}
+                    className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-3.5 transition-colors hover:bg-paper-warm"
+                  >
+                    <span className="text-lg font-semibold text-ink-900">{row.headword}</span>
+                    <span className="flex items-center gap-3">
+                      <span className="label text-ink-500">{languageName(row.language_id)}</span>
+                      <span
+                        className={`border px-2 py-0.5 text-xs font-semibold ${
+                          STATUS_TONE[row.validation_status] ?? STATUS_TONE.pending
+                        }`}
+                      >
+                        {STATUS_LABEL[row.validation_status] ?? row.validation_status}
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           )}
+        </section>
 
-          <section className="bg-paper border border-ink-200 p-10 shadow-soft">
-            <h2 className="text-lg font-semibold text-ink-900 font-display mb-6 uppercase tracking-widest">My Languages</h2>
-            <div className="flex flex-wrap gap-2 mb-8">
-              {userLanguages.length > 0 ? userLanguages.map((l) => (
-                <span key={l} className="bg-paper-warm px-4 py-2 rounded-xl text-[9px] font-semibold text-signal-600 uppercase tracking-widest border border-ink-200">
-                  {getLanguageName(l)}
-                </span>
-              )) : <p className="text-ink-600 text-xs italic">No languages selected.</p>}
-            </div>
-            <button onClick={() => setShowLanguageSelector(true)} className="w-full py-4 border-2 border-dashed border-ink-200 rounded-xl text-[9px] font-semibold text-ink-600 uppercase tracking-widest hover:border-ink-900 hover:text-signal-500 transition-all">
-              Manage My Languages
-            </button>
+        {reviewer && (
+          <section className="mb-12 border-t border-ink-200 pt-8">
+            <h2 className="mark label mb-3 text-ink-600">Reviewing</h2>
+            <p className="mb-5 text-ink-700">
+              You have reviewing rights. Entries, recordings and damaged spellings are all
+              waiting in the queue.
+            </p>
+            <Link href="/moderate" className="btn-secondary">Open The Review Queue</Link>
+          </section>
+        )}
 
-            {/* Consent is only meaningful if it can be withdrawn here. */}
-            <div className="mt-6">
-              <ConsentSettings />
-            </div>
+        {saved.length > 0 && (
+          <section className="mb-12 border-t border-ink-200 pt-8">
+            <h2 className="mark label mb-4 text-ink-600">Words you saved</h2>
+            <ul className="flex flex-wrap gap-2">
+              {saved.map((item) => (
+                <li key={item.id} className="flex items-center border border-ink-200">
+                  <Link
+                    href={`/entry/${item.entryId}`}
+                    className="px-3 py-1.5 text-sm font-semibold text-ink-800 hover:text-signal-600"
+                  >
+                    {item.headword}
+                  </Link>
+                  <button
+                    onClick={async () => {
+                      if (!user) return
+                      await removeSavedWord(user.id, item.entryId).catch(() => undefined)
+                      setSaved((prev) => prev.filter((row) => row.id !== item.id))
+                    }}
+                    aria-label={`Remove ${item.headword}`}
+                    className="border-l border-ink-200 px-2 py-1.5 text-sm text-ink-500 hover:text-signal-600"
+                  >
+                    &times;
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
-            {/* Saved words list inserted here */}
-            <div className="mt-6">
-              <SavedWordsList
-                items={savedWords}
-                loading={savedLoading}
-                onUnsave={handleUnsave}
-                onLoadMore={loadMoreSaved}
-                showLoadMore={!!savedCursor}
-                languages={allLanguages}
-                filterLang={savedFilterLang}
-                onFilterChange={(lang) => {
-                  setSavedFilterLang(lang)
-                    ; (async () => {
-                      setSavedLoading(true)
-                      try {
-                        // When filter changes, reload first page using cursor API
-                        const data = await getSavedWordsCursor(user!.id, { limit: SAVED_PAGE_SIZE, language: lang ?? undefined })
-                        setSavedWords(data)
-                        setSavedCursor(data.length ? data[data.length - 1].created_at : null)
-                      } catch (err) {
-                        console.error(err)
-                      } finally {
-                        setSavedLoading(false)
-                      }
-                    })()
-                }}
+        <section className="mb-12 border-t border-ink-200 pt-8">
+          <ConsentSettings />
+        </section>
+
+        <section className="border-t border-ink-200 pt-8">
+          <h2 className="mark label mb-4 text-ink-600">Your account</h2>
+          <form onSubmit={saveName} className="mb-6 flex flex-wrap items-end gap-3">
+            <div className="min-w-[16rem] flex-1">
+              <label htmlFor="display-name" className="label mb-2 block text-ink-600">
+                Name shown on your contributions
+              </label>
+              <input
+                id="display-name"
+                type="text"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                className="w-full border border-ink-300 bg-card px-4 py-3 text-ink-900 outline-none focus:border-ink-900"
               />
             </div>
-          </section>
-        </div>
-      </div>
+            <button type="submit" disabled={savingName} className="btn-secondary">
+              {savingName ? 'Saving' : 'Save'}
+            </button>
+          </form>
 
-      {/* EDIT MODAL Restored */}
-      {isEditing && (
-        <div className="fixed inset-0 bg-ink-900/60 z-[100] flex items-center justify-center p-4">
-          <div className="bg-paper max-w-lg w-full p-8 md:p-12 shadow-soft border border-ink-200 overflow-hidden">
-            <h2 className="text-3xl font-semibold font-display mb-8 text-ink-900 uppercase">Update Record</h2>
-            <form onSubmit={handleUpdateProfile} className="space-y-6">
-              <div>
-                <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-3">Profile Photo</label>
-                <div className="flex items-center gap-6 p-4 bg-card rounded-2xl border-2 border-ink-200">
-                  <div className="w-16 h-16 rounded-2xl bg-white overflow-hidden border border-ink-200 shadow-inner flex-shrink-0">
-                    {editData.avatar_url && <img src={editData.avatar_url} className="w-full h-full object-cover" />}
-                  </div>
-                  <div className="min-w-0">
-                    <input 
-                      type="file" 
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="text-[10px] text-ink-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-semibold file:bg-ink-900 file:text-white cursor-pointer w-full"
-                    />
-                    {uploading && <p className="text-[10px] text-signal-500 mt-2 font-bold animate-pulse">Updating archive...</p>}
-                  </div>
-                </div>
-              </div>
-              <div>
-                <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Display Name</label>
-                <input 
-                  type="text" 
-                  value={editData.display_name} 
-                  onChange={(e) => setEditData({...editData, display_name: e.target.value})}
-                  className="w-full p-5 bg-card border-2 border-ink-200 rounded-2xl focus:border-ink-900 focus:bg-white outline-none font-bold text-ink-900 transition-all"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Biography</label>
-                <textarea 
-                  rows={3}
-                  value={editData.bio} 
-                  onChange={(e) => setEditData({...editData, bio: e.target.value})}
-                  className="w-full p-5 bg-card border-2 border-ink-200 rounded-2xl focus:border-ink-900 focus:bg-white outline-none font-medium text-sm transition-all resize-none"
-                />
-              </div>
-              <div className="flex gap-4 pt-4">
-                <button type="button" onClick={() => setIsEditing(false)} className="flex-1 py-5 font-semibold text-[10px] uppercase tracking-widest text-ink-600">Cancel</button>
-                <button type="submit" disabled={uploading} className="flex-1 py-5 bg-ink-900 text-white font-semibold text-[10px] uppercase tracking-widest shadow-xl disabled:opacity-50 transition-all">
-                  Save Changes
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {showLanguageSelector && (
-        <LanguageSelector 
-          selectedLanguages={userLanguages} 
-          onLanguagesChange={(langs) => {setUserLanguages(langs); setShowLanguageSelector(false)}} 
-          onClose={() => setShowLanguageSelector(false)} 
-        />
-      )}
+          <p className="text-sm text-ink-600">
+            Signed in as {user.email}.{' '}
+            <button
+              onClick={() => signOut()}
+              className="font-semibold text-signal-600 underline underline-offset-4"
+            >
+              Sign out
+            </button>
+          </p>
+        </section>
+      </main>
     </div>
   )
 }

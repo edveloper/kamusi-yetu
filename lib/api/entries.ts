@@ -898,3 +898,43 @@ export async function removeSavedWord(userId: string, entryId: string) {
   if (error) throw error
   return true
 }
+
+export type ContributorNotice = {
+  id: string
+  entry_id: string | null
+  kind: 'approved' | 'needs_changes' | 'rejected' | 'recording_approved' | 'recording_rejected'
+  message: string
+  read_at: string | null
+  created_at: string
+  entry: { headword: string } | null
+}
+
+/**
+ * What a reviewer said about your work.
+ *
+ * Migration 114 created contributor_notices so a rejection reaches the person
+ * who wrote the entry. Nothing has read them until now, which meant the reason
+ * a reviewer typed went into the database and stopped there.
+ */
+export async function getContributorNotices(userId: string, limit = 20) {
+  const { data, error } = await supabase
+    .from('contributor_notices')
+    .select('id, entry_id, kind, message, read_at, created_at, entry:entries(headword)')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error) return []
+  return ((data ?? []) as Array<Record<string, unknown>>).map((row) => {
+    const entry = Array.isArray(row.entry) ? row.entry[0] : row.entry
+    return { ...(row as unknown as ContributorNotice), entry: (entry as { headword: string }) ?? null }
+  })
+}
+
+export async function markNoticesRead(userId: string) {
+  await supabase
+    .from('contributor_notices')
+    .update({ read_at: new Date().toISOString() })
+    .eq('user_id', userId)
+    .is('read_at', null)
+}

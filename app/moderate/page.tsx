@@ -1,17 +1,25 @@
 'use client'
 
-import { useAuth } from '@/lib/contexts/AuthContext'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/contexts/AuthContext'
 import { getPendingSuggestions } from '@/lib/api/suggestions'
 import { getEntries } from '@/lib/api/entries'
 import { getLanguages } from '@/lib/api/languages'
 import { isModerator, getModeratorStats } from '@/lib/api/users'
-import { runModerationAction, getBridgeHealth, type BridgeHealthResponse } from '@/lib/api/moderation'
+import {
+  runModerationAction,
+  getBridgeHealth,
+  type BridgeHealthResponse,
+} from '@/lib/api/moderation'
 import EntryActionModal from '@/components/EntryActionModal'
 import RecordingsQueue from '@/components/moderate/RecordingsQueue'
 import OrthographyQueue from '@/components/moderate/OrthographyQueue'
+
+// Three separate jobs, not one list. Recordings and damaged spellings both
+// existed in the database with nothing surfacing them, so a submitted recording
+// sat at 'pending' forever and never reached an entry page.
 
 type ModerationItem = {
   id: string
@@ -35,434 +43,288 @@ type ModerationItem = {
 }
 
 type Language = { id: string; name: string }
+type Queue = 'entries' | 'recordings' | 'spelling'
 
-function isPhraseItem(item: ModerationItem) {
-  return String(item.part_of_speech || '').toLowerCase() === 'phrase'
-}
+const isPhraseItem = (item: ModerationItem) =>
+  String(item.part_of_speech || '').toLowerCase() === 'phrase'
 
-function getModerationGaps(item: ModerationItem) {
+/** What is still missing from an entry, so a reviewer can see it at a glance. */
+function moderationGaps(item: ModerationItem) {
   const gaps: string[] = []
-  const languageCode = String(item.language?.code || '').toLowerCase()
-  const hasEnglish = !!String(item.english_translation || '').trim()
-  const hasSwahili = !!String(item.swahili_translation || '').trim()
-  const hasUsageExample = Array.isArray(item.usage_examples)
+  const code = String(item.language?.code || '').toLowerCase()
+  const english = !!String(item.english_translation || '').trim()
+  const swahili = !!String(item.swahili_translation || '').trim()
+  const hasExample = Array.isArray(item.usage_examples)
     ? item.usage_examples.some((example) => !!String(example?.context_text || '').trim())
     : false
 
-  if (!String(item.primary_definition || '').trim()) gaps.push('definition')
-  if (!String(item.part_of_speech || '').trim()) gaps.push('part of speech')
-  if (!hasEnglish && !hasSwahili) gaps.push('bridge translation')
-  if (languageCode === 'en' && !hasSwahili) gaps.push('Swahili bridge')
-  if (languageCode === 'sw' && !hasEnglish) gaps.push('English bridge')
-  if (isPhraseItem(item) && !hasUsageExample) gaps.push('usage example')
-  if (!String(item.audio_url || '').trim()) gaps.push('audio')
-
+  if (!String(item.primary_definition || '').trim()) gaps.push('No definition')
+  if (!String(item.part_of_speech || '').trim()) gaps.push('No part of speech')
+  if (!english && !swahili) gaps.push('No bridge translation')
+  if (code === 'en' && !swahili) gaps.push('No Kiswahili')
+  if (code === 'sw' && !english) gaps.push('No English')
+  if (isPhraseItem(item) && !hasExample) gaps.push('No usage example')
+  if (!String(item.audio_url || '').trim()) gaps.push('No audio')
   return gaps
+}
+
+const toItem = (row: Record<string, unknown>, kind: 'entry' | 'suggestion'): ModerationItem => {
+  const contributor = (row.contributor ?? null) as Record<string, unknown> | null
+  const language = (row.language ?? null) as Record<string, unknown> | null
+  const str = (key: string) => (row[key] as string | undefined) ?? undefined
+  return {
+    id: String(row.id ?? ''),
+    item_type: kind,
+    entry_id: kind === 'entry' ? String(row.id ?? '') : str('entry_id'),
+    headword: str('headword'),
+    primary_definition: str('primary_definition'),
+    part_of_speech: str('part_of_speech'),
+    dialect_variant: str('dialect_variant'),
+    pronunciation_ipa: str('pronunciation_ipa'),
+    etymology: str('etymology'),
+    audio_url: str('audio_url'),
+    english_translation: str('english_translation'),
+    swahili_translation: str('swahili_translation'),
+    category: str('category'),
+    register: str('register'),
+    created_at: str('created_at'),
+    usage_examples: Array.isArray(row.usage_examples)
+      ? (row.usage_examples as Array<{ context_text?: string }>)
+      : undefined,
+    contributor: contributor
+      ? { display_name: contributor.display_name as string | undefined }
+      : null,
+    language: language
+      ? {
+          id: language.id as string | undefined,
+          name: language.name as string | undefined,
+          code: language.code as string | undefined,
+        }
+      : null,
+  }
 }
 
 export default function ModeratePage() {
   const { user, loading } = useAuth()
   const router = useRouter()
-  const [languages, setLanguages] = useState<Language[]>([])
-  const [selectedLanguage, setSelectedLanguage] = useState('all')
-  const [selectedContentType, setSelectedContentType] = useState<'all' | 'word' | 'phrase' | 'entry' | 'suggestion'>('all')
-  // Three separate jobs, not one list. Recordings and damaged spellings both
-  // existed in the database with nothing surfacing them.
-  const [queue, setQueue] = useState<'entries' | 'recordings' | 'spelling'>('entries')
 
+  const [queue, setQueue] = useState<Queue>('entries')
+  const [isReviewer, setIsReviewer] = useState(false)
+  const [checked, setChecked] = useState(false)
+
+  const [languages, setLanguages] = useState<Language[]>([])
   const [items, setItems] = useState<ModerationItem[]>([])
   const [loadingData, setLoadingData] = useState(true)
-  const [modStats, setModStats] = useState({ thisWeek: 0, score: 0 })
-  const [bridgeHealth, setBridgeHealth] = useState<BridgeHealthResponse['summary'] | null>(null)
-  const [bridgeByLanguage, setBridgeByLanguage] = useState<BridgeHealthResponse['by_language']>([])
-  const [reviewingId, setReviewingId] = useState<string | null>(null)
-  const [actionNote, setActionNote] = useState('')
-  const [processingMap, setProcessingMap] = useState<Record<string, boolean>>({})
-  const [isUserModerator, setIsUserModerator] = useState(false)
-  const [editingItem, setEditingItem] = useState<ModerationItem | null>(null)
+  const [stats, setStats] = useState({ thisWeek: 0, score: 0 })
+  const [health, setHealth] = useState<BridgeHealthResponse['summary'] | null>(null)
+
+  const [languageFilter, setLanguageFilter] = useState('all')
+  const [kindFilter, setKindFilter] = useState<'all' | 'word' | 'phrase' | 'suggestion'>('all')
+  const [busy, setBusy] = useState<Record<string, boolean>>({})
+  const [editing, setEditing] = useState<ModerationItem | null>(null)
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    async function checkAccess() {
-      if (loading || !user) return
-      try {
-        const modStatus = await isModerator(user.id)
-        setIsUserModerator(modStatus)
-        if (!modStatus) router.push('/profile')
-      } catch (err) {
-        console.error('Failed to check moderator status:', err)
-        router.push('/profile')
-      }
-    }
-    checkAccess()
+    if (loading || !user) return
+    isModerator(user.id)
+      .then((ok) => {
+        setIsReviewer(ok)
+        setChecked(true)
+      })
+      .catch(() => setChecked(true))
+  }, [user, loading])
+
+  useEffect(() => {
+    if (!loading && !user) router.push('/login?next=/moderate')
   }, [user, loading, router])
 
-  const normalizeSuggestionRows = (rows: unknown[]): ModerationItem[] => {
-    return rows.map((row) => {
-      const r = row as Record<string, unknown>
-      const contributor = (r.contributor ?? null) as Record<string, unknown> | null
-      const language = (r.language ?? null) as Record<string, unknown> | null
-      return {
-        id: String(r.id ?? ''),
-        item_type: 'suggestion',
-        entry_id: (r.entry_id as string | undefined) ?? undefined,
-        headword: (r.headword as string | undefined) ?? undefined,
-        primary_definition: (r.primary_definition as string | undefined) ?? undefined,
-        created_at: (r.created_at as string | undefined) ?? undefined,
-        contributor: contributor
-          ? {
-              display_name: (contributor.display_name as string | undefined) ?? undefined,
-              avatar_url: (contributor.avatar_url as string | undefined) ?? undefined
-            }
-          : undefined,
-        language: language
-          ? {
-              id: (language.id as string | undefined) ?? undefined,
-              name: (language.name as string | undefined) ?? undefined,
-              code: (language.code as string | undefined) ?? undefined
-            }
-          : undefined,
-        part_of_speech: (r.part_of_speech as string | undefined) ?? undefined,
-        dialect_variant: (r.dialect_variant as string | undefined) ?? undefined,
-        pronunciation_ipa: (r.pronunciation_ipa as string | undefined) ?? undefined,
-        etymology: (r.etymology as string | undefined) ?? undefined,
-        audio_url: (r.audio_url as string | undefined) ?? undefined,
-        english_translation: (r.english_translation as string | undefined) ?? undefined,
-        swahili_translation: (r.swahili_translation as string | undefined) ?? undefined,
-        category: (r.category as string | undefined) ?? undefined,
-        register: (r.register as string | undefined) ?? undefined
-      }
-    })
-  }
-
-  const normalizeEntryRows = (rows: unknown[]): ModerationItem[] => {
-    return rows.map((row) => {
-      const r = row as Record<string, unknown>
-      const contributor = (r.contributor ?? null) as Record<string, unknown> | null
-      const language = (r.language ?? null) as Record<string, unknown> | null
-      return {
-        id: String(r.id ?? ''),
-        item_type: 'entry',
-        entry_id: String(r.id ?? ''),
-        headword: (r.headword as string | undefined) ?? undefined,
-        primary_definition: (r.primary_definition as string | undefined) ?? undefined,
-        part_of_speech: (r.part_of_speech as string | undefined) ?? undefined,
-        dialect_variant: (r.dialect_variant as string | undefined) ?? undefined,
-        created_at: (r.created_at as string | undefined) ?? undefined,
-        contributor: contributor
-          ? {
-              display_name: (contributor.display_name as string | undefined) ?? undefined,
-              avatar_url: (contributor.avatar_url as string | undefined) ?? undefined
-            }
-          : undefined,
-        language: language
-          ? {
-              id: (language.id as string | undefined) ?? undefined,
-              name: (language.name as string | undefined) ?? undefined,
-              code: (language.code as string | undefined) ?? undefined
-            }
-          : undefined
-        ,
-        pronunciation_ipa: (r.pronunciation_ipa as string | undefined) ?? undefined,
-        etymology: (r.etymology as string | undefined) ?? undefined,
-        audio_url: (r.audio_url as string | undefined) ?? undefined,
-        english_translation: (r.english_translation as string | undefined) ?? undefined,
-        swahili_translation: (r.swahili_translation as string | undefined) ?? undefined,
-        category: (r.category as string | undefined) ?? undefined,
-        register: (r.register as string | undefined) ?? undefined,
-        usage_examples: Array.isArray(r.usage_examples) ? (r.usage_examples as Array<{ context_text?: string }>) : undefined
-      }
-    })
-  }
-
-  const refreshModeratorStats = async () => {
+  const refreshStats = useCallback(async () => {
     if (!user) return
     try {
-      const stats = await getModeratorStats(user.id)
-      setModStats(stats || { thisWeek: 0, score: 0 })
-    } catch (err) {
-      console.warn('Failed to refresh moderator stats:', err)
+      const [next, bridge] = await Promise.all([getModeratorStats(user.id), getBridgeHealth()])
+      setStats(next || { thisWeek: 0, score: 0 })
+      setHealth(bridge?.summary ?? null)
+    } catch {
+      // Stats are informational; never let them break the queue.
     }
-  }
-
-  const refreshBridgeHealth = async () => {
-    try {
-      const health = await getBridgeHealth()
-      setBridgeHealth(health?.summary || null)
-      setBridgeByLanguage(health?.by_language || [])
-    } catch (err) {
-      console.warn('Failed to refresh bridge health:', err)
-    }
-  }
+  }, [user])
 
   useEffect(() => {
-    async function loadInitial() {
-      if (!user || !isUserModerator) return
+    if (!user || !isReviewer) return
+    let cancelled = false
+
+    ;(async () => {
       setLoadingData(true)
       try {
-        const [langs, pendingEntries, pendingSuggestions, stats, health] = await Promise.all([
+        const [langs, entries, suggestions, next, bridge] = await Promise.all([
           getLanguages(),
           getEntries({ validation_status: 'pending' }),
           getPendingSuggestions(100),
           getModeratorStats(user.id),
-          getBridgeHealth()
+          getBridgeHealth(),
         ])
+        if (cancelled) return
 
-        setLanguages(langs || [])
-        const combined = [
-          ...normalizeEntryRows(pendingEntries || []),
-          ...normalizeSuggestionRows(pendingSuggestions || [])
-        ].sort((a, b) => {
-          const aTime = a.created_at ? new Date(a.created_at).getTime() : 0
-          const bTime = b.created_at ? new Date(b.created_at).getTime() : 0
-          return bTime - aTime
-        })
-        setItems(combined)
-        setModStats(stats || { thisWeek: 0, score: 0 })
-        setBridgeHealth(health?.summary || null)
-        setBridgeByLanguage(health?.by_language || [])
+        setLanguages((langs ?? []) as Language[])
+        setItems(
+          [
+            ...((entries ?? []) as Array<Record<string, unknown>>).map((r) => toItem(r, 'entry')),
+            ...((suggestions ?? []) as Array<Record<string, unknown>>).map((r) =>
+              toItem(r, 'suggestion')
+            ),
+          ].sort((a, b) => {
+            const at = a.created_at ? new Date(a.created_at).getTime() : 0
+            const bt = b.created_at ? new Date(b.created_at).getTime() : 0
+            return bt - at
+          })
+        )
+        setStats(next || { thisWeek: 0, score: 0 })
+        setHealth(bridge?.summary ?? null)
       } catch (err) {
-        console.error('Failed to load moderation data:', err)
-        alert('Could not load moderation data. Check console for details.')
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Could not load the queue.')
+        }
       } finally {
-        setLoadingData(false)
+        if (!cancelled) setLoadingData(false)
       }
+    })()
+
+    return () => {
+      cancelled = true
     }
-    loadInitial()
-  }, [user, isUserModerator])
+  }, [user, isReviewer])
 
-  const displayedList = selectedLanguage === 'all'
-    ? items
-    : items.filter((i) => i.language?.id === selectedLanguage)
+  const visible = useMemo(
+    () =>
+      items
+        .filter((item) => languageFilter === 'all' || item.language?.id === languageFilter)
+        .filter((item) => {
+          if (kindFilter === 'all') return true
+          if (kindFilter === 'suggestion') return item.item_type === 'suggestion'
+          if (kindFilter === 'phrase') return isPhraseItem(item)
+          return item.item_type === 'entry' && !isPhraseItem(item)
+        }),
+    [items, languageFilter, kindFilter]
+  )
 
-  const filteredList = displayedList.filter((item) => {
-    if (selectedContentType === 'all') return true
-    if (selectedContentType === 'entry') return item.item_type === 'entry'
-    if (selectedContentType === 'suggestion') return item.item_type === 'suggestion'
-    if (selectedContentType === 'phrase') return isPhraseItem(item)
-    if (selectedContentType === 'word') return !isPhraseItem(item)
-    return true
-  })
+  const mark = (id: string, value: boolean) => setBusy((prev) => ({ ...prev, [id]: value }))
+  const drop = (id: string) => setItems((prev) => prev.filter((item) => item.id !== id))
 
-  const pendingPhraseCount = items.filter((item) => isPhraseItem(item)).length
-  const incompleteCount = items.filter((item) => getModerationGaps(item).length > 0).length
-
-  const setProcessing = (id: string, value: boolean) => {
-    setProcessingMap((prev) => ({ ...prev, [id]: value }))
-  }
-
-  const removeItemOptimistic = (id: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== id))
-  }
-
-  const rollbackAdd = (item: ModerationItem) => {
-    setItems((prev) => [item, ...prev])
-  }
-
-  const handleReviewAction = async (item: ModerationItem, action: 'accept' | 'reject') => {
-    if (!user) return
-    const id = item.id
-    if (!id) return
-
-    // A rejection now has to say why. The contributor sees this text, and an
-    // unexplained rejection is the fastest way to lose a first-time contributor.
-    let reason = actionNote.trim()
-    if (action === 'reject') {
-      if (!reason) {
-        reason = (window.prompt(
-          'Why is this being rejected? The contributor will be shown your answer. For example: not a word in this language, wrong meaning, or already recorded.'
-        ) || '').trim()
-      }
+  const decide = async (item: ModerationItem, action: 'approve' | 'reject' | 'flag') => {
+    let reason = ''
+    if (action !== 'approve') {
+      reason = (
+        window.prompt(
+          action === 'reject'
+            ? 'Why is this being sent back? The contributor is shown your answer.'
+            : 'What needs checking? The contributor is shown your answer.'
+        ) || ''
+      ).trim()
       if (!reason) return
     }
 
-    setProcessing(id, true)
-    removeItemOptimistic(id)
+    mark(item.id, true)
+    setError('')
+    const snapshot = item
 
     try {
+      drop(item.id)
       if (item.item_type === 'entry') {
-        if (action === 'accept') {
-          await runModerationAction({ action: 'approve_entry', itemId: id })
-        } else {
-          await runModerationAction({ action: 'reject_entry', itemId: id, note: reason })
-        }
+        if (action === 'approve') await runModerationAction({ action: 'approve_entry', itemId: item.id })
+        else if (action === 'reject')
+          await runModerationAction({ action: 'reject_entry', itemId: item.id, note: reason })
+        else await runModerationAction({ action: 'flag_entry', itemId: item.id, note: reason })
       } else {
         await runModerationAction({
-          action: 'review_suggestion',
-          itemId: id,
-          suggestionAction: action,
-          note: action === 'reject' ? reason : actionNote || 'Accepted by moderator'
-        })
+          action: action === 'approve' ? 'apply_suggestion' : 'review_suggestion',
+          itemId: item.id,
+          ...(action === 'approve'
+            ? { note: 'Applied by reviewer' }
+            : { suggestionAction: 'reject' as const, note: reason }),
+        } as Parameters<typeof runModerationAction>[0])
       }
-      await Promise.all([refreshModeratorStats(), refreshBridgeHealth()])
-      setReviewingId(null)
-      setActionNote('')
+      await refreshStats()
     } catch (err) {
-      rollbackAdd(item)
-      console.error('Review action failed:', err)
-      alert(err instanceof Error ? err.message : 'Could not update that item.')
+      setItems((prev) => [snapshot, ...prev])
+      setError(err instanceof Error ? err.message : 'That action failed.')
     } finally {
-      setProcessing(id, false)
+      mark(item.id, false)
     }
   }
 
-  const handleApply = async (item: ModerationItem) => {
-    if (!user) return
-    const id = item.id
-    if (!id) return
-
-    const ok = confirm(
-      item.item_type === 'entry'
-        ? 'Approve this pending entry and publish it to the archive?'
-        : 'Apply this suggestion to the entry? This will update the entry in the archive.'
-    )
-    if (!ok) return
-
-    setProcessing(id, true)
-    removeItemOptimistic(id)
-
-    try {
-      if (item.item_type === 'entry') {
-        await runModerationAction({ action: 'approve_entry', itemId: id })
-      } else {
-        await runModerationAction({ action: 'apply_suggestion', itemId: id })
-      }
-      await Promise.all([refreshModeratorStats(), refreshBridgeHealth()])
-      setReviewingId(null)
-      setActionNote('')
-      alert(item.item_type === 'entry' ? 'Entry approved and published.' : 'Suggestion applied to entry.')
-    } catch (err) {
-      rollbackAdd(item)
-      console.error('Apply suggestion failed:', err)
-      alert('Failed to apply suggestion. See console for details.')
-    } finally {
-      setProcessing(id, false)
-    }
-  }
-
-  const handleFlag = async (item: ModerationItem) => {
-    if (!user) return
-    const id = item.id
-    if (!id) return
-    setProcessing(id, true)
-    try {
-      if (item.item_type === 'entry') {
-        await runModerationAction({ action: 'flag_entry', itemId: id })
-      } else {
-        await runModerationAction({
-          action: 'review_suggestion',
-          itemId: id,
-          suggestionAction: 'reject',
-          note: 'Flagged for discussion'
-        })
-      }
-      setItems((prev) => prev.filter((i) => i.id !== id))
-      await Promise.all([refreshModeratorStats(), refreshBridgeHealth()])
-    } catch (err) {
-      console.error('Flag failed:', err)
-      alert('Failed to flag suggestion.')
-    } finally {
-      setProcessing(id, false)
-    }
-  }
-
-  const handleCompleteAndApprove = async (data: any) => {
-    if (!editingItem) return
-    const id = editingItem.id
-    setProcessing(id, true)
+  const completeAndApprove = async (data: Record<string, string>) => {
+    if (!editing) return
+    const item = editing
+    mark(item.id, true)
+    setError('')
 
     const updates = Object.fromEntries(
-      Object.entries({
-        headword: data.headword,
-        primary_definition: data.primary_definition,
-        english_translation: data.english_translation,
-        swahili_translation: data.swahili_translation,
-        part_of_speech: data.part_of_speech,
-        dialect_variant: data.dialect_variant,
-        pronunciation_ipa: data.pronunciation_ipa,
-        etymology: data.etymology,
-        audio_url: data.audio_url,
-        category: data.category,
-        register: data.register,
-        usage_example: data.usage_example
-      }).filter(([, value]) => typeof value === 'string' && value.trim() !== '')
+      Object.entries(data).filter(
+        ([, value]) => typeof value === 'string' && value.trim() !== ''
+      )
     ) as Record<string, string>
 
     try {
-      if (editingItem.item_type === 'entry') {
-        await runModerationAction({
-          action: 'approve_entry',
-          itemId: id,
-          updates
-        })
-      } else {
-        await runModerationAction({
-          action: 'apply_suggestion',
-          itemId: id,
-          note: data.details || data.reason || 'Completed by moderator',
-          updates
-        })
-      }
-      setItems((prev) => prev.filter((i) => i.id !== id))
-      setEditingItem(null)
-      setReviewingId(null)
-      setActionNote('')
-      await Promise.all([refreshModeratorStats(), refreshBridgeHealth()])
+      await runModerationAction(
+        item.item_type === 'entry'
+          ? { action: 'approve_entry', itemId: item.id, updates }
+          : { action: 'apply_suggestion', itemId: item.id, note: 'Completed by reviewer', updates }
+      )
+      drop(item.id)
+      setEditing(null)
+      await refreshStats()
     } catch (err) {
-      console.error('Complete and approve failed:', err)
-      alert(err instanceof Error ? err.message : 'Failed to complete approval.')
+      setError(err instanceof Error ? err.message : 'Could not complete that entry.')
     } finally {
-      setProcessing(id, false)
+      mark(item.id, false)
     }
   }
 
-  const formatDate = (iso?: string | null) => {
-    if (!iso) return 'Unknown date'
-    const d = new Date(iso)
-    if (isNaN(d.getTime())) return 'Unknown date'
-    return d.toLocaleDateString()
-  }
+  if (loading || !user || !checked) return null
 
-  if (loading) return (
-    <div className="min-h-screen bg-paper flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-4 border-ink-200 border-t-sand-300"></div>
-    </div>
-  )
-
-  if (!isUserModerator) return (
-    <div className="flex min-h-screen items-center justify-center bg-paper px-4">
-      <div className="max-w-md border-t-2 border-ink-900 pt-8 text-center">
-        <h2 className="display mb-3 text-3xl text-ink-900">Not your queue</h2>
-        <p className="mb-8 text-ink-700">
-          Reviewing rights are granted per language. If you speak one of these languages and
-          want to review it, ask and say which.
-        </p>
-        <div className="flex flex-wrap justify-center gap-3">
-          <Link href="/contact" className="btn-primary">Ask to review</Link>
-          <Link href="/moderators" className="btn-secondary">How reviewing works</Link>
+  if (!isReviewer) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-paper px-4">
+        <div className="max-w-md border-t-2 border-ink-900 pt-8 text-center">
+          <h1 className="display mb-3 text-3xl text-ink-900">Not your queue</h1>
+          <p className="mb-8 text-ink-700">
+            Reviewing rights are granted one language at a time. If you speak a language here
+            and want to review it, ask and say which.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link href="/contact" className="btn-primary">Ask To Review</Link>
+            <Link href="/moderators" className="btn-secondary">How Reviewing Works</Link>
+          </div>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
+
+  const TABS: Array<[Queue, string, number | null]> = [
+    ['entries', 'Entries', items.length],
+    ['recordings', 'Recordings', null],
+    ['spelling', 'Damaged Spellings', null],
+  ]
 
   return (
     <div className="min-h-screen bg-paper">
       <header className="border-b border-ink-900 bg-ink-900 text-paper">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+        <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
           <p className="mark label mb-4 text-signal-300">Review</p>
           <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
             <div>
               <h1 className="display text-4xl sm:text-5xl">Review Queue</h1>
-              <p className="definition mt-5 max-w-lg text-ink-300">
-                Nothing here is published until someone with standing in that language says so.
+              <p className="definition mt-5 max-w-md text-ink-300">
+                Nothing is published until someone with standing in that language says so.
               </p>
             </div>
             <dl className="flex gap-10">
               <div>
-                <dd className="headword tabular text-4xl">{loadingData ? '0' : modStats.thisWeek}</dd>
+                <dd className="headword tabular text-4xl">{stats.thisWeek}</dd>
                 <dt className="label mt-1 text-ink-400">Reviewed This Week</dt>
               </div>
               <div>
-                <dd className="headword tabular text-4xl">{loadingData ? '0' : modStats.score}</dd>
+                <dd className="headword tabular text-4xl">{stats.score}</dd>
                 <dt className="label mt-1 text-ink-400">Reviewer Score</dt>
               </div>
             </dl>
@@ -470,13 +332,9 @@ export default function ModeratePage() {
         </div>
       </header>
 
-      <div className="border-b border-ink-200">
-        <div className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4 sm:px-6">
-          {([
-            ['entries', 'Entries And Suggestions'],
-            ['recordings', 'Recordings'],
-            ['spelling', 'Damaged Spellings'],
-          ] as const).map(([key, label]) => (
+      <nav aria-label="Queues" className="border-b border-ink-200">
+        <div className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-4 sm:px-6">
+          {TABS.map(([key, label, count]) => (
             <button
               key={key}
               onClick={() => setQueue(key)}
@@ -488,373 +346,194 @@ export default function ModeratePage() {
               }`}
             >
               {label}
+              {count !== null && count > 0 && (
+                <span className="tabular ml-2 font-mono text-xs text-ink-500">{count}</span>
+              )}
             </button>
           ))}
         </div>
-      </div>
+      </nav>
 
-      {queue === 'recordings' && (
-        <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-          <RecordingsQueue />
-        </div>
-      )}
+      <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+        {error && (
+          <p
+            role="alert"
+            className="mb-8 border border-signal-200 bg-signal-50 px-4 py-3 text-sm font-semibold text-signal-700"
+          >
+            {error}
+          </p>
+        )}
 
-      {queue === 'spelling' && (
-        <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-          <OrthographyQueue />
-        </div>
-      )}
+        {queue === 'recordings' && <RecordingsQueue />}
+        {queue === 'spelling' && <OrthographyQueue />}
 
-      {queue === 'entries' && (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10">
-        <div className="grid lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-1 space-y-4">
-            <div className="bg-paper p-6 rounded-3xl shadow-soft border border-ink-200">
-              <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-3 ml-1">Filter by Language</label>
+        {queue === 'entries' && (
+          <>
+            {health && (
+              <dl className="mb-10 grid grid-cols-2 gap-x-8 gap-y-6 border-b border-ink-200 pb-8 sm:grid-cols-4">
+                {[
+                  ['Waiting', items.length],
+                  ['Missing a bridge', health.missing_both],
+                  ['Phrases without an example', health.phrase_missing_examples],
+                  ['English without Kiswahili', health.english_without_swahili],
+                ].map(([label, value]) => (
+                  <div key={String(label)}>
+                    <dd className="tabular font-mono text-2xl font-semibold text-ink-900">
+                      {Number(value).toLocaleString()}
+                    </dd>
+                    <dt className="mt-1 text-sm text-ink-600">{label}</dt>
+                  </div>
+                ))}
+              </dl>
+            )}
+
+            <div className="mb-8 flex flex-wrap items-center gap-3">
+              <label htmlFor="mod-language" className="sr-only">Filter by language</label>
               <select
-                value={selectedLanguage}
-                onChange={(e) => setSelectedLanguage(e.target.value)}
-                className="w-full px-4 py-3 bg-card border-2 border-card rounded-xl focus:bg-white focus:border-ink-200 transition-all outline-none font-bold text-ink-900 appearance-none cursor-pointer"
+                id="mod-language"
+                value={languageFilter}
+                onChange={(event) => setLanguageFilter(event.target.value)}
+                className="border border-ink-300 bg-card px-3 py-2 text-sm text-ink-900 outline-none focus:border-ink-900"
               >
-                <option value="all">All Dialects</option>
-                {languages.map((lang) => (
-                  <option key={lang.id} value={lang.id}>{lang.name}</option>
+                <option value="all">Every language</option>
+                {languages.map((language) => (
+                  <option key={language.id} value={language.id}>{language.name}</option>
                 ))}
               </select>
-            </div>
 
-            <div className="bg-paper p-6 rounded-3xl shadow-soft border border-ink-200">
-              <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-3 ml-1">Filter by Content Type</label>
-              <select
-                value={selectedContentType}
-                onChange={(e) => setSelectedContentType(e.target.value as 'all' | 'word' | 'phrase' | 'entry' | 'suggestion')}
-                className="w-full px-4 py-3 bg-card border-2 border-card rounded-xl focus:bg-white focus:border-ink-200 transition-all outline-none font-bold text-ink-900 appearance-none cursor-pointer"
-              >
-                <option value="all">All Items</option>
-                <option value="phrase">Phrases</option>
-                <option value="word">Words</option>
-                <option value="entry">Entries Only</option>
-                <option value="suggestion">Suggestions Only</option>
-              </select>
-            </div>
-
-            <div className="flex items-center justify-between p-5 rounded-2xl font-semibold uppercase text-[11px] tracking-widest bg-ink-900 text-white shadow-soft">
-              <span>Pending Review</span>
-              <span className="px-2 py-1 rounded-lg text-[10px] bg-sand-50 text-ink-900">{filteredList.length}</span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center justify-between p-5 rounded-2xl font-semibold uppercase text-[11px] tracking-widest bg-sand-50 text-ink-900 shadow-soft">
-                <span>Pending Phrases</span>
-                <span className="px-2 py-1 rounded-lg text-[10px] bg-sand-200 text-signal-600">{pendingPhraseCount}</span>
-              </div>
-              <div className="flex items-center justify-between p-5 rounded-2xl font-semibold uppercase text-[11px] tracking-widest bg-amber-500 text-white shadow-soft">
-                <span>Needs Completion</span>
-                <span className="px-2 py-1 rounded-lg text-[10px] bg-amber-400">{incompleteCount}</span>
+              <div className="flex gap-1">
+                {(['all', 'word', 'phrase', 'suggestion'] as const).map((kind) => (
+                  <button
+                    key={kind}
+                    onClick={() => setKindFilter(kind)}
+                    className={`border px-3 py-2 text-sm transition-colors ${
+                      kindFilter === kind
+                        ? 'border-ink-900 bg-ink-900 font-semibold text-paper'
+                        : 'border-ink-200 text-ink-700 hover:border-ink-900'
+                    }`}
+                  >
+                    {kind === 'all' ? 'Everything' : kind === 'word' ? 'Words' : kind === 'phrase' ? 'Phrases' : 'Corrections'}
+                  </button>
+                ))}
               </div>
             </div>
 
-            <div className="bg-paper p-6 rounded-3xl shadow-soft border border-ink-200">
-              <p className="text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-4">Bridge Health</p>
-              {bridgeHealth ? (
-                <div className="space-y-3 text-[11px]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-ink-600 font-bold uppercase tracking-wide">Total</span>
-                    <span className="font-semibold text-ink-900">{bridgeHealth.total}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-ink-600 font-bold uppercase tracking-wide">With Bridge</span>
-                    <span className="font-semibold text-signal-600">{bridgeHealth.with_bridge}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-ink-600 font-bold uppercase tracking-wide">Missing Both</span>
-                    <span className="font-semibold text-signal-600">{bridgeHealth.missing_both}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-ink-600 font-bold uppercase tracking-wide">EN w/o SW</span>
-                    <span className="font-semibold text-signal-600">{bridgeHealth.english_without_swahili}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-ink-600 font-bold uppercase tracking-wide">SW w/o EN</span>
-                    <span className="font-semibold text-signal-600">{bridgeHealth.swahili_without_english}</span>
-                  </div>
-                  <div className="pt-3 border-t border-ink-200 flex items-center justify-between">
-                    <span className="text-ink-600 font-bold uppercase tracking-wide">Phrases</span>
-                    <span className="font-semibold text-ink-900">{bridgeHealth.phrase_total}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-ink-600 font-bold uppercase tracking-wide">Phrase Examples</span>
-                    <span className="font-semibold text-signal-600">{bridgeHealth.phrase_with_examples}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-ink-600 font-bold uppercase tracking-wide">Phrases Missing Examples</span>
-                    <span className="font-semibold text-amber-700">{bridgeHealth.phrase_missing_examples}</span>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-xs text-ink-600">Bridge metrics unavailable.</p>
-              )}
-            </div>
-
-            <div className="bg-paper p-6 rounded-3xl shadow-soft border border-ink-200">
-              <p className="text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-4">Language Risk</p>
-              {bridgeByLanguage.length > 0 ? (
-                <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
-                  {bridgeByLanguage.map((lang) => {
-                    const risk = lang.missing_both + lang.english_without_swahili + lang.swahili_without_english
-                    const gapPct = lang.total > 0 ? Math.round((risk / lang.total) * 100) : 0
-                    return (
-                      <div key={lang.language_id} className="rounded-xl border border-ink-200 bg-paper-warm p-3">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="text-xs font-semibold text-ink-900 truncate">{lang.language_name}</p>
-                          <span className={`text-[10px] font-semibold px-2 py-1 rounded-md ${
-                            risk > 0 ? 'bg-signal-200 text-signal-700' : 'bg-sand-50 text-signal-600'
-                          }`}>
-                            Issues {risk}
-                          </span>
-                        </div>
-                        <div className="mt-2 text-[10px] text-ink-600 font-bold uppercase tracking-wide flex items-center justify-between">
-                          <span>Total {lang.total}</span>
-                          <span>Gap {gapPct}%</span>
-                        </div>
-                        {lang.phrase_total > 0 && (
-                          <div className="mt-2 text-[10px] text-ink-600 font-bold uppercase tracking-wide flex items-center justify-between">
-                            <span>Phrases {lang.phrase_total}</span>
-                            <span>Missing examples {lang.phrase_missing_examples}</span>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                <p className="text-xs text-ink-600">No language metrics yet.</p>
-              )}
-            </div>
-          </div>
-
-          <div className="lg:col-span-3 pb-20">
             {loadingData ? (
-              <div className="bg-white p-20 border border-ink-200 text-center">
-                <div className="animate-spin rounded-full h-10 w-10 border-4 border-ink-200 border-t-ink-900 mx-auto"></div>
+              <p className="text-ink-600">Loading the queue.</p>
+            ) : visible.length === 0 ? (
+              <div className="border-y-2 border-ink-900 py-12 text-center">
+                <p className="display mb-2 text-2xl text-ink-900">Nothing waiting</p>
+                <p className="text-ink-600">
+                  {items.length === 0
+                    ? 'The queue is empty.'
+                    : 'Nothing matches those filters.'}
+                </p>
               </div>
             ) : (
-              <div className="space-y-6">
-                {filteredList.some((item) => isPhraseItem(item) && getModerationGaps(item).includes('usage example')) && (
-                  <div className="bg-paper-warm border border-ink-200 p-6 shadow-soft">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                      <div>
-                        <p className="text-[10px] font-semibold text-signal-600 uppercase tracking-[0.12em] mb-2">Phrase Review Priority</p>
-                        <h3 className="text-2xl font-semibold text-ink-900 font-display">Phrases Missing Usage Examples</h3>
-                        <p className="text-sm text-ink-600 mt-2 max-w-2xl">
-                          These phrase submissions need context before they should be treated as strong translation material.
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => setSelectedContentType('phrase')}
-                        className="px-5 py-3 rounded-xl bg-ink-900 text-white font-semibold text-xs uppercase tracking-widest hover:bg-ink-950"
-                      >
-                        Focus Phrase Queue
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {filteredList.map((submission) => {
-                  const isProcessing = !!processingMap[submission.id]
-                  const isPhrase = isPhraseItem(submission)
-                  const gaps = getModerationGaps(submission)
+              <ul className="stagger border-t border-ink-200">
+                {visible.map((item, index) => {
+                  const gaps = moderationGaps(item)
                   return (
-                    <div key={submission.id} className={`bg-card border-2 transition-all overflow-hidden ${reviewingId === submission.id ? 'border-ink-900 shadow-2xl scale-[1.01]' : 'border-card shadow-sm hover:shadow-md'}`}>
-                      <div className="p-8 md:p-10">
-                        <div className="flex flex-wrap items-center gap-4 mb-6">
-                          <span className="bg-paper-warm text-signal-600 px-4 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-widest">
-                            {submission.language?.name || 'Unknown'}
-                          </span>
-                          <span className="bg-sand-50 text-signal-600 px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-widest">
-                            {submission.item_type}
-                          </span>
-                          {isPhrase && (
-                            <span className="bg-ink-900 text-white px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-widest">
-                              phrase
-                            </span>
-                          )}
-                          <span className="text-[10px] font-semibold text-ink-600 uppercase tracking-widest">
-                            By {submission.contributor?.display_name || 'Anonymous'} | {formatDate(submission.created_at)}
-                          </span>
-                        </div>
-
-                        <h3 className="text-3xl md:text-4xl font-semibold text-ink-900 mb-6 font-display leading-tight uppercase tracking-tighter break-words">
-                          {submission.headword || '(no headword)'}
-                        </h3>
-
-                        <div className="grid md:grid-cols-2 gap-8 mb-8">
-                          <div>
-                            <p className="text-[10px] font-semibold text-ink-600 uppercase tracking-[0.12em] mb-3">Definition</p>
-                            <p className="text-lg text-ink-700 leading-relaxed font-medium bg-card p-6 rounded-2xl border border-ink-200 italic font-serif break-words">
-                              {submission.primary_definition || '-'}
-                            </p>
-                          </div>
-                          <div className="space-y-4">
-                            {submission.part_of_speech && (
-                              <div>
-                                <p className="text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-1">Part of Speech</p>
-                                <p className="font-bold text-ink-900 uppercase text-sm break-words">{submission.part_of_speech}</p>
-                              </div>
-                            )}
-                            {submission.dialect_variant && (
-                              <div>
-                                <p className="text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-1">Dialect Context</p>
-                                <p className="font-bold text-ink-900 uppercase text-sm break-words">{submission.dialect_variant}</p>
-                              </div>
-                            )}
-                            {(submission.english_translation || submission.swahili_translation) && (
-                              <div className="grid grid-cols-1 gap-3">
-                                {submission.english_translation && (
-                                  <div>
-                                    <p className="text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-1">English Bridge</p>
-                                    <p className="font-bold text-ink-900 text-sm break-words">{submission.english_translation}</p>
-                                  </div>
-                                )}
-                                {submission.swahili_translation && (
-                                  <div>
-                                    <p className="text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-1">Swahili Bridge</p>
-                                    <p className="font-bold text-ink-900 text-sm break-words">{submission.swahili_translation}</p>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="mb-8 rounded-2xl border border-ink-200 bg-paper-warm p-5">
-                          <div className="flex flex-wrap items-center gap-3 justify-between">
-                            <p className="text-[10px] font-semibold text-ink-600 uppercase tracking-[0.12em]">Review Summary</p>
-                            {gaps.length > 0 ? (
-                              <span className="text-[10px] font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800 uppercase tracking-widest">
-                                needs completion
-                              </span>
-                            ) : (
-                              <span className="text-[10px] font-semibold px-3 py-1 rounded-full bg-sand-50 text-signal-600 uppercase tracking-widest">
-                                ready to approve
-                              </span>
-                            )}
-                          </div>
-                          {gaps.length > 0 ? (
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              {gaps.map((gap) => (
-                                <span key={gap} className="text-[10px] font-semibold px-3 py-1 rounded-full bg-white border border-amber-200 text-amber-900 uppercase tracking-widest">
-                                  Missing {gap}
-                                </span>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="mt-3 text-sm text-ink-700 font-medium">
-                              Bridge fields and core metadata are present. Moderator can approve directly or refine further.
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="pt-8 border-t border-ink-200">
-                          {reviewingId === submission.id ? (
-                            <div className="space-y-6">
-                              <textarea
-                                value={actionNote}
-                                onChange={(e) => setActionNote(e.target.value)}
-                                placeholder="Internal moderator notes (optional)..."
-                                className="w-full px-6 py-4 bg-card border-2 border-ink-200 rounded-2xl focus:bg-white focus:border-ink-200 transition-all outline-none font-medium text-ink-900 italic font-serif"
-                                rows={2}
-                              />
-                              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
-                                <button
-                                  onClick={() => handleReviewAction(submission, 'accept')}
-                                  disabled={isProcessing}
-                                  className="w-full sm:flex-1 sm:min-w-[140px] bg-ink-900 text-white px-6 py-4 rounded-xl hover:bg-ink-950 transition font-semibold flex items-center justify-center gap-2 shadow-lg shadow-ink-900/10 disabled:opacity-50 uppercase text-[10px] tracking-widest"
-                                  aria-label="Approve entry"
-                                >
-                                  {isProcessing ? '...' : `Approve ${isPhrase ? 'Phrase' : 'Entry'}`}
-                                </button>
-                                <button
-                                  onClick={() => handleReviewAction(submission, 'reject')}
-                                  disabled={isProcessing}
-                                  className="w-full sm:flex-1 sm:min-w-[140px] bg-signal-500 text-white px-6 py-4 rounded-xl hover:bg-signal-700 transition font-semibold flex items-center justify-center gap-2 shadow-lg shadow-signal-800/10 disabled:opacity-50 uppercase text-[10px] tracking-widest"
-                                  aria-label="Discard suggestion"
-                                >
-                                  {isProcessing ? '...' : 'Discard'}
-                                </button>
-                                <button
-                                  onClick={() => { setReviewingId(null); setActionNote('') }}
-                                  className="w-full sm:w-auto px-6 py-4 text-ink-600 font-semibold hover:text-ink-900 transition tracking-widest text-[10px] uppercase"
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                                <button
-                                  onClick={() => { setReviewingId(submission.id); setActionNote('') }}
-                                  className="w-full sm:w-auto bg-ink-900 text-white px-8 py-3.5 rounded-xl hover:bg-ink-950 transition font-semibold text-[11px] tracking-widest uppercase"
-                                  aria-label="Open review panel"
-                                >
-                                  Review Submission
-                                </button>
-
-                                <button
-                                  onClick={() => setEditingItem({ ...submission, currentUserId: user?.id } as ModerationItem)}
-                                  className="w-full sm:w-auto px-4 py-3 text-sm bg-sand-300 text-ink-900 rounded-xl hover:bg-sand-400 transition font-semibold uppercase tracking-widest"
-                                >
-                                  {gaps.length > 0 ? `Complete ${isPhrase ? 'Phrase' : 'Entry'} + Approve` : `Refine ${isPhrase ? 'Phrase' : 'Entry'}`}
-                                </button>
-
-                                <button
-                                  onClick={() => handleApply(submission)}
-                                  className="w-full sm:w-auto px-4 py-3 text-sm bg-ink-900 text-white rounded-xl hover:bg-ink-950 transition font-semibold uppercase tracking-widest"
-                                  aria-label="Apply suggestion to entry"
-                                >
-                                  Apply
-                                </button>
-                              </div>
-
-                              <div className="flex items-center gap-3 self-start sm:self-auto">
-                                <button
-                                  onClick={() => handleFlag(submission)}
-                                  className="p-3 text-ink-600 hover:text-signal-500 transition-colors font-semibold text-xs uppercase tracking-widest"
-                                  title="Flag for discussion"
-                                  aria-label="Flag suggestion"
-                                >
-                                  Flag
-                                </button>
-                                {isProcessing && <div className="text-sm text-ink-600">Processing...</div>}
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                    <li
+                      key={item.id}
+                      style={{ '--i': index } as React.CSSProperties}
+                      className="border-b border-ink-200 py-6"
+                    >
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+                        <h2 className="text-xl font-semibold text-ink-900">
+                          {item.headword || 'Untitled'}
+                        </h2>
+                        <span className="label text-ink-500">
+                          {item.language?.name ?? 'Unknown language'}
+                          {item.item_type === 'suggestion' ? ' · Correction' : ''}
+                          {isPhraseItem(item) ? ' · Phrase' : ''}
+                        </span>
                       </div>
-                    </div>
+
+                      {item.primary_definition && (
+                        <p className="definition mt-2 text-ink-800">{item.primary_definition}</p>
+                      )}
+
+                      <p className="mt-2 text-sm text-ink-600">
+                        {[item.english_translation, item.swahili_translation]
+                          .filter(Boolean)
+                          .join(' · ') || 'No bridge translation'}
+                      </p>
+
+                      {item.contributor?.display_name && (
+                        <p className="label mt-2 text-ink-500">
+                          From {item.contributor.display_name}
+                        </p>
+                      )}
+
+                      {gaps.length > 0 && (
+                        <ul className="mt-3 flex flex-wrap gap-1.5">
+                          {gaps.map((gap) => (
+                            <li
+                              key={gap}
+                              className="border border-sand-200 bg-sand-50 px-2 py-0.5 text-xs font-semibold text-sand-700"
+                            >
+                              {gap}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
+                      <div className="mt-5 flex flex-wrap gap-3">
+                        <button
+                          onClick={() => decide(item, 'approve')}
+                          disabled={busy[item.id]}
+                          className="btn-primary py-2 text-sm"
+                        >
+                          Publish
+                        </button>
+                        <button
+                          onClick={() => setEditing(item)}
+                          disabled={busy[item.id]}
+                          className="border border-ink-300 px-4 py-2 text-sm font-semibold text-ink-700 transition-colors hover:border-ink-900"
+                        >
+                          Fix And Publish
+                        </button>
+                        <button
+                          onClick={() => decide(item, 'reject')}
+                          disabled={busy[item.id]}
+                          className="border border-ink-300 px-4 py-2 text-sm font-semibold text-ink-600 transition-colors hover:border-signal-500 hover:text-signal-600"
+                        >
+                          Send Back
+                        </button>
+                        {item.item_type === 'entry' && (
+                          <button
+                            onClick={() => decide(item, 'flag')}
+                            disabled={busy[item.id]}
+                            className="px-2 py-2 text-sm font-semibold text-ink-500 underline underline-offset-4 hover:text-ink-900"
+                          >
+                            Needs A Second Look
+                          </button>
+                        )}
+                        {item.entry_id && (
+                          <Link
+                            href={`/entry/${item.entry_id}`}
+                            className="px-2 py-2 text-sm font-semibold text-ink-500 underline underline-offset-4 hover:text-ink-900"
+                          >
+                            Open Entry
+                          </Link>
+                        )}
+                      </div>
+                    </li>
                   )
                 })}
-
-                {filteredList.length === 0 && (
-                  <div className="bg-paper p-24 border border-ink-200 text-center shadow-soft">
-                    <h3 className="text-2xl font-semibold text-ink-900 mb-2 font-display uppercase tracking-tighter">Clear Horizon</h3>
-                    <p className="text-ink-600 font-medium font-serif italic">No pending submissions to review right now.</p>
-                  </div>
-                )}
-              </div>
+              </ul>
             )}
-          </div>
-        </div>
-      </div>
-      )}
+          </>
+        )}
+      </main>
 
-      {editingItem && (
+      {editing && (
         <EntryActionModal
           type="edit"
-          entry={{ ...editingItem, currentUserId: user?.id }}
-          onClose={() => setEditingItem(null)}
-          onSubmit={handleCompleteAndApprove}
+          entry={{ ...editing, currentUserId: user?.id }}
+          onClose={() => setEditing(null)}
+          onSubmit={completeAndApprove}
         />
       )}
     </div>
