@@ -670,3 +670,29 @@ export const getLanguageCoverage = unstable_cache(
   ['public-language-coverage'],
   { revalidate: 300 }
 )
+
+export type TranslatableLanguage = {
+  id: string
+  code: string
+  name: string
+  role: string
+}
+
+/** Every active language, bridges included, since you translate through them. */
+export const getTranslatableLanguages = unstable_cache(
+  async (): Promise<TranslatableLanguage[]> => {
+    const { data } = await supabase
+      .from('languages')
+      .select('id, code, name, role')
+      .eq('is_active', true)
+      .order('name')
+    return ((data ?? []) as Array<Record<string, unknown>>).map((row) => ({
+      id: String(row.id),
+      code: String(row.code ?? ''),
+      name: String(row.name ?? ''),
+      role: String(row.role ?? 'indigenous'),
+    }))
+  },
+  ['public-translatable-languages'],
+  { revalidate: 300 }
+)

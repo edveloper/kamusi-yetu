@@ -1,450 +1,273 @@
- 'use client'
-
-import { useCallback, useEffect, useRef, useState } from 'react'
+import type { Metadata } from 'next'
 import Link from 'next/link'
-import { getLanguages } from '@/lib/api/languages'
-import {
-  translateText,
-  submitTranslationFeedback,
-  type TranslationCandidate,
-  type TranslationFeedbackVerdict
-} from '@/lib/api/translate'
-import { groupLanguages } from '@/lib/constants/languageGroups'
+import { SITE_URL } from '@/lib/constants/site'
+import { getTranslatableLanguages, getEntryRecordings } from '@/lib/public-site'
+import { runTranslation } from '@/lib/translation/engine'
+import type { TranslationPath } from '@/lib/translation/pipeline'
+import TranslateControls from '@/components/translate/TranslateControls'
+import Waveform from '@/components/ui/Waveform'
 
-type LanguageOption = {
-  id: string
-  name: string
-  code?: string | null
-  language_group_key?: string | null
-  language_group_label?: string | null
+// A translation is now a location, not a transient client state. /translate?
+// from=luo&to=en&q=Aheri can be linked, sent to someone and read by a crawler,
+// which also makes every successful lookup a page that can be found.
+
+export const revalidate = 300
+
+type SearchParams = Promise<Record<string, string | string[] | undefined>>
+const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? ''
+
+const PATH_LABEL: Record<TranslationPath, string> = {
+  concept: 'Same recorded meaning',
+  direct_edge: 'Direct pair',
+  direct_bridge: 'Through its own translation',
+  pivot_sw: 'Via Kiswahili',
+  pivot_en: 'Via English',
+  pivot_sw_en: 'Via Kiswahili then English',
+  pivot_en_sw: 'Via English then Kiswahili',
 }
 
-function confidenceLabel(score: number) {
-  if (score >= 0.85) return 'Strong'
-  if (score >= 0.6) return 'Moderate'
-  return 'Weak'
+const PATH_NOTE: Record<TranslationPath, string> = {
+  concept: 'Both languages record a word for the same meaning. The strongest kind of match.',
+  direct_edge: 'Someone has explicitly linked these two entries.',
+  direct_bridge: "Taken from the entry's own English or Kiswahili translation.",
+  pivot_sw: 'Matched through a shared Kiswahili translation, so treat it as a good guess.',
+  pivot_en: 'Matched through a shared English translation, so treat it as a good guess.',
+  pivot_sw_en: 'Routed through two languages. Worth checking with a speaker.',
+  pivot_en_sw: 'Routed through two languages. Worth checking with a speaker.',
 }
 
-function pathLabel(path: TranslationCandidate['path_type']) {
-  if (path === 'concept') return 'Same meaning'
-  if (path === 'direct_edge') return 'Direct'
-  if (path === 'direct_bridge') return 'Bridge'
-  if (path === 'pivot_sw') return 'Via Swahili'
-  if (path === 'pivot_sw_en') return 'Via Swahili->English'
-  if (path === 'pivot_en_sw') return 'Via English->Swahili'
-  return 'Via English'
-}
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: SearchParams
+}): Promise<Metadata> {
+  const params = await searchParams
+  const q = one(params.q)
+  const from = one(params.from)
+  const to = one(params.to)
 
-function matchKindLabel(kind?: TranslationCandidate['match_kind']) {
-  if (kind === 'phrase') return 'Phrase Match'
-  return 'Word Match'
-}
-
-const MAX_CHARS = 500
-
-const translationExamples = [
-  { sourceText: 'salama', sourceLabel: 'Swahili', targetText: 'peace; safety', targetLabel: 'English' },
-  { sourceText: 'poisho?', sourceLabel: 'Pokot', targetText: 'hello', targetLabel: 'English' },
-  { sourceText: 'Milembe', sourceLabel: 'Logooli', targetText: 'hello', targetLabel: 'English' },
-]
-
-export default function TranslatePage() {
-  const [languages, setLanguages] = useState<LanguageOption[]>([])
-  const [sourceLanguageId, setSourceLanguageId] = useState('')
-  const [targetLanguageId, setTargetLanguageId] = useState('')
-  const [text, setText] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [results, setResults] = useState<TranslationCandidate[]>([])
-  const [copied, setCopied] = useState(false)
-  const [showMore, setShowMore] = useState(false)
-  const [feedbackMap, setFeedbackMap] = useState<Record<string, TranslationFeedbackVerdict>>({})
-  const [feedbackPending, setFeedbackPending] = useState<Record<string, boolean>>({})
-
-  const groupedLanguages = groupLanguages(languages)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const requestIdRef = useRef(0)
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await getLanguages()
-        const list = (data || []) as LanguageOption[]
-        setLanguages(list)
-
-        const sw = list.find((l) => (l.code || '').toLowerCase() === 'sw')
-        const en = list.find((l) => (l.code || '').toLowerCase() === 'en')
-        if (sw?.id) setSourceLanguageId(sw.id)
-        if (en?.id) setTargetLanguageId(en.id)
-      } catch {
-        setError('Failed to load languages.')
-      }
-    }
-    load()
-  }, [])
-
-  const runTranslation = useCallback(
-    async (value: string, sourceId: string, targetId: string) => {
-      const trimmed = value.trim()
-      if (!trimmed || !sourceId || !targetId) {
-        setResults([])
-        setLoading(false)
-        return
-      }
-
-      const requestId = ++requestIdRef.current
-      setLoading(true)
-      setError('')
-      try {
-        const data = await translateText({ text: trimmed, sourceLanguageId: sourceId, targetLanguageId: targetId, limit: 10 })
-        // Ignore stale responses if a newer request has started.
-        if (requestId !== requestIdRef.current) return
-        setResults(data)
-        setFeedbackMap({})
-        setShowMore(false)
-      } catch (err) {
-        if (requestId !== requestIdRef.current) return
-        setError(err instanceof Error ? err.message : 'Translation failed.')
-        setResults([])
-      } finally {
-        if (requestId === requestIdRef.current) setLoading(false)
-      }
-    },
-    []
-  )
-
-  // Debounced, instant translation as the user types or changes languages.
-  useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    if (!text.trim() || !sourceLanguageId || !targetLanguageId) {
-      setResults([])
-      setLoading(false)
-      return
-    }
-    debounceRef.current = setTimeout(() => {
-      runTranslation(text, sourceLanguageId, targetLanguageId)
-    }, 450)
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current)
-    }
-  }, [text, sourceLanguageId, targetLanguageId, runTranslation])
-
-  const topResult = results[0]
-  const moreResults = results.slice(1)
-
-  const onSwap = () => {
-    const prevTop = topResult?.translation ?? ''
-    setSourceLanguageId(targetLanguageId)
-    setTargetLanguageId(sourceLanguageId)
-    // Round-trip the visible translation back into the input, DeepL-style.
-    if (prevTop) setText(prevTop)
-  }
-
-  const onCopy = async () => {
-    if (!topResult?.translation) return
-    try {
-      await navigator.clipboard.writeText(topResult.translation)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1500)
-    } catch {
-      setError('Could not copy to clipboard.')
+  if (!q) {
+    return {
+      title: 'Translate',
+      description: 'Move a word or phrase between any two Kenyan languages.',
+      alternates: { canonical: `${SITE_URL}/translate` },
     }
   }
 
-  const candidateKey = (r: TranslationCandidate, index: number) =>
-    `${r.source_entry_id}-${r.target_entry_id || 'none'}-${index}`
+  const languages = await getTranslatableLanguages()
+  const fromName = languages.find((l) => l.code === from)?.name ?? from
+  const toName = languages.find((l) => l.code === to)?.name ?? to
 
-  const onFeedback = async (candidate: TranslationCandidate, verdict: TranslationFeedbackVerdict, index: number) => {
-    const key = candidateKey(candidate, index)
-    if (!candidate.target_entry_id) {
-      setError('This result cannot be rated yet because it is not mapped to a target entry.')
-      return
-    }
-    setFeedbackPending((prev) => ({ ...prev, [key]: true }))
-    setError('')
-    try {
-      await submitTranslationFeedback({
-        sourceEntryId: candidate.source_entry_id,
-        targetEntryId: candidate.target_entry_id,
-        sourceLanguageId,
-        targetLanguageId,
-        pathType: candidate.path_type,
-        confidence: candidate.confidence,
-        verdict
-      })
-      setFeedbackMap((prev) => ({ ...prev, [key]: verdict }))
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not submit feedback.')
-    } finally {
-      setFeedbackPending((prev) => ({ ...prev, [key]: false }))
-    }
+  return {
+    title: `${q} in ${toName}`,
+    description: `How to say ${q} from ${fromName} in ${toName}.`,
+    alternates: { canonical: `${SITE_URL}/translate?from=${from}&to=${to}&q=${encodeURIComponent(q)}` },
+  }
+}
+
+export default async function TranslatePage({ searchParams }: { searchParams: SearchParams }) {
+  const params = await searchParams
+  const languages = await getTranslatableLanguages()
+
+  const fallbackFrom = languages.find((l) => l.code === 'sw')?.code ?? languages[0]?.code ?? ''
+  const fallbackTo = languages.find((l) => l.code === 'en')?.code ?? languages[1]?.code ?? ''
+
+  const from = one(params.from) || fallbackFrom
+  const to = one(params.to) || fallbackTo
+  const q = one(params.q)
+
+  const fromLang = languages.find((l) => l.code === from) ?? null
+  const toLang = languages.find((l) => l.code === to) ?? null
+
+  let outcome: Awaited<ReturnType<typeof runTranslation>> | null = null
+  if (q && fromLang && toLang) {
+    outcome = await runTranslation({
+      text: q,
+      sourceLanguageId: fromLang.id,
+      targetLanguageId: toLang.id,
+      limit: 8,
+    })
   }
 
-  const languageOptions = (
-    <>
-      {groupedLanguages.map((group) => (
-        <optgroup key={group.key} label={group.label}>
-          {group.languages.map((l) => (
-            <option key={l.id} value={l.id}>{l.name}</option>
-          ))}
-        </optgroup>
-      ))}
-    </>
-  )
+  const results = outcome?.ok ? outcome.result : []
+  const best = results[0] ?? null
+  const alternates = results.slice(1)
 
-  const renderMeta = (r: TranslationCandidate) => (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded bg-neutral-900 text-white">
-        {matchKindLabel(r.match_kind)}
-      </span>
-      <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded bg-accent-50 text-accent-700 border border-accent-100">
-        {pathLabel(r.path_type)}
-      </span>
-      {(r.via_paths ?? []).slice(1).map((path) => (
-        <span
-          key={path}
-          title="An independent route that produced the same result"
-          className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded bg-neutral-100 text-neutral-600 border border-neutral-200"
-        >
-          + {pathLabel(path)}
-        </span>
-      ))}
-      <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded bg-neutral-100 text-neutral-600 border border-neutral-200">
-        {confidenceLabel(r.confidence)} match
-      </span>
-    </div>
-  )
-
-  const renderFeedback = (r: TranslationCandidate, index: number) => {
-    const key = candidateKey(r, index)
-    const hasFeedback = !!feedbackMap[key]
-    const pending = !!feedbackPending[key]
-    const canRate = !!r.target_entry_id
-    return (
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-[10px] font-black uppercase tracking-widest text-neutral-600 mr-1">Rate:</span>
-        <button type="button" onClick={() => onFeedback(r, 'correct', index)} disabled={!canRate || pending}
-          className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border border-accent-200 bg-accent-50 text-accent-700 disabled:opacity-50">
-          Correct
-        </button>
-        <button type="button" onClick={() => onFeedback(r, 'partially_correct', index)} disabled={!canRate || pending}
-          className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border border-amber-200 bg-amber-50 text-amber-700 disabled:opacity-50">
-          Partly
-        </button>
-        <button type="button" onClick={() => onFeedback(r, 'incorrect', index)} disabled={!canRate || pending}
-          className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border border-red-200 bg-red-50 text-red-700 disabled:opacity-50">
-          Incorrect
-        </button>
-        {hasFeedback && (
-          <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500">
-            Saved: {feedbackMap[key].replace('_', ' ')}
-          </span>
-        )}
-        {!canRate && (
-          <span className="text-[10px] font-black uppercase tracking-widest text-neutral-600">Not rateable yet</span>
-        )}
-      </div>
-    )
-  }
+  // If the answer has a recording, you should be able to hear it. This is the
+  // whole point of collecting audio and it costs one query.
+  const recordings = best?.target_entry_id ? await getEntryRecordings(best.target_entry_id) : []
 
   return (
-    <div className="min-h-screen bg-neutral-100 pb-20">
-      <div className="relative overflow-hidden bg-heritage-dark text-white py-20 md:py-24 px-4 sm:px-6">
-        <div className="relative max-w-5xl mx-auto text-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-accent-300 mb-4 font-semibold">Across Kenya&apos;s languages</p>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight max-w-3xl mx-auto font-display">Translate</h1>
-          <p className="mt-6 text-base md:text-lg text-white max-w-2xl mx-auto leading-8">
-            Move between Kenya's languages. Find verified meanings and see how communities speak across language boundaries.
-          </p>
+    <div className="min-h-screen bg-paper">
+      {/* ---------------------------------------------------------- controls */}
+      <header className="border-b border-ink-900 bg-ink-900 text-paper">
+        <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 md:py-14">
+          <p className="mark label mb-5 text-signal-300">Translate</p>
+          {!q && (
+            <h1 className="display mb-8 max-w-2xl text-4xl sm:text-5xl">
+              Between any two Kenyan languages, not just to English
+            </h1>
+          )}
+          <TranslateControls languages={languages} from={from} to={to} q={q} />
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-5xl mx-auto px-4 -mt-12 relative z-20">
-        {/* Two-panel translator */}
-        <div className="relative grid md:grid-cols-2 gap-4">
-          {/* Source panel */}
-          <div className="surface-card p-5 md:p-6 shadow-medium flex flex-col">
-            <div className="flex items-center justify-between gap-3 mb-3 pb-3 border-b border-neutral-200">
-              <select
-                aria-label="Source language"
-                value={sourceLanguageId}
-                onChange={(e) => setSourceLanguageId(e.target.value)}
-                className="font-black text-heritage-dark bg-transparent text-sm uppercase tracking-wide outline-none cursor-pointer"
-              >
-                <option value="">Select source...</option>
-                {languageOptions}
-              </select>
-            </div>
-            <textarea
-              value={text}
-              onChange={(e) => setText(e.target.value.slice(0, MAX_CHARS))}
-              placeholder="Type a word or phrase..."
-              rows={6}
-              className="w-full flex-1 resize-none bg-transparent text-2xl font-semibold text-neutral-900 placeholder:text-neutral-300 outline-none leading-relaxed"
-            />
-            <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-neutral-100">
-              <span className="text-[10px] font-black uppercase tracking-widest text-neutral-600">
-                {text.length}/{MAX_CHARS}
+      <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+        {/* ------------------------------------------------------ the answer */}
+        {q && best && (
+          <section aria-label="Translation">
+            <p className="label mb-3 text-ink-500">
+              {fromLang?.name} to {toLang?.name}
+            </p>
+            <p className="headword break-words text-5xl text-ink-900 sm:text-6xl md:text-7xl">
+              {best.translation}
+            </p>
+
+            <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2">
+              <span className="border border-ink-900 bg-ink-900 px-2.5 py-1 text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-paper">
+                {PATH_LABEL[best.path_type]}
               </span>
-              {text && (
-                <button type="button" onClick={() => setText('')}
-                  className="text-[10px] font-black uppercase tracking-widest text-neutral-600 hover:text-heritage-dark transition-colors">
-                  Clear
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Swap button */}
-          <button
-            type="button"
-            onClick={onSwap}
-            aria-label="Swap source and target languages"
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-heritage-dark text-white shadow-strong flex items-center justify-center hover:bg-heritage-darker transition-colors rotate-90 md:rotate-0"
-          >
-            <span className="text-lg font-black" aria-hidden>⇄</span>
-          </button>
-
-          {/* Target panel */}
-          <div className="surface-card p-5 md:p-6 shadow-medium bg-accent-50/40 flex flex-col">
-            <div className="flex items-center justify-between gap-3 mb-3 pb-3 border-b border-neutral-200">
-              <select
-                aria-label="Target language"
-                value={targetLanguageId}
-                onChange={(e) => setTargetLanguageId(e.target.value)}
-                className="font-black text-heritage-dark bg-transparent text-sm uppercase tracking-wide outline-none cursor-pointer"
-              >
-                <option value="">Select target...</option>
-                {languageOptions}
-              </select>
-              {topResult && (
-                <button type="button" onClick={onCopy}
-                  className="text-[10px] font-black uppercase tracking-widest text-accent-700 hover:text-heritage-dark transition-colors">
-                  {copied ? 'Copied' : 'Copy'}
-                </button>
+              {(best.via_paths ?? []).slice(1).map((path) => (
+                <span
+                  key={path}
+                  className="border border-ink-300 px-2.5 py-1 text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-ink-600"
+                >
+                  also {PATH_LABEL[path].toLowerCase()}
+                </span>
+              ))}
+              {best.match_kind === 'phrase' && (
+                <span className="label text-ink-500">phrase</span>
               )}
             </div>
 
-            <div className="flex-1 min-h-[150px] flex flex-col">
-              {loading && !topResult ? (
-                <p className="text-2xl font-semibold text-neutral-300 animate-pulse">Translating...</p>
-              ) : topResult ? (
-                <div className="flex flex-col h-full">
-                  <p className="text-2xl md:text-3xl font-black font-display text-heritage-dark leading-snug">
-                    {topResult.translation}
-                  </p>
-                  <div className="mt-4">{renderMeta(topResult)}</div>
-                  <div className="mt-4 flex flex-wrap items-center gap-3">
-                    {topResult.target_entry_id && (
-                      <Link href={`/entry/${topResult.target_entry_id}`}
-                        className="text-[11px] font-black uppercase tracking-widest text-heritage-dark hover:text-heritage-darker transition-colors">
-                        View full entry →
-                      </Link>
-                    )}
-                  </div>
-                  <div className="mt-auto pt-4">{renderFeedback(topResult, 0)}</div>
-                </div>
-              ) : (
-                <p className="text-2xl font-semibold text-neutral-300">
-                  {text.trim() ? 'No verified match yet.' : 'Translation appears here.'}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
+            <p className="mt-3 max-w-xl text-[0.9375rem] text-ink-600">
+              {PATH_NOTE[best.path_type]}
+            </p>
 
-        {error && (
-          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 font-bold">
-            {error}
-          </div>
-        )}
-
-        {/* More matches */}
-        {moreResults.length > 0 && (
-          <div className="mt-6">
-            <button type="button" onClick={() => setShowMore((s) => !s)}
-              className="rounded-full border border-accent-200 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-accent-700 hover:bg-accent-50 transition">
-              {showMore ? 'Hide other matches' : `Show ${moreResults.length} other match${moreResults.length > 1 ? 'es' : ''}`}
-            </button>
-            {showMore && (
-              <div className="mt-4 space-y-4">
-                {moreResults.map((r, i) => {
-                  const index = i + 1
-                  return (
-                    <div key={candidateKey(r, index)} className="bg-white p-5 rounded-2xl border border-neutral-200">
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <p className="text-xl font-black font-display text-heritage-dark">{r.translation}</p>
-                        {r.target_entry_id && (
-                          <Link href={`/entry/${r.target_entry_id}`}
-                            className="text-[10px] font-black uppercase tracking-widest text-heritage-dark hover:text-heritage-darker whitespace-nowrap">
-                            View entry →
-                          </Link>
-                        )}
-                      </div>
-                      <div className="mt-3">{renderMeta(r)}</div>
-                      <div className="mt-3">{renderFeedback(r, index)}</div>
-                    </div>
-                  )
-                })}
+            {recordings.length > 0 && (
+              <div className="mt-8 border-t border-ink-200 pt-6">
+                <h2 className="mark label mb-3 text-ink-600">Hear it</h2>
+                <Waveform
+                  src={recordings[0].url}
+                  caption={
+                    recordings[0].speakerType === 'native'
+                      ? 'First-language speaker'
+                      : recordings[0].speakerType ?? undefined
+                  }
+                />
               </div>
             )}
-          </div>
+
+            {best.target_entry_id && (
+              <p className="mt-6">
+                <Link
+                  href={`/entry/${best.target_entry_id}`}
+                  className="font-semibold text-signal-600 underline underline-offset-4"
+                >
+                  Open the full entry
+                </Link>
+              </p>
+            )}
+          </section>
         )}
 
-        {/* Quick examples */}
-        <section className="mt-12">
-          <h3 className="text-sm font-black uppercase tracking-[0.2em] text-neutral-600 mb-4">Try these examples</h3>
-          <div className="grid sm:grid-cols-3 gap-4">
-            {translationExamples.map((example) => (
-              <button
-                key={`${example.sourceText}-${example.sourceLabel}`}
-                type="button"
-                onClick={() => setText(example.sourceText)}
-                className="text-left rounded-2xl border border-accent-200 bg-neutral-100 p-5 shadow-soft hover:border-accent-300 hover:bg-accent-50 transition-all"
+        {/* -------------------------------------------------------- alternates */}
+        {alternates.length > 0 && (
+          <section className="mt-12 border-t border-ink-200 pt-8">
+            <h2 className="mark label mb-4 text-ink-600">Other candidates</h2>
+            <ul className="border-t border-ink-200">
+              {alternates.map((candidate, index) => (
+                <li key={`${candidate.translation}-${index}`} className="border-b border-ink-200">
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-3.5">
+                    <span className="text-xl font-semibold text-ink-900">
+                      {candidate.translation}
+                    </span>
+                    <span className="label text-ink-500">
+                      {PATH_LABEL[candidate.path_type]}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 max-w-xl text-sm text-ink-600">
+              More than one word can be right. If you speak {toLang?.name} and one of these is
+              wrong, say so on its entry page.
+            </p>
+          </section>
+        )}
+
+        {/* ------------------------------------------------------------- miss */}
+        {q && results.length === 0 && (
+          <section className="border-y-2 border-ink-900 py-12">
+            <p className="label mb-3 text-signal-500">Not recorded yet</p>
+            <p className="display max-w-2xl text-3xl text-ink-900 sm:text-4xl">
+              No {toLang?.name} word for {q} yet
+            </p>
+            <p className="mt-5 max-w-xl text-ink-700">
+              That is a real gap, not an error. We have written it down, and if you know the
+              word you would be the first to record it.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link
+                href={`/contribute/gaps?lang=${encodeURIComponent(to)}`}
+                className="btn-primary"
               >
-                <p className="text-xl font-black text-neutral-900">{example.sourceText}</p>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-600 mt-1">{example.sourceLabel}</p>
-                <div className="my-3 h-px bg-neutral-200" />
-                <p className="text-lg font-black text-accent-700">{example.targetText}</p>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-600 mt-1">{example.targetLabel}</p>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* How to read results */}
-        <section className="mt-12">
-          <div className="bg-white border border-neutral-200 rounded-2xl p-6 md:p-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-heritage-dark mb-2">How to Read Results</p>
-            <h2 className="text-2xl font-black text-heritage-dark font-display mb-4">Understanding translation confidence</h2>
-            <div className="grid md:grid-cols-3 gap-4 text-sm text-neutral-700">
-              <div><strong>Match strength</strong> reflects how the result was found, not how many people have reviewed it. A direct match is the strongest; each additional language a result is routed through weakens it.</div>
-              <div><strong>Direct:</strong> Both languages have a verified entry for this word. <strong>Bridge:</strong> Found through the entry&apos;s English or Swahili translation. <strong>Pivot:</strong> Routed through a second language to get here.</div>
-              <div><strong>Found more than one way:</strong> when a result lists several routes, independent paths agreed on it. That is corroboration, and a good sign.</div>
-              <div><strong>Phrase vs Word:</strong> Phrase matches are multi-word expressions with specific meaning. Word matches are single lexical units.</div>
+                Add it in {toLang?.name}
+              </Link>
+              <Link href={`/explore?q=${encodeURIComponent(q)}`} className="btn-secondary">
+                Search every language
+              </Link>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
-        <section className="mt-12">
-          <div className="bg-heritage-dark rounded-2xl p-12 md:p-16 text-white shadow-strong">
-            <div className="text-center">
-              <h2 className="text-4xl font-black font-display mb-4">Help Strengthen Translations</h2>
-              <p className="text-white text-lg font-medium mb-8 max-w-3xl mx-auto">
-                Your contributions improve translation accuracy across all languages. Add verified entries and help bridge language gaps.
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Link href="/contribute" className="px-8 py-4 rounded-lg bg-accent-300 text-heritage-dark font-black text-lg hover:bg-accent-400 transition shadow-soft">
-                  Add an Entry
-                </Link>
-                <Link href="/explore" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-ink-800 transition">
-                  Explore Languages
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
+        {outcome && !outcome.ok && (
+          <p role="alert" className="border border-signal-200 bg-signal-50 px-4 py-3 text-sm font-semibold text-signal-700">
+            {outcome.error}
+          </p>
+        )}
+
+        {/* -------------------------------------------------------- empty state */}
+        {!q && (
+          <section>
+            <h2 className="mark display mb-3 text-2xl">Try one of these</h2>
+            <p className="mb-6 max-w-xl text-ink-700">
+              Most translation tools only go to and from English. This one moves between
+              Kenyan languages directly, using a shared meaning where both languages have
+              recorded one.
+            </p>
+            <ul className="reveal-rows border-t border-ink-200">
+              {[
+                { q: 'Aheri', from: 'luo', to: 'sw', gloss: 'I love you, Dholuo to Kiswahili' },
+                { q: 'maji', from: 'sw', to: 'ki', gloss: 'water, Kiswahili to Kikuyu' },
+                { q: 'Nade?', from: 'luo', to: 'en', gloss: 'a greeting, Dholuo to English' },
+                { q: 'mother', from: 'en', to: 'luo', gloss: 'English to Dholuo' },
+              ].map((example) => (
+                <li key={`${example.q}-${example.to}`} className="border-b border-ink-200">
+                  <Link
+                    href={`/translate?from=${example.from}&to=${example.to}&q=${encodeURIComponent(example.q)}`}
+                    className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-3.5 transition-colors hover:text-signal-600"
+                  >
+                    <span className="text-lg font-semibold text-ink-900">{example.q}</span>
+                    <span className="label text-ink-500">{example.gloss}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <p className="mt-14 max-w-xl text-sm text-ink-600">
+          Translation quality depends entirely on how much each language has recorded.{' '}
+          <Link
+            href="/trending"
+            className="font-semibold text-signal-600 underline underline-offset-2"
+          >
+            See where the gaps are
+          </Link>
+          .
+        </p>
+      </main>
     </div>
   )
 }
