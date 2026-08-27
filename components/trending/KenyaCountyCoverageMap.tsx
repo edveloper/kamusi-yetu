@@ -131,236 +131,156 @@ export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyC
     ? getLanguageMaturityDefinition(selectedCounty.maturity)
     : null
 
-  const countyMissions = selectedCounty
-    ? selectedCounty.mappedLanguages
-        .map((language) => {
-          if (language.totalEntries === 0) {
-            return {
-              code: language.code,
-              label: `Start ${language.name}`,
-              detail: 'This county-linked language still needs its first visible word and phrase base.',
-            }
-          }
 
-          if (language.phraseEntries === 0) {
-            return {
-              code: language.code,
-              label: `Add phrase coverage in ${language.name}`,
-              detail: 'The language is live, but phrase coverage is still missing.',
-            }
-          }
+  const covered = countyCoverage.filter((county) => county.coveredLanguageCount > 0).length
 
-          if (language.maturity === 'review_heavy' || language.phraseEntries < 5) {
-            return {
-              code: language.code,
-              label: `Strengthen ${language.name}`,
-              detail: 'More verified phrases and better bridge coverage would improve translation quality quickly.',
-            }
-          }
-
-          return {
-            code: language.code,
-            label: `Add examples in ${language.name}`,
-            detail: 'This language is growing; usage examples will make phrase and sentence work much stronger.',
-          }
-        })
-        .slice(0, 2)
-    : []
+  const weakest = selectedCounty
+    ? [...selectedCounty.mappedLanguages].sort((a, b) => a.totalEntries - b.totalEntries)[0]
+    : null
 
   return (
-    <section className="mb-10 border border-ink-200 bg-card p-4 sm:p-6 lg:p-8">
-      <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-        <div className="max-w-3xl">
-          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-signal-600 mb-2">Kenya Coverage Map</p>
-          <h2 className="text-2xl sm:text-3xl font-bold font-display text-ink-900">Community presence by county</h2>
-          <p className="text-sm text-ink-600 font-medium mt-3 leading-relaxed">
-            A county-by-county view of where language communities are strongly associated, what LughaKonnect already covers, and where the next contributions can make the biggest difference.
+    <section aria-label="Coverage by county">
+      {/* Legend first. The map is unreadable without it, and putting it below
+        * means people scroll past the thing that decodes what they are seeing. */}
+      <div className="mb-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-ink-200 py-3">
+        {(
+          ['phrase_ready', 'growing', 'starter', 'review_heavy', 'not_yet_covered'] as LanguageMaturity[]
+        ).map((key) => {
+          const definition = getLanguageMaturityDefinition(key)
+          const swatch = definition.badgeClassName.split(' ')[0]
+          return (
+            <span key={key} className="flex items-center gap-2">
+              <span className={`h-2.5 w-2.5 border border-ink-300 ${swatch}`} />
+              <span className="label text-ink-600">{definition.shortLabel}</span>
+            </span>
+          )
+        })}
+        <span className="label ml-auto text-ink-500">
+          {covered} of 47 counties have a language with entries
+        </span>
+      </div>
+
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(300px,1fr)] lg:items-start">
+        <div>
+          <svg
+            viewBox={`0 0 ${KENYA_COUNTY_SVG_VIEWBOX.width} ${KENYA_COUNTY_SVG_VIEWBOX.height}`}
+            className="h-auto w-full"
+            role="img"
+            aria-label="Kenya county language coverage map"
+          >
+            {countyCoverage.map((county) => {
+              const countyPath = countyPathMap.get(county.countyName)
+              if (!countyPath) return null
+
+              const isActive = county.countyCode === selectedCounty?.countyCode
+
+              return (
+                <g
+                  key={county.countyCode}
+                  onMouseEnter={() => setActiveCountyCode(county.countyCode)}
+                  onFocus={() => setActiveCountyCode(county.countyCode)}
+                  onClick={() => setActiveCountyCode(county.countyCode)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`${county.countyName}, ${county.coveredLanguageCount} languages with entries`}
+                  className="cursor-pointer focus:outline-none"
+                >
+                  <path
+                    d={countyPath.d}
+                    className={`${MAP_PATH_CLASSES[county.maturity]} transition-[stroke-width] ${
+                      isActive ? 'stroke-[3.5px]' : 'stroke-[1.2px]'
+                    }`}
+                  />
+                  {county.coveredLanguageCount > 0 ? (
+                    <g transform={`translate(${countyPath.center[0]} ${countyPath.center[1]})`}>
+                      <circle
+                        r={isActive ? 13 : 10}
+                        className={`${MAP_MARKER_CLASSES[county.maturity]} ${
+                          isActive ? 'stroke-[2.6px]' : 'stroke-[1.6px]'
+                        }`}
+                      />
+                      <text
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        className="font-mono text-[10px] font-semibold"
+                      >
+                        {county.coveredLanguageCount}
+                      </text>
+                    </g>
+                  ) : null}
+                </g>
+              )
+            })}
+          </svg>
+          <p className="label mt-3 text-ink-500">
+            Hover or tap a county. The number is how many of its languages have entries.
           </p>
         </div>
 
-        <div className="border border-ink-200 bg-paper-warm px-4 py-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-500 mb-2">Selected County</p>
-          {selectedCounty ? (
-            <div className="flex flex-wrap items-center gap-3">
-              <div>
-                <p className="font-bold text-ink-900">{selectedCounty.countyName}</p>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-ink-500">
-                  {selectedCounty.region.replace('-', ' ')}
-                </p>
-              </div>
-              {selectedCountyMaturity ? (
-                <span className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest ${selectedCountyMaturity.badgeClassName}`}>
-                  {selectedCountyMaturity.shortLabel}
-                </span>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
-      </div>
-
-      <div className="mb-6 flex flex-wrap gap-2">
-        {(['phrase_ready', 'growing', 'starter', 'review_heavy', 'not_yet_covered'] as LanguageMaturity[]).map((key) => {
-          const definition = getLanguageMaturityDefinition(key)
-          return (
-            <div key={key} className="flex items-center gap-2 rounded-full border border-ink-200 bg-card px-3 py-2 backdrop-blur">
-              <span className={`h-3 w-3 rounded-full ${definition.badgeClassName.split(' ')[0].replace('bg-', 'bg-')}`}></span>
-              <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-600">{definition.shortLabel}</span>
-            </div>
-          )
-        })}
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.8fr)] xl:items-start">
-        <div className="border border-ink-200 bg-card p-4 sm:p-5 lg:p-6">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-500 mb-2">Map View</p>
-              <p className="text-sm text-ink-600 font-medium">
-                Hover or tap a county to inspect the languages mapped there and see where coverage is strong or still growing.
-              </p>
-            </div>
-            <div className="rounded-xl border border-ink-200 bg-card px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-ink-500">
-              47 counties
-            </div>
-          </div>
-
-          <div className=" border border-ink-200 bg-[radial-gradient(circle_at_top,#ffffff_0%,#ecfdf5_42%,#f5f5f4_100%)] p-3 sm:p-4">
-            <svg
-              viewBox={`0 0 ${KENYA_COUNTY_SVG_VIEWBOX.width} ${KENYA_COUNTY_SVG_VIEWBOX.height}`}
-              className="w-full h-auto max-h-[78vh]"
-              role="img"
-              aria-label="Kenya county language coverage map"
-            >
-              <g className="drop-shadow-[0_24px_36px_rgba(18,36,24,0.14)]">
-                {countyCoverage.map((county) => {
-                  const countyPath = countyPathMap.get(county.countyName)
-                  if (!countyPath) return null
-
-                  const isActive = county.countyCode === selectedCounty?.countyCode
-                  const markerClasses = MAP_MARKER_CLASSES[county.maturity]
-
-                  return (
-                    <g
-                      key={county.countyCode}
-                      onMouseEnter={() => setActiveCountyCode(county.countyCode)}
-                      onClick={() => setActiveCountyCode(county.countyCode)}
-                      className="cursor-pointer"
-                    >
-                      <path
-                        d={countyPath.d}
-                        className={`${MAP_PATH_CLASSES[county.maturity]} transition-all ${isActive ? 'stroke-[3px]' : 'stroke-[1.6px]'}`}
-                      />
-
-                      {county.coveredLanguageCount > 0 ? (
-                        <g transform={`translate(${countyPath.center[0]} ${countyPath.center[1]})`}>
-                          <circle
-                            r={isActive ? 13 : 11}
-                            className={`${markerClasses} ${isActive ? 'stroke-[2.6px]' : 'stroke-[1.8px]'}`}
-                          />
-                          <text
-                            textAnchor="middle"
-                            dominantBaseline="central"
-                            className="text-[10px] font-bold"
-                          >
-                            {county.coveredLanguageCount}
-                          </text>
-                        </g>
-                      ) : null}
-                    </g>
-                  )
-                })}
-              </g>
-            </svg>
-          </div>
-        </div>
-
-        <div className=" border border-ink-200 bg-white p-6 sm:p-8 shadow-sm xl:sticky xl:top-24">
+        <div className="lg:sticky lg:top-24">
           {selectedCounty ? (
             <>
-              <div className="flex items-start justify-between gap-4 mb-6">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-signal-600 mb-2">County Detail</p>
-                  <h2 className="text-2xl font-bold font-display text-ink-900">{selectedCounty.countyName}</h2>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-ink-500 mt-2">
-                    {selectedCounty.region.replace('-', ' ')}
-                  </p>
-                </div>
-                {selectedCountyMaturity ? (
-                  <span className={`px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-[0.12em] ${selectedCountyMaturity.badgeClassName}`}>
-                    {selectedCountyMaturity.shortLabel}
-                  </span>
-                ) : null}
+              <div className="border-t-2 border-ink-900 pt-4">
+                <h3 className="display text-3xl text-ink-900">{selectedCounty.countyName}</h3>
+                <p className="label mt-1.5 text-ink-500">
+                  {selectedCounty.region.replace('-', ' ')}
+                  {selectedCountyMaturity ? ` · ${selectedCountyMaturity.shortLabel}` : ''}
+                </p>
               </div>
 
-              <p className="text-sm text-ink-600 font-medium leading-relaxed mb-6">
+              <p className="mt-4 text-[0.9375rem] leading-relaxed text-ink-700">
                 {selectedCounty.note}
               </p>
 
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="rounded-2xl border border-ink-200 bg-card p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-600 mb-2">Mapped Languages</p>
-                  <p className="text-2xl font-bold text-ink-900 font-display">{selectedCounty.mappedLanguages.length}</p>
-                </div>
-                <div className="rounded-2xl border border-ink-200 bg-card p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-600 mb-2">Live In LughaKonnect</p>
-                  <p className="text-2xl font-bold text-ink-900 font-display">{selectedCounty.coveredLanguageCount}</p>
-                </div>
-              </div>
-
-              <div className="space-y-3 mb-6">
-                {selectedCounty.mappedLanguages.map((language) => {
-                  const maturity = getLanguageMaturityDefinition(language.maturity)
-                  return (
-                    <div key={`${selectedCounty.countyCode}-${language.code}`} className="rounded-2xl border border-ink-200 bg-card p-4">
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <div>
-                          <p className="font-bold text-ink-900">{language.name}</p>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-ink-600">{language.code}</p>
+              {selectedCounty.mappedLanguages.length === 0 ? (
+                <p className="mt-6 border-l-2 border-signal-500 py-1 pl-4 text-[0.9375rem] text-ink-700">
+                  No language is mapped to this county yet. If you know which are spoken here,
+                  saying so is itself a contribution.
+                </p>
+              ) : (
+                <ul className="mt-6 border-t border-ink-200">
+                  {selectedCounty.mappedLanguages.map((language) => {
+                    const maturity = getLanguageMaturityDefinition(language.maturity)
+                    return (
+                      <li
+                        key={`${selectedCounty.countyCode}-${language.code}`}
+                        className="border-b border-ink-200 py-3"
+                      >
+                        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                          <Link
+                            href={`/contribute/gaps?lang=${encodeURIComponent(language.code)}`}
+                            className="font-semibold text-ink-900 hover:text-signal-600"
+                          >
+                            {language.name}
+                          </Link>
+                          <span className="label text-ink-500">{maturity.shortLabel}</span>
                         </div>
-                        <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest ${maturity.badgeClassName}`}>
-                          {maturity.shortLabel}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-ink-600">
-                        <span>{language.totalEntries} entries</span>
-                        <span>{language.phraseEntries} phrases</span>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
+                        <p className="tabular mt-1 font-mono text-xs text-ink-600">
+                          {language.totalEntries === 0
+                            ? 'nothing recorded yet'
+                            : `${language.totalEntries} words, ${language.phraseEntries} phrases`}
+                        </p>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
 
-              {countyMissions.length > 0 ? (
-                <div className="mb-6 border border-ink-200 bg-paper-warm p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-signal-600 mb-3">Contribution Missions</p>
-                  <div className="space-y-3">
-                    {countyMissions.map((mission) => (
-                      <div key={`${selectedCounty.countyCode}-${mission.code}`} className="rounded-xl border border-white/80 bg-card p-3">
-                        <p className="text-sm font-bold text-ink-900">{mission.label}</p>
-                        <p className="mt-1 text-sm text-ink-700 font-medium">{mission.detail}</p>
-                      </div>
-                    ))}
-                  </div>
+              {weakest ? (
+                <div className="mt-6">
+                  <Link
+                    href={`/contribute/gaps?lang=${encodeURIComponent(weakest.code)}`}
+                    className="btn-primary"
+                  >
+                    {weakest.totalEntries === 0 ? `Start ${weakest.name}` : `Add to ${weakest.name}`}
+                  </Link>
+                  <p className="mt-2.5 text-sm text-ink-600">
+                    {weakest.totalEntries === 0
+                      ? 'It has no entries at all.'
+                      : `The thinnest language mapped here, with ${weakest.totalEntries} words.`}
+                  </p>
                 </div>
               ) : null}
-
-              <div className="flex flex-wrap gap-2">
-                <Link
-                  href={`/explore?county=${encodeURIComponent(selectedCounty.countyCode)}`}
-                  className="px-3 py-2 rounded-xl border border-ink-200 bg-card text-[10px] font-bold uppercase tracking-widest text-ink-700 hover:border-ink-200 hover:text-signal-600"
-                >
-                  Explore {selectedCounty.countyName}
-                </Link>
-                {selectedCounty.mappedLanguages.slice(0, 2).map((language) => (
-                  <Link
-                    key={`contribute-${selectedCounty.countyCode}-${language.code}`}
-                    href={`/contribute?lang=${encodeURIComponent(language.code)}`}
-                    className="px-3 py-2 rounded-xl bg-ink-900 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-ink-950"
-                  >
-                    Add in {language.code}
-                  </Link>
-                ))}
-              </div>
             </>
           ) : null}
         </div>

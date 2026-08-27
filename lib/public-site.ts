@@ -616,10 +616,22 @@ export const getLanguageCoverage = unstable_cache(
     // what we can from the two views that already exist, so the page reports
     // real figures with a couple of columns at zero rather than showing a table
     // of zeros or nothing at all.
-    const [voice, concepts] = await Promise.all([
+    // Read the role from languages directly. Inferring it from whichever view
+    // happened to contain a row defaulted English to 'indigenous', because
+    // language_concept_coverage already filters bridges out while
+    // language_voice_coverage does not.
+    const [voice, concepts, roles] = await Promise.all([
       supabase.from('language_voice_coverage').select('*'),
       supabase.from('language_concept_coverage').select('*'),
+      supabase.from('languages').select('id, native_name, role').eq('is_active', true),
     ])
+
+    const roleById = new Map(
+      ((roles.data ?? []) as Array<Record<string, unknown>>).map((row) => [
+        String(row.id),
+        { role: String(row.role ?? 'indigenous'), nativeName: (row.native_name as string | null) ?? null },
+      ])
+    )
 
     const conceptRows = new Map(
       ((concepts.data ?? []) as Array<Record<string, unknown>>).map((row) => [
@@ -636,8 +648,8 @@ export const getLanguageCoverage = unstable_cache(
           language_id: id,
           language_code: String(row.language_code ?? ''),
           language_name: String(row.language_name ?? ''),
-          native_name: null,
-          language_role: String(concept?.language_role ?? 'indigenous'),
+          native_name: roleById.get(id)?.nativeName ?? null,
+          language_role: roleById.get(id)?.role ?? 'indigenous',
           public_entries: Number(row.public_entries ?? 0),
           phrase_entries: 0,
           awaiting_curation: 0,
