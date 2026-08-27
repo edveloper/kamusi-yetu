@@ -1,6 +1,5 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/lib/contexts/AuthContext'
@@ -27,7 +26,6 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
   const id = entryId
 
   const { user } = useAuth()
-  const router = useRouter()
 
   const [entry, setEntry] = useState<any>(null)
   const [relatedWords, setRelatedWords] = useState<any[]>([])
@@ -377,62 +375,58 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
     )
 
   return (
-    <div className="entry-root min-h-screen bg-neutral-50 pb-20 font-sans">
-      {/* Header Navigation */}
-      <div className="max-w-7xl mx-auto px-4 py-8 flex justify-between items-center gap-3">
-        <button
-          onClick={() => router.back()}
-          className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-600 hover:text-accent-600 transition-colors"
-        >
-          ← Back
-        </button>
-        <div className="flex gap-2 sm:gap-4">
-          <div className="relative">
-            <button
-              onClick={() => setShowShareMenu(!showShareMenu)}
-              className="bg-neutral-50 border border-neutral-200 p-4 rounded-2xl hover:border-heritage-dark transition-all"
-            >
-              🔗
-            </button>
-            {showShareMenu && (
-                <div className="absolute top-full right-0 mt-2 w-48 bg-neutral-50 border border-neutral-200 shadow-2xl rounded-2xl overflow-hidden z-[50]">
-                {['x', 'wa', 'fb'].map((p) => (
+    <section aria-labelledby="community-heading" className="border-t border-ink-200 bg-paper-warm">
+      <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+          <h2 id="community-heading" className="label text-ink-600">
+            Discussion
+          </h2>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <button
+                onClick={() => setShowShareMenu(!showShareMenu)}
+                className="border border-ink-300 px-3 py-2 text-sm font-semibold text-ink-700 transition-colors hover:border-ink-900 hover:text-ink-900"
+              >
+                Share
+              </button>
+              {showShareMenu && (
+                <div className="absolute right-0 top-full z-50 mt-1 w-44 border border-ink-300 bg-card shadow-medium">
+                  {(['x', 'wa', 'fb'] as const).map((platform) => (
+                    <button
+                      key={platform}
+                      onClick={() => handleShare(platform)}
+                      className="block w-full border-b border-ink-200 px-4 py-2.5 text-left text-sm text-ink-700 hover:bg-paper-warm"
+                    >
+                      {platform === 'wa' ? 'WhatsApp' : platform.toUpperCase()}
+                    </button>
+                  ))}
                   <button
-                    key={p}
-                    onClick={() => handleShare(p as any)}
-                    className="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-neutral-50 border-b border-neutral-200 italic"
+                    onClick={() => handleShare('copy')}
+                    className="block w-full px-4 py-2.5 text-left text-sm text-ink-700 hover:bg-paper-warm"
                   >
-                    Share on {p === 'wa' ? 'WhatsApp' : p.toUpperCase()}
+                    Copy link
                   </button>
-                ))}
-                <button
-                  onClick={() => handleShare('copy')}
-                  className="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-neutral-50"
-                >
-                  Copy Link
-                </button>
-              </div>
-            )}
-          </div>
-          {/* Star = saved words */}
-          <button
-            onClick={handleSaveToggle}
-            className={`p-4 rounded-2xl border transition-all ${
-              isSaved
-                ? 'bg-accent-50 border-accent-300 text-accent-700'
-                : 'bg-neutral-100 border-neutral-200 text-neutral-600 hover:border-accent-300'
+                </div>
+              )}
+            </div>
+            <button
+              onClick={handleSaveToggle}
+              aria-pressed={isSaved}
+              className={`border px-3 py-2 text-sm font-semibold transition-colors ${
+                isSaved
+                  ? 'border-signal-500 bg-signal-50 text-signal-700'
+                  : 'border-ink-300 text-ink-700 hover:border-ink-900 hover:text-ink-900'
               }`}
-          >
-            {isSaved ? '★' : '☆'}
-          </button>
+            >
+              {isSaved ? 'Saved' : 'Save'}
+            </button>
+          </div>
         </div>
-      </div>
 
-      <main className="max-w-4xl mx-auto px-4 mt-8">
-        <div className="bg-neutral-100 border border-ink-200 p-8 md:p-14 shadow-soft">
+        <div>
           <div className="space-y-10">
             {/* Likes */}
-            <section className="pt-8 border-t border-neutral-100">
+            <section className="border-t border-ink-200 pt-8">
               <button
                 onClick={handleLike}
                 className="flex items-center gap-2 text-accent-600 font-bold"
@@ -445,7 +439,7 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
             </section>
 
             {/* Comments */}
-            <section className="pt-8 border-t border-neutral-100">
+            <section className="border-t border-ink-200 pt-8">
               <h2 className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em] mb-4">
                 Discussion
               </h2>
@@ -471,7 +465,7 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
 
             {/* Related Words */}
             {relatedWords.length > 0 && (
-              <section className="pt-8 border-t border-neutral-100">
+              <section className="border-t border-ink-200 pt-8">
                 <h2 className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em] mb-6">
                   See Also
                 </h2>
@@ -496,55 +490,20 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
           </div>
 
           {/* Action Buttons */}
-          <div className="mt-16 pt-12 border-t border-neutral-100 grid md:grid-cols-2 gap-4">
-            <button
-              onClick={() => setActiveModal('edit')}
-              className="bg-heritage-dark text-white py-6 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] hover:bg-heritage-darker shadow-lg shadow-heritage-dark/10 transition-all"
-            >
-              Suggest Amendment
+          <div className="mt-12 grid gap-3 border-t border-ink-200 pt-10 md:grid-cols-2">
+            <button onClick={() => setActiveModal('edit')} className="btn-secondary">
+              Suggest a correction
             </button>
             <button
               onClick={() => setActiveModal('report')}
-              className="bg-neutral-50 text-neutral-600 py-6 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] hover:bg-red-50 hover:text-red-500 transition-all"
+              className="border border-ink-300 px-5 py-3 text-[0.9375rem] font-semibold text-ink-600 transition-colors hover:border-signal-500 hover:text-signal-600"
             >
-              Report Issue
+              Report a problem
             </button>
           </div>
         </div>
 
-        {/* Footer Credits */}
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-8 text-neutral-600 min-w-0">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-neutral-200 overflow-hidden border border-neutral-300">
-              {entry.contributor_avatar && (
-                <img
-                  src={entry.contributor_avatar}
-                  className="w-full h-full object-cover"
-                  alt=""
-                />
-              )}
-            </div>
-            <span className="text-[9px] font-black uppercase tracking-widest break-words">
-              Archived by{' '}
-              <span className="text-neutral-600 underline cursor-pointer">
-                {entry.contributor_name}
-              </span>
-            </span>
-          </div>
-          <span className="text-[9px] font-black uppercase tracking-widest break-words">
-            Status: {entry.validation_status}
-          </span>
-        </div>
-      </main>
-
-      {activeModal && (
-        <EntryActionModal
-          type={activeModal}
-          entry={{ ...entry, currentUserId: user?.id }}
-          onClose={() => setActiveModal(null)}
-          onSubmit={onActionSubmit}
-        />
-      )}
-    </div>
+      </div>
+    </section>
   )
 }

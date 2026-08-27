@@ -65,9 +65,9 @@ export default function Provenance({
   return (
     <aside className={`rounded-lg border px-4 py-3 ${tone}`}>
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <p className="label">Provenance</p>
+        <p className="label text-ink-600">Provenance</p>
         {recordings > 0 && (
-          <p className="label">
+          <p className="label text-ink-600">
             {recordings} recording{recordings === 1 ? '' : 's'}
           </p>
         )}

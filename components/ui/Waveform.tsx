@@ -127,7 +127,7 @@ export default function Waveform({
       <div>
         {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
         <audio controls preload="none" src={src} className="w-full" />
-        {caption && <p className="label mt-2">{caption}</p>}
+        {caption && <p className="label text-ink-600 mt-2">{caption}</p>}
       </div>
     )
   }
@@ -176,7 +176,7 @@ export default function Waveform({
         </button>
       </div>
 
-      {caption && <p className="label mt-2">{caption}</p>}
+      {caption && <p className="label text-ink-600 mt-2">{caption}</p>}
 
       <audio
         ref={audioRef}

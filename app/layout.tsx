@@ -1,13 +1,22 @@
 // app/layout.tsx
 import type { Metadata } from 'next'
-import { Archivo, Literata, IBM_Plex_Mono } from 'next/font/google'
+import { Anton, Archivo, Literata, IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { AuthProvider } from '@/lib/contexts/AuthContext' 
 
-// Archivo carries a width axis, which is what gives headwords real presence
-// without reaching for the editorial serif every generated site uses.
+// Anton is the voice of the thing. Heavy, condensed, poster-loud. Archivo at a
+// wide width axis was respectable but polite, and polite is not the brief.
+const anton = Anton({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-anton',
+  display: 'swap',
+})
+
+// Archivo does the work everywhere Anton would shout: navigation, buttons,
+// running text, form labels.
 const archivo = Archivo({
   subsets: ['latin'],
   variable: '--font-archivo',
@@ -69,7 +78,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${archivo.variable} ${literata.variable} ${plexMono.variable}`}
+      className={`${anton.variable} ${archivo.variable} ${literata.variable} ${plexMono.variable}`}
       data-scroll-behavior="smooth"
     >
       <body className="font-sans bg-paper text-ink-900 antialiased">

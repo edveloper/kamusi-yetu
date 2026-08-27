@@ -25,7 +25,7 @@
   /* ==== Fonts ==================================================== */
   --font-sans:    var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --font-serif:   var(--font-literata), Georgia, serif;
-  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-anton), var(--font-archivo), ui-sans-serif, sans-serif;
   --font-mono:    var(--font-mono), ui-monospace, SFMono-Regular, monospace;
 
   /* ==== Ground =================================================== */
@@ -48,17 +48,21 @@
   --color-ink-900: #12100E;      /* 16.9:1 — headings, hero ground */
   --color-ink-950: #0A0908;
 
-  /* ==== Signal — deep vermilion. One action per screen. ========== */
-  --color-signal-50:  #FBE9E4;
-  --color-signal-100: #F6D3C9;
-  --color-signal-200: #EDA893;
-  --color-signal-300: #E07D62;
-  --color-signal-400: #D65A3C;
-  --color-signal-500: #C93A22;   /* 5.1:1 on paper */
-  --color-signal-600: #A82D18;
-  --color-signal-700: #872413;
-  --color-signal-800: #661B0E;
-  --color-signal-900: #4A130A;
+  /* ==== Signal, a Kenyan crimson ================================
+   * Drawn from the palette Eddie already uses on his own work rather than
+   * invented. 700 is his #991420 and reads 8.1:1 on paper, so it can carry
+   * body text. 400 is the hot one, for display accents only. 300 is the
+   * variant that survives on the ink ground at 6.6:1. */
+  --color-signal-50:  #FDEAEA;
+  --color-signal-100: #FBD3D4;
+  --color-signal-200: #FFA3A3;
+  --color-signal-300: #FF6568;   /* 6.6:1 on ink, for the dark hero */
+  --color-signal-400: #E40014;   /* hot, large text only on paper */
+  --color-signal-500: #C2152A;   /* 5.9:1 on paper, the workhorse */
+  --color-signal-600: #A81424;   /* 7.2:1 */
+  --color-signal-700: #991420;   /* 8.1:1, safe for running text */
+  --color-signal-800: #7A0F1A;
+  --color-signal-900: #560A12;
 
   /* ==== Petrol — calm structure, data, secondary surfaces ======== */
   --color-petrol-50:  #E2EDEB;
@@ -165,38 +169,52 @@
   .measure { max-width: 68ch; }
 }
 
-/* Headwords are a dictionary's hero. The width axis is what gives them
- * presence without reaching for an editorial serif. */
+/* Anton is single-weight and already condensed, so these set size, tracking
+ * and case rather than weight or width. Tight negative tracking at large
+ * sizes is what stops a condensed face looking gappy. */
 .font-logo {
   font-family: var(--font-display);
-  font-weight: 800;
-  font-variation-settings: 'wdth' 118;
-  letter-spacing: -0.035em;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
 }
 
 .headword {
   font-family: var(--font-display);
-  font-weight: 800;
-  font-variation-settings: 'wdth' 125;
-  letter-spacing: -0.04em;
-  line-height: 1;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 0.92;
 }
 
 .display {
   font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 0.95;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+/* Where a heading should carry weight without shouting. */
+.display-soft {
+  font-family: var(--font-sans);
   font-weight: 700;
-  font-variation-settings: 'wdth' 112;
-  letter-spacing: -0.025em;
-  line-height: 1.05;
+  font-variation-settings: 'wdth' 108;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
   text-wrap: balance;
 }
 
 /* Definitions read as reference material. */
+/* Deliberately sets no colour. It did, and because a plain class beats a
+ * Tailwind utility of equal specificity on source order, every definition on
+ * the ink ground rendered near-black on near-black. Colour is the caller's
+ * job now, inherited from the surface it sits on. */
 .definition {
   font-family: var(--font-serif);
   font-size: 1.125rem;
   line-height: 1.55;
-  color: var(--color-ink-800);
+  color: inherit;
 }
 
 /* Small uppercase metadata: language codes, counts, statuses. */
@@ -206,7 +224,7 @@
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-ink-600);
+  /* No colour, for the same reason as .definition. Callers pass one. */
 }
 
 /* Base styles */

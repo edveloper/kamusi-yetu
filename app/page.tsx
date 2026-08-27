@@ -27,13 +27,15 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------- hero */}
       <section className="border-b border-ink-900 bg-ink-900 text-paper">
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-24">
-          <h1 className="display max-w-3xl text-4xl sm:text-5xl md:text-6xl">
-            Kenyan languages, written down and spoken aloud, by the people who speak them
+          <p className="label mb-6 text-signal-300">An open corpus of Kenyan languages</p>
+          <h1 className="display max-w-4xl text-5xl sm:text-6xl md:text-7xl lg:text-8xl">
+            Kenya speaks over 40 languages.
+            <br />
+            <span className="text-signal-300">Your phone speaks two.</span>
           </h1>
-          <p className="definition mt-6 max-w-2xl text-ink-300">
-            Most of Kenya&apos;s languages are missing from the dictionaries, keyboards and
-            translation systems being built right now. This is where they get written into
-            them.
+          <p className="definition mt-8 max-w-xl text-ink-300">
+            We are writing the rest of them into the systems being built right now. Word by
+            word, voice by voice, by the people who actually speak them.
           </p>
 
           <div className="mt-12 border-t border-ink-700 pt-10">
@@ -46,44 +48,39 @@ export default async function HomePage() {
       {headline && (
         <section aria-labelledby="state-heading" className="border-b border-ink-200">
           <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-            <h2 id="state-heading" className="label mb-6">
-              Where the corpus stands today
+            <h2 id="state-heading" className="label mb-8 text-signal-500">
+              Where it stands today
             </h2>
             <dl className="grid grid-cols-2 gap-x-8 gap-y-8 md:grid-cols-4">
               {[
                 {
                   value: headline.indigenous_entries.toLocaleString(),
-                  label: 'Verified words',
-                  note: 'Checked, and not counting English',
+                  label: 'Words checked by a person',
                 },
                 {
                   value: headline.languages.toLocaleString(),
-                  label: 'Languages',
-                  note: `${withAudio} with a recording`,
+                  label: `Languages, ${withAudio} with a voice`,
                 },
                 {
                   value: headline.awaiting_curation.toLocaleString(),
-                  label: 'Awaiting a definition',
-                  note: 'Imported, never checked',
+                  label: 'Still need a definition',
                 },
                 {
                   value: headline.awaiting_orthography.toLocaleString(),
-                  label: 'Awaiting a speaker',
-                  note: 'Spelling we will not guess at',
+                  label: 'Still need a speaker',
                 },
               ].map((stat) => (
                 <div key={stat.label}>
-                  <dd className="tabular font-mono text-3xl font-semibold text-ink-900 md:text-4xl">
+                  <dd className="headword tabular text-5xl text-ink-900 md:text-6xl">
                     {stat.value}
                   </dd>
-                  <dt className="mt-1.5 font-semibold text-ink-900">{stat.label}</dt>
-                  <p className="mt-0.5 text-sm text-ink-600">{stat.note}</p>
+                  <dt className="mt-2 text-sm font-semibold text-ink-700">{stat.label}</dt>
                 </div>
               ))}
             </dl>
-            <p className="mt-8 max-w-2xl text-ink-700">
-              The last two numbers are the honest part. We publish them because a corpus that
-              only reports its good figures is not one you should build on.{' '}
+            <p className="mt-10 max-w-2xl text-ink-700">
+              The last two numbers are the ones nobody publishes. We do, because a corpus that
+              only shows its good figures is not one you should build on.{' '}
               <Link
                 href="/guidelines"
                 className="font-semibold text-signal-500 underline underline-offset-2"

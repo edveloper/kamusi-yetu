@@ -155,7 +155,7 @@ export default async function EntryPage({ params }: Params) {
       <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
         {/* ---- Voice: the signature element, directly under the answer ---- */}
         <section aria-labelledby="voice-heading" className="mb-10">
-          <h2 id="voice-heading" className="label mb-3">
+          <h2 id="voice-heading" className="label text-ink-600 mb-3">
             {recordings.length > 0
               ? `Heard from ${recordings.length} ${recordings.length === 1 ? 'speaker' : 'speakers'}`
               : 'Pronunciation'}
@@ -196,7 +196,7 @@ export default async function EntryPage({ params }: Params) {
             <dl className="grid gap-x-10 gap-y-5 sm:grid-cols-2">
               {detail.map((item) => (
                 <div key={item.label}>
-                  <dt className="label">{item.label}</dt>
+                  <dt className="label text-ink-600">{item.label}</dt>
                   <dd className={`mt-1 text-ink-800 ${item.mono ? 'font-mono text-[0.95rem]' : ''}`}>
                     {item.value}
                   </dd>
@@ -208,7 +208,7 @@ export default async function EntryPage({ params }: Params) {
 
         {entry.usage_examples.length > 0 && (
           <section className="mb-10 border-t border-ink-200 pt-6">
-            <h2 className="label mb-4">In context</h2>
+            <h2 className="label text-ink-600 mb-4">In context</h2>
             <ul className="space-y-5">
               {entry.usage_examples.map((example, index) => (
                 <li key={index} className="border-l-2 border-signal-500 pl-5">
@@ -226,7 +226,7 @@ export default async function EntryPage({ params }: Params) {
 
         {entry.etymology && (
           <section className="mb-10 border-t border-ink-200 pt-6">
-            <h2 className="label mb-3">Etymology</h2>
+            <h2 className="label text-ink-600 mb-3">Etymology</h2>
             <p className="text-ink-800 leading-relaxed">{entry.etymology}</p>
           </section>
         )}
@@ -234,7 +234,7 @@ export default async function EntryPage({ params }: Params) {
         {/* ---- The second action: same meaning, other languages ---- */}
         {equivalents.length > 0 && (
           <section className="mb-10 border-t border-ink-200 pt-6">
-            <h2 className="label mb-4">The same meaning elsewhere</h2>
+            <h2 className="label text-ink-600 mb-4">The same meaning elsewhere</h2>
             <ul className="flex flex-wrap gap-2">
               {equivalents.map((item) => (
                 <li key={item.id}>
@@ -243,7 +243,7 @@ export default async function EntryPage({ params }: Params) {
                     className="inline-flex items-baseline gap-2 rounded-md border border-ink-200 bg-card px-3.5 py-2 transition-colors hover:border-ink-900"
                   >
                     <span className="font-semibold text-ink-900">{item.headword}</span>
-                    <span className="label">{item.language?.name}</span>
+                    <span className="label text-ink-600">{item.language?.name}</span>
                   </Link>
                 </li>
               ))}

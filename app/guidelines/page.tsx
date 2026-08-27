@@ -90,7 +90,7 @@ export default async function GuidelinesPage() {
 
       <main className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
         <section className="mb-16">
-          <h2 className="label mb-3">The one rule</h2>
+          <h2 className="label text-ink-600 mb-3">The one rule</h2>
           <p className="definition border-l-2 border-signal-500 pl-5 text-ink-900">
             Only contribute in a language you actually speak. If you are unsure of a word, leave
             it for someone who is not. An honest gap is more useful to us than a confident guess,
@@ -129,7 +129,7 @@ export default async function GuidelinesPage() {
                 key={status.label}
                 className={`border border-l-2 border-ink-200 bg-card px-5 py-4 ${status.tone}`}
               >
-                <p className="label">{status.label}</p>
+                <p className="label text-ink-600">{status.label}</p>
                 <p className="mt-1.5 text-ink-700">{status.body}</p>
               </li>
             ))}
@@ -147,7 +147,7 @@ export default async function GuidelinesPage() {
                   <dd className="tabular font-mono text-2xl font-semibold text-ink-900">
                     {Number(cell.value ?? 0).toLocaleString()}
                   </dd>
-                  <dt className="label mt-1">{cell.label}</dt>
+                  <dt className="label text-ink-600 mt-1">{cell.label}</dt>
                 </div>
               ))}
             </dl>
@@ -272,7 +272,7 @@ export default async function GuidelinesPage() {
             practice means most would carry on without these languages.
           </p>
           <div className="border border-ink-200 bg-paper-warm px-5 py-4">
-            <p className="label mb-2">Cite it as</p>
+            <p className="label text-ink-600 mb-2">Cite it as</p>
             <p className="font-mono text-sm text-ink-800">
               {SITE_NAME}. {new Date().getFullYear()}. An open corpus of Kenyan languages.{' '}
               {SITE_URL}. Licensed {CORPUS_LICENCE.name}.
