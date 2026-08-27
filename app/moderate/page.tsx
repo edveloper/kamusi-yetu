@@ -258,9 +258,16 @@ export default function ModeratePage() {
     const id = item.id
     if (!id) return
 
+    // A rejection now has to say why. The contributor sees this text, and an
+    // unexplained rejection is the fastest way to lose a first-time contributor.
+    let reason = actionNote.trim()
     if (action === 'reject') {
-      const ok = confirm('Are you sure you want to reject this suggestion? This cannot be undone here.')
-      if (!ok) return
+      if (!reason) {
+        reason = (window.prompt(
+          'Why is this being rejected? The contributor will be shown your answer. For example: not a word in this language, wrong meaning, or already recorded.'
+        ) || '').trim()
+      }
+      if (!reason) return
     }
 
     setProcessing(id, true)
@@ -268,16 +275,17 @@ export default function ModeratePage() {
 
     try {
       if (item.item_type === 'entry') {
-        await runModerationAction({
-          action: action === 'accept' ? 'approve_entry' : 'reject_entry',
-          itemId: id
-        })
+        if (action === 'accept') {
+          await runModerationAction({ action: 'approve_entry', itemId: id })
+        } else {
+          await runModerationAction({ action: 'reject_entry', itemId: id, note: reason })
+        }
       } else {
         await runModerationAction({
           action: 'review_suggestion',
           itemId: id,
           suggestionAction: action,
-          note: action === 'reject' ? actionNote || 'Rejected by moderator' : actionNote || 'Accepted by moderator'
+          note: action === 'reject' ? reason : actionNote || 'Accepted by moderator'
         })
       }
       await Promise.all([refreshModeratorStats(), refreshBridgeHealth()])
@@ -286,7 +294,7 @@ export default function ModeratePage() {
     } catch (err) {
       rollbackAdd(item)
       console.error('Review action failed:', err)
-      alert('Failed to update suggestion. See console for details.')
+      alert(err instanceof Error ? err.message : 'Could not update that item.')
     } finally {
       setProcessing(id, false)
     }

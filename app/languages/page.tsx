@@ -40,7 +40,7 @@ export default function LanguagesPage() {
             Our Languages
           </h1>
           <p className="text-xl text-white/90 max-w-2xl mx-auto font-medium opacity-90">
-            Explore the rich tapestry of Kenya's 40+ linguistic traditions, 
+            Explore the rich tapestry of Kenya's languages, 
             preserved by the community.
           </p>
         </div>

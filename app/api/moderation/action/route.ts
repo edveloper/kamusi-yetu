@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import type { EntryValidationStatus } from '@/lib/types/database'
+type EntryValidationStatus = 'pending' | 'verified' | 'flagged' | 'disputed' | 'seeded'
 import { validateEntryRules } from '@/lib/validation/entry-rules'
 
 type ModerationAction =
   | { action: 'approve_entry'; itemId: string; updates?: Record<string, string> }
-  | { action: 'reject_entry'; itemId: string }
-  | { action: 'flag_entry'; itemId: string }
+  | { action: 'reject_entry'; itemId: string; note?: string }
+  | { action: 'flag_entry'; itemId: string; note?: string }
   | { action: 'review_suggestion'; itemId: string; suggestionAction: 'accept' | 'reject'; note?: string }
   | { action: 'apply_suggestion'; itemId: string; note?: string; updates?: Record<string, string> }
   | { action: 'approve_recording'; itemId: string }
@@ -122,48 +122,55 @@ function getSupabaseEnv() {
   return { url, anon, serviceRole }
 }
 
+/**
+ * Trust now comes from who vouched for the entry, not from how many optional
+ * fields were filled in. The previous version awarded 10 points for an IPA
+ * string, which measured tidiness rather than truth. entry_trust_score() in
+ * 114 weighs attestations by the attester's verified credential, adds a little
+ * for verified recordings and provenance, and subtracts heavily for disputes.
+ */
 async function computeTrustScore(
   admin: LooseSupabaseClient,
   entryId: string,
   status: EntryValidationStatus
 ) {
-  const base: Record<EntryValidationStatus, number> = {
-    pending: 0,
-    flagged: 15,
-    disputed: 25,
-    verified: 60
+  const { data, error } = await admin.rpc('entry_trust_score', { p_entry: entryId })
+  if (!error && typeof data === 'number') return data
+
+  // If the function is unavailable, fall back to a status-only floor rather
+  // than to the old field-counting heuristic.
+  const floor: Record<EntryValidationStatus, number> = {
+    seeded: 0, pending: 10, flagged: 5, disputed: 0, verified: 40
   }
+  return floor[status] ?? 0
+}
 
-  if (status !== 'verified') return base[status]
+/** Tell the contributor what happened to their word. */
+async function notifyContributor(
+  admin: LooseSupabaseClient,
+  entryId: string,
+  kind: 'approved' | 'needs_changes' | 'rejected',
+  message: string
+) {
+  try {
+    const { data: entry } = await admin
+      .from('entries')
+      .select('created_by')
+      .eq('id', entryId)
+      .single()
 
-  const { data: entryRow } = await admin
-    .from('entries')
-    .select('part_of_speech, dialect_variant, pronunciation_ipa, etymology, audio_url')
-    .eq('id', entryId)
-    .single()
-  const entry = (entryRow ?? null) as TrustScoreEntry | null
+    const userId = entry?.created_by
+    if (!userId) return   // seeded rows have no contributor to notify
 
-  const { count: usageCount } = await admin
-    .from('usage_contexts')
-    .select('id', { count: 'exact', head: true })
-    .eq('entry_id', entryId)
-
-  const { count: likesCount } = await admin
-    .from('entry_likes')
-    .select('id', { count: 'exact', head: true })
-    .eq('entry_id', entryId)
-
-  let score = base.verified
-  if (entry?.part_of_speech) score += 5
-  if (entry?.dialect_variant) score += 5
-  if (entry?.pronunciation_ipa) score += 10
-  if (entry?.etymology) score += 10
-  if (entry?.audio_url) score += 10
-
-  score += Math.min(10, (usageCount || 0) * 2)
-  score += Math.min(10, Math.floor((likesCount || 0) / 5))
-
-  return Math.min(100, score)
+    await admin.from('contributor_notices').insert({
+      user_id: userId,
+      entry_id: entryId,
+      kind,
+      message
+    })
+  } catch {
+    // A failed notification must never fail the moderation action itself.
+  }
 }
 
 async function updateEntryStatusAdmin(
@@ -216,7 +223,8 @@ async function updateEntryStatusAdmin(
     verified: 'approve',
     flagged: 'flag',
     disputed: 'reject',
-    pending: 'reset'
+    pending: 'reset',
+    seeded: 'reset'
   }
 
   await admin.from('validations').insert({
@@ -407,6 +415,39 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Forbidden.' }, { status: 403 })
     }
 
+    /**
+     * Authority is per language. A global moderator role gave one person
+     * approval rights over all 37 languages at once, which will not survive
+     * contact with academic collaborators - a Luo linguist has no standing on
+     * Kipsigis. 114 seeds grants from the old flat roles so nobody loses
+     * access today, but from here on grants are issued per language.
+     */
+    const moderatorId = authData.user.id
+
+    async function assertLanguageAuthority(entryId: string, level: 'review' | 'approve') {
+      const { data: entry } = await admin
+        .from('entries')
+        .select('language_id, created_by')
+        .eq('id', entryId)
+        .single()
+
+      if (!entry) throw new Error('Entry not found.')
+
+      if (entry.created_by && entry.created_by === moderatorId) {
+        throw new Error('You cannot review an entry you contributed yourself.')
+      }
+
+      const { data: allowed } = await admin.rpc('has_language_grant', {
+        p_user: moderatorId,
+        p_language: entry.language_id,
+        p_level: level
+      })
+
+      if (allowed === false) {
+        throw new Error('You do not have review rights for this language.')
+      }
+    }
+
     const body = (await req.json()) as ModerationAction
     if (!body || !('action' in body) || !('itemId' in body) || !body.itemId) {
       return NextResponse.json({ error: 'Invalid payload.' }, { status: 400 })
@@ -414,15 +455,44 @@ export async function POST(req: Request) {
 
     switch (body.action) {
       case 'approve_entry': {
+        await assertLanguageAuthority(body.itemId, 'approve')
         const result = await updateEntryStatusAdmin(admin, body.itemId, 'verified', authData.user.id, body.updates)
+        await notifyContributor(
+          admin,
+          body.itemId,
+          'approved',
+          'Your entry has been approved and is now public. Asante sana.'
+        )
         return NextResponse.json({ ok: true, result })
       }
       case 'reject_entry': {
+        await assertLanguageAuthority(body.itemId, 'approve')
+        const reason = String(body.note || '').trim()
+        if (!reason) {
+          return NextResponse.json(
+            { error: 'A rejection needs a reason. The contributor will be shown it.' },
+            { status: 400 }
+          )
+        }
         const result = await updateEntryStatusAdmin(admin, body.itemId, 'disputed', authData.user.id)
+        await admin
+          .from('entries')
+          .update({ review_note: reason, reviewed_by: authData.user.id, reviewed_at: new Date().toISOString() })
+          .eq('id', body.itemId)
+        await notifyContributor(admin, body.itemId, 'rejected', reason)
         return NextResponse.json({ ok: true, result })
       }
       case 'flag_entry': {
+        await assertLanguageAuthority(body.itemId, 'review')
+        const reason = String(body.note || '').trim()
         const result = await updateEntryStatusAdmin(admin, body.itemId, 'flagged', authData.user.id)
+        if (reason) {
+          await admin
+            .from('entries')
+            .update({ review_note: reason, reviewed_by: authData.user.id, reviewed_at: new Date().toISOString() })
+            .eq('id', body.itemId)
+          await notifyContributor(admin, body.itemId, 'needs_changes', reason)
+        }
         return NextResponse.json({ ok: true, result })
       }
       case 'review_suggestion': {

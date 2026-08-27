@@ -37,7 +37,11 @@ const getHomepageStatsCached = unstable_cache(
     const seed =
       today.getUTCFullYear() * 10000 + (today.getUTCMonth() + 1) * 100 + today.getUTCDate()
 
-    const [entriesCountRes, phrasesCountRes, latestRes] = await Promise.all([
+    // The headline counts indigenous-language entries only. English is bridge
+    // infrastructure: fully searchable, but counting it inflated the one metric
+    // that matters with the language that needs preserving least.
+    const [headlineRes, entriesCountRes, phrasesCountRes, latestRes] = await Promise.all([
+      supabase.from('corpus_headline').select('*').maybeSingle(),
       supabase
         .from('entries')
         .select('*', { count: 'exact', head: true })
@@ -58,7 +62,15 @@ const getHomepageStatsCached = unstable_cache(
         .limit(3),
     ])
 
-    const totalEntries = entriesCountRes.count ?? 0
+    const headline = (headlineRes?.data ?? null) as {
+      indigenous_entries: number
+      public_entries_including_bridge: number
+      languages: number
+      awaiting_curation: number
+      awaiting_orthography: number
+    } | null
+
+    const totalEntries = headline?.indigenous_entries ?? entriesCountRes.count ?? 0
     const totalPhrases = phrasesCountRes.count ?? 0
     const latest = (latestRes.data ?? []) as Array<{
       id: string
@@ -85,7 +97,7 @@ const getHomepageStatsCached = unstable_cache(
       part_of_speech: string | null
     } | undefined) ?? null
 
-    return { totalEntries, totalPhrases, latest, wordOfTheDay }
+    return { totalEntries, totalPhrases, latest, wordOfTheDay, headline }
   },
   ['public-homepage-stats'],
   { revalidate: 60 }
@@ -117,7 +129,7 @@ export async function getHomepageData() {
   ])
 
   const languageMap = createLanguageMap(languages)
-  const { totalEntries, totalPhrases, latest, wordOfTheDay } = homepageStats
+  const { totalEntries, totalPhrases, latest, wordOfTheDay, headline } = homepageStats
 
   return {
     languages,
@@ -129,9 +141,12 @@ export async function getHomepageData() {
       ? { ...wordOfTheDay, language: languageMap.get(wordOfTheDay.language_id) ?? null }
       : null,
     stats: {
-      totalLanguages: languages.length,
+      // Bridge languages are searchable but are not what we are preserving.
+      totalLanguages: headline?.languages ?? languages.length,
       totalEntries,
       totalPhrases,
+      awaitingCuration: headline?.awaiting_curation ?? 0,
+      awaitingOrthography: headline?.awaiting_orthography ?? 0,
     },
   }
 }

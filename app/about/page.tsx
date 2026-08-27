@@ -65,7 +65,7 @@ export default function AboutPage() {
             <div className="w-14 h-14 bg-accent-100 text-heritage-dark rounded-2xl flex items-center justify-center text-3xl mb-6">OK</div>
             <h3 className="text-2xl font-black mb-4 font-display">Community</h3>
             <p className="text-accent-100 opacity-90 leading-relaxed font-medium">
-              Native speakers are the ultimate authorities. Every entry is contributed, reviewed, and refined by the community.
+              Native speakers are the ultimate authorities, and reviewing rights are granted per language. Most of what is here was seeded from published sources and is waiting for native speakers to check it.
             </p>
           </div>
         </section>
@@ -196,7 +196,7 @@ export default function AboutPage() {
           <div className="text-center">
             <h2 className="text-4xl font-black font-display mb-4">Join the Movement</h2>
             <p className="text-white text-lg font-medium mb-8 max-w-3xl mx-auto">
-              Our target is to preserve 10,000 unique Kenyan words. Will your mother tongue be represented?
+              Our target is 10,000 verified Kenyan words with audio. Will your mother tongue be represented?
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/contribute" className="px-8 py-4 rounded-lg bg-accent-300 text-heritage-dark font-black text-lg hover:bg-accent-400 transition shadow-soft">
