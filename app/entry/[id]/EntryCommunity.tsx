@@ -209,7 +209,7 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
             href={part}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-accent-600 underline break-words"
+            className="text-signal-600 underline underline-offset-2 break-words"
           >
             {part}
           </a>
@@ -222,9 +222,9 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
     const children = comments.filter(c => c.parent_id === parentId)
     return children.map(c => (
       <div key={c.id} className="ml-0 md:ml-6 mt-4">
-        <div className="bg-neutral-50 p-4 md:p-6 rounded-xl border border-neutral-200 max-w-full break-words">
+        <div className="max-w-full break-words border-l-2 border-ink-200 py-1 pl-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-6 h-6 rounded-full bg-neutral-200 overflow-hidden">
+            <div className="h-6 w-6 overflow-hidden rounded-full bg-ink-200">
               {c.user?.avatar_url && (
                 <img
                   src={c.user.avatar_url}
@@ -244,11 +244,11 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
                 type="text"
                 value={editText}
                 onChange={(e) => setEditText(e.target.value)}
-                className="flex-1 min-w-0 px-3 py-2 border rounded-lg text-sm"
+                className="min-w-0 flex-1 border border-ink-300 bg-card px-3 py-2 text-sm outline-none focus:border-ink-900"
               />
               <button
                 onClick={() => handleEdit(c.id)}
-                className="bg-heritage-dark text-white px-3 py-2 rounded-lg text-sm"
+                className="bg-ink-900 px-3 py-2 text-sm font-semibold text-paper transition-colors hover:bg-signal-600"
               >
                 Save
               </button>
@@ -257,13 +257,13 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
                   setEditingComment(null)
                   setEditText('')
                 }}
-                className="bg-neutral-200 px-3 py-2 rounded-lg text-sm"
+                className="border border-ink-300 px-3 py-2 text-sm font-semibold text-ink-700 hover:border-ink-900"
               >
                 Cancel
               </button>
             </div>
           ) : (
-            <p className="text-neutral-700 break-words whitespace-pre-wrap">
+            <p className="whitespace-pre-wrap break-words text-ink-800">
               {renderContent(c.content)}
             </p>
           )}
@@ -284,7 +284,7 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
                       )
                     )
                   }}
-                  className="text-accent-600"
+                  className="text-signal-600"
                 >
                   👍 {c.likesCount || 0}
                 </button>
@@ -308,7 +308,7 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
                 {/* Reply button */}
                 <button
                   onClick={() => setReplyingTo(c.id)}
-                  className="text-accent-600"
+                  className="text-signal-600"
                 >
                   Reply
                 </button>
@@ -343,11 +343,11 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 placeholder="Write a reply..."
-                className="flex-1 min-w-0 px-3 py-2 border rounded-lg text-sm"
+                className="min-w-0 flex-1 border border-ink-300 bg-card px-3 py-2 text-sm outline-none focus:border-ink-900"
               />
               <button
                 onClick={() => handleReply(c.id)}
-                className="bg-heritage-dark text-white px-3 py-2 rounded-lg text-sm"
+                className="bg-ink-900 px-3 py-2 text-sm font-semibold text-paper transition-colors hover:bg-signal-600"
               >
                 Post
               </button>
@@ -363,13 +363,13 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
 
   if (loading)
     return (
-      <div className="min-h-screen bg-neutral-100 flex items-center justify-center font-display animate-pulse text-neutral-600">
+      <div className="border-t border-ink-200 bg-paper-warm px-6 py-12 text-center label text-ink-500">
         RECONSTRUCTING...
       </div>
     )
   if (!entry)
     return (
-      <div className="min-h-screen bg-neutral-100 flex items-center justify-center font-display text-neutral-600 uppercase">
+      <div className="label border-t border-ink-200 bg-paper-warm px-6 py-12 text-center text-ink-500">
         Entry Not Found
       </div>
     )
@@ -423,74 +423,89 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
           </div>
         </div>
 
-        <div>
-          <div className="space-y-10">
-            {/* Likes */}
-            <section className="border-t border-ink-200 pt-8">
-              <button
-                onClick={handleLike}
-                className="flex items-center gap-2 text-accent-600 font-bold"
-              >
-                👍 Like
-              </button>
-              <span className="ml-2 text-neutral-500">
-                {likesCount} {likesCount === 1 ? 'like' : 'likes'}
-              </span>
-            </section>
-
-            {/* Comments */}
-            <section className="border-t border-ink-200 pt-8">
-              <h2 className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em] mb-4">
-                Discussion
-              </h2>
-              <div className="space-y-4">{renderComments(null)}</div>
-              {user && (
-                <div className="mt-4 flex gap-2 min-w-0">
-                  <input
-                    type="text"
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    placeholder="Add a comment..."
-                    className="flex-1 min-w-0 px-3 py-2 border rounded-lg"
-                  />
-                  <button
-                    onClick={handleAddComment}
-                    className="bg-heritage-dark text-white px-3 py-2 rounded-lg flex-shrink-0 whitespace-nowrap"
-                  >
-                    Post
-                  </button>
-                </div>
-              )}
-            </section>
-
-            {/* Related Words */}
-            {relatedWords.length > 0 && (
-              <section className="border-t border-ink-200 pt-8">
-                <h2 className="text-[10px] font-black text-neutral-600 uppercase tracking-[0.3em] mb-6">
-                  See Also
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {relatedWords.map((word) => (
-                    <Link
-                      key={word.id}
-                      href={`/entry/${word.id}`}
-                      className="group p-4 md:p-5 bg-accent-50 rounded-2xl hover:bg-accent-100 transition-all border border-transparent hover:border-accent-300 max-w-full min-w-0"
-                    >
-                      <p className="font-display font-black text-heritage-dark group-hover:text-accent-700 uppercase text-sm mb-1">
-                        {word.headword}
-                      </p>
-                      <p className="text-[10px] text-neutral-500 line-clamp-1 italic">
-                        {word.language?.name}
-                      </p>
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            )}
+        <div className="space-y-12">
+          {/* Likes. A count, not a floating emoji tile. */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleLike}
+              className="flex items-center gap-2 border border-ink-300 px-4 py-2 text-[0.9375rem] font-semibold text-ink-700 transition-colors hover:border-signal-500 hover:text-signal-600"
+            >
+              <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true" fill="none">
+                <path
+                  d="M4.5 7.5v6H2.8a.8.8 0 0 1-.8-.8V8.3a.8.8 0 0 1 .8-.8h1.7Zm0 0L7.9 2.6a1 1 0 0 1 1.8.6v2.6h3.2a1.2 1.2 0 0 1 1.2 1.4l-.8 4.8a1.5 1.5 0 0 1-1.5 1.5H4.5"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Useful
+            </button>
+            <span className="tabular font-mono text-sm text-ink-600">
+              {likesCount} {likesCount === 1 ? 'person' : 'people'}
+            </span>
           </div>
 
-          {/* Action Buttons */}
-          <div className="mt-12 grid gap-3 border-t border-ink-200 pt-10 md:grid-cols-2">
+          {/* Comments */}
+          <div className="border-t border-ink-200 pt-10">
+            <h3 className="label mb-5 text-ink-600">
+              {comments.length > 0
+                ? `${comments.length} ${comments.length === 1 ? 'comment' : 'comments'}`
+                : 'No comments yet'}
+            </h3>
+
+            {user ? (
+              <div className="mb-8 flex min-w-0 gap-2">
+                <label htmlFor="entry-comment" className="sr-only">
+                  Add a comment
+                </label>
+                <input
+                  id="entry-comment"
+                  type="text"
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Add something worth knowing about this word"
+                  className="min-w-0 flex-1 border border-ink-300 bg-card px-4 py-3 text-ink-900 outline-none placeholder:text-ink-400 focus:border-ink-900"
+                />
+                <button onClick={handleAddComment} className="btn-primary shrink-0">
+                  Post
+                </button>
+              </div>
+            ) : (
+              <p className="mb-8 text-sm text-ink-600">
+                <Link href="/login" className="font-semibold text-signal-600 underline underline-offset-2">
+                  Sign in
+                </Link>{' '}
+                to join the discussion.
+              </p>
+            )}
+
+            <div className="space-y-4">{renderComments(null)}</div>
+          </div>
+
+          {/* Related */}
+          {relatedWords.length > 0 && (
+            <div className="border-t border-ink-200 pt-10">
+              <h3 className="label mb-5 text-ink-600">Related words</h3>
+              <ul className="border-t border-ink-200">
+                {relatedWords.map((word) => (
+                  <li key={word.id} className="border-b border-ink-200">
+                    <Link
+                      href={`/entry/${word.id}`}
+                      className="group flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-3.5 transition-colors hover:bg-paper"
+                    >
+                      <span className="text-lg font-semibold text-ink-900 group-hover:text-signal-600">
+                        {word.headword}
+                      </span>
+                      <span className="label text-ink-500">{word.language?.name}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Corrections */}
+          <div className="grid gap-3 border-t border-ink-200 pt-10 md:grid-cols-2">
             <button onClick={() => setActiveModal('edit')} className="btn-secondary">
               Suggest a correction
             </button>

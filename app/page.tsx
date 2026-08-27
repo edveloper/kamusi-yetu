@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { getCorpusHeadline, getLanguageDirectory } from '@/lib/public-site'
 import LanguagePicker from '@/components/home/LanguagePicker'
+import LanguageMarquee from '@/components/home/LanguageMarquee'
+import CountUp from '@/components/ui/CountUp'
 import SearchAutocomplete from '@/components/SearchAutocomplete'
 
 // Searchers do not arrive here. They find a word through a web search and land
@@ -28,7 +30,7 @@ export default async function HomePage() {
       <section className="border-b border-ink-900 bg-ink-900 text-paper">
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-24">
           <p className="label mb-6 text-signal-300">An open corpus of Kenyan languages</p>
-          <h1 className="display max-w-4xl text-5xl sm:text-6xl md:text-7xl lg:text-8xl">
+          <h1 className="display reveal-wipe max-w-4xl text-5xl sm:text-6xl md:text-7xl lg:text-8xl">
             Kenya speaks over 40 languages.
             <br />
             <span className="text-signal-300">Your phone speaks two.</span>
@@ -44,6 +46,8 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <LanguageMarquee languages={languages} />
+
       {/* ------------------------------------------------------- the state */}
       {headline && (
         <section aria-labelledby="state-heading" className="border-b border-ink-200">
@@ -51,28 +55,28 @@ export default async function HomePage() {
             <h2 id="state-heading" className="label mb-8 text-signal-500">
               Where it stands today
             </h2>
-            <dl className="grid grid-cols-2 gap-x-8 gap-y-8 md:grid-cols-4">
+            <dl className="reveal-rows grid grid-cols-2 gap-x-8 gap-y-8 md:grid-cols-4">
               {[
                 {
-                  value: headline.indigenous_entries.toLocaleString(),
+                  value: headline.indigenous_entries,
                   label: 'Words checked by a person',
                 },
                 {
-                  value: headline.languages.toLocaleString(),
+                  value: headline.languages,
                   label: `Languages, ${withAudio} with a voice`,
                 },
                 {
-                  value: headline.awaiting_curation.toLocaleString(),
+                  value: headline.awaiting_curation,
                   label: 'Still need a definition',
                 },
                 {
-                  value: headline.awaiting_orthography.toLocaleString(),
+                  value: headline.awaiting_orthography,
                   label: 'Still need a speaker',
                 },
               ].map((stat) => (
                 <div key={stat.label}>
                   <dd className="headword tabular text-5xl text-ink-900 md:text-6xl">
-                    {stat.value}
+                    <CountUp value={stat.value} />
                   </dd>
                   <dt className="mt-2 text-sm font-semibold text-ink-700">{stat.label}</dt>
                 </div>
@@ -97,7 +101,7 @@ export default async function HomePage() {
       <section className="border-b border-ink-200">
         <div className="mx-auto grid max-w-5xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-2 md:gap-16">
           <div>
-            <h2 className="display mb-4 text-2xl md:text-3xl">What this is</h2>
+            <h2 className="display reveal mb-4 text-2xl md:text-3xl">What this is</h2>
             <p className="mb-4 text-ink-700">
               An open corpus of Kenyan languages. Words, phrases, usage and recordings,
               contributed by speakers and checked by reviewers with standing in that language.
@@ -150,13 +154,13 @@ export default async function HomePage() {
       {/* --------------------------------------------------- where to help */}
       <section className="border-b border-ink-200">
         <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
-          <h2 className="display mb-3 text-2xl md:text-3xl">These need the most work</h2>
+          <h2 className="display reveal mb-3 text-2xl md:text-3xl">These need the most work</h2>
           <p className="mb-8 max-w-2xl text-ink-700">
             Ranked by how much of the core vocabulary is still missing. If you speak one of
             these, an hour of your time goes further here than anywhere else on the site.
           </p>
 
-          <ul className="border-t border-ink-200">
+          <ul className="reveal-rows border-t border-ink-200">
             {emptiest.map((language) => (
               <li key={language.id} className="border-b border-ink-200">
                 <Link

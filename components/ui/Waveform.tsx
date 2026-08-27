@@ -161,7 +161,9 @@ export default function Waveform({
           type="button"
           onClick={toggle}
           aria-label={playing ? 'Pause' : 'Play pronunciation'}
-          className="flex flex-1 items-center gap-[3px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal-500"
+          className={`flex flex-1 items-center gap-[3px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal-500 ${
+            playing ? 'wave-live' : ''
+          }`}
           style={{ height }}
         >
           {(peaks ?? Array.from({ length: BAR_COUNT }, () => 0.22)).map((value, index) => (
@@ -170,7 +172,10 @@ export default function Waveform({
               className={`block flex-1 rounded-full transition-colors ${
                 index < played ? 'bg-signal-500' : 'bg-ink-300'
               }`}
-              style={{ height: `${Math.max(8, value * 100)}%` }}
+              style={{
+                height: `${Math.max(8, value * 100)}%`,
+                animationDelay: `${(index % 8) * 70}ms`,
+              }}
             />
           ))}
         </button>

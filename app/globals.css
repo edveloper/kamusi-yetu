@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Cross-document view transitions. Browsers that do not support this simply
+ * navigate as before, so it costs nothing to opt in. */
+@view-transition { navigation: auto; }
+
 /* ---------------------------------------------------------------------------
  * LughaKonnect — design tokens.
  *
@@ -384,3 +388,93 @@ img {
 
 /* Import component utilities after Tailwind setup */
 @import "./component-utilities.css";
+
+/* ===========================================================================
+ * Motion
+ *
+ * Scroll-driven animation via animation-timeline, so the browser runs it on
+ * the compositor and there is no scroll listener, no observer, no JS at all.
+ * Where the property is unsupported the @supports block never applies and
+ * content simply sits there in its final state, which is the correct fallback.
+ *
+ * The rule for using any of this: motion should show something true about the
+ * content. A word arriving as you reach it, a number counting to its real
+ * value, a marquee of language names that is genuinely the list of languages.
+ * Decorative movement is what makes a site feel generated.
+ * ======================================================================== */
+
+@keyframes lk-rise {
+  from { opacity: 0; transform: translateY(1.5rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes lk-wipe {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes lk-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes lk-bar {
+  0%, 100% { transform: scaleY(0.35); }
+  50%      { transform: scaleY(1); }
+}
+
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: lk-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 5% cover 26%;
+  }
+
+  /* Headlines wipe in from the left rather than fading, which suits a
+   * condensed display face better than opacity does. */
+  .reveal-wipe {
+    animation: lk-wipe linear both;
+    animation-timeline: view();
+    animation-range: entry 10% cover 32%;
+  }
+
+  /* A list where each row arrives slightly after the one above it. */
+  .reveal-rows > * {
+    animation: lk-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 20%;
+  }
+}
+
+/* The language ticker. Duplicated content inside, so -50% loops seamlessly. */
+.marquee {
+  display: flex;
+  width: max-content;
+  animation: lk-marquee 48s linear infinite;
+}
+.marquee-slow { animation-duration: 76s; }
+.marquee-reverse { animation-direction: reverse; }
+.marquee-host:hover .marquee { animation-play-state: paused; }
+
+/* Bars that move while audio is playing. */
+.wave-live > i { animation: lk-bar 900ms ease-in-out infinite; transform-origin: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee { animation: none; }
+  .wave-live > i { animation: none; }
+  .reveal, .reveal-wipe, .reveal-rows > * { animation: none; opacity: 1; clip-path: none; }
+}
+
+
+/* The headword is the thing being navigated between, so it is what should
+ * carry across a transition rather than the whole page cross-fading. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 260ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+}
