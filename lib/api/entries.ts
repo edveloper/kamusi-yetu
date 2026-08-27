@@ -25,15 +25,6 @@ function escapeLike(value: string) {
   return value.replace(/[%,]/g, (char) => `\\${char}`)
 }
 
-function buildFallbackSearchClause(rawQuery: string) {
-  const query = escapeLike(rawQuery.trim())
-  return [
-    `headword.ilike.%${query}%`,
-    `primary_definition.ilike.%${query}%`,
-    `english_translation.ilike.%${query}%`,
-    `swahili_translation.ilike.%${query}%`
-  ].join(',')
-}
 
 type LanguageCodeRow = {
   code: string | null
@@ -257,11 +248,7 @@ export async function getEntries(filters?: {
   if (filters?.entry_kind === 'phrase') query = query.eq('part_of_speech', 'phrase')
   if (filters?.entry_kind === 'word') query = query.or('part_of_speech.is.null,part_of_speech.neq.phrase')
   if (filters?.search) {
-    try {
-      query = query.textSearch('search_tsv', filters.search, { config: 'simple' })
-    } catch (e) {
-      query = query.or(buildFallbackSearchClause(filters.search))
-    }
+    query = query.textSearch('search_tsv', filters.search, { config: 'simple' })
   }
 
   const { data, error } = await query
@@ -281,60 +268,30 @@ export async function getRecentEntriesByUser(userId: string, limit = 5) {
   return data || []
 }
 
-export async function updateEntryStatus(
-  entryId: string,
-  status: 'pending' | 'verified' | 'disputed' | 'flagged',
-  validatorId: string
-) {
-  const { error: entryError } = await supabase
-    .from('entries')
-    .update({
-      validation_status: status,
-      updated_at: new Date().toISOString()
-    })
-    .eq('id', entryId)
-
-  if (entryError) throw entryError
-
-  const actionMap = {
-    'verified': 'approve',
-    'flagged': 'flag',
-    'disputed': 'reject',
-    'pending': 'reset'
-  }
-
-  const { error: validationError } = await supabase
-    .from('validations')
-    .insert({
-      entry_id: entryId,
-      validator_id: validatorId,
-      action: actionMap[status] || 'reject'
-    })
-
-  if (validationError) console.error('Log failed:', validationError)
-}
-
 export async function searchEntries(
   query: string,
   languageId?: string,
   categoryId?: string,
   letter?: string,
   sort: 'headword_asc' | 'newest' | 'trust_desc' = 'headword_asc',
-  entryKind: 'all' | 'word' | 'phrase' = 'all'
+  entryKind: 'all' | 'word' | 'phrase' = 'all',
+  opts?: { page?: number; pageSize?: number }
 ) {
+  // Search was capped at 100 rows with no way to page past it, while still
+  // reporting an exact total the caller could not reach.
+  const pageSize = Math.max(1, Math.min(100, opts?.pageSize ?? 50))
+  const page = Math.max(0, opts?.page ?? 0)
+  const from = page * pageSize
+
   let searchQuery = supabase
     .from('entries')
     .select(`*, language:languages(*)`, { count: 'exact' })
     .eq('validation_status', 'verified')
     .eq('needs_orthography_review', false)
-    .limit(100)
+    .range(from, from + pageSize - 1)
 
   if (query && query.trim() !== '') {
-    try {
-      searchQuery = searchQuery.textSearch('search_tsv', query, { config: 'simple' })
-    } catch (e) {
-      searchQuery = searchQuery.or(buildFallbackSearchClause(query))
-    }
+    searchQuery = searchQuery.textSearch('search_tsv', query, { config: 'simple' })
   }
   if (languageId && languageId !== 'all') searchQuery = searchQuery.eq('language_id', languageId)
   if (categoryId && categoryId !== 'all') searchQuery = searchQuery.eq('category', categoryId)
@@ -352,9 +309,14 @@ export async function searchEntries(
 
   const { data, error, count } = await searchQuery
   if (error) throw error
+
+  const total = count || 0
   return {
     rows: data || [],
-    total: count || 0
+    total,
+    page,
+    pageSize,
+    hasMore: from + (data?.length ?? 0) < total,
   }
 }
 

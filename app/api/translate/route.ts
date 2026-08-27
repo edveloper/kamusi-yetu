@@ -397,9 +397,13 @@ export async function POST(req: Request) {
       }
     }
 
-    for (const s of sources) {
+    // Each source's pivot lookups are independent, so run them concurrently.
+    // Previously this awaited one source at a time: with up to 20 sources and
+    // four pivot paths each, a polysemous word fired 100+ serial round trips.
+    const perSourceCandidates = await Promise.all(sources.map(async (s) => {
+      const found: Candidate[] = []
       if (targetLanguageId === englishLanguageId && s.english_translation) {
-        candidates.push({
+        found.push({
           translation: s.english_translation,
           confidence: phraseAdjustedConfidence(0.95, s, preferPhrase),
           path_type: 'direct_bridge',
@@ -410,7 +414,7 @@ export async function POST(req: Request) {
       }
 
       if (targetLanguageId === swahiliLanguageId && s.swahili_translation) {
-        candidates.push({
+        found.push({
           translation: s.swahili_translation,
           confidence: phraseAdjustedConfidence(0.95, s, preferPhrase),
           path_type: 'direct_bridge',
@@ -431,7 +435,7 @@ export async function POST(req: Request) {
         )
 
         for (const t of targetBySw || []) {
-          candidates.push({
+          found.push({
             translation: t.headword,
             confidence: phraseAdjustedConfidence(0.6, s, preferPhrase),
             path_type: 'pivot_sw',
@@ -454,7 +458,7 @@ export async function POST(req: Request) {
         )
 
         for (const t of targetByEn || []) {
-          candidates.push({
+          found.push({
             translation: t.headword,
             confidence: phraseAdjustedConfidence(0.55, s, preferPhrase),
             path_type: 'pivot_en',
@@ -490,7 +494,7 @@ export async function POST(req: Request) {
               )
 
               for (const t of targetByBridgeEn || []) {
-                candidates.push({
+                found.push({
                   translation: t.headword,
                   confidence: phraseAdjustedConfidence(0.5, s, preferPhrase),
                   path_type: 'pivot_sw_en',
@@ -531,7 +535,7 @@ export async function POST(req: Request) {
               )
 
               for (const t of targetByBridgeSw || []) {
-                candidates.push({
+                found.push({
                   translation: t.headword,
                   confidence: phraseAdjustedConfidence(0.5, s, preferPhrase),
                   path_type: 'pivot_en_sw',
@@ -547,7 +551,11 @@ export async function POST(req: Request) {
           // bridge_lexicon may not exist yet; skip mixed pivot gracefully.
         }
       }
-    }
+      return found
+    }))
+
+    for (const group of perSourceCandidates) candidates.push(...group)
+
 
     // Special case: reverse-lookup when source IS a bridge language (EN or SW)
     // E.g., English "Boy" → Dholuo should find Dholuo entries with english_translation="Boy"
