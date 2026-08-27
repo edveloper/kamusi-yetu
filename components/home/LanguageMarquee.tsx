@@ -36,16 +36,28 @@ export default function LanguageMarquee({ languages }: { languages: LanguageStat
                 <Link
                   key={`${copy}-${language.id}`}
                   href={`/explore?language=${language.id}`}
-                  className="group flex shrink-0 items-baseline gap-2.5 px-5"
+                  className="group flex shrink-0 items-center gap-3 px-5"
                 >
                   <span className="display text-2xl text-paper transition-colors group-hover:text-signal-300 md:text-3xl">
                     {language.name}
                   </span>
-                  <span
-                    className={`label ${language.recordings > 0 ? 'text-sand-300' : 'text-ink-500'}`}
-                  >
-                    {language.recordings > 0 ? `${language.recordings} rec` : 'no voice'}
-                  </span>
+                  {/* A recorded language gets a small waveform, an unrecorded one
+                    * gets nothing. The absence carries the point without a label
+                    * repeating "no voice" thirty times across the row. */}
+                  {language.recordings > 0 && (
+                    <span
+                      aria-label={`${language.recordings} recordings`}
+                      className="flex shrink-0 items-end gap-[2px]"
+                    >
+                      {[5, 9, 6, 11, 7].map((h, i) => (
+                        <span
+                          key={i}
+                          className="block w-[2px] bg-signal-300"
+                          style={{ height: `${h}px` }}
+                        />
+                      ))}
+                    </span>
+                  )}
                 </Link>
               ))}
             </div>
