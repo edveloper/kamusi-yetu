@@ -26,6 +26,10 @@ type LanguageMetricLite = {
 
 type CountyCoverageMapProps = {
   languageMetrics: LanguageMetricLite[]
+  /** Which county to open on. Defaults to the best-covered one rather than a
+   *  hardcoded Nairobi, which reported "Not Covered, 0, 0" as the first thing
+   *  a visitor saw on a page meant to show the work is real. */
+  initialCountyCode?: string
 }
 
 type CountyCoverageView = CountyLanguagePresence & {
@@ -41,19 +45,19 @@ type CountyCoverageView = CountyLanguagePresence & {
 }
 
 const MAP_PATH_CLASSES: Record<LanguageMaturity, string> = {
-  phrase_ready: 'fill-heritage-dark stroke-primary-900',
-  growing: 'fill-accent-300 stroke-accent-500',
-  starter: 'fill-lime-100 stroke-lime-300',
-  review_heavy: 'fill-amber-100 stroke-amber-300',
-  not_yet_covered: 'fill-neutral-100 stroke-neutral-300',
+  phrase_ready: 'fill-ink-900 stroke-ink-950',
+  growing: 'fill-petrol-400 stroke-petrol-600',
+  starter: 'fill-sand-200 stroke-sand-400',
+  review_heavy: 'fill-signal-100 stroke-signal-300',
+  not_yet_covered: 'fill-paper-warm stroke-ink-200',
 }
 
 const MAP_MARKER_CLASSES: Record<LanguageMaturity, string> = {
-  phrase_ready: 'fill-white stroke-primary-900 text-primary-900',
-  growing: 'fill-white stroke-accent-500 text-primary-900',
-  starter: 'fill-white stroke-lime-400 text-lime-950',
-  review_heavy: 'fill-white stroke-amber-400 text-amber-950',
-  not_yet_covered: 'fill-neutral-50 stroke-neutral-300 text-neutral-500',
+  phrase_ready: 'fill-paper stroke-ink-900 text-ink-900',
+  growing: 'fill-paper stroke-petrol-500 text-petrol-600',
+  starter: 'fill-paper stroke-sand-500 text-sand-700',
+  review_heavy: 'fill-paper stroke-signal-400 text-signal-600',
+  not_yet_covered: 'fill-paper stroke-ink-300 text-ink-500',
 }
 
 function strongestMaturity(maturities: LanguageMaturity[]) {
@@ -72,8 +76,8 @@ function strongestMaturity(maturities: LanguageMaturity[]) {
   return 'not_yet_covered'
 }
 
-export default function KenyaCountyCoverageMap({ languageMetrics }: CountyCoverageMapProps) {
-  const [activeCountyCode, setActiveCountyCode] = useState<string>('nbr')
+export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyCode }: CountyCoverageMapProps) {
+  const [activeCountyCode, setActiveCountyCode] = useState<string>(initialCountyCode ?? 'nbr')
 
   const countyCoverage = useMemo<CountyCoverageView[]>(() => {
     const metricsByCode = new Map(
@@ -164,28 +168,28 @@ export default function KenyaCountyCoverageMap({ languageMetrics }: CountyCovera
     : []
 
   return (
-    <section className="mb-10 border border-accent-200 bg-gradient-to-br from-neutral-50 via-accent-50/70 to-neutral-100/60 p-4 sm:p-6 lg:p-8 shadow-sm">
+    <section className="mb-10 border border-ink-200 bg-card p-4 sm:p-6 lg:p-8">
       <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div className="max-w-3xl">
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-accent-700 mb-2">Kenya Coverage Map</p>
-          <h2 className="text-2xl sm:text-3xl font-black font-display text-neutral-900">Community presence by county</h2>
-          <p className="text-sm text-neutral-600 font-medium mt-3 leading-relaxed">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-signal-600 mb-2">Kenya Coverage Map</p>
+          <h2 className="text-2xl sm:text-3xl font-bold font-display text-ink-900">Community presence by county</h2>
+          <p className="text-sm text-ink-600 font-medium mt-3 leading-relaxed">
             A county-by-county view of where language communities are strongly associated, what LughaKonnect already covers, and where the next contributions can make the biggest difference.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-accent-100 bg-neutral-50/85 backdrop-blur px-4 py-3">
-          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-neutral-500 mb-2">Selected County</p>
+        <div className="border border-ink-200 bg-paper-warm px-4 py-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-500 mb-2">Selected County</p>
           {selectedCounty ? (
             <div className="flex flex-wrap items-center gap-3">
               <div>
-                <p className="font-black text-neutral-900">{selectedCounty.countyName}</p>
-                <p className="text-[10px] font-black uppercase tracking-widest text-neutral-500">
+                <p className="font-bold text-ink-900">{selectedCounty.countyName}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-ink-500">
                   {selectedCounty.region.replace('-', ' ')}
                 </p>
               </div>
               {selectedCountyMaturity ? (
-                <span className={`px-2.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest ${selectedCountyMaturity.badgeClassName}`}>
+                <span className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest ${selectedCountyMaturity.badgeClassName}`}>
                   {selectedCountyMaturity.shortLabel}
                 </span>
               ) : null}
@@ -198,29 +202,29 @@ export default function KenyaCountyCoverageMap({ languageMetrics }: CountyCovera
         {(['phrase_ready', 'growing', 'starter', 'review_heavy', 'not_yet_covered'] as LanguageMaturity[]).map((key) => {
           const definition = getLanguageMaturityDefinition(key)
           return (
-            <div key={key} className="flex items-center gap-2 rounded-full border border-neutral-200 bg-card px-3 py-2 backdrop-blur">
+            <div key={key} className="flex items-center gap-2 rounded-full border border-ink-200 bg-card px-3 py-2 backdrop-blur">
               <span className={`h-3 w-3 rounded-full ${definition.badgeClassName.split(' ')[0].replace('bg-', 'bg-')}`}></span>
-              <span className="text-[10px] font-black uppercase tracking-[0.18em] text-neutral-600">{definition.shortLabel}</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-600">{definition.shortLabel}</span>
             </div>
           )
         })}
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.8fr)] xl:items-start">
-        <div className=" border border-accent-100 bg-neutral-50/90 backdrop-blur p-4 sm:p-5 lg:p-6">
+        <div className="border border-ink-200 bg-card p-4 sm:p-5 lg:p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-neutral-500 mb-2">Map View</p>
-              <p className="text-sm text-neutral-600 font-medium">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-500 mb-2">Map View</p>
+              <p className="text-sm text-ink-600 font-medium">
                 Hover or tap a county to inspect the languages mapped there and see where coverage is strong or still growing.
               </p>
             </div>
-            <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-neutral-500">
+            <div className="rounded-xl border border-ink-200 bg-card px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-ink-500">
               47 counties
             </div>
           </div>
 
-          <div className=" border border-neutral-100 bg-[radial-gradient(circle_at_top,#ffffff_0%,#ecfdf5_42%,#f5f5f4_100%)] p-3 sm:p-4">
+          <div className=" border border-ink-200 bg-[radial-gradient(circle_at_top,#ffffff_0%,#ecfdf5_42%,#f5f5f4_100%)] p-3 sm:p-4">
             <svg
               viewBox={`0 0 ${KENYA_COUNTY_SVG_VIEWBOX.width} ${KENYA_COUNTY_SVG_VIEWBOX.height}`}
               className="w-full h-auto max-h-[78vh]"
@@ -256,7 +260,7 @@ export default function KenyaCountyCoverageMap({ languageMetrics }: CountyCovera
                           <text
                             textAnchor="middle"
                             dominantBaseline="central"
-                            className="text-[10px] font-black"
+                            className="text-[10px] font-bold"
                           >
                             {county.coveredLanguageCount}
                           </text>
@@ -270,36 +274,36 @@ export default function KenyaCountyCoverageMap({ languageMetrics }: CountyCovera
           </div>
         </div>
 
-        <div className=" border border-neutral-200 bg-white p-6 sm:p-8 shadow-sm xl:sticky xl:top-24">
+        <div className=" border border-ink-200 bg-white p-6 sm:p-8 shadow-sm xl:sticky xl:top-24">
           {selectedCounty ? (
             <>
               <div className="flex items-start justify-between gap-4 mb-6">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.25em] text-accent-700 mb-2">County Detail</p>
-                  <h2 className="text-2xl font-black font-display text-neutral-900">{selectedCounty.countyName}</h2>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-neutral-500 mt-2">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-signal-600 mb-2">County Detail</p>
+                  <h2 className="text-2xl font-bold font-display text-ink-900">{selectedCounty.countyName}</h2>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-ink-500 mt-2">
                     {selectedCounty.region.replace('-', ' ')}
                   </p>
                 </div>
                 {selectedCountyMaturity ? (
-                  <span className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.18em] ${selectedCountyMaturity.badgeClassName}`}>
+                  <span className={`px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-[0.12em] ${selectedCountyMaturity.badgeClassName}`}>
                     {selectedCountyMaturity.shortLabel}
                   </span>
                 ) : null}
               </div>
 
-              <p className="text-sm text-neutral-600 font-medium leading-relaxed mb-6">
+              <p className="text-sm text-ink-600 font-medium leading-relaxed mb-6">
                 {selectedCounty.note}
               </p>
 
               <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-neutral-600 mb-2">Mapped Languages</p>
-                  <p className="text-2xl font-black text-neutral-900 font-display">{selectedCounty.mappedLanguages.length}</p>
+                <div className="rounded-2xl border border-ink-200 bg-card p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-600 mb-2">Mapped Languages</p>
+                  <p className="text-2xl font-bold text-ink-900 font-display">{selectedCounty.mappedLanguages.length}</p>
                 </div>
-                <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-neutral-600 mb-2">Live In LughaKonnect</p>
-                  <p className="text-2xl font-black text-neutral-900 font-display">{selectedCounty.coveredLanguageCount}</p>
+                <div className="rounded-2xl border border-ink-200 bg-card p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-600 mb-2">Live In LughaKonnect</p>
+                  <p className="text-2xl font-bold text-ink-900 font-display">{selectedCounty.coveredLanguageCount}</p>
                 </div>
               </div>
 
@@ -307,17 +311,17 @@ export default function KenyaCountyCoverageMap({ languageMetrics }: CountyCovera
                 {selectedCounty.mappedLanguages.map((language) => {
                   const maturity = getLanguageMaturityDefinition(language.maturity)
                   return (
-                    <div key={`${selectedCounty.countyCode}-${language.code}`} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                    <div key={`${selectedCounty.countyCode}-${language.code}`} className="rounded-2xl border border-ink-200 bg-card p-4">
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <div>
-                          <p className="font-black text-neutral-900">{language.name}</p>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-neutral-600">{language.code}</p>
+                          <p className="font-bold text-ink-900">{language.name}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-ink-600">{language.code}</p>
                         </div>
-                        <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${maturity.badgeClassName}`}>
+                        <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest ${maturity.badgeClassName}`}>
                           {maturity.shortLabel}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-neutral-600">
+                      <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-ink-600">
                         <span>{language.totalEntries} entries</span>
                         <span>{language.phraseEntries} phrases</span>
                       </div>
@@ -327,13 +331,13 @@ export default function KenyaCountyCoverageMap({ languageMetrics }: CountyCovera
               </div>
 
               {countyMissions.length > 0 ? (
-                <div className="mb-6 rounded-2xl border border-accent-100 bg-accent-50 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-accent-700 mb-3">Contribution Missions</p>
+                <div className="mb-6 border border-ink-200 bg-paper-warm p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-signal-600 mb-3">Contribution Missions</p>
                   <div className="space-y-3">
                     {countyMissions.map((mission) => (
                       <div key={`${selectedCounty.countyCode}-${mission.code}`} className="rounded-xl border border-white/80 bg-card p-3">
-                        <p className="text-sm font-black text-neutral-900">{mission.label}</p>
-                        <p className="mt-1 text-sm text-neutral-700 font-medium">{mission.detail}</p>
+                        <p className="text-sm font-bold text-ink-900">{mission.label}</p>
+                        <p className="mt-1 text-sm text-ink-700 font-medium">{mission.detail}</p>
                       </div>
                     ))}
                   </div>
@@ -343,7 +347,7 @@ export default function KenyaCountyCoverageMap({ languageMetrics }: CountyCovera
               <div className="flex flex-wrap gap-2">
                 <Link
                   href={`/explore?county=${encodeURIComponent(selectedCounty.countyCode)}`}
-                  className="px-3 py-2 rounded-xl border border-neutral-200 bg-neutral-50 text-[10px] font-black uppercase tracking-widest text-neutral-700 hover:border-accent-200 hover:text-accent-700"
+                  className="px-3 py-2 rounded-xl border border-ink-200 bg-card text-[10px] font-bold uppercase tracking-widest text-ink-700 hover:border-ink-200 hover:text-signal-600"
                 >
                   Explore {selectedCounty.countyName}
                 </Link>
@@ -351,7 +355,7 @@ export default function KenyaCountyCoverageMap({ languageMetrics }: CountyCovera
                   <Link
                     key={`contribute-${selectedCounty.countyCode}-${language.code}`}
                     href={`/contribute?lang=${encodeURIComponent(language.code)}`}
-                    className="px-3 py-2 rounded-xl bg-heritage-dark text-white text-[10px] font-black uppercase tracking-widest hover:bg-heritage-darker"
+                    className="px-3 py-2 rounded-xl bg-ink-900 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-ink-950"
                   >
                     Add in {language.code}
                   </Link>

@@ -575,3 +575,86 @@ export async function getBrowseResults(params: BrowseParams) {
     hasMore: from + rows.length < total,
   }
 }
+
+export type LanguageCoverage = {
+  language_id: string
+  language_code: string
+  language_name: string
+  native_name: string | null
+  language_role: string
+  public_entries: number
+  phrase_entries: number
+  awaiting_curation: number
+  awaiting_orthography: number
+  awaiting_review: number
+  concepts_covered: number
+  concepts_total: number
+  entries_with_audio: number
+  verified_recordings: number
+  distinct_speakers: number
+  verified_speakers: number
+  last_entry_at: string | null
+}
+
+/**
+ * Per-language coverage, counted in the database.
+ *
+ * Replaces downloading every verified entry to the browser and tallying in
+ * JavaScript, which was about 2MB per visit and got slower as the corpus grew.
+ */
+export const getLanguageCoverage = unstable_cache(
+  async (): Promise<LanguageCoverage[]> => {
+    const { data, error } = await supabase
+      .from('language_coverage')
+      .select('*')
+      .neq('language_role', 'bridge')
+      .order('public_entries', { ascending: false })
+
+    if (!error) return (data ?? []) as LanguageCoverage[]
+
+    // language_coverage arrives in migration 115. Until it is applied, rebuild
+    // what we can from the two views that already exist, so the page reports
+    // real figures with a couple of columns at zero rather than showing a table
+    // of zeros or nothing at all.
+    const [voice, concepts] = await Promise.all([
+      supabase.from('language_voice_coverage').select('*'),
+      supabase.from('language_concept_coverage').select('*'),
+    ])
+
+    const conceptRows = new Map(
+      ((concepts.data ?? []) as Array<Record<string, unknown>>).map((row) => [
+        String(row.language_id),
+        row,
+      ])
+    )
+
+    return ((voice.data ?? []) as Array<Record<string, unknown>>)
+      .map((row) => {
+        const id = String(row.language_id)
+        const concept = conceptRows.get(id)
+        return {
+          language_id: id,
+          language_code: String(row.language_code ?? ''),
+          language_name: String(row.language_name ?? ''),
+          native_name: null,
+          language_role: String(concept?.language_role ?? 'indigenous'),
+          public_entries: Number(row.public_entries ?? 0),
+          phrase_entries: 0,
+          awaiting_curation: 0,
+          awaiting_orthography: 0,
+          awaiting_review: 0,
+          concepts_covered: Number(concept?.concepts_covered ?? 0),
+          concepts_total: Number(concept?.concepts_total ?? 0),
+          entries_with_audio: Number(row.entries_with_audio ?? 0),
+          verified_recordings: Number(row.verified_recordings ?? 0),
+          distinct_speakers: Number(row.distinct_speakers ?? 0),
+          verified_speakers: 0,
+          last_entry_at: null,
+        } satisfies LanguageCoverage
+      })
+      .filter((row) => row.language_role !== 'bridge')
+      .sort((a, b) => b.public_entries - a.public_entries)
+  },
+  ['public-language-coverage'],
+  { revalidate: 300 }
+)
