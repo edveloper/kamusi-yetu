@@ -21,7 +21,7 @@ export default function ModeratorsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20">
         
         {/* Quality Standards Section */}
-        <section className="bg-neutral-100 rounded-[3rem] shadow-soft border border-accent-300/20 p-8 md:p-16 mb-16">
+        <section className="bg-neutral-100 shadow-soft border border-ink-200 p-8 md:p-16 mb-16">
           <div className="flex flex-col md:flex-row gap-12 items-start">
             <div className="md:w-1/3">
               <h2 className="text-4xl font-black text-heritage-dark font-display leading-tight">
@@ -74,7 +74,7 @@ export default function ModeratorsPage() {
               { team: "Gikuyu", count: "2 Moderators", tag: "KIK", info: "Focused on central region orthography and oral history." },
               { team: "Dholuo", count: "2 Moderators", tag: "LUO", info: "Experts in Nilotic linguistic structures and modern usage." },
             ].map((item, idx) => (
-              <div key={idx} className="bg-accent-50 rounded-[2.5rem] p-8 border border-accent-300/30 shadow-soft transition-all duration-300">
+              <div key={idx} className="bg-accent-50 p-8 border border-ink-200 shadow-soft transition-all duration-300">
                 <div className="flex justify-between items-start mb-8">
                   <div className="w-12 h-12 bg-accent-100 rounded-xl flex items-center justify-center text-xl text-heritage-dark">
                     🛡️
@@ -107,7 +107,7 @@ export default function ModeratorsPage() {
                 <Link href="/contact" className="px-8 py-4 rounded-lg bg-accent-300 text-heritage-dark font-black text-lg hover:bg-accent-400 transition shadow-soft">
                   Apply to Moderate
                 </Link>
-                <Link href="/guidelines" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-accent-300/20 transition">
+                <Link href="/guidelines" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-ink-800 transition">
                   Review Guidelines
                 </Link>
               </div>

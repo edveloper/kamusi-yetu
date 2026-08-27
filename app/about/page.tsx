@@ -35,7 +35,7 @@ export default function AboutPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 -mt-16 relative z-20">
-        <section className="bg-neutral-100 rounded-[3rem] shadow-soft border border-accent-300/20 p-10 md:p-16 mb-12">
+        <section className="bg-neutral-100 shadow-soft border border-ink-200 p-10 md:p-16 mb-12">
           <div className="flex items-center gap-4 mb-8">
             <span className="text-4xl text-accent-700">KE</span>
             <h2 className="text-4xl font-black text-heritage-dark font-display">The Mission</h2>
@@ -54,14 +54,14 @@ export default function AboutPage() {
         </section>
 
         <section className="grid md:grid-cols-2 gap-8 mb-20">
-          <div className="bg-accent-50 p-10 rounded-[2.5rem] border border-accent-300/30 shadow-soft hover:shadow-medium transition-all">
+          <div className="bg-accent-50 p-10 border border-ink-200 shadow-soft hover:shadow-medium transition-all">
             <div className="w-14 h-14 bg-accent-100 rounded-2xl flex items-center justify-center text-3xl mb-6 text-heritage-dark">DB</div>
             <h3 className="text-2xl font-black text-heritage-dark mb-4 font-display">Preservation</h3>
             <p className="text-neutral-700 leading-relaxed font-medium">
               We focus on recording rare dialects, proverbs, and specialized vocabulary before they fade from daily conversation.
             </p>
           </div>
-          <div className="bg-heritage-dark p-10 rounded-[2.5rem] text-white shadow-soft relative overflow-hidden">
+          <div className="bg-heritage-dark p-10 text-white shadow-soft relative overflow-hidden">
             <div className="w-14 h-14 bg-accent-100 text-heritage-dark rounded-2xl flex items-center justify-center text-3xl mb-6">OK</div>
             <h3 className="text-2xl font-black mb-4 font-display">Community</h3>
             <p className="text-accent-100 opacity-90 leading-relaxed font-medium">
@@ -85,7 +85,7 @@ export default function AboutPage() {
               key={item.step}
               className="group flex flex-col md:flex-row items-center gap-8 bg-neutral-100 p-8 rounded-3xl border border-accent-200 shadow-soft hover:border-accent-300 transition-all"
             >
-              <div className="w-20 h-20 bg-accent-50 text-accent-700 rounded-[1.5rem] flex items-center justify-center text-4xl font-black shrink-0 group-hover:bg-accent-300 group-hover:text-white transition-all duration-500 font-display">
+              <div className="w-20 h-20 bg-accent-50 text-accent-700 flex items-center justify-center text-4xl font-black shrink-0 group-hover:bg-accent-300 group-hover:text-white transition-all duration-500 font-display">
                 {item.step}
               </div>
               <div className="text-center md:text-left">
@@ -96,7 +96,7 @@ export default function AboutPage() {
           ))}
         </div>
 
-        <section className="bg-neutral-100 rounded-[3rem] shadow-soft border border-accent-300/20 p-8 md:p-16 mb-16">
+        <section className="bg-neutral-100 shadow-soft border border-ink-200 p-8 md:p-16 mb-16">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
             <div>
               <span className="text-sm font-black uppercase tracking-widest text-accent-700">Our Progress</span>
@@ -150,7 +150,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="bg-neutral-100 rounded-[3rem] shadow-soft border border-accent-200 p-8 md:p-16 mb-16 overflow-hidden">
+        <section className="bg-neutral-100 shadow-soft border border-accent-200 p-8 md:p-16 mb-16 overflow-hidden">
           <div className="flex flex-col gap-3 mb-8">
             <span className="text-sm font-black uppercase tracking-widest text-accent-700">Roadmap</span>
             <h2 className="text-3xl md:text-4xl font-black text-heritage-dark font-display leading-tight break-words">
@@ -202,7 +202,7 @@ export default function AboutPage() {
               <Link href="/contribute" className="px-8 py-4 rounded-lg bg-accent-300 text-heritage-dark font-black text-lg hover:bg-accent-400 transition shadow-soft">
                 Start Contributing
               </Link>
-              <Link href="/explore" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-accent-300/20 transition">
+              <Link href="/explore" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-ink-800 transition">
                 Explore Dictionary
               </Link>
             </div>

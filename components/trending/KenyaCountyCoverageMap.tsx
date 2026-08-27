@@ -164,7 +164,7 @@ export default function KenyaCountyCoverageMap({ languageMetrics }: CountyCovera
     : []
 
   return (
-    <section className="mb-10 rounded-[2rem] border border-accent-200 bg-gradient-to-br from-neutral-50 via-accent-50/70 to-neutral-100/60 p-4 sm:p-6 lg:p-8 shadow-sm">
+    <section className="mb-10 border border-accent-200 bg-gradient-to-br from-neutral-50 via-accent-50/70 to-neutral-100/60 p-4 sm:p-6 lg:p-8 shadow-sm">
       <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div className="max-w-3xl">
           <p className="text-[10px] font-black uppercase tracking-[0.25em] text-accent-700 mb-2">Kenya Coverage Map</p>
@@ -198,7 +198,7 @@ export default function KenyaCountyCoverageMap({ languageMetrics }: CountyCovera
         {(['phrase_ready', 'growing', 'starter', 'review_heavy', 'not_yet_covered'] as LanguageMaturity[]).map((key) => {
           const definition = getLanguageMaturityDefinition(key)
           return (
-            <div key={key} className="flex items-center gap-2 rounded-full border border-neutral-200 bg-white/85 px-3 py-2 backdrop-blur">
+            <div key={key} className="flex items-center gap-2 rounded-full border border-neutral-200 bg-card px-3 py-2 backdrop-blur">
               <span className={`h-3 w-3 rounded-full ${definition.badgeClassName.split(' ')[0].replace('bg-', 'bg-')}`}></span>
               <span className="text-[10px] font-black uppercase tracking-[0.18em] text-neutral-600">{definition.shortLabel}</span>
             </div>
@@ -207,7 +207,7 @@ export default function KenyaCountyCoverageMap({ languageMetrics }: CountyCovera
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.8fr)] xl:items-start">
-        <div className="rounded-[1.75rem] border border-accent-100 bg-neutral-50/90 backdrop-blur p-4 sm:p-5 lg:p-6">
+        <div className=" border border-accent-100 bg-neutral-50/90 backdrop-blur p-4 sm:p-5 lg:p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-neutral-500 mb-2">Map View</p>
@@ -220,7 +220,7 @@ export default function KenyaCountyCoverageMap({ languageMetrics }: CountyCovera
             </div>
           </div>
 
-          <div className="rounded-[1.5rem] border border-neutral-100 bg-[radial-gradient(circle_at_top,#ffffff_0%,#ecfdf5_42%,#f5f5f4_100%)] p-3 sm:p-4">
+          <div className=" border border-neutral-100 bg-[radial-gradient(circle_at_top,#ffffff_0%,#ecfdf5_42%,#f5f5f4_100%)] p-3 sm:p-4">
             <svg
               viewBox={`0 0 ${KENYA_COUNTY_SVG_VIEWBOX.width} ${KENYA_COUNTY_SVG_VIEWBOX.height}`}
               className="w-full h-auto max-h-[78vh]"
@@ -270,7 +270,7 @@ export default function KenyaCountyCoverageMap({ languageMetrics }: CountyCovera
           </div>
         </div>
 
-        <div className="rounded-[1.75rem] border border-neutral-200 bg-white p-6 sm:p-8 shadow-sm xl:sticky xl:top-24">
+        <div className=" border border-neutral-200 bg-white p-6 sm:p-8 shadow-sm xl:sticky xl:top-24">
           {selectedCounty ? (
             <>
               <div className="flex items-start justify-between gap-4 mb-6">
@@ -331,7 +331,7 @@ export default function KenyaCountyCoverageMap({ languageMetrics }: CountyCovera
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-accent-700 mb-3">Contribution Missions</p>
                   <div className="space-y-3">
                     {countyMissions.map((mission) => (
-                      <div key={`${selectedCounty.countyCode}-${mission.code}`} className="rounded-xl border border-white/80 bg-white/80 p-3">
+                      <div key={`${selectedCounty.countyCode}-${mission.code}`} className="rounded-xl border border-white/80 bg-card p-3">
                         <p className="text-sm font-black text-neutral-900">{mission.label}</p>
                         <p className="mt-1 text-sm text-neutral-700 font-medium">{mission.detail}</p>
                       </div>

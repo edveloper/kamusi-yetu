@@ -134,7 +134,7 @@ export default function ConceptGapsPage() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 -mt-8">
-        <div className="bg-neutral-50 rounded-[2rem] border border-neutral-200 shadow-soft p-6 md:p-10">
+        <div className="bg-neutral-50 border border-neutral-200 shadow-soft p-6 md:p-10">
           <div className="mb-8">
             <label
               htmlFor="gap-language"

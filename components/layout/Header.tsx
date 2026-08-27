@@ -51,7 +51,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-ink-200 bg-paper/90 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 border-b border-ink-200 bg-paper">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
           <Link href="/" aria-label="LughaKonnect home" className="shrink-0">
             <Wordmark />

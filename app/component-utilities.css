@@ -10,7 +10,7 @@
   .card-featured {
     background-color: #ffffff;
     border: 1px solid rgba(212, 163, 115, 0.4);
-    border-radius: 0.5rem;
+    border-radius: 0;
     box-shadow: 0 2px 8px rgba(11, 107, 58, 0.08);
     transition: all 200ms ease-out;
   }
@@ -23,14 +23,14 @@
   .card-subtle {
     background-color: var(--color-accent-50);
     border: 1px solid rgba(212, 163, 115, 0.3);
-    border-radius: 0.5rem;
+    border-radius: 0;
     box-shadow: 0 2px 8px rgba(11, 107, 58, 0.08);
   }
 
   .card-dark {
     background-color: var(--color-heritage-darker);
     border: 1px solid rgba(11, 107, 58, 0.5);
-    border-radius: 0.5rem;
+    border-radius: 0;
     box-shadow: 0 4px 16px rgba(11, 107, 58, 0.12);
   }
 
@@ -40,7 +40,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.5rem;
+    border-radius: 0;
     background-color: var(--color-heritage-dark);
     color: white;
     font-weight: 900;
@@ -64,7 +64,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.5rem;
+    border-radius: 0;
     border: 2px solid var(--color-heritage-dark);
     background-color: white;
     color: var(--color-heritage-dark);
@@ -83,7 +83,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.5rem;
+    border-radius: 0;
     background-color: var(--color-accent-50);
     color: var(--color-heritage-dark);
     font-weight: 900;
@@ -168,7 +168,7 @@
   
   .input-base {
     width: 100%;
-    border-radius: 0.5rem;
+    border-radius: 0;
     padding: 0.75rem 1rem;
     font-weight: 500;
     transition: all 200ms ease-out;
@@ -189,7 +189,7 @@
 
   .input-large {
     width: 100%;
-    border-radius: 1rem;
+    border-radius: 0;
     padding: 1rem 1.5rem;
     font-weight: 600;
     transition: all 200ms ease-out;
@@ -213,7 +213,7 @@
   .badge-primary {
     display: inline-flex;
     align-items: center;
-    border-radius: 0.5rem;
+    border-radius: 0;
     padding: 0.375rem 0.75rem;
     font-size: 0.75rem;
     font-weight: 900;
@@ -226,7 +226,7 @@
   .badge-accent {
     display: inline-flex;
     align-items: center;
-    border-radius: 0.5rem;
+    border-radius: 0;
     padding: 0.375rem 0.75rem;
     font-size: 0.75rem;
     font-weight: 900;
@@ -239,7 +239,7 @@
   .badge-dark {
     display: inline-flex;
     align-items: center;
-    border-radius: 0.5rem;
+    border-radius: 0;
     padding: 0.375rem 0.75rem;
     font-size: 0.75rem;
     font-weight: 900;
@@ -280,6 +280,6 @@
   .focus-visible-ring:focus {
     outline: none;
     box-shadow: 0 0 0 4px rgba(212, 163, 115, 0.3);
-    border-radius: 0.5rem;
+    border-radius: 0;
   }
 }

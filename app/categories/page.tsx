@@ -31,7 +31,7 @@ export default function CategoriesPage() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {CATEGORIES.map((category) => (
             <Link key={category.id} href={`/search?category=${category.id}`} className="group">
-              <div className="bg-neutral-100 rounded-[2.5rem] p-10 border border-accent-200 shadow-soft hover:shadow-xl hover:border-accent-300 hover:-translate-y-2 transition-all duration-500 h-full flex flex-col">
+              <div className="bg-neutral-100 p-10 border border-accent-200 shadow-soft hover:shadow-xl hover:border-accent-300 hover:-translate-y-2 transition-all duration-500 h-full flex flex-col">
                 <div className="w-20 h-20 bg-accent-50 rounded-3xl flex items-center justify-center text-sm font-black uppercase tracking-widest mb-8 group-hover:bg-accent-100 group-hover:scale-110 transition-all duration-500">
                   {category.icon}
                 </div>
@@ -55,7 +55,7 @@ export default function CategoriesPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 mt-24">
-        <div className="bg-accent-50 rounded-[2rem] p-12 border-2 border-accent-200 text-center">
+        <div className="bg-accent-50 p-12 border-2 border-accent-200 text-center">
           <h3 className="text-2xl font-black text-heritage-dark font-display mb-4">Suggest a New Topic</h3>
           <p className="text-neutral-500 font-medium mb-8">
             If there is a domain we should track more clearly, we can extend the

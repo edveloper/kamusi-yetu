@@ -445,7 +445,7 @@ export default function RecordEntryAudio({
           ) : (
             <button
               onClick={stop}
-              className="inline-flex items-center gap-2 rounded-[2.5rem] bg-red-600 px-6 py-3 text-xs font-black uppercase tracking-[0.22em] text-white"
+              className="inline-flex items-center gap-2 bg-red-600 px-6 py-3 text-xs font-black uppercase tracking-[0.22em] text-white"
             >
               <span aria-hidden="true" className="inline-block h-2 w-2 rounded-full bg-white" />
               Stop ({MAX_SECONDS - seconds}s)

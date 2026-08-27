@@ -139,7 +139,7 @@ export default function ConsentSettings() {
                 <button
                   onClick={handleWithdraw}
                   disabled={busy}
-                  className="rounded-[2.5rem] bg-red-600 px-6 py-3 text-xs font-black uppercase tracking-[0.22em] text-white disabled:opacity-50"
+                  className=" bg-red-600 px-6 py-3 text-xs font-black uppercase tracking-[0.22em] text-white disabled:opacity-50"
                 >
                   {busy ? 'Withdrawing…' : 'Yes, withdraw'}
                 </button>

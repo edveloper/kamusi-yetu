@@ -269,7 +269,7 @@ export default function ProfilePage() {
             
             {/* Profile Avatar Section */}
             <div className="flex flex-col items-center gap-5">
-              <div className="w-32 h-32 md:w-44 md:h-44 rounded-[2.5rem] bg-white overflow-hidden border-4 border-heritage-dark shadow-soft flex items-center justify-center">
+              <div className="w-32 h-32 md:w-44 md:h-44 bg-white overflow-hidden border-4 border-heritage-dark shadow-soft flex items-center justify-center">
                 {profile?.avatar_url ? (
                   <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
@@ -285,7 +285,7 @@ export default function ProfilePage() {
               <div className="flex flex-wrap justify-center gap-2">
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="bg-white/15 hover:bg-accent-300 border border-white/30 text-white px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
+                  className="bg-ink-800 hover:bg-accent-300 border border-white/30 text-white px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
                 >
                   Edit Profile
                 </button>
@@ -306,7 +306,7 @@ export default function ProfilePage() {
                 {profile?.bio || "Preserving the echoes of our ancestors, one word at a time."}
               </p>
               <div className="flex flex-wrap gap-3 justify-center md:justify-start items-center min-w-0">
-                <span className="bg-accent-300/20 text-accent-700 px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-accent-300/30">Contributor</span>
+                <span className="bg-ink-800 text-accent-700 px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-ink-200">Contributor</span>
                 {isUserModerator && (
                   <span className="bg-amber-500/20 text-amber-300 px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-amber-500/30 shadow-lg shadow-amber-900/20">
                     Moderator
@@ -316,7 +316,7 @@ export default function ProfilePage() {
 
                 {/* Saved count badge */}
                 {savedCount !== null && (
-                  <span className="bg-white/5 text-accent-100 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-accent-200/10">
+                  <span className="bg-ink-800 text-accent-100 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-accent-200/10">
                     Saved {savedCount}
                   </span>
                 )}
@@ -324,7 +324,7 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-ink-800 rounded-full blur-3xl"></div>
       </div>
 
       {/* Stats Grid Restored */}
@@ -336,7 +336,7 @@ export default function ProfilePage() {
             { label: 'Examples', value: stats.usageExamples },
             { label: 'Reputation', value: stats.reputation, color: 'text-accent-700' }
           ].map((s, i) => (
-            <div key={i} className="bg-neutral-100 rounded-[2rem] p-8 border border-accent-200 shadow-soft text-center transition-transform hover:translate-y-[-4px]">
+            <div key={i} className="bg-neutral-100 p-8 border border-accent-200 shadow-soft text-center transition-transform hover:translate-y-[-4px]">
               <div className={`text-3xl md:text-5xl font-black font-display mb-1 ${s.color || 'text-heritage-dark'}`}>{loadingData ? '...' : s.value}</div>
               <div className="text-[10px] font-black text-neutral-600 uppercase tracking-widest">{s.label}</div>
             </div>
@@ -347,10 +347,10 @@ export default function ProfilePage() {
       {/* Main Content Restored */}
       <div className="max-w-7xl mx-auto px-4 mt-16 grid lg:grid-cols-3 gap-12">
         <div className="lg:col-span-2">
-          <section className="bg-neutral-100 rounded-[3rem] border border-accent-200 p-8 md:p-12 shadow-soft">
+          <section className="bg-neutral-100 border border-accent-200 p-8 md:p-12 shadow-soft">
             <h2 className="text-3xl font-black text-heritage-dark font-display mb-10 uppercase tracking-tight">Archive Contributions</h2>
             {recentContributions.length === 0 ? (
-              <div className="text-center py-16 bg-accent-50 rounded-[2.5rem] border-2 border-dashed border-accent-200">
+              <div className="text-center py-16 bg-accent-50 border-2 border-dashed border-accent-200">
                 <p className="text-neutral-600 font-bold mb-4">Your contribution starts here.</p>
                 <Link href="/contribute" className="text-accent-700 font-black text-xs uppercase tracking-widest hover:underline">+ Add First Entry</Link>
               </div>
@@ -358,7 +358,7 @@ export default function ProfilePage() {
               <div className="space-y-4">
                 {recentContributions.map((c) => (
                   <Link href={`/entry/${c.id}`} key={c.id} className="block group">
-                    <div className="flex items-center justify-between p-6 rounded-[2rem] border border-accent-50 bg-accent-50/30 hover:border-accent-300 hover:bg-accent-100 transition-all shadow-soft hover:shadow-lg">
+                    <div className="flex items-center justify-between p-6 border border-accent-50 bg-accent-50/30 hover:border-accent-300 hover:bg-accent-100 transition-all shadow-soft hover:shadow-lg">
                       <div>
                         <h3 className="text-xl font-black text-heritage-dark group-hover:text-accent-700 font-display uppercase tracking-tight">{c.headword}</h3>
                         <p className="text-[10px] text-neutral-600 font-black uppercase tracking-widest mt-1">{getLanguageName(c.language_id)}</p>
@@ -376,7 +376,7 @@ export default function ProfilePage() {
 
         <div className="space-y-8">
           {isUserModerator && (
-            <section className="bg-heritage-dark rounded-[2.5rem] p-10 text-white shadow-soft relative overflow-hidden group">
+            <section className="bg-heritage-dark p-10 text-white shadow-soft relative overflow-hidden group">
               <div className="relative z-10">
                 <h2 className="text-2xl font-black font-display mb-3 uppercase italic tracking-tight">Moderator Dashboard</h2>
                 <p className="text-white/50 text-xs mb-8 leading-relaxed">Discernment is the foundation of truth.</p>
@@ -388,7 +388,7 @@ export default function ProfilePage() {
             </section>
           )}
 
-          <section className="bg-neutral-100 rounded-[2.5rem] border border-accent-200 p-10 shadow-soft">
+          <section className="bg-neutral-100 border border-accent-200 p-10 shadow-soft">
             <h2 className="text-lg font-black text-heritage-dark font-display mb-6 uppercase tracking-widest">My Languages</h2>
             <div className="flex flex-wrap gap-2 mb-8">
               {userLanguages.length > 0 ? userLanguages.map((l) => (
@@ -440,8 +440,8 @@ export default function ProfilePage() {
 
       {/* EDIT MODAL Restored */}
       {isEditing && (
-        <div className="fixed inset-0 bg-heritage-dark/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-neutral-100 rounded-[3rem] max-w-lg w-full p-8 md:p-12 shadow-soft border border-accent-200 overflow-hidden">
+        <div className="fixed inset-0 bg-heritage-dark/60 z-[100] flex items-center justify-center p-4">
+          <div className="bg-neutral-100 max-w-lg w-full p-8 md:p-12 shadow-soft border border-accent-200 overflow-hidden">
             <h2 className="text-3xl font-black font-display mb-8 text-heritage-dark uppercase">Update Record</h2>
             <form onSubmit={handleUpdateProfile} className="space-y-6">
               <div>
@@ -481,7 +481,7 @@ export default function ProfilePage() {
               </div>
               <div className="flex gap-4 pt-4">
                 <button type="button" onClick={() => setIsEditing(false)} className="flex-1 py-5 font-black text-[10px] uppercase tracking-widest text-neutral-600">Cancel</button>
-                <button type="submit" disabled={uploading} className="flex-1 py-5 bg-heritage-dark text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest shadow-xl disabled:opacity-50 transition-all">
+                <button type="submit" disabled={uploading} className="flex-1 py-5 bg-heritage-dark text-white font-black text-[10px] uppercase tracking-widest shadow-xl disabled:opacity-50 transition-all">
                   Save Changes
                 </button>
               </div>

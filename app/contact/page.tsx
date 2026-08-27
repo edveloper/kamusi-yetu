@@ -18,7 +18,7 @@ export default function ContactPage() {
           
           {/* Info Side */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="bg-neutral-100 rounded-[2.5rem] p-10 shadow-soft border border-accent-300/30">
+            <div className="bg-neutral-100 p-10 shadow-soft border border-ink-200">
               <h2 className="text-3xl font-black mb-8 font-display text-heritage-dark">Get in Touch</h2>
               
               <div className="space-y-8">

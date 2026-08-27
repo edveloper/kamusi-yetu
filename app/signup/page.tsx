@@ -111,7 +111,7 @@ export default function SignupPage() {
   if (success) {
     return (
       <div className="min-h-screen bg-neutral-100 flex items-center justify-center py-12 px-4">
-        <div className="max-w-md w-full text-center bg-neutral-100 rounded-[3rem] border border-accent-200 shadow-soft p-12">
+        <div className="max-w-md w-full text-center bg-neutral-100 border border-accent-200 shadow-soft p-12">
           <div className="w-20 h-20 bg-accent-100 text-accent-700 rounded-full flex items-center justify-center text-3xl mx-auto mb-6">
             *
           </div>
@@ -127,7 +127,7 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-neutral-100 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-64 bg-heritage-dark -translate-y-1/2 rounded-b-[5rem] z-0"></div>
+      <div className="absolute top-0 left-0 w-full h-64 bg-heritage-dark -translate-y-1/2 z-0"></div>
 
       <div className="max-w-2xl w-full mx-auto relative z-10">
         <div className="text-center mb-10">
@@ -137,7 +137,7 @@ export default function SignupPage() {
           </p>
         </div>
 
-        <div className="bg-neutral-100 rounded-[3rem] border border-accent-200 shadow-soft shadow-heritage-dark/10 p-8 md:p-12">
+        <div className="bg-neutral-100 border border-accent-200 shadow-soft shadow-heritage-dark/10 p-8 md:p-12">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <div className="bg-accent-50 border border-accent-200 text-accent-700 px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-wide">

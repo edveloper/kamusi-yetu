@@ -391,3 +391,22 @@ export async function getEntryRecordings(entryId: string): Promise<EntryRecordin
 
   return signed.filter((item): item is EntryRecording => item !== null)
 }
+
+export type CorpusHeadline = {
+  indigenous_entries: number
+  public_entries_including_bridge: number
+  languages: number
+  awaiting_curation: number
+  awaiting_orthography: number
+}
+
+/** The honest figures, from the view rather than from four separate counts. */
+export const getCorpusHeadline = unstable_cache(
+  async (): Promise<CorpusHeadline | null> => {
+    const { data, error } = await supabase.from('corpus_headline').select('*').maybeSingle()
+    if (error || !data) return null
+    return data as CorpusHeadline
+  },
+  ['public-corpus-headline'],
+  { revalidate: 300 }
+)

@@ -139,16 +139,16 @@ export default function ExplorePageContent({
           </div>
 
           <div className="mt-6 flex flex-wrap justify-center gap-2 text-sm">
-            <Link className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20" href="/search">
+            <Link className="px-4 py-2 rounded-full bg-ink-800 hover:bg-ink-800 border border-white/20" href="/search">
               Full Dictionary
             </Link>
-            <Link className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20" href="/search?kind=phrase">
+            <Link className="px-4 py-2 rounded-full bg-ink-800 hover:bg-ink-800 border border-white/20" href="/search?kind=phrase">
               Browse Phrases
             </Link>
-            <Link className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20" href="/search?letter=A">
+            <Link className="px-4 py-2 rounded-full bg-ink-800 hover:bg-ink-800 border border-white/20" href="/search?letter=A">
               Browse A-Z
             </Link>
-            <Link className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20" href="/translate">
+            <Link className="px-4 py-2 rounded-full bg-ink-800 hover:bg-ink-800 border border-white/20" href="/translate">
               Go to Translate
             </Link>
           </div>
@@ -232,7 +232,7 @@ export default function ExplorePageContent({
                 </div>
                 <Link
                   href="/explore"
-                  className="rounded-full border border-accent-200 bg-white/90 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-accent-700 hover:bg-white transition"
+                  className="rounded-full border border-accent-200 bg-card px-4 py-2 text-[10px] font-black uppercase tracking-widest text-accent-700 hover:bg-white transition"
                 >
                   Clear County
                 </Link>
@@ -243,7 +243,7 @@ export default function ExplorePageContent({
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {countyLanguageCards.map((lang) => (
                   <Link href={`/search?language=${lang.id}`} key={`county-${lang.id}`} className="group">
-                    <div className="bg-accent-50 rounded-[2rem] p-6 border border-accent-300/30 shadow-soft hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full">
+                    <div className="bg-accent-50 p-6 border border-ink-200 shadow-soft hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full">
                       <div className="flex justify-between items-start mb-6">
                         <div className="w-12 h-12 bg-accent-100 rounded-xl flex items-center justify-center text-xs font-black text-heritage-dark">
                           KE
@@ -308,7 +308,7 @@ export default function ExplorePageContent({
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {visibleLanguages.map((lang) => (
                     <Link href={`/search?language=${lang.id}`} key={lang.id} className="group">
-                      <div className="bg-accent-50 rounded-[2rem] p-6 border border-accent-300/30 shadow-soft hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full">
+                      <div className="bg-accent-50 p-6 border border-ink-200 shadow-soft hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full">
                         <div className="flex justify-between items-start mb-5">
                           <div className="w-12 h-12 bg-accent-100 rounded-xl flex items-center justify-center text-xs font-black text-heritage-dark">KE</div>
                           <span className="text-[10px] font-black text-accent-700 bg-accent-100 px-3 py-1 rounded-full uppercase tracking-[0.15em]">{lang.code || 'KEN'}</span>
@@ -351,7 +351,7 @@ export default function ExplorePageContent({
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {(expandedCategories ? CATEGORIES : CATEGORIES.slice(0, 5)).map((category) => (
             <Link href={`/search?category=${category.id}`} key={category.id} className="group">
-              <div className="bg-accent-50 rounded-[2rem] p-8 text-center border border-accent-300/30 shadow-soft hover:border-accent-400 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col items-center justify-center">
+              <div className="bg-accent-50 p-8 text-center border border-ink-200 shadow-soft hover:border-accent-400 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col items-center justify-center">
                 <span className="text-2xl mb-4 group-hover:text-accent-700 transition-colors">{category.icon}</span>
                 <h3 className="text-sm font-black text-heritage-dark group-hover:text-accent-700 transition-colors tracking-tight leading-tight">{category.name}</h3>
                 <div className="mt-4 inline-block bg-accent-100 px-3 py-1 rounded-full border border-accent-300">
@@ -376,7 +376,7 @@ export default function ExplorePageContent({
               <Link href="/contribute" className="px-8 py-4 rounded-lg bg-accent-300 text-heritage-dark font-black text-lg hover:bg-accent-400 transition shadow-soft">
                 Add a word
               </Link>
-              <Link href="/contribute?type=phrase" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-accent-300/20 transition">
+              <Link href="/contribute?type=phrase" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-ink-800 transition">
                 Add a phrase
               </Link>
             </div>

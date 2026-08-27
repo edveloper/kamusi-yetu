@@ -67,7 +67,7 @@ export default async function HomePage() {
                 name="q"
                 formMode
                 placeholder="Find a word, a phrase, a memory..."
-                inputClassName="w-full rounded-2xl border border-accent-300/40 bg-neutral-100 text-neutral-900 placeholder:text-neutral-600 px-6 py-4 pr-28 font-semibold shadow-soft focus:border-accent-300 focus:ring-4 focus:ring-heritage-light/20 outline-none transition"
+                inputClassName="w-full rounded-2xl border border-ink-200 bg-neutral-100 text-neutral-900 placeholder:text-neutral-600 px-6 py-4 pr-28 font-semibold shadow-soft focus:border-accent-300 focus:ring-4 focus:ring-heritage-light/20 outline-none transition"
               />
               <button
                 type="submit"
@@ -77,9 +77,9 @@ export default async function HomePage() {
               </button>
             </form>
             <div className="mt-4 flex flex-wrap justify-center gap-3 text-xs text-white">
-              <span className="rounded-full bg-accent-300/20 px-4 py-2">{stats.totalLanguages} languages preserved</span>
-              <span className="rounded-full bg-accent-300/20 px-4 py-2">{stats.totalEntries.toLocaleString()} verified entries</span>
-              <span className="rounded-full bg-accent-300/20 px-4 py-2">
+              <span className="rounded-full bg-ink-800 px-4 py-2">{stats.totalLanguages} languages preserved</span>
+              <span className="rounded-full bg-ink-800 px-4 py-2">{stats.totalEntries.toLocaleString()} verified entries</span>
+              <span className="rounded-full bg-ink-800 px-4 py-2">
                 {stats.totalPhrases > 0 ? `${stats.totalPhrases.toLocaleString()} phrase packs` : 'Growing phrase collection'}
               </span>
             </div>
@@ -88,7 +88,7 @@ export default async function HomePage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 -mt-10 relative z-20">
-        <div className="mb-10 surface-card p-6 md:p-8 border-accent-300/40">
+        <div className="mb-10 surface-card p-6 md:p-8 border-ink-200">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-heritage-dark mb-2">Our Progress</p>
@@ -101,7 +101,7 @@ export default async function HomePage() {
               {maturityLevels.map((level) => (
                 <span
                   key={level}
-                  className="rounded-lg border border-accent-300/30 bg-accent-50 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-accent-700"
+                  className="rounded-lg border border-ink-200 bg-accent-50 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-accent-700"
                 >
                   {level}
                 </span>
@@ -113,7 +113,7 @@ export default async function HomePage() {
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <Link href={wordOfTheDay ? `/entry/${wordOfTheDay.id}` : '#'}>
-              <div className="surface-card group h-full border-accent-300/40 transition hover:border-accent-300 hover:shadow-medium">
+              <div className="surface-card group h-full border-ink-200 transition hover:border-accent-300 hover:shadow-medium">
                 <div className="p-8 md:p-10 space-y-6">
                   <div className="inline-flex items-center rounded-lg bg-accent-100 px-4 py-2 text-sm font-semibold text-accent-900">
                     Word to Remember
@@ -152,7 +152,7 @@ export default async function HomePage() {
               <div className="space-y-5">
                 {latest.map((entry) => (
                   <Link key={entry.id} href={`/entry/${entry.id}`} className="block">
-                    <div className="rounded-lg border border-accent-300/30 bg-accent-50 p-5 hover:border-accent-300 hover:shadow-soft transition">
+                    <div className="rounded-lg border border-ink-200 bg-accent-50 p-5 hover:border-accent-300 hover:shadow-soft transition">
                       <p className="text-lg font-bold text-neutral-900 mb-1">{entry.headword}</p>
                       <p className="text-[10px] uppercase tracking-[0.25em] text-heritage-dark font-bold mb-3">{entry.language?.name}</p>
                       <p className="text-sm text-neutral-700 italic line-clamp-2">"{entry.primary_definition}"</p>
@@ -172,7 +172,7 @@ export default async function HomePage() {
               View All
             </Link>
           </div>
-          <div className="mb-6 rounded-lg border border-accent-300/40 bg-accent-50 px-5 py-4 pattern-beads">
+          <div className="mb-6 rounded-lg border border-ink-200 bg-accent-50 px-5 py-4 pattern-beads">
             <p className="text-sm text-accent-900 font-semibold leading-relaxed">
               Language expansion is in progress. If your language has fewer entries, your contributions have immediate impact.
             </p>
@@ -180,10 +180,10 @@ export default async function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {languages.slice(0, 6).map((lang) => (
               <Link key={lang.id} href={`/search?language=${lang.id}`} className="group">
-                <div className="bg-neutral-100 border border-accent-300/30 p-6 rounded-lg hover:border-accent-300 hover:shadow-soft hover:bg-accent-50/50 transition-all h-full flex flex-col">
+                <div className="bg-neutral-100 border border-ink-200 p-6 rounded-lg hover:border-accent-300 hover:shadow-soft hover:bg-accent-50/50 transition-all h-full flex flex-col">
                   <div className="flex items-center justify-between mb-3">
                     <p className="font-black text-neutral-900 group-hover:text-heritage-dark transition-colors">{lang.name}</p>
-                    <span className="text-[9px] font-black uppercase tracking-widest text-heritage-dark bg-accent-100 border border-accent-300/40 px-2 py-1 rounded-md">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-heritage-dark bg-accent-100 border border-ink-200 px-2 py-1 rounded-md">
                       {(lang.code || 'KE').toUpperCase()}
                     </span>
                   </div>
@@ -205,10 +205,10 @@ export default async function HomePage() {
               <Link href="/contribute/gaps" className="px-8 py-4 rounded-lg bg-accent-300 text-heritage-dark font-black text-lg hover:bg-accent-400 transition shadow-soft">
                 Show me what&apos;s missing
               </Link>
-              <Link href="/contribute" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-accent-300/20 transition">
+              <Link href="/contribute" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-ink-800 transition">
                 Add any word
               </Link>
-              <Link href="/contribute?type=phrase" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-accent-300/20 transition">
+              <Link href="/contribute?type=phrase" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-ink-800 transition">
                 Add a phrase
               </Link>
             </div>

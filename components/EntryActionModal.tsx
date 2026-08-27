@@ -306,8 +306,8 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
   const update = (patch: Partial<FormState>) => setForm((prev) => ({ ...prev, ...patch }))
 
   return (
-    <div className="fixed inset-0 bg-neutral-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true">
-      <div className="bg-white rounded-[2.5rem] max-w-3xl w-full p-6 md:p-10 shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-neutral-900/60 z-[100] flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true">
+      <div className="bg-white max-w-3xl w-full p-6 md:p-10 shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-4 z-20 flex justify-end">
           <button onClick={onClose} aria-label="Close" className="text-neutral-600 hover:text-neutral-900 font-black text-xl p-2">x</button>
         </div>

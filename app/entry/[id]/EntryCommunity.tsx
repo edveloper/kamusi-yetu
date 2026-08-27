@@ -429,7 +429,7 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
       </div>
 
       <main className="max-w-4xl mx-auto px-4 mt-8">
-        <div className="bg-neutral-100 rounded-[3rem] border border-accent-300/30 p-8 md:p-14 shadow-soft">
+        <div className="bg-neutral-100 border border-ink-200 p-8 md:p-14 shadow-soft">
           <div className="space-y-10">
             {/* Likes */}
             <section className="pt-8 border-t border-neutral-100">

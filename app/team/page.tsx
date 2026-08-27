@@ -16,9 +16,9 @@ export default function TeamPage() {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 -mt-16 relative z-20">
-        <section className="bg-neutral-100 rounded-[3rem] shadow-soft border border-accent-300/30 p-10 md:p-16 mb-12">
+        <section className="bg-neutral-100 shadow-soft border border-ink-200 p-10 md:p-16 mb-12">
           <div className="flex items-center gap-6 mb-10">
-            <div className="w-20 h-20 bg-accent-100 text-heritage-dark rounded-[1.5rem] flex items-center justify-center text-4xl font-black font-display">
+            <div className="w-20 h-20 bg-accent-100 text-heritage-dark flex items-center justify-center text-4xl font-black font-display">
               E
             </div>
             <div>
@@ -34,7 +34,7 @@ export default function TeamPage() {
             <p className="text-lg text-neutral-600 leading-relaxed font-medium">
               My role isn't only technical. I own the product direction, the data model, the moderation workflow, and the translation architecture. The aim is practical: preserve vocabulary, support learners, and build translation data good enough to make Kenyan languages usable in real software.
             </p>
-            <div className="border-l-4 border-accent-300/40 pl-8 py-4 bg-accent-50/30 rounded-r-3xl">
+            <div className="border-l-4 border-ink-200 pl-8 py-4 bg-accent-50/30 rounded-r-3xl">
               <p className="text-xl text-neutral-800 leading-relaxed font-bold">
                 &ldquo;If our languages are absent from the systems shaping the future, then our communities are absent from that future too. LughaKonnect is one way of changing that.&rdquo;
               </p>
@@ -46,7 +46,7 @@ export default function TeamPage() {
         </section>
 
         <section className="grid lg:grid-cols-2 gap-8 mb-20">
-          <div className="bg-accent-50 p-10 rounded-[2.5rem] border border-accent-300/30 shadow-soft">
+          <div className="bg-accent-50 p-10 border border-ink-200 shadow-soft">
             <div className="w-16 h-16 bg-accent-100 text-heritage-dark rounded-2xl flex items-center justify-center text-3xl mb-8">
               DB
             </div>
@@ -56,7 +56,7 @@ export default function TeamPage() {
             </p>
           </div>
 
-          <div className="bg-heritage-dark p-10 rounded-[2.5rem] text-white shadow-soft relative overflow-hidden">
+          <div className="bg-heritage-dark p-10 text-white shadow-soft relative overflow-hidden">
             <div className="relative z-10">
               <div className="w-16 h-16 bg-accent-100 text-heritage-dark rounded-2xl flex items-center justify-center text-3xl mb-8 border border-white/10">
                 OK
@@ -66,11 +66,11 @@ export default function TeamPage() {
                 The long-term team should include engineers, linguists, native speakers, moderators, educators, and partner organizations who can help grow the lexicon with quality and cultural accuracy.
               </p>
             </div>
-            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/5 rounded-full"></div>
+            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-ink-800 rounded-full"></div>
           </div>
         </section>
 
-        <section className="bg-neutral-100 rounded-[3rem] shadow-soft border border-accent-300/20 p-10 md:p-16 mb-16">
+        <section className="bg-neutral-100 shadow-soft border border-ink-200 p-10 md:p-16 mb-16">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
             <div>
               <p className="text-sm font-black uppercase tracking-widest text-accent-700">Connected Work</p>
@@ -100,7 +100,7 @@ export default function TeamPage() {
               <Link href="/contact" className="px-8 py-4 rounded-lg bg-accent-300 text-heritage-dark font-black text-lg hover:bg-accent-400 transition shadow-soft">
                 Contact the Founder
               </Link>
-              <Link href="/contribute" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-accent-300/20 transition">
+              <Link href="/contribute" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-ink-800 transition">
                 Start Contributing
               </Link>
             </div>

@@ -46,7 +46,7 @@ export default function LoginPage() {
           <p className="text-neutral-500 font-medium">Sign in to continue your preservation work.</p>
         </div>
 
-        <div className="bg-neutral-100 rounded-[2.5rem] shadow-soft shadow-heritage-dark/5 border border-accent-200 p-8 md:p-12">
+        <div className="bg-neutral-100 shadow-soft shadow-heritage-dark/5 border border-accent-200 p-8 md:p-12">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <div className="bg-red-50 border border-red-100 text-red-700 px-5 py-4 rounded-2xl text-sm font-bold flex items-center gap-3">

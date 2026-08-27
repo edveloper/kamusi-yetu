@@ -399,7 +399,7 @@ export default function TrendingPage() {
                   const maturity = getLanguageMaturityDefinition(language.maturity)
                   return (
                     <Link key={language.id} href={`/search?language=${encodeURIComponent(language.id)}`} className="block">
-                    <div key={language.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 hover:bg-neutral-100 hover:border-accent-300/40 transition">
+                    <div key={language.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 hover:bg-neutral-100 hover:border-ink-200 transition">
                         <div className="flex items-start justify-between gap-4 mb-3">
                           <div>
                             <p className="text-lg font-black text-neutral-900">{language.name}</p>
@@ -474,12 +474,12 @@ export default function TrendingPage() {
             <p className="text-neutral-600 font-medium">Latest contributions and the words getting the most love from the community.</p>
           </div>
           <div className="grid lg:grid-cols-2 gap-6">
-            <div className="bg-neutral-100 rounded-3xl border border-accent-300/30 p-8 shadow-soft">
+            <div className="bg-neutral-100 rounded-3xl border border-ink-200 p-8 shadow-soft">
               <h3 className="text-2xl font-black font-display text-heritage-dark mb-6">Latest Additions</h3>
               <div className="space-y-3">
                 {newestEntries.map((entry) => (
                   <Link key={entry.id} href={`/entry/${entry.id}`} className="block">
-                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 hover:bg-neutral-100 hover:border-accent-300/40 transition">
+                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 hover:bg-neutral-100 hover:border-ink-200 transition">
                       <div className="flex items-center justify-between gap-4">
                         <div className="min-w-0">
                           <p className="font-black text-neutral-900 truncate">{entry.headword}</p>
@@ -497,12 +497,12 @@ export default function TrendingPage() {
               </div>
             </div>
 
-            <div className="bg-neutral-100 rounded-3xl border border-accent-300/30 p-8 shadow-soft">
+            <div className="bg-neutral-100 rounded-3xl border border-ink-200 p-8 shadow-soft">
               <h3 className="text-2xl font-black font-display text-heritage-dark mb-6">Most Appreciated</h3>
               <div className="space-y-3">
                 {topEntries.map((entry) => (
                   <Link key={entry.id} href={`/entry/${entry.id}`} className="block">
-                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 hover:bg-neutral-100 hover:border-accent-300/40 transition">
+                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 hover:bg-neutral-100 hover:border-ink-200 transition">
                       <div className="flex items-center justify-between gap-4">
                         <div className="min-w-0">
                           <p className="font-black text-neutral-900 truncate">{entry.headword}</p>
@@ -532,7 +532,7 @@ export default function TrendingPage() {
             <p className="text-neutral-600 font-medium">Context and multi-word expressions are the next layer. These languages need more phrase entries and usage examples.</p>
           </div>
           <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-6">
-            <div className="bg-heritage-dark rounded-3xl border border-accent-300/20 p-8 shadow-soft text-white">
+            <div className="bg-heritage-dark rounded-3xl border border-ink-200 p-8 shadow-soft text-white">
               <h3 className="text-2xl font-black font-display mb-6">Phrase Spotlight</h3>
               <div className="space-y-4">
                 {phraseSpotlights.map((phrase) => (
@@ -599,7 +599,7 @@ export default function TrendingPage() {
                 <Link href="/contribute" className="px-8 py-4 rounded-lg bg-accent-300 text-heritage-dark font-black text-lg hover:bg-accent-400 transition shadow-soft">
                   Start Contributing
                 </Link>
-                <Link href="/explore" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-accent-300/20 transition">
+                <Link href="/explore" className="px-8 py-4 rounded-lg border-2 border-accent-300 text-white font-black text-lg hover:bg-ink-800 transition">
                   Explore Dictionary
                 </Link>
               </div>

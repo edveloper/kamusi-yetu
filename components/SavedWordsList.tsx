@@ -62,7 +62,7 @@ export default function SavedWordsList({
   }
 
   return (
-    <section className="bg-white rounded-[2.5rem] border border-neutral-200 p-6 shadow-sm" role="region" aria-label="Saved words">
+    <section className="bg-white border border-neutral-200 p-6 shadow-sm" role="region" aria-label="Saved words">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-black font-display uppercase tracking-widest">Saved Words</h3>
         <div className="flex items-center gap-2">

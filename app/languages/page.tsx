@@ -49,7 +49,7 @@ export default function LanguagesPage() {
       {/* Content Area */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10">
         {loading ? (
-          <div className="bg-neutral-100 rounded-[2.5rem] shadow-soft p-20 text-center border border-accent-200">
+          <div className="bg-neutral-100 shadow-soft p-20 text-center border border-accent-200">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-accent-300 mx-auto mb-6"></div>
             <p className="text-neutral-500 font-black uppercase tracking-widest text-xs">Gathering Dialects...</p>
           </div>
@@ -57,7 +57,7 @@ export default function LanguagesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {languages.map((lang) => (
               <Link key={lang.id} href={`/search?language=${lang.id}`} className="group">
-                <div className="bg-accent-50 rounded-[2rem] shadow-soft border border-accent-300/30 p-8 h-full flex flex-col hover:shadow-lg hover:-translate-y-2 transition-all duration-300">
+                <div className="bg-accent-50 shadow-soft border border-ink-200 p-8 h-full flex flex-col hover:shadow-lg hover:-translate-y-2 transition-all duration-300">
                   <div className="flex items-start justify-between mb-8">
                     <div className="flex-1">
                       <h3 className="text-3xl font-black text-heritage-dark mb-2 font-display group-hover:text-accent-700 transition-colors">
@@ -94,7 +94,7 @@ export default function LanguagesPage() {
 
         {/* Empty State */}
         {!loading && languages.length === 0 && (
-          <div className="text-center py-20 bg-neutral-100 rounded-[2.5rem] border-2 border-dashed border-accent-200">
+          <div className="text-center py-20 bg-neutral-100 border-2 border-dashed border-accent-200">
             <div className="text-6xl mb-6">🌍</div>
             <h3 className="text-2xl font-black text-heritage-dark font-display mb-2">No Languages Found</h3>
             <p className="text-neutral-500 mb-8 max-w-xs mx-auto">Be the pioneer who adds the first linguistic data for your community.</p>

@@ -305,7 +305,7 @@ export default function ContributePage() {
   if (status === 'success') {
     return (
       <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-6">
-        <div className="bg-neutral-100 rounded-[3rem] p-12 max-w-xl w-full text-center shadow-soft border border-accent-200">
+        <div className="bg-neutral-100 p-12 max-w-xl w-full text-center shadow-soft border border-accent-200">
           <div className="w-24 h-24 bg-accent-50 text-accent-700 rounded-3xl flex items-center justify-center text-5xl mx-auto mb-8 animate-bounce">🎊</div>
           <h2 className="text-4xl font-black text-heritage-dark mb-4 font-display tracking-tight">Asante Sana!</h2>
           <p className="text-neutral-500 mb-10 text-xl font-medium leading-relaxed">
@@ -339,7 +339,7 @@ export default function ContributePage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 -mt-10 relative z-20">
-        <form onSubmit={handleSubmit} className="bg-neutral-50 rounded-[2.5rem] shadow-xl border border-neutral-200 overflow-hidden">
+        <form onSubmit={handleSubmit} className="bg-neutral-50 shadow-xl border border-neutral-200 overflow-hidden">
           <div className="h-2 bg-heritage-dark w-full"></div>
           
           <div className="p-8 md:p-14">
@@ -677,7 +677,7 @@ export default function ContributePage() {
                 />
               </div>
 
-              <div className="rounded-2xl border border-accent-300/30 bg-accent-50 p-4">
+              <div className="rounded-2xl border border-ink-200 bg-accent-50 p-4">
                 <p className="text-[11px] font-black text-accent-700 uppercase tracking-widest mb-1">
                   Bridge Rule
                 </p>

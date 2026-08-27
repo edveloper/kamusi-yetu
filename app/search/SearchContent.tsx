@@ -103,7 +103,7 @@ export default function SearchContent() {
               language={langParam}
               onPlainEnter={(value) => updateUrl({ q: value })}
               placeholder="Search headword or meaning..."
-              inputClassName="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white px-6 py-4 rounded-xl focus:bg-white focus:text-neutral-900 transition-all font-bold placeholder:text-accent-100/40"
+              inputClassName="w-full bg-ink-800 border border-white/20 text-white px-6 py-4 rounded-xl focus:bg-white focus:text-neutral-900 transition-all font-bold placeholder:text-accent-100/40"
             />
           </div>
         </div>
@@ -214,7 +214,7 @@ export default function SearchContent() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {results.map((entry) => (
               <Link href={`/entry/${entry.id}`} key={entry.id} className="group">
-                <div className="bg-neutral-50 p-8 rounded-[2rem] border border-neutral-200 hover:border-heritage-dark transition-all h-full flex flex-col shadow-sm hover:shadow-xl">
+                <div className="bg-neutral-50 p-8 border border-neutral-200 hover:border-heritage-dark transition-all h-full flex flex-col shadow-sm hover:shadow-xl">
                   {(() => {
                     const englishBridge = compactBridgeText(entry.english_translation)
                     const swahiliBridge = compactBridgeText(entry.swahili_translation)
@@ -263,7 +263,7 @@ export default function SearchContent() {
         )}
 
         {!loading && results.length === 0 && (
-          <div className="text-center py-24 border-2 border-dashed border-neutral-200 rounded-[3rem] bg-neutral-50">
+          <div className="text-center py-24 border-2 border-dashed border-neutral-200 bg-neutral-50">
             <p className="text-neutral-500 font-black uppercase tracking-widest text-xs mb-4">No entries match this filter set</p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <button

@@ -425,7 +425,7 @@ export default function ModeratePage() {
 
   if (!isUserModerator) return (
     <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-4">
-      <div className="bg-neutral-100 p-12 rounded-[2.5rem] shadow-soft text-center max-w-md border border-accent-200">
+      <div className="bg-neutral-100 p-12 shadow-soft text-center max-w-md border border-accent-200">
         <h2 className="text-3xl font-black text-heritage-dark mb-4 font-display tracking-tighter uppercase">Access Denied</h2>
         <p className="text-neutral-500 font-medium mb-8">This chamber is reserved for community elders and guardians.</p>
         <Link href="/profile" className="inline-block bg-heritage-dark text-white px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-heritage-darker transition">Return to Profile</Link>
@@ -444,11 +444,11 @@ export default function ModeratePage() {
             </div>
 
             <div className="flex flex-wrap gap-4">
-              <div className="bg-white/95 p-4 rounded-2xl border border-white/20">
+              <div className="bg-card p-4 rounded-2xl border border-white/20">
                 <div className="text-[10px] font-black text-neutral-500 uppercase tracking-widest mb-1">Weekly Reviews</div>
                 <div className="text-3xl font-black text-heritage-dark">{loadingData ? '...' : modStats.thisWeek}</div>
               </div>
-              <div className="bg-white/95 p-4 rounded-2xl border border-white/20">
+              <div className="bg-card p-4 rounded-2xl border border-white/20">
                 <div className="text-[10px] font-black text-neutral-500 uppercase tracking-widest mb-1">Guardian Score</div>
                 <div className="text-3xl font-black text-heritage-dark">{loadingData ? '...' : modStats.score}</div>
               </div>
@@ -586,13 +586,13 @@ export default function ModeratePage() {
 
           <div className="lg:col-span-3 pb-20">
             {loadingData ? (
-              <div className="bg-white p-20 rounded-[2.5rem] border border-neutral-200 text-center">
+              <div className="bg-white p-20 border border-neutral-200 text-center">
                 <div className="animate-spin rounded-full h-10 w-10 border-4 border-neutral-100 border-t-heritage-dark mx-auto"></div>
               </div>
             ) : (
               <div className="space-y-6">
                 {filteredList.some((item) => isPhraseItem(item) && getModerationGaps(item).includes('usage example')) && (
-                  <div className="bg-accent-50 border border-accent-100 rounded-[2rem] p-6 shadow-soft">
+                  <div className="bg-accent-50 border border-accent-100 p-6 shadow-soft">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div>
                         <p className="text-[10px] font-black text-accent-700 uppercase tracking-[0.2em] mb-2">Phrase Review Priority</p>
@@ -616,7 +616,7 @@ export default function ModeratePage() {
                   const isPhrase = isPhraseItem(submission)
                   const gaps = getModerationGaps(submission)
                   return (
-                    <div key={submission.id} className={`bg-neutral-50 rounded-[2.5rem] border-2 transition-all overflow-hidden ${reviewingId === submission.id ? 'border-heritage-dark shadow-2xl scale-[1.01]' : 'border-neutral-50 shadow-sm hover:shadow-md'}`}>
+                    <div key={submission.id} className={`bg-neutral-50 border-2 transition-all overflow-hidden ${reviewingId === submission.id ? 'border-heritage-dark shadow-2xl scale-[1.01]' : 'border-neutral-50 shadow-sm hover:shadow-md'}`}>
                       <div className="p-8 md:p-10">
                         <div className="flex flex-wrap items-center gap-4 mb-6">
                           <span className="bg-accent-50 text-accent-700 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
@@ -788,7 +788,7 @@ export default function ModeratePage() {
                 })}
 
                 {filteredList.length === 0 && (
-                  <div className="bg-neutral-100 p-24 rounded-[3rem] border border-accent-200 text-center shadow-soft">
+                  <div className="bg-neutral-100 p-24 border border-accent-200 text-center shadow-soft">
                     <h3 className="text-2xl font-black text-heritage-dark mb-2 font-display uppercase tracking-tighter">Clear Horizon</h3>
                     <p className="text-neutral-500 font-medium font-serif italic">No pending submissions to review right now.</p>
                   </div>
