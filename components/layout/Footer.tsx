@@ -3,7 +3,7 @@ import { CORPUS_LICENCE } from '@/lib/constants/site'
 
 const COLUMNS = [
   {
-    heading: 'Use it',
+    heading: 'Use It',
     links: [
       { name: 'Browse', href: '/explore' },
       { name: 'Translate', href: '/translate' },
@@ -11,10 +11,10 @@ const COLUMNS = [
     ],
   },
   {
-    heading: 'Build it',
+    heading: 'Build It',
     links: [
-      { name: 'Fill a gap', href: '/contribute/gaps' },
-      { name: 'Add a word', href: '/contribute' },
+      { name: 'Fill A Gap', href: '/contribute/gaps' },
+      { name: 'Add A Word', href: '/contribute' },
       { name: 'Standards', href: '/guidelines' },
       { name: 'Reviewers', href: '/moderators' },
     ],
@@ -22,7 +22,7 @@ const COLUMNS = [
   {
     heading: 'About',
     links: [
-      { name: 'The project', href: '/about' },
+      { name: 'The Project', href: '/about' },
       { name: 'Contact', href: '/contact' },
     ],
   },

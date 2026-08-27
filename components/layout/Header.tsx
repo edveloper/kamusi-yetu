@@ -82,18 +82,18 @@ export default function Header() {
               (user ? (
                 <div className="hidden items-center gap-3 md:flex">
                   <Link href="/profile" className="text-[0.9375rem] font-semibold text-ink-700 hover:text-ink-900">
-                    Your work
+                    Your Work
                   </Link>
                   <button
                     onClick={() => signOut()}
                     className="text-[0.9375rem] font-semibold text-ink-500 hover:text-ink-900"
                   >
-                    Sign out
+                    Sign Out
                   </button>
                 </div>
               ) : (
                 <Link href="/login" className="hidden btn-secondary py-2 text-sm md:inline-flex">
-                  Sign in
+                  Sign In
                 </Link>
               ))}
 
@@ -149,18 +149,18 @@ export default function Header() {
             {user ? (
               <>
                 <Link href="/profile" className="block py-2 text-lg font-semibold text-paper">
-                  Your work
+                  Your Work
                 </Link>
                 <button
                   onClick={() => signOut()}
                   className="block py-2 text-lg font-semibold text-ink-300"
                 >
-                  Sign out
+                  Sign Out
                 </button>
               </>
             ) : (
               <Link href="/login" className="btn-on-dark mt-2 w-full">
-                Sign in
+                Sign In
               </Link>
             )}
           </div>
@@ -168,7 +168,7 @@ export default function Header() {
           <ul className="mt-8 space-y-2 border-t border-ink-800 pt-6">
             {[
               { name: 'About', href: '/about' },
-              { name: 'Method', href: '/guidelines' },
+              { name: 'Standards', href: '/guidelines' },
               { name: 'Contact', href: '/contact' },
             ].map((item) => (
               <li key={item.href}>
