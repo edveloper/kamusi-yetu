@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import Dropdown, { type DropdownOption } from '@/components/ui/Dropdown'
 import { searchSuggestions, type EntrySuggestion } from '@/lib/api/entries'
 import type { TranslatableLanguage } from '@/lib/public-site'
 
@@ -119,7 +120,17 @@ export default function TranslateControls({
     }
   }
 
-  const selectClass = 'select select-dark'
+  // Both pickers list the same languages, so the options are built once. The
+  // native name is the second line, because someone looking for their own
+  // language looks for the name they call it, not the English one. The count is
+  // there so a language with nothing in it is visible before it is chosen
+  // rather than after a translation comes back empty.
+  const languageOptions: DropdownOption[] = languages.map((language) => ({
+    value: language.code,
+    label: language.name,
+    hint: language.nativeName && language.nativeName !== language.name ? language.nativeName : undefined,
+    meta: language.entries > 0 ? `${language.entries.toLocaleString()} words` : 'empty',
+  }))
 
   const nothingFound = searched && !checking && hints.length === 0 && text.trim().length > 1
 
@@ -135,23 +146,18 @@ export default function TranslateControls({
           <label htmlFor="from-lang" className="label mb-2 block text-ink-400">
             From
           </label>
-          <div>
-            <select
-              id="from-lang"
-              value={source}
-              onChange={(event) => {
-                setSource(event.target.value)
-                go({ from: event.target.value })
-              }}
-              className={selectClass}
-            >
-              {languages.map((language) => (
-                <option key={language.id} value={language.code}>
-                  {language.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Dropdown
+            id="from-lang"
+            value={source}
+            onChange={(next) => {
+              setSource(next)
+              go({ from: next })
+            }}
+            options={languageOptions}
+            tone="dark"
+            aria-label="Translate from"
+            searchPlaceholder="Find a language"
+          />
         </div>
 
         <button
@@ -176,23 +182,18 @@ export default function TranslateControls({
           <label htmlFor="to-lang" className="label mb-2 block text-ink-400">
             Into
           </label>
-          <div>
-            <select
-              id="to-lang"
-              value={target}
-              onChange={(event) => {
-                setTarget(event.target.value)
-                go({ to: event.target.value })
-              }}
-              className={selectClass}
-            >
-              {languages.map((language) => (
-                <option key={language.id} value={language.code}>
-                  {language.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Dropdown
+            id="to-lang"
+            value={target}
+            onChange={(next) => {
+              setTarget(next)
+              go({ to: next })
+            }}
+            options={languageOptions}
+            tone="dark"
+            aria-label="Translate into"
+            searchPlaceholder="Find a language"
+          />
         </div>
       </div>
 

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/contexts/AuthContext'
 import { getLanguages } from '@/lib/api/languages'
+import Dropdown from '@/components/ui/Dropdown'
 import { groupLanguages } from '@/lib/constants/languageGroups'
 import {
   getConceptGaps,
@@ -160,23 +161,22 @@ function ContributeGaps() {
           <label htmlFor="gap-language" className="label mb-2 block text-ink-600">
             Your language
           </label>
-          <select
+          <Dropdown
             id="gap-language"
             value={languageId}
-            onChange={(event) => setLanguageId(event.target.value)}
-            className="select select-lg"
-          >
-            <option value="">Choose a language</option>
-            {groupLanguages(languages).map((group) => (
-              <optgroup key={group.key} label={group.label}>
-                {group.languages.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
+            onChange={setLanguageId}
+            options={groupLanguages(languages).map((group) => ({
+              label: group.label,
+              options: group.languages.map((item) => ({
+                value: item.id,
+                label: item.name,
+              })),
+            }))}
+            placeholder="Choose a language"
+            size="lg"
+            aria-label="Choose a language"
+            searchPlaceholder="Find your language"
+          />
 
           {coverage && (
             <div className="mt-4">

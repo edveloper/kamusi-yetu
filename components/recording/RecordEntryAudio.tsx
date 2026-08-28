@@ -21,6 +21,7 @@ import {
   WHY_WE_ASK,
 } from '@/lib/constants/consent'
 import { COUNTY_LANGUAGE_PRESENCE } from '@/lib/constants/languageCountyPresence'
+import Dropdown from '@/components/ui/Dropdown'
 
 type Props = {
   entryId: string
@@ -355,17 +356,21 @@ export default function RecordEntryAudio({
               Where you learned it
             </label>
             <p className="text-xs text-ink-600 mb-2">{WHY_WE_ASK.county}</p>
-            <select
+            <Dropdown
               id="speaker-county"
               value={form.home_county}
-              onChange={(event) => setForm({ ...form, home_county: event.target.value })}
-              className="select"
-            >
-              <option value="">Prefer not to say</option>
-              {countyChoices.map((county) => (
-                <option key={county.countyCode} value={county.countyCode}>{county.countyName}</option>
-              ))}
-            </select>
+              onChange={(next) => setForm({ ...form, home_county: next })}
+              options={[
+                { value: '', label: 'Prefer not to say' },
+                ...countyChoices.map((county) => ({
+                  value: county.countyCode,
+                  label: county.countyName,
+                })),
+              ]}
+              placeholder="Prefer not to say"
+              aria-label="Home county"
+              searchPlaceholder="Find a county"
+            />
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4">
@@ -373,32 +378,34 @@ export default function RecordEntryAudio({
               <label htmlFor="speaker-age" className="label mb-2 block text-ink-600">
                 Age
               </label>
-              <select
+              <Dropdown
                 id="speaker-age"
                 value={form.age_band}
-                onChange={(event) => setForm({ ...form, age_band: event.target.value })}
-                className="select"
-              >
-                <option value="">Prefer not to say</option>
-                {AGE_BANDS.map((band) => (
-                  <option key={band.value} value={band.value}>{band.label}</option>
-                ))}
-              </select>
+                onChange={(next) => setForm({ ...form, age_band: next })}
+                options={[
+                  { value: '', label: 'Prefer not to say' },
+                  ...AGE_BANDS.map((band) => ({ value: band.value, label: band.label })),
+                ]}
+                placeholder="Prefer not to say"
+                searchable={false}
+                aria-label="Age band"
+              />
             </div>
             <div>
               <label htmlFor="speaker-gender" className="label mb-2 block text-ink-600">
                 Voice
               </label>
-              <select
+              <Dropdown
                 id="speaker-gender"
                 value={form.gender}
-                onChange={(event) => setForm({ ...form, gender: event.target.value })}
-                className="select"
-              >
-                {GENDER_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
+                onChange={(next) => setForm({ ...form, gender: next })}
+                options={GENDER_OPTIONS.map((option) => ({
+                  value: option.value,
+                  label: option.label,
+                }))}
+                searchable={false}
+                aria-label="Voice"
+              />
             </div>
           </div>
         </div>

@@ -625,77 +625,261 @@ img {
 
 
 /* ---------------------------------------------------------------------------
- * Selects.
+ * Dropdown.
  *
- * The native control is kept, because it is the one thing on a phone that is
- * genuinely better than anything reimplemented in JavaScript: it opens the
- * system picker, it scrolls with a thumb, and it works with a screen reader
- * without any help. What gets replaced is only the chrome.
- *
- * appearance: none removes the platform arrow, and a background-image draws
- * ours, so no wrapper element is needed and the control stays a real <select>.
+ * The visual language is ours, not the reference board's. Sharp corners, one
+ * hard rule between rows, ink and paper, the fisheye for the current choice.
+ * What is borrowed is the behaviour: a filter inside the panel, a group heading
+ * that holds while its own rows scroll under it, a second line for the native
+ * name, and a count on the right so a language with nothing in it says so
+ * before it is picked rather than after.
  * ------------------------------------------------------------------------- */
-.select {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 100%;
-  padding: 0.75rem 2.75rem 0.75rem 1rem;
+.dropdown-trigger {
   font-family: var(--font-sans);
-  font-size: 1rem;
   color: var(--color-ink-900);
   background-color: var(--color-card);
   border: 1px solid var(--color-ink-300);
   border-radius: 0;
   cursor: pointer;
-  transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
-
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23C2152A' stroke-width='1.8'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 12px 8px;
+  transition: border-color 140ms ease-out, box-shadow 140ms ease-out;
 }
 
-.select:hover { border-color: var(--color-ink-500); }
+.dropdown-trigger:hover:not(:disabled) { border-color: var(--color-ink-500); }
+.dropdown-trigger:disabled { cursor: not-allowed; opacity: .55; }
 
-.select:focus-visible {
+.dropdown-trigger:focus-visible,
+.dropdown-trigger.is-open {
   outline: none;
   border-color: var(--color-ink-900);
   box-shadow: inset 0 -2px 0 0 var(--color-signal-500);
 }
 
-/* Grouped options carry the language family, and browsers render the group
- * label in italics by default, which reads as an error rather than a heading. */
-.select optgroup {
-  font-style: normal;
-  font-weight: 600;
-  color: var(--color-ink-600);
-  background: var(--color-paper-warm);
-}
+.dropdown-placeholder { color: var(--color-ink-400); }
 
-.select option {
-  font-weight: 400;
-  color: var(--color-ink-900);
-  background: var(--color-card);
-  padding: 0.5rem;
+.dropdown-chevron {
+  color: var(--color-signal-500);
+  transition: transform 160ms cubic-bezier(.2, .8, .2, 1);
 }
+.dropdown-trigger.is-open .dropdown-chevron { transform: rotate(180deg); }
 
 /* On the ink ground. */
-.select-dark {
+.dropdown-trigger-dark {
   color: var(--color-paper);
   background-color: var(--color-ink-800);
   border-color: var(--color-ink-700);
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23D6A85C' stroke-width='1.8'/%3E%3C/svg%3E");
 }
-
-.select-dark:hover { border-color: var(--color-ink-500); }
-
-.select-dark:focus-visible {
+.dropdown-trigger-dark:hover:not(:disabled) { border-color: var(--color-ink-500); }
+.dropdown-trigger-dark:focus-visible,
+.dropdown-trigger-dark.is-open {
   border-color: var(--color-sand-300);
   box-shadow: inset 0 -2px 0 0 var(--color-sand-300);
 }
+.dropdown-trigger-dark .dropdown-chevron { color: var(--color-sand-300); }
+.dropdown-trigger-dark .dropdown-placeholder { color: var(--color-ink-400); }
 
-.select-dark optgroup { color: var(--color-ink-300); background: var(--color-ink-900); }
-.select-dark option { color: var(--color-paper); background: var(--color-ink-800); }
+/* --------------------------------------------------------------- the panel */
+.dropdown-layer { position: fixed; inset: 0; z-index: 90; }
 
-/* A larger variant for the one select that is the point of its page. */
-.select-lg { padding-top: 0.9375rem; padding-bottom: 0.9375rem; font-size: 1.125rem; }
+/* On a desktop the page stays visible behind the panel, so the scrim exists
+ * only to catch the click that dismisses it. The phone sheet tints it. */
+.dropdown-scrim { position: absolute; inset: 0; }
+
+.dropdown-panel {
+  position: absolute;
+  left: var(--dd-left);
+  top: var(--dd-top);
+  width: var(--dd-width);
+  min-width: 15rem;
+  display: flex;
+  flex-direction: column;
+  max-height: var(--dd-max);
+  background: var(--color-card);
+  border: 1px solid var(--color-ink-900);
+  border-radius: 0;
+  box-shadow: var(--shadow-strong);
+  outline: none;
+  transform-origin: top center;
+  animation: lk-dd-open 150ms cubic-bezier(.2, .8, .2, 1) both;
+}
+
+/* Flipped, the panel hangs above its trigger. Translating it by its own height
+ * avoids measuring that height in script and laying out twice. */
+.dropdown-panel[data-flip='up'] {
+  transform: translateY(-100%);
+  transform-origin: bottom center;
+  animation-name: lk-dd-open-up;
+}
+
+@keyframes lk-dd-open {
+  from { opacity: 0; transform: translateY(-6px) scaleY(.97); }
+  to   { opacity: 1; transform: translateY(0) scaleY(1); }
+}
+
+@keyframes lk-dd-open-up {
+  from { opacity: 0; transform: translateY(calc(-100% + 6px)) scaleY(.97); }
+  to   { opacity: 1; transform: translateY(-100%) scaleY(1); }
+}
+
+/* -------------------------------------------------------------- the filter */
+.dropdown-search {
+  display: flex;
+  align-items: center;
+  gap: .625rem;
+  padding: .625rem .875rem;
+  border-bottom: 1px solid var(--color-ink-900);
+  background: var(--color-paper-warm);
+  color: var(--color-ink-500);
+  flex: none;
+}
+
+.dropdown-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: var(--font-sans);
+  font-size: .9375rem;
+  color: var(--color-ink-900);
+}
+.dropdown-search input::placeholder { color: var(--color-ink-400); }
+
+.dropdown-search button {
+  font-size: .6875rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--color-signal-600);
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------------- the rows */
+.dropdown-list {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* The family heading stays readable while its own rows scroll under it. */
+.dropdown-group {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: .5rem .875rem .375rem;
+  font-size: .6875rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--color-ink-500);
+  background: var(--color-paper-warm);
+  border-bottom: 1px solid var(--color-ink-200);
+}
+
+.dropdown-option {
+  display: flex;
+  align-items: baseline;
+  gap: .625rem;
+  padding: .5625rem .875rem;
+  border-bottom: 1px solid var(--color-ink-200);
+  cursor: pointer;
+  animation: lk-dd-row 220ms ease-out both;
+  animation-delay: calc(var(--i, 0) * 12ms);
+}
+
+@keyframes lk-dd-row {
+  from { opacity: 0; transform: translateX(-4px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* One highlight, driven by the keyboard and the pointer alike, so arrowing and
+ * hovering cannot disagree about which row is current. */
+.dropdown-option[data-active] { background: var(--color-ink-900); }
+.dropdown-option[data-active] .dropdown-label { color: var(--color-paper); }
+.dropdown-option[data-active] .dropdown-hint,
+.dropdown-option[data-active] .dropdown-meta { color: var(--color-ink-300); }
+.dropdown-option[data-active] .dropdown-tick { color: var(--color-sand-300); }
+
+.dropdown-option[data-disabled] { cursor: not-allowed; opacity: .45; }
+.dropdown-option[data-disabled][data-active] { background: transparent; }
+.dropdown-option[data-disabled][data-active] .dropdown-label { color: var(--color-ink-900); }
+
+.dropdown-tick {
+  width: .75rem;
+  flex: none;
+  font-size: .625rem;
+  line-height: 1.4;
+  color: var(--color-signal-500);
+}
+
+.dropdown-body { flex: 1; min-width: 0; }
+
+.dropdown-label {
+  display: block;
+  font-size: .9375rem;
+  color: var(--color-ink-900);
+}
+.dropdown-option[data-selected] .dropdown-label { font-weight: 600; }
+
+.dropdown-hint {
+  display: block;
+  margin-top: .0625rem;
+  font-size: .75rem;
+  color: var(--color-ink-500);
+}
+
+.dropdown-meta {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: .6875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-500);
+}
+
+.dropdown-empty {
+  padding: 1.25rem .875rem;
+  font-size: .875rem;
+  color: var(--color-ink-600);
+}
+.dropdown-empty strong { color: var(--color-ink-900); }
+
+/* ------------------------------------------------------------- phone sheet */
+/* Anchoring a long list to a trigger near the fold puts most of it off screen,
+ * and the thumb is already at the bottom of the device. */
+@media (max-width: 639px) {
+  .dropdown-scrim {
+    background: rgba(18, 16, 14, .5);
+    animation: lk-dd-scrim 160ms ease-out both;
+  }
+
+  .dropdown-panel,
+  .dropdown-panel[data-flip='up'] {
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    max-height: 72vh;
+    border-width: 1px 0 0 0;
+    transform: none;
+    transform-origin: bottom center;
+    animation: lk-dd-sheet 200ms cubic-bezier(.2, .8, .2, 1) both;
+  }
+
+  .dropdown-option { padding-top: .8125rem; padding-bottom: .8125rem; }
+}
+
+@keyframes lk-dd-scrim { from { opacity: 0; } to { opacity: 1; } }
+@keyframes lk-dd-sheet {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dropdown-panel,
+  .dropdown-panel[data-flip='up'],
+  .dropdown-option,
+  .dropdown-scrim { animation: none; }
+  .dropdown-chevron { transition: none; }
+}
+

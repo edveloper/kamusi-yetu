@@ -676,21 +676,40 @@ export type TranslatableLanguage = {
   code: string
   name: string
   role: string
+  nativeName: string | null
+  /** Public entries, so the picker can say which languages have nothing yet. */
+  entries: number
 }
 
 /** Every active language, bridges included, since you translate through them. */
 export const getTranslatableLanguages = unstable_cache(
   async (): Promise<TranslatableLanguage[]> => {
-    const { data } = await supabase
-      .from('languages')
-      .select('id, code, name, role')
-      .eq('is_active', true)
-      .order('name')
-    return ((data ?? []) as Array<Record<string, unknown>>).map((row) => ({
+    // The counts come from the coverage view rather than a count on entries,
+    // because PostgREST caps a response at 1,000 rows and tallying client side
+    // silently undercounts the languages that are doing best.
+    const [languages, counts] = await Promise.all([
+      supabase
+        .from('languages')
+        .select('id, code, name, role, native_name')
+        .eq('is_active', true)
+        .order('name'),
+      supabase.from('language_coverage').select('language_id, public_entries'),
+    ])
+
+    const entriesById = new Map(
+      ((counts.data ?? []) as Array<Record<string, unknown>>).map((row) => [
+        String(row.language_id),
+        Number(row.public_entries ?? 0),
+      ])
+    )
+
+    return ((languages.data ?? []) as Array<Record<string, unknown>>).map((row) => ({
       id: String(row.id),
       code: String(row.code ?? ''),
       name: String(row.name ?? ''),
       role: String(row.role ?? 'indigenous'),
+      nativeName: (row.native_name as string | null) ?? null,
+      entries: entriesById.get(String(row.id)) ?? 0,
     }))
   },
   ['public-translatable-languages'],

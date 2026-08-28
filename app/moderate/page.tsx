@@ -16,6 +16,7 @@ import {
 import EntryActionModal from '@/components/EntryActionModal'
 import RecordingsQueue from '@/components/moderate/RecordingsQueue'
 import OrthographyQueue from '@/components/moderate/OrthographyQueue'
+import Dropdown from '@/components/ui/Dropdown'
 
 // Three separate jobs, not one list. Recordings and damaged spellings both
 // existed in the database with nothing surfacing them, so a submitted recording
@@ -389,17 +390,23 @@ export default function ModeratePage() {
 
             <div className="mb-8 flex flex-wrap items-center gap-3">
               <label htmlFor="mod-language" className="sr-only">Filter by language</label>
-              <select
-                id="mod-language"
-                value={languageFilter}
-                onChange={(event) => setLanguageFilter(event.target.value)}
-                className="select w-auto py-2 pr-9 text-sm"
-              >
-                <option value="all">Every language</option>
-                {languages.map((language) => (
-                  <option key={language.id} value={language.id}>{language.name}</option>
-                ))}
-              </select>
+              <div className="w-56">
+                <Dropdown
+                  id="mod-language"
+                  value={languageFilter}
+                  onChange={setLanguageFilter}
+                  options={[
+                    { value: 'all', label: 'Every language' },
+                    ...languages.map((language) => ({
+                      value: language.id,
+                      label: language.name,
+                    })),
+                  ]}
+                  className="py-2 text-sm"
+                  aria-label="Filter by language"
+                  searchPlaceholder="Find a language"
+                />
+              </div>
 
               <div className="flex gap-1">
                 {(['all', 'word', 'phrase', 'suggestion'] as const).map((kind) => (

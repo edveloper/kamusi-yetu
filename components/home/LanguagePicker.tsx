@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
+import Dropdown, { type DropdownOption } from '@/components/ui/Dropdown'
 import type { LanguageState } from '@/lib/public-site'
 
 /**
@@ -19,6 +20,24 @@ export default function LanguagePicker({ languages }: { languages: LanguageState
   const selected = useMemo(
     () => languages.find((language) => language.id === selectedId) ?? null,
     [languages, selectedId]
+  )
+
+  // The native name is the second line and the word count sits on the right,
+  // so someone scanning for their own language finds the name they call it by
+  // and can see, before choosing, whether there is anything in it yet.
+  const options: DropdownOption[] = useMemo(
+    () =>
+      languages.map((language) => ({
+        value: language.id,
+        label: language.name,
+        hint:
+          language.nativeName && language.nativeName !== language.name
+            ? language.nativeName
+            : undefined,
+        meta:
+          language.entries > 0 ? `${language.entries.toLocaleString()} words` : 'nothing yet',
+      })),
+    [languages]
   )
 
   const nextStep = (language: LanguageState) => {
@@ -57,20 +76,19 @@ export default function LanguagePicker({ languages }: { languages: LanguageState
       </label>
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <select
-          id="home-language"
-          value={selectedId}
-          onChange={(event) => setSelectedId(event.target.value)}
-          className="select select-dark select-lg sm:max-w-md"
-        >
-          <option value="">Which language do you speak?</option>
-          {languages.map((language) => (
-            <option key={language.id} value={language.id}>
-              {language.name}
-              {language.nativeName ? ` (${language.nativeName})` : ''}
-            </option>
-          ))}
-        </select>
+        <div className="sm:max-w-md sm:flex-1">
+          <Dropdown
+            id="home-language"
+            value={selectedId}
+            onChange={setSelectedId}
+            options={options}
+            placeholder="Which language do you speak?"
+            tone="dark"
+            size="lg"
+            aria-label="Choose a language"
+            searchPlaceholder="Find your language"
+          />
+        </div>
 
         {selected && (
           <Link href={`/explore?language=${selected.id}`} className="btn-on-dark shrink-0">

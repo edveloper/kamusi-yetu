@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { getLanguages } from '@/lib/api/languages'
+import Dropdown from '@/components/ui/Dropdown'
 import { groupLanguages } from '@/lib/constants/languageGroups'
 
 type Language = { id: string; name: string; code?: string | null }
@@ -187,21 +188,21 @@ function CreateAccount() {
               <label htmlFor="su-language" className="label mb-2 block text-ink-600">
                 Which language do you speak
               </label>
-              <select
+              <Dropdown
                 id="su-language"
                 value={form.language}
-                onChange={(event) => set('language', event.target.value)}
-                className="select"
-              >
-                <option value="">I would rather choose later</option>
-                {groupLanguages(languages).map((group) => (
-                  <optgroup key={group.key} label={group.label}>
-                    {group.languages.map((item) => (
-                      <option key={item.id} value={item.id}>{item.name}</option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
+                onChange={(next) => set('language', next)}
+                options={groupLanguages(languages).map((group) => ({
+                  label: group.label,
+                  options: group.languages.map((item) => ({
+                    value: item.id,
+                    label: item.name,
+                  })),
+                }))}
+                placeholder="I would rather choose later"
+                aria-label="Your main language"
+                searchPlaceholder="Find your language"
+              />
               <p className="mt-2 text-sm text-ink-600">
                 This decides which words you are asked for first. You can change it any time.
               </p>

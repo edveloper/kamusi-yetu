@@ -11,6 +11,7 @@ import { groupLanguages } from '@/lib/constants/languageGroups'
 import { CATEGORIES } from '@/lib/constants'
 import { supabase } from '@/lib/supabase'
 import RecordEntryAudio from '@/components/recording/RecordEntryAudio'
+import Dropdown from '@/components/ui/Dropdown'
 
 type Language = { id: string; name: string; code?: string | null }
 
@@ -248,22 +249,21 @@ function AddWord() {
                 <label htmlFor="c-language" className="label mb-2 block text-ink-600">
                   Language
                 </label>
-                <select
+                <Dropdown
                   id="c-language"
-                  required
                   value={form.language}
-                  onChange={(e) => set('language', e.target.value)}
-                  className="select"
-                >
-                  <option value="">Choose a language</option>
-                  {groupLanguages(languages).map((group) => (
-                    <optgroup key={group.key} label={group.label}>
-                      {group.languages.map((item) => (
-                        <option key={item.id} value={item.id}>{item.name}</option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
+                  onChange={(next) => set('language', next)}
+                  options={groupLanguages(languages).map((group) => ({
+                    label: group.label,
+                    options: group.languages.map((item) => ({
+                      value: item.id,
+                      label: item.name,
+                    })),
+                  }))}
+                  placeholder="Choose a language"
+                  aria-label="Language"
+                  searchPlaceholder="Find your language"
+                />
               </div>
 
               <div>
@@ -368,34 +368,39 @@ function AddWord() {
                       <label htmlFor="c-pos" className="label mb-2 block text-ink-600">
                         Part of speech
                       </label>
-                      <select
+                      <Dropdown
                         id="c-pos"
                         value={form.partOfSpeech}
-                        onChange={(e) => set('partOfSpeech', e.target.value)}
+                        onChange={(next) => set('partOfSpeech', next)}
+                        options={[
+                          { value: '', label: 'Not sure' },
+                          ...PARTS_OF_SPEECH.map((part) => ({ value: part, label: part })),
+                        ]}
+                        placeholder="Not sure"
+                        searchable={false}
                         disabled={isPhrase}
-                        className="select"
-                      >
-                        <option value="">Not sure</option>
-                        {PARTS_OF_SPEECH.map((part) => (
-                          <option key={part} value={part}>{part}</option>
-                        ))}
-                      </select>
+                        aria-label="Part of speech"
+                      />
                     </div>
                     <div>
                       <label htmlFor="c-category" className="label mb-2 block text-ink-600">
                         Topic
                       </label>
-                      <select
+                      <Dropdown
                         id="c-category"
                         value={form.category}
-                        onChange={(e) => set('category', e.target.value)}
-                        className="select"
-                      >
-                        <option value="">Not sure</option>
-                        {CATEGORIES.map((category) => (
-                          <option key={category.id} value={category.id}>{category.name}</option>
-                        ))}
-                      </select>
+                        onChange={(next) => set('category', next)}
+                        options={[
+                          { value: '', label: 'Not sure' },
+                          ...CATEGORIES.map((category) => ({
+                            value: category.id,
+                            label: category.name,
+                          })),
+                        ]}
+                        placeholder="Not sure"
+                        aria-label="Topic"
+                        searchPlaceholder="Find a topic"
+                      />
                     </div>
                   </div>
 

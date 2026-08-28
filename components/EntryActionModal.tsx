@@ -5,6 +5,51 @@ import type React from 'react'
 import { submitSuggestion } from '@/lib/api/suggestions'
 import { uploadEntryAudio } from '@/lib/api/entries'
 import { validateEntryRules } from '@/lib/validation/entry-rules'
+import Dropdown from '@/components/ui/Dropdown'
+
+/** Option lists, lifted out of the markup so each set can be read as a set. */
+const PART_OF_SPEECH_CHOICES = [
+  { value: '', label: 'Select part of speech' },
+  { value: 'noun', label: 'Noun' },
+  { value: 'verb', label: 'Verb' },
+  { value: 'adjective', label: 'Adjective' },
+  { value: 'adverb', label: 'Adverb' },
+  { value: 'pronoun', label: 'Pronoun' },
+  { value: 'preposition', label: 'Preposition' },
+  { value: 'conjunction', label: 'Conjunction' },
+  { value: 'interjection', label: 'Interjection' },
+  { value: 'phrase', label: 'Phrase' },
+]
+
+const EDIT_REASONS = [
+  { value: '', label: 'Select a reason' },
+  { value: 'typo', label: 'Spelling or grammar correction' },
+  { value: 'accuracy', label: 'Factually incorrect definition' },
+  { value: 'missing', label: 'Missing critical context' },
+  { value: 'enrichment', label: 'Add lexical metadata' },
+]
+
+const REPORT_REASONS = [
+  { value: '', label: 'Select a reason' },
+  { value: 'spam', label: 'Spam or nonsense' },
+  { value: 'offensive', label: 'Inappropriate or offensive content' },
+  { value: 'duplicate', label: 'Duplicate of another entry' },
+]
+
+const SOURCE_TYPES = [
+  { value: '', label: 'None' },
+  { value: 'oral', label: 'Oral' },
+  { value: 'written', label: 'Written' },
+  { value: 'url', label: 'URL' },
+  { value: 'other', label: 'Other' },
+]
+
+const CONFIDENCE_LEVELS = [
+  { value: 'low', label: 'Low' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
+]
+
 
 interface ActionModalProps {
   type: 'edit' | 'report'
@@ -375,22 +420,14 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>
                     <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Part of Speech</label>
-                    <select
+                    <Dropdown
                       value={form.part_of_speech}
-                      onChange={(e) => update({ part_of_speech: e.target.value })}
-                      className="select"
-                    >
-                      <option value="">Select part of speech...</option>
-                      <option value="noun">Noun</option>
-                      <option value="verb">Verb</option>
-                      <option value="adjective">Adjective</option>
-                      <option value="adverb">Adverb</option>
-                      <option value="pronoun">Pronoun</option>
-                      <option value="preposition">Preposition</option>
-                      <option value="conjunction">Conjunction</option>
-                      <option value="interjection">Interjection</option>
-                      <option value="phrase">Phrase</option>
-                    </select>
+                      onChange={(next) => update({ part_of_speech: next })}
+                      options={PART_OF_SPEECH_CHOICES}
+                      placeholder="Select part of speech"
+                      searchable={false}
+                      aria-label="Part of speech"
+                    />
                   </div>
                   <div>
                     <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Dialect Variant</label>
@@ -512,28 +549,14 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
 
             <div>
               <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Reason</label>
-              <select
+              <Dropdown
                 value={form.reason}
-                onChange={(e) => update({ reason: e.target.value })}
-                required
-                className="select"
-              >
-                <option value="">Select a reason...</option>
-                {isEdit ? (
-                  <>
-                    <option value="typo">Spelling / grammar correction</option>
-                    <option value="accuracy">Factually incorrect definition</option>
-                    <option value="missing">Missing critical context</option>
-                    <option value="enrichment">Add lexical metadata</option>
-                  </>
-                ) : (
-                  <>
-                    <option value="spam">Spam or nonsense</option>
-                    <option value="offensive">Inappropriate / offensive content</option>
-                    <option value="duplicate">Duplicate of another entry</option>
-                  </>
-                )}
-              </select>
+                onChange={(next) => update({ reason: next })}
+                options={isEdit ? EDIT_REASONS : REPORT_REASONS}
+                placeholder="Select a reason"
+                searchable={false}
+                aria-label="Reason"
+              />
             </div>
 
             <div>
@@ -551,17 +574,14 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
                 <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Source Type</label>
-                <select
+                <Dropdown
                   value={form.source_type}
-                  onChange={(e) => update({ source_type: e.target.value })}
-                  className="select"
-                >
-                  <option value="">None</option>
-                  <option value="oral">Oral</option>
-                  <option value="written">Written</option>
-                  <option value="url">URL</option>
-                  <option value="other">Other</option>
-                </select>
+                  onChange={(next) => update({ source_type: next })}
+                  options={SOURCE_TYPES}
+                  placeholder="None"
+                  searchable={false}
+                  aria-label="Source type"
+                />
               </div>
 
               <div>
@@ -577,15 +597,13 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
 
               <div>
                 <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Confidence</label>
-                <select
+                <Dropdown
                   value={form.confidence}
-                  onChange={(e) => update({ confidence: e.target.value })}
-                  className="select"
-                >
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
+                  onChange={(next) => update({ confidence: next })}
+                  options={CONFIDENCE_LEVELS}
+                  searchable={false}
+                  aria-label="Confidence"
+                />
               </div>
             </div>
 
