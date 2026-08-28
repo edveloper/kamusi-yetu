@@ -10,10 +10,6 @@ import {
   KENYA_COUNTY_SVG_PATHS,
   KENYA_COUNTY_SVG_VIEWBOX,
 } from '@/lib/constants/kenyaCountySvgPaths'
-import {
-  getLanguageMaturityDefinition,
-  type LanguageMaturity,
-} from '@/lib/constants/languageMaturity'
 
 type LanguageMetricLite = {
   id: string
@@ -21,7 +17,8 @@ type LanguageMetricLite = {
   name: string
   totalEntries: number
   phraseEntries: number
-  maturity: LanguageMaturity
+  /** 'indigenous', 'bridge' or 'both', straight from languages.role. */
+  role: string
   /** Share of core meanings covered. The only figure here that actually varies. */
   coveragePct: number
 }
@@ -37,14 +34,15 @@ type CountyCoverageMapProps = {
 type CountyCoverageView = CountyLanguagePresence & {
   coveredLanguageCount: number
   coveragePct: number
-  maturity: LanguageMaturity
+  /** True when the shade comes from a lingua franca rather than a local language. */
+  shadedByBridge: boolean
   mappedLanguages: Array<{
     code: string
     name: string
     totalEntries: number
     phraseEntries: number
     coveragePct: number
-    maturity: LanguageMaturity
+    isBridge: boolean
   }>
 }
 
@@ -61,22 +59,6 @@ function bucketFor(pct: number) {
 }
 
 const MARKER_CLASSES = 'fill-paper stroke-ink-700 text-ink-900'
-
-function strongestMaturity(maturities: LanguageMaturity[]) {
-  const order: LanguageMaturity[] = [
-    'phrase_ready',
-    'growing',
-    'starter',
-    'review_heavy',
-    'not_yet_covered',
-  ]
-
-  for (const key of order) {
-    if (maturities.includes(key)) return key
-  }
-
-  return 'not_yet_covered'
-}
 
 export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyCode }: CountyCoverageMapProps) {
   const [activeCountyCode, setActiveCountyCode] = useState<string>(initialCountyCode ?? 'nbr')
@@ -95,31 +77,35 @@ export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyC
           name: language!.name,
           totalEntries: language!.totalEntries,
           phraseEntries: language!.phraseEntries,
-          maturity: language!.maturity,
           coveragePct: language!.coveragePct,
+          isBridge: language!.role !== 'indigenous',
         }))
 
       const coveredLanguageCount = mappedLanguages.filter((language) => language.totalEntries > 0).length
 
-      // A county is shaded by its best-covered language. Averaging would drag
-      // a well-documented county down for every additional language mapped to
-      // it, which would punish the counties doing best.
-      const coveragePct = mappedLanguages.reduce(
+      // Shade by the best-covered LOCAL language, not simply the best-covered
+      // one. Swahili is mapped to 39 of the 47 counties as a lingua franca, and
+      // because it has the largest corpus here it was winning the max in every
+      // one of them. The map therefore painted 83% of Kenya a single shade that
+      // meant "Swahili is spoken here", which is true everywhere and so tells
+      // you nothing, while hiding the thing the page exists to show.
+      //
+      // Averaging is still wrong for the same reason it always was: it would
+      // punish a county for each extra language mapped to it. So it stays a
+      // max, taken over the local languages.
+      const local = mappedLanguages.filter((language) => !language.isBridge)
+      const shading = local.length > 0 ? local : mappedLanguages
+
+      const coveragePct = shading.reduce(
         (best, language) => Math.max(best, language.coveragePct),
         0
-      )
-
-      const maturity = strongestMaturity(
-        mappedLanguages
-          .filter((language) => language.totalEntries > 0 || language.maturity === 'review_heavy')
-          .map((language) => language.maturity)
       )
 
       return {
         ...county,
         coveredLanguageCount,
         coveragePct,
-        maturity,
+        shadedByBridge: local.length === 0,
         mappedLanguages,
       }
     })
@@ -145,15 +131,15 @@ export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyC
     countyCoverage.find((county) => county.coveredLanguageCount > 0) ||
     countyCoverage[0]
 
-  const selectedCountyMaturity = selectedCounty
-    ? getLanguageMaturityDefinition(selectedCounty.maturity)
-    : null
-
-
   const covered = countyCoverage.filter((county) => county.coveredLanguageCount > 0).length
 
+  // Point people at the thinnest LOCAL language. Sending someone to add a word
+  // to Swahili, which is the best resourced language on the site, is the one
+  // suggestion this map should never make.
   const weakest = selectedCounty
-    ? [...selectedCounty.mappedLanguages].sort((a, b) => a.totalEntries - b.totalEntries)[0]
+    ? [...selectedCounty.mappedLanguages]
+        .filter((language) => !language.isBridge)
+        .sort((a, b) => a.totalEntries - b.totalEntries)[0] ?? null
     : null
 
   return (
@@ -233,7 +219,8 @@ export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyC
             })}
           </svg>
           <p className="label mt-3 text-ink-500">
-            Hover or tap a county. The number is how many of its languages have entries.
+            Shaded by the best covered local language. Swahili and English are listed where they
+            are spoken but do not set the shade, or every county would look the same.
           </p>
         </div>
 
@@ -244,7 +231,10 @@ export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyC
                 <h3 className="display text-3xl text-ink-900">{selectedCounty.countyName}</h3>
                 <p className="label mt-1.5 text-ink-500">
                   {selectedCounty.region.replace('-', ' ')}
-                  {selectedCountyMaturity ? ` · ${selectedCountyMaturity.shortLabel}` : ''}
+                  {' · '}
+                  {selectedCounty.coveragePct > 0
+                    ? `${selectedCounty.coveragePct}% of core meanings`
+                    : 'No core meanings yet'}
                 </p>
               </div>
 
@@ -260,7 +250,6 @@ export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyC
               ) : (
                 <ul className="mt-6 border-t border-ink-200">
                   {selectedCounty.mappedLanguages.map((language) => {
-                    const maturity = getLanguageMaturityDefinition(language.maturity)
                     return (
                       <li
                         key={`${selectedCounty.countyCode}-${language.code}`}
@@ -273,7 +262,11 @@ export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyC
                           >
                             {language.name}
                           </Link>
-                          <span className="label text-ink-500">{maturity.shortLabel}</span>
+                          <span className="label text-ink-500">
+                            {language.isBridge
+                              ? 'Lingua franca'
+                              : `${language.coveragePct}% covered`}
+                          </span>
                         </div>
                         <p className="tabular mt-1 font-mono text-xs text-ink-600">
                           {language.totalEntries === 0

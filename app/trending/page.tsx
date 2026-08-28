@@ -107,7 +107,7 @@ export default async function CoveragePage() {
               totalEntries: language.public_entries,
               phraseEntries: language.phrase_entries,
               coveragePct: language.percentCovered,
-              maturity: 'starter' as const,
+              role: language.language_role,
             }))}
           />
         </div>
