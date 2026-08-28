@@ -130,8 +130,13 @@ export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyC
     [countyCoverage]
   )
 
+  // Apostrophes, hyphens and spacing differ between the presence list and the
+  // path data, so neither file has to be edited to keep them in step.
+  const countyKey = (name: string) =>
+    name.toLowerCase().replace(/[^a-z]/g, '')
+
   const countyPathMap = useMemo(
-    () => new Map(KENYA_COUNTY_SVG_PATHS.map((county) => [county.countyName, county])),
+    () => new Map(KENYA_COUNTY_SVG_PATHS.map((county) => [countyKey(county.countyName), county])),
     []
   )
 
@@ -177,7 +182,7 @@ export default function KenyaCountyCoverageMap({ languageMetrics, initialCountyC
             aria-label="Kenya county language coverage map"
           >
             {countyCoverage.map((county, index) => {
-              const countyPath = countyPathMap.get(county.countyName)
+              const countyPath = countyPathMap.get(countyKey(county.countyName))
               if (!countyPath) return null
 
               const isActive = county.countyCode === selectedCounty?.countyCode
