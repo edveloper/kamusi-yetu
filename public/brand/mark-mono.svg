@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="LughaKonnect">
+  <title>LughaKonnect</title>
+  <!-- One colour, no ground. For embroidery, stamps, engraving, a partner's
+       footer, and anywhere the identity has to survive being reduced to a
+       single ink. Inherits currentColor when inlined. -->
+  <path d="M12 12h40v40H12V12Zm6 6v28h28V18H18Z" fill="currentColor"/>
+  <rect x="26" y="26" width="12" height="12" fill="currentColor"/>
+</svg>

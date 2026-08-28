@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="LughaKonnect">
+  <title>LughaKonnect</title>
+  <!--
+    The mark is the fisheye that already prefixes every section label on the
+    site, drawn in the same hard geometry as everything else. Nothing new is
+    being introduced. The punctuation the corpus already uses is simply set at
+    the size of a logo.
+
+    The ring is the languages. The core is the shared meaning they meet at,
+    which is the concept spine the translation engine actually runs on, so the
+    mark describes the architecture rather than decorating it.
+
+    Squares, not circles, because no corner anywhere in this identity is round.
+  -->
+  <rect width="64" height="64" fill="#12100E"/>
+  <path d="M12 12h40v40H12V12Zm8 8v24h24V20H20Z" fill="#FBFAF7"/>
+  <rect x="26" y="26" width="12" height="12" fill="#C2152A"/>
+</svg>

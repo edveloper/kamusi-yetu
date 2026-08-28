@@ -34,13 +34,19 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div>
-            <Link href="/" className="font-logo text-2xl leading-none">
-              <span className="text-paper">Lugha</span>
-              <span className="text-signal-300">Konnect</span>
+            <Link href="/" className="flex items-center gap-2.5">
+              <svg viewBox="0 0 64 64" className="h-5 w-5 shrink-0" aria-hidden="true">
+                <path d="M12 12h40v40H12V12Zm8 8v24h24V20H20Z" className="fill-paper" />
+                <rect x="26" y="26" width="12" height="12" className="fill-signal-300" />
+              </svg>
+              <span className="font-logo text-2xl leading-none">
+                <span className="text-paper">Lugha</span>
+                <span className="text-signal-300">Konnect</span>
+              </span>
             </Link>
             <p className="mt-4 max-w-xs text-[0.9375rem] leading-relaxed text-ink-300">
               An open corpus of Kenya&apos;s languages, documented by the people who speak
-              them &mdash; so they are usable by the technology being built now.
+              them, so they are usable by the technology being built now.
             </p>
           </div>
 

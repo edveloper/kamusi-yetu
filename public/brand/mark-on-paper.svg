@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="LughaKonnect">
+  <title>LughaKonnect</title>
+  <!-- The same mark for light grounds. Ring in ink, core still signal red, so
+       the red stays the one accent in the identity in every context. -->
+  <rect width="64" height="64" fill="#FBFAF7"/>
+  <path d="M12 12h40v40H12V12Zm8 8v24h24V20H20Z" fill="#12100E"/>
+  <rect x="26" y="26" width="12" height="12" fill="#C2152A"/>
+</svg>

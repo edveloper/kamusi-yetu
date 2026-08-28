@@ -22,11 +22,41 @@ const NAV = [
 ]
 
 /** Typographic wordmark. Replaces a 388KB PNG of the previous brand. */
+/**
+ * The lockup.
+ *
+ * The mark is the fisheye that already prefixes every section label, drawn at
+ * logo size. Nothing new is introduced. The ring is the languages, the core is
+ * the shared meaning they meet at, which is the concept spine the translation
+ * engine actually runs on.
+ *
+ * Inline rather than an <img>, so it takes the ground it is placed on and the
+ * red stays the single accent in both directions.
+ */
 function Wordmark({ onDark = false }: { onDark?: boolean }) {
   return (
-    <span className="font-logo text-[1.35rem] leading-none sm:text-[1.5rem]">
-      <span className={onDark ? 'text-paper' : 'text-ink-900'}>Lugha</span>
-      <span className="text-signal-500">Konnect</span>
+    <span className="flex items-center gap-2.5">
+      <svg
+        viewBox="0 0 64 64"
+        className="h-[1.15rem] w-[1.15rem] shrink-0 sm:h-[1.3rem] sm:w-[1.3rem]"
+        aria-hidden="true"
+      >
+        <path
+          d="M12 12h40v40H12V12Zm8 8v24h24V20H20Z"
+          className={onDark ? 'fill-paper' : 'fill-ink-900'}
+        />
+        <rect
+          x="26"
+          y="26"
+          width="12"
+          height="12"
+          className={onDark ? 'fill-signal-300' : 'fill-signal-500'}
+        />
+      </svg>
+      <span className="font-logo text-[1.35rem] leading-none sm:text-[1.5rem]">
+        <span className={onDark ? 'text-paper' : 'text-ink-900'}>Lugha</span>
+        <span className={onDark ? 'text-signal-300' : 'text-signal-500'}>Konnect</span>
+      </span>
     </span>
   )
 }
