@@ -359,7 +359,7 @@ export default function RecordEntryAudio({
               id="speaker-county"
               value={form.home_county}
               onChange={(event) => setForm({ ...form, home_county: event.target.value })}
-              className="w-full border border-ink-300 bg-card px-4 py-3 text-ink-900 outline-none focus:border-ink-900"
+              className="select"
             >
               <option value="">Prefer not to say</option>
               {countyChoices.map((county) => (
@@ -377,7 +377,7 @@ export default function RecordEntryAudio({
                 id="speaker-age"
                 value={form.age_band}
                 onChange={(event) => setForm({ ...form, age_band: event.target.value })}
-                className="w-full border border-ink-300 bg-card px-4 py-3 text-ink-900 outline-none focus:border-ink-900"
+                className="select"
               >
                 <option value="">Prefer not to say</option>
                 {AGE_BANDS.map((band) => (
@@ -393,7 +393,7 @@ export default function RecordEntryAudio({
                 id="speaker-gender"
                 value={form.gender}
                 onChange={(event) => setForm({ ...form, gender: event.target.value })}
-                className="w-full border border-ink-300 bg-card px-4 py-3 text-ink-900 outline-none focus:border-ink-900"
+                className="select"
               >
                 {GENDER_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>

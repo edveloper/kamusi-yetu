@@ -393,7 +393,7 @@ export default function ModeratePage() {
                 id="mod-language"
                 value={languageFilter}
                 onChange={(event) => setLanguageFilter(event.target.value)}
-                className="border border-ink-300 bg-card px-3 py-2 text-sm text-ink-900 outline-none focus:border-ink-900"
+                className="select w-auto py-2 pr-9 text-sm"
               >
                 <option value="all">Every language</option>
                 {languages.map((language) => (

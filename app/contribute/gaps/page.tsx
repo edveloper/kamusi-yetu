@@ -164,7 +164,7 @@ function ContributeGaps() {
             id="gap-language"
             value={languageId}
             onChange={(event) => setLanguageId(event.target.value)}
-            className="w-full border border-ink-300 bg-card px-4 py-3.5 text-lg text-ink-900 outline-none focus:border-ink-900"
+            className="select select-lg"
           >
             <option value="">Choose a language</option>
             {groupLanguages(languages).map((group) => (

@@ -58,7 +58,7 @@ const STATUSES = [
   {
     label: 'Needs orthography review',
     tone: 'border-l-signal-500',
-    body: 'The spelling is corrupted and we will not guess at it. 358 entries are quarantined here.',
+    body: 'An old import damaged the spelling. Held back until a speaker of that language confirms the correct form, because guessing at orthography is the one thing this project must not do.',
   },
 ]
 
@@ -76,14 +76,14 @@ export default async function GuidelinesPage() {
   return (
     <div className="min-h-screen bg-paper">
       <header className="border-b border-ink-900 bg-ink-900 text-paper">
-        <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 md:py-20">
-          <p className="label text-sand-300">Standards and method</p>
-          <h1 className="display mt-4 text-4xl md:text-5xl">
+        <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 md:py-20">
+          <p className="mark label mb-5 text-signal-300">Standards</p>
+          <h1 className="display max-w-3xl text-4xl sm:text-5xl md:text-6xl">
             How a word gets in, and how you know it is right
           </h1>
-          <p className="definition mt-6 max-w-2xl text-paper">
-            This page exists so nobody has to take our word for anything. What we collect, who
-            may verify it, what our own numbers do and do not mean, and how to reuse the data.
+          <p className="definition mt-7 max-w-2xl text-ink-300">
+            What we collect, who may verify it, what our numbers do and do not mean, and how to
+            reuse the data.
           </p>
         </div>
       </header>
@@ -152,28 +152,6 @@ export default async function GuidelinesPage() {
               ))}
             </dl>
           )}
-        </section>
-
-        <section className="mb-16">
-          <h2 className="mark display mb-2 text-2xl">The spelling problem, stated plainly</h2>
-          <p className="mb-4 text-ink-700">
-            An encoding fault upstream of our earliest imports destroyed the vowels that
-            distinguish Kikuyu, Embu, Meru and Gusii orthography.{' '}
-            <span className="font-mono text-ink-900">ĩ</span> and{' '}
-            <span className="font-mono text-ink-900">ũ</span> became question marks. It affects{' '}
-            <strong className="text-ink-900">358 entries</strong>.
-          </p>
-          <p className="mb-4 text-ink-700">
-            There is no clean copy to restore from. The spreadsheets those imports came from are
-            corrupted too. Only twelve can be repaired mechanically, by matching against an intact
-            duplicate already in the corpus.
-          </p>
-          <p className="text-ink-700">
-            So we quarantine rather than guess. Those entries are hidden from search, excluded from
-            every count, and queued for a speaker to correct. Inventing spellings in a corpus whose
-            purpose is preserving how these languages are written would be the exact harm we exist
-            to prevent.
-          </p>
         </section>
 
         <section className="mb-16">

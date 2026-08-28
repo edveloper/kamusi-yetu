@@ -246,7 +246,7 @@ export async function runTranslation(params: TranslateRequest): Promise<Translat
       .eq('validation_status', 'verified')
       .eq('needs_orthography_review', false)
       .or(buildHeadwordMatchClause(text, normalized))
-      .limit(20)
+      .limit(8)
     if (sourceVerifiedErr) throw sourceVerifiedErr
 
     let sources = (sourceVerified || []) as EntryRow[]
@@ -258,7 +258,7 @@ export async function runTranslation(params: TranslateRequest): Promise<Translat
         .eq('needs_orthography_review', false)
         .neq('validation_status', 'seeded')
         .or(buildHeadwordMatchClause(text, normalized))
-        .limit(20)
+        .limit(8)
       if (sourceAnyErr) throw sourceAnyErr
       sources = (sourceAny || []) as EntryRow[]
     }
@@ -397,6 +397,15 @@ export async function runTranslation(params: TranslateRequest): Promise<Translat
       }
     }
 
+    const strong = candidates.filter((candidate) => candidate.confidence >= 0.85)
+    const distinctStrong = new Set(strong.map((c) => c.translation.trim().toLowerCase())).size
+
+    if (distinctStrong >= limit) {
+      // Enough exact answers already. Anything the pivots could add scores at
+      // most 0.6 and would be cut before it was shown.
+      return { ok: true, result: rankCandidates(candidates as RankedCandidate[], limit) }
+    }
+
     // Each source's pivot lookups are independent, so run them concurrently.
     // Previously this awaited one source at a time: with up to 20 sources and
     // four pivot paths each, a polysemous word fired 100+ serial round trips.
@@ -470,8 +479,9 @@ export async function runTranslation(params: TranslateRequest): Promise<Translat
         }
       }
 
-      // Mixed bridge path: SW -> EN -> target
-      if (targetLanguageId !== englishLanguageId && swBridge) {
+      // Mixed bridge path: SW -> EN -> target. Two extra round trips for a
+      // 0.5-confidence guess, so only when the cupboard is close to bare.
+      if (distinctStrong === 0 && targetLanguageId !== englishLanguageId && swBridge) {
         try {
           const { data: bridgeRows, error: bridgeErr } = await supabase
             .from('bridge_lexicon')
@@ -511,8 +521,8 @@ export async function runTranslation(params: TranslateRequest): Promise<Translat
         }
       }
 
-      // Mixed bridge path: EN -> SW -> target
-      if (targetLanguageId !== swahiliLanguageId && enBridge) {
+      // Mixed bridge path: EN -> SW -> target. Same trade as above.
+      if (distinctStrong === 0 && targetLanguageId !== swahiliLanguageId && enBridge) {
         try {
           const { data: bridgeRows, error: bridgeErr } = await supabase
             .from('bridge_lexicon')

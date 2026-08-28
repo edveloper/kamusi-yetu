@@ -191,7 +191,7 @@ function CreateAccount() {
                 id="su-language"
                 value={form.language}
                 onChange={(event) => set('language', event.target.value)}
-                className={field}
+                className="select"
               >
                 <option value="">I would rather choose later</option>
                 {groupLanguages(languages).map((group) => (

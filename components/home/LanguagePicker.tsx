@@ -61,7 +61,7 @@ export default function LanguagePicker({ languages }: { languages: LanguageState
           id="home-language"
           value={selectedId}
           onChange={(event) => setSelectedId(event.target.value)}
-          className="w-full border border-ink-700 bg-ink-800 px-5 py-4 text-lg text-paper outline-none focus:border-sand-300 sm:max-w-md"
+          className="select select-dark select-lg sm:max-w-md"
         >
           <option value="">Which language do you speak?</option>
           {languages.map((language) => (

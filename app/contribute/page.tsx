@@ -253,7 +253,7 @@ function AddWord() {
                   required
                   value={form.language}
                   onChange={(e) => set('language', e.target.value)}
-                  className={field}
+                  className="select"
                 >
                   <option value="">Choose a language</option>
                   {groupLanguages(languages).map((group) => (
@@ -373,7 +373,7 @@ function AddWord() {
                         value={form.partOfSpeech}
                         onChange={(e) => set('partOfSpeech', e.target.value)}
                         disabled={isPhrase}
-                        className={field}
+                        className="select"
                       >
                         <option value="">Not sure</option>
                         {PARTS_OF_SPEECH.map((part) => (
@@ -389,7 +389,7 @@ function AddWord() {
                         id="c-category"
                         value={form.category}
                         onChange={(e) => set('category', e.target.value)}
-                        className={field}
+                        className="select"
                       >
                         <option value="">Not sure</option>
                         {CATEGORIES.map((category) => (

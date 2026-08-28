@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { SITE_URL } from '@/lib/constants/site'
-import { getTranslatableLanguages, getEntryRecordings } from '@/lib/public-site'
+import { getTranslatableLanguages, getEntryRecordings, getEntrySummary } from '@/lib/public-site'
 import { runTranslation } from '@/lib/translation/engine'
 import type { TranslationPath } from '@/lib/translation/pipeline'
 import TranslateControls from '@/components/translate/TranslateControls'
@@ -95,7 +95,12 @@ export default async function TranslatePage({ searchParams }: { searchParams: Se
 
   // If the answer has a recording, you should be able to hear it. This is the
   // whole point of collecting audio and it costs one query.
-  const recordings = best?.target_entry_id ? await getEntryRecordings(best.target_entry_id) : []
+  // A bare word is not an answer. Pull the entry behind it so the result can
+  // carry its definition and be opened.
+  const [recordings, summary] = await Promise.all([
+    best?.target_entry_id ? getEntryRecordings(best.target_entry_id) : Promise.resolve([]),
+    best?.target_entry_id ? getEntrySummary(best.target_entry_id) : Promise.resolve(null),
+  ])
 
   return (
     <div className="min-h-screen bg-paper">
@@ -119,9 +124,47 @@ export default async function TranslatePage({ searchParams }: { searchParams: Se
             <p className="label mb-3 text-ink-500">
               {fromLang?.name} to {toLang?.name}
             </p>
-            <p className="vt-answer land headword break-words text-5xl text-ink-900 sm:text-6xl md:text-7xl">
-              {best.translation}
-            </p>
+            {best.target_entry_id ? (
+              <Link
+                href={`/entry/${best.target_entry_id}`}
+                className="vt-answer land headword group block break-words text-5xl text-ink-900 transition-colors hover:text-signal-600 sm:text-6xl md:text-7xl"
+              >
+                {best.translation}
+              </Link>
+            ) : (
+              <p className="vt-answer land headword break-words text-5xl text-ink-900 sm:text-6xl md:text-7xl">
+                {best.translation}
+              </p>
+            )}
+
+            {summary && (
+              <div className="land land-late mt-4 max-w-2xl">
+                <p className="label mb-2 text-ink-500">
+                  {summary.language?.name}
+                  {summary.language?.native_name ? ` · ${summary.language.native_name}` : ''}
+                  {summary.partOfSpeech ? ` · ${summary.partOfSpeech}` : ''}
+                </p>
+                {summary.definition && (
+                  <p className="definition text-ink-800">{summary.definition}</p>
+                )}
+                {(summary.english || summary.swahili) && (
+                  <dl className="mt-4 flex flex-wrap gap-x-10 gap-y-2">
+                    {summary.english && (
+                      <div>
+                        <dt className="label text-ink-500">English</dt>
+                        <dd className="text-ink-800">{summary.english}</dd>
+                      </div>
+                    )}
+                    {summary.swahili && (
+                      <div>
+                        <dt className="label text-ink-500">Kiswahili</dt>
+                        <dd className="text-ink-800">{summary.swahili}</dd>
+                      </div>
+                    )}
+                  </dl>
+                )}
+              </div>
+            )}
 
             <div className="land land-late mt-5 flex flex-wrap items-center gap-x-3 gap-y-2">
               <span className="border border-ink-900 bg-ink-900 px-2.5 py-1 text-xs font-semibold text-paper">
@@ -158,16 +201,6 @@ export default async function TranslatePage({ searchParams }: { searchParams: Se
               </div>
             )}
 
-            {best.target_entry_id && (
-              <p className="mt-6">
-                <Link
-                  href={`/entry/${best.target_entry_id}`}
-                  className="font-semibold text-signal-600 underline underline-offset-4"
-                >
-                  Open the full entry
-                </Link>
-              </p>
-            )}
           </section>
         )}
 
@@ -182,14 +215,28 @@ export default async function TranslatePage({ searchParams }: { searchParams: Se
                   style={{ '--i': index } as React.CSSProperties}
                   className="border-b border-ink-200"
                 >
-                  <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-3.5">
-                    <span className="text-xl font-semibold text-ink-900">
-                      {candidate.translation}
-                    </span>
-                    <span className="label text-ink-500">
-                      {PATH_LABEL[candidate.path_type]}
-                    </span>
-                  </div>
+                  {candidate.target_entry_id ? (
+                    <Link
+                      href={`/entry/${candidate.target_entry_id}`}
+                      className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-3.5 transition-colors hover:bg-paper-warm"
+                    >
+                      <span className="text-xl font-semibold text-ink-900">
+                        {candidate.translation}
+                      </span>
+                      <span className="label text-ink-500">
+                        {PATH_LABEL[candidate.path_type]}
+                      </span>
+                    </Link>
+                  ) : (
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-3.5">
+                      <span className="text-xl font-semibold text-ink-900">
+                        {candidate.translation}
+                      </span>
+                      <span className="label text-ink-500">
+                        {PATH_LABEL[candidate.path_type]}
+                      </span>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>

@@ -696,3 +696,26 @@ export const getTranslatableLanguages = unstable_cache(
   ['public-translatable-languages'],
   { revalidate: 300 }
 )
+
+/** The fields the Translate page needs to show a result as more than a word. */
+export async function getEntrySummary(entryId: string) {
+  if (!entryId) return null
+  const { data } = await supabase
+    .from('entries')
+    .select('id, headword, primary_definition, part_of_speech, english_translation, swahili_translation, language:languages(name, native_name)')
+    .eq('id', entryId)
+    .maybeSingle()
+
+  if (!data) return null
+  const row = data as Record<string, unknown>
+  const language = Array.isArray(row.language) ? row.language[0] : row.language
+  return {
+    id: String(row.id),
+    headword: String(row.headword ?? ''),
+    definition: (row.primary_definition as string | null) ?? null,
+    partOfSpeech: (row.part_of_speech as string | null) ?? null,
+    english: (row.english_translation as string | null) ?? null,
+    swahili: (row.swahili_translation as string | null) ?? null,
+    language: (language as { name: string; native_name: string | null } | null) ?? null,
+  }
+}

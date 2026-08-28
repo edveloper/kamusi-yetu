@@ -378,7 +378,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                     <select
                       value={form.part_of_speech}
                       onChange={(e) => update({ part_of_speech: e.target.value })}
-                      className="w-full p-3 bg-card border-2 border-ink-200 rounded-2xl"
+                      className="select"
                     >
                       <option value="">Select part of speech...</option>
                       <option value="noun">Noun</option>
@@ -516,7 +516,7 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
                 value={form.reason}
                 onChange={(e) => update({ reason: e.target.value })}
                 required
-                className="w-full p-4 bg-card border-2 border-ink-200 rounded-2xl focus:border-ink-900 outline-none font-bold text-sm"
+                className="select"
               >
                 <option value="">Select a reason...</option>
                 {isEdit ? (
@@ -551,7 +551,11 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
                 <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Source Type</label>
-                <select value={form.source_type} onChange={(e) => update({ source_type: e.target.value })} className="w-full p-3 bg-card border-2 border-ink-200 rounded-2xl">
+                <select
+                  value={form.source_type}
+                  onChange={(e) => update({ source_type: e.target.value })}
+                  className="select"
+                >
                   <option value="">None</option>
                   <option value="oral">Oral</option>
                   <option value="written">Written</option>
@@ -573,7 +577,11 @@ export default function EntryActionModal({ type, entry, onClose, onSubmit }: Act
 
               <div>
                 <label className="block text-[10px] font-semibold text-ink-600 uppercase tracking-widest mb-2">Confidence</label>
-                <select value={form.confidence} onChange={(e) => update({ confidence: e.target.value })} className="w-full p-3 bg-card border-2 border-ink-200 rounded-2xl">
+                <select
+                  value={form.confidence}
+                  onChange={(e) => update({ confidence: e.target.value })}
+                  className="select"
+                >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
                   <option value="high">High</option>
