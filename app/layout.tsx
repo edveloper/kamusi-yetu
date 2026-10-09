@@ -4,6 +4,7 @@ import { Anton, Archivo, Literata, IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
+import { GoogleAnalytics } from '@/components/google-analytics'
 import { AuthProvider } from '@/lib/contexts/AuthContext' 
 
 // Anton is the voice of the thing. Heavy, condensed, poster-loud. Archivo at a
@@ -86,6 +87,7 @@ export default function RootLayout({
           </main>
           <Footer />
         </AuthProvider>
+        <GoogleAnalytics />
       </body>
     </html>
   )
