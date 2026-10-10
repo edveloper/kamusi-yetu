@@ -10,7 +10,7 @@ import { getCorpusHeadline } from '@/lib/public-site'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Standards and method',
+  title: 'Standards and Method',
   description:
     'How a word gets into LughaKonnect, what each status means, who is allowed to verify what, and how to cite or reuse the data.',
   alternates: { canonical: `${SITE_URL}/guidelines` },

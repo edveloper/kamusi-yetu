@@ -1,4 +1,6 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
+import { CORPUS_LICENCE, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from '@/lib/constants/site'
 import { getCorpusHeadline, getLanguageDirectory } from '@/lib/public-site'
 import LanguagePicker from '@/components/home/LanguagePicker'
 import LanguageMarquee from '@/components/home/LanguageMarquee'
@@ -12,6 +14,20 @@ import SearchAutocomplete from '@/components/SearchAutocomplete'
 
 export const revalidate = 300
 
+// Set here, not in the layout: a layout canonical would be inherited by every
+// page that lacks its own.
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    url: '/',
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    locale: 'en_KE',
+  },
+}
+
 export default async function HomePage() {
   const [languages, headline] = await Promise.all([
     getLanguageDirectory(),
@@ -19,6 +35,34 @@ export default async function HomePage() {
   ])
 
   const withAudio = languages.filter((language) => language.recordings > 0).length
+
+  // The site as a whole for search engines: a searchable site, and an openly
+  // licensed dataset (entries themselves are described as DefinedTerms).
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: SITE_NAME,
+      url: SITE_URL,
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: { '@type': 'EntryPoint', urlTemplate: `${SITE_URL}/explore?q={search_term_string}` },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: `${SITE_NAME}: an open corpus of Kenya's languages`,
+      description: SITE_DESCRIPTION,
+      url: SITE_URL,
+      license: CORPUS_LICENCE.url,
+      isAccessibleForFree: true,
+      creator: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+      inLanguage: languages.map((language) => language.code),
+      keywords: ['Kenyan languages', 'dictionary', 'translation', 'Kiswahili', 'language corpus'],
+    },
+  ]
   const emptiest = [...languages]
     .filter((language) => language.entries > 0)
     .sort((a, b) => a.percentCovered - b.percentCovered)
@@ -26,6 +70,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-paper">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* ---------------------------------------------------------- hero */}
       <section className="border-b border-ink-900 bg-ink-900 text-paper">
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-24">

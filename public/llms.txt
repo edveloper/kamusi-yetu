@@ -1,0 +1,28 @@
+# LughaKonnect
+
+> LughaKonnect is an open corpus of Kenya's languages, documented by the people who speak them: words, phrases and recordings across 36 languages, anchored on English and Kiswahili, and free to reuse under CC BY 4.0.
+
+LughaKonnect is a community-built dictionary and translation platform for Kenyan languages, made by Eddie Ezekiel Ochieng.
+
+## What it offers
+
+- Search, explore and translate across 36 Kenyan languages.
+- Every entry is linked to English or Kiswahili, which act as bridge languages, so two other languages can be translated through them when no direct match exists.
+- Words and phrases contributed by speakers and checked by a reviewer before they are trusted.
+- Recordings by speakers, with their consent.
+- A gaps view showing which languages and topics most need contributions.
+
+## Using the data
+
+The corpus (headwords, definitions, translations, usage examples, phrases and recordings) is licensed under the Creative Commons Attribution 4.0 International Licence (CC BY 4.0). Attribution: LughaKonnect, lughakonnect.co.ke, CC BY 4.0.
+
+## Pages
+
+- [Home](https://lughakonnect.co.ke/)
+- [Explore](https://lughakonnect.co.ke/explore): browse and search the corpus.
+- [Translate](https://lughakonnect.co.ke/translate)
+- [Languages](https://lughakonnect.co.ke/languages)
+- [Contribute](https://lughakonnect.co.ke/contribute)
+- [Guidelines](https://lughakonnect.co.ke/guidelines): standards, method and how to use the data.
+- [About](https://lughakonnect.co.ke/about)
+- [Contact](https://lughakonnect.co.ke/contact)

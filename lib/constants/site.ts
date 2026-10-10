@@ -1,5 +1,6 @@
 export const SITE_URL = 'https://lughakonnect.co.ke'
 export const SITE_NAME = 'LughaKonnect'
+export const SITE_TITLE = `${SITE_NAME}. Kenyan Languages, Documented by Their Speakers`
 export const SITE_DESCRIPTION =
   "An open corpus of Kenya's languages, documented by the people who speak them. Words, phrases and recordings, so these languages are usable by the technology that is coming."
 

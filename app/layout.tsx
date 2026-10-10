@@ -6,6 +6,7 @@ import Header from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { GoogleAnalytics } from '@/components/google-analytics'
 import { AuthProvider } from '@/lib/contexts/AuthContext' 
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from '@/lib/constants/site'
 
 // Anton is the voice of the thing. Heavy, condensed, poster-loud. Archivo at a
 // wide width axis was respectable but polite, and polite is not the brief.
@@ -41,14 +42,11 @@ const plexMono = IBM_Plex_Mono({
   display: 'swap',
 })
 
-const SITE_NAME = 'LughaKonnect'
-const SITE_DESCRIPTION =
-  "An open corpus of Kenya's languages, documented by the people who speak them. Words, phrases and recordings, so these languages are usable by the technology that is coming."
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://lughakonnect.co.ke'),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME}. Kenyan languages, documented by their speakers`,
+    default: SITE_TITLE,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
@@ -56,13 +54,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: SITE_NAME,
-    title: `${SITE_NAME}. Kenyan languages, documented by their speakers`,
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     locale: 'en_KE',
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${SITE_NAME}. Kenyan languages, documented by their speakers`,
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
   },
 }

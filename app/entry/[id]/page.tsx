@@ -29,7 +29,7 @@ function describeEntry(entry: Entry) {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params
   const entry = await getPublicEntry(id)
-  if (!entry) return { title: 'Entry not found' }
+  if (!entry) return { title: 'Entry Not Found' }
 
   const title = `${entry.headword}. ${describeEntry(entry)}`
   const description = [

@@ -17,25 +17,25 @@ const EMAIL = 'ed.veloper10@gmail.com'
 
 const REASONS = [
   {
-    title: 'Ask to review a language',
+    title: 'Ask to Review a Language',
     body: 'Tell us which language and how you know it. Growing up with it is a complete answer.',
     subject: 'Reviewing a language on LughaKonnect',
     prompt: 'Which language, and how you know it.',
   },
   {
-    title: 'Something here is wrong',
+    title: 'Something Here Is Wrong',
     body: 'A wrong meaning, a misspelling, or a word that is not really used. Entry pages have a report link, but this works too.',
     subject: 'A correction for LughaKonnect',
     prompt: 'Which entry, and what is wrong with it.',
   },
   {
-    title: 'Work together',
+    title: 'Work Together',
     body: 'Universities, archives, language associations, and anyone holding material already collected. Also engineers and researchers.',
     subject: 'Working together on LughaKonnect',
     prompt: 'Who you are and what you have in mind.',
   },
   {
-    title: 'Using the data',
+    title: 'Using the Data',
     body: 'The corpus is CC BY 4.0, so you do not need permission. Get in touch if you want a bulk export or a format that does not exist yet.',
     subject: 'Using the LughaKonnect corpus',
     prompt: 'What you are building and what format would help.',

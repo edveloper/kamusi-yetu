@@ -165,19 +165,19 @@ export default async function AboutPage() {
           <ul className="reveal-rows border-t border-ink-200">
             {[
               {
-                title: 'A dictionary that works on a phone',
+                title: 'A Dictionary That Works on a Phone',
                 body: 'Search any Kenyan language, in English, Kiswahili, or the language itself, and hear how a word is actually said.',
               },
               {
-                title: 'Translation between Kenyan languages',
+                title: 'Translation Between Kenyan Languages',
                 body: 'Not only to and from English. Two languages that record a word for the same meaning can reach each other directly.',
               },
               {
-                title: 'Training data anyone can use',
+                title: 'Training Data Anyone Can Use',
                 body: 'Licensed CC BY 4.0 so a keyboard maker, a researcher or a speech company can build on it, provided they credit the people it came from.',
               },
               {
-                title: 'A record that outlasts its speakers',
+                title: 'A Record That Outlasts Its Speakers',
                 body: 'Some of these languages have few fluent speakers left. Written entries with recorded audio are what survive them.',
               },
             ].map((item) => (
