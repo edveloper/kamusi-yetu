@@ -91,7 +91,7 @@ export default function SearchAutocomplete({
     if (q.trim()) params.set('q', q.trim())
     if (language && language !== 'all') params.set('language', language)
     const qs = params.toString()
-    router.push(qs ? `/search?${qs}` : '/search')
+    router.push(qs ? `/explore?${qs}` : '/explore')
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

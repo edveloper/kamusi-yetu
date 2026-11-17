@@ -89,7 +89,10 @@ export async function POST(req: Request) {
           source_language_id: sourceLanguageId,
           target_language_id: targetLanguageId,
           method: methodFromPath(pathType),
-          confidence,
+          // Never the browser's number: a link created from feedback is an
+          // unreviewed claim. The engine ignores it until a reviewer marks it
+          // 'verified'; the submitted value is kept only as a hint below.
+          confidence: Math.min(confidence, 0.5),
           reviewed_status: 'pending',
           created_by: authData.user.id
         })

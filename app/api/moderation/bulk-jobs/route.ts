@@ -143,9 +143,38 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid payload.' }, { status: 400 })
     }
 
+    // Bulk edits rewrite many entries at once, so they follow the same
+    // per-language authority as single reviews. A job scoped to one language
+    // needs an approve grant for it; a job across every language needs an
+    // admin, because no single language grant covers it.
+    const userId = authData.user.id
+    async function assertBulkAuthority(languageId: string | null) {
+      if (languageId) {
+        const { data: allowed, error } = await admin.rpc('has_language_grant', {
+          p_user: userId,
+          p_language: languageId,
+          p_level: 'approve'
+        })
+        if (error || allowed !== true) {
+          throw new Error('You do not have approval rights for this language.')
+        }
+        return
+      }
+      const { data: profile } = await admin.from('user_profiles').select('role').eq('id', userId).single()
+      if (String(profile?.role || '').toLowerCase() !== 'admin') {
+        throw new Error('A job across all languages needs an admin. Choose a language.')
+      }
+    }
+
+    async function assertJobAuthority(job: JobRow) {
+      const scoped = clean((job.summary as { language_id?: string } | null)?.language_id)
+      await assertBulkAuthority(scoped || null)
+    }
+
     if (body.action === 'dry_run_backfill_bridge') {
       const limit = clampLimit(body.limit)
       const languageFilter = clean(body.languageId)
+      await assertBulkAuthority(languageFilter || null)
 
       const { data: languagesData, error: langErr } = await admin.from('languages').select('id, code')
       if (langErr) throw langErr
@@ -169,14 +198,23 @@ export async function POST(req: Request) {
         addBridgeCandidate(swToEn, row.swahili_term, row.english_term, Number(row.confidence || 0))
       }
 
-      let entriesQuery = admin
-        .from('entries')
-        .select('id, language_id, headword, english_translation, swahili_translation')
-      if (languageFilter) entriesQuery = entriesQuery.eq('language_id', languageFilter)
+      // PostgREST returns at most 1,000 rows per request, so page through.
+      // A single request silently scanned only the first 1,000 entries.
+      const entries: EntryRow[] = []
+      for (let from = 0; ; from += 1000) {
+        let entriesQuery = admin
+          .from('entries')
+          .select('id, language_id, headword, english_translation, swahili_translation')
+          .order('id')
+          .range(from, from + 999)
+        if (languageFilter) entriesQuery = entriesQuery.eq('language_id', languageFilter)
 
-      const { data: entriesData, error: entriesErr } = await entriesQuery
-      if (entriesErr) throw entriesErr
-      const entries = (entriesData || []) as EntryRow[]
+        const { data: entriesData, error: entriesErr } = await entriesQuery
+        if (entriesErr) throw entriesErr
+        const page = (entriesData || []) as EntryRow[]
+        entries.push(...page)
+        if (page.length < 1000) break
+      }
 
       const items: Array<{
         entry_id: string
@@ -261,6 +299,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Bulk job not found.' }, { status: 404 })
       }
       const job = jobData as JobRow
+      await assertJobAuthority(job)
 
       await setJobStatus(admin, jobId, 'running')
 
@@ -330,6 +369,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Bulk job not found.' }, { status: 404 })
       }
       const job = jobData as JobRow
+      await assertJobAuthority(job)
 
       await setJobStatus(admin, jobId, 'running')
 

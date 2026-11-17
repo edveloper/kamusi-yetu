@@ -21,7 +21,6 @@ The corpus (headwords, definitions, translations, usage examples, phrases and re
 - [Home](https://lughakonnect.co.ke/)
 - [Explore](https://lughakonnect.co.ke/explore): browse and search the corpus.
 - [Translate](https://lughakonnect.co.ke/translate)
-- [Languages](https://lughakonnect.co.ke/languages)
 - [Contribute](https://lughakonnect.co.ke/contribute)
 - [Guidelines](https://lughakonnect.co.ke/guidelines): standards, method and how to use the data.
 - [About](https://lughakonnect.co.ke/about)

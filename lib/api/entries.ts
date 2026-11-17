@@ -2,6 +2,7 @@
 import { supabase } from '@/lib/supabase'
 import type { CreateEntryData } from '@/lib/types/database'
 import { validateEntryRules } from '@/lib/validation/entry-rules'
+import { escapeLike, ilikeCondition } from '@/lib/postgrest-filter'
 
 const AUDIO_BUCKET = process.env.NEXT_PUBLIC_SUPABASE_AUDIO_BUCKET || 'entry-audio'
 
@@ -21,9 +22,6 @@ function normalizeText(s: string) {
     .trim()
 }
 
-function escapeLike(value: string) {
-  return value.replace(/[%,]/g, (char) => `\\${char}`)
-}
 
 
 type LanguageCodeRow = {
@@ -349,10 +347,10 @@ export async function searchSuggestions(
     .eq('needs_orthography_review', false)
     .or(
       [
-        `headword.ilike.${escaped}%`,
-        `headword.ilike.%${escaped}%`,
-        `english_translation.ilike.%${escaped}%`,
-        `swahili_translation.ilike.%${escaped}%`
+        ilikeCondition('headword', `${escaped}%`),
+        ilikeCondition('headword', `%${escaped}%`),
+        ilikeCondition('english_translation', `%${escaped}%`),
+        ilikeCondition('swahili_translation', `%${escaped}%`)
       ].join(',')
     )
     .limit(limit * 3)

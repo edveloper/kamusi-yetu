@@ -4,6 +4,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { rankCandidates, type TranslationCandidate as RankedCandidate } from '@/lib/translation/pipeline'
+import { eqCondition, escapeLike, ilikeCondition } from '@/lib/postgrest-filter'
 
 export type TranslateRequest = {
   text?: string
@@ -77,17 +78,12 @@ function addTerm(set: Set<string>, term: string | null | undefined) {
   }
 }
 
-function escapeLike(value: string) {
-  return value.replace(/[%_]/g, (char) => `\\${char}`)
-}
-
 function buildHeadwordMatchClause(rawText: string, normalized: string) {
-  const trimmed = rawText.trim()
-  const escaped = escapeLike(trimmed)
+  const escaped = escapeLike(rawText.trim())
   return [
-    `normalized_headword.eq.${normalized}`,
-    `headword.ilike.${trimmed}`,
-    `headword.ilike.%${escaped}%`
+    eqCondition('normalized_headword', normalized),
+    ilikeCondition('headword', escaped),
+    ilikeCondition('headword', `%${escaped}%`)
   ].join(',')
 }
 
@@ -122,8 +118,11 @@ async function findBridgeMatches(
 
   const column = via === 'english' ? 'english_translation' : 'swahili_translation'
   const normalizedTerms = new Set(terms.map((term) => normalizeText(term)).filter(Boolean))
-  const queries = terms.map((term) => `${column}.ilike.%${escapeLike(term)}%`)
-  let { data } = await supabase
+  const queries = terms.map((term) => ilikeCondition(column, `%${escapeLike(term)}%`))
+  // Public answers come from verified entries only. An earlier fallback also
+  // searched pending, flagged and rejected ('disputed') rows, and because this
+  // client holds the service role, row level security did not stop it.
+  const { data } = await supabase
     .from('entries')
     .select(`id, headword, ${column}`)
     .eq('language_id', targetLanguageId)
@@ -131,18 +130,6 @@ async function findBridgeMatches(
     .eq('needs_orthography_review', false)
     .or(queries.join(','))
     .limit(Math.max(limit * 4, 12))
-
-  if (!data || data.length === 0) {
-    const fallback = await supabase
-      .from('entries')
-      .select(`id, headword, ${column}`)
-      .eq('language_id', targetLanguageId)
-      .eq('needs_orthography_review', false)
-      .neq('validation_status', 'seeded')
-      .or(queries.join(','))
-      .limit(Math.max(limit * 4, 12))
-    data = fallback.data || []
-  }
 
   const matches = (data || []).filter((row: Record<string, string | null>) =>
     hasBridgeToken(row[column], normalizedTerms)
@@ -249,19 +236,8 @@ export async function runTranslation(params: TranslateRequest): Promise<Translat
       .limit(8)
     if (sourceVerifiedErr) throw sourceVerifiedErr
 
+    // Verified sources only; see findBridgeMatches for why there is no fallback.
     let sources = (sourceVerified || []) as EntryRow[]
-    if (sources.length === 0) {
-      const { data: sourceAny, error: sourceAnyErr } = await supabase
-        .from('entries')
-        .select('id, headword, normalized_headword, language_id, part_of_speech, english_translation, swahili_translation, validation_status, concept_id')
-        .eq('language_id', sourceLanguageId)
-        .eq('needs_orthography_review', false)
-        .neq('validation_status', 'seeded')
-        .or(buildHeadwordMatchClause(text, normalized))
-        .limit(8)
-      if (sourceAnyErr) throw sourceAnyErr
-      sources = (sourceAny || []) as EntryRow[]
-    }
     // KY-12. When translating FROM a bridge language, the answer often lives in
     // the TARGET row's gloss, not in a source entry. This used to run only
     // after a source entry had been found, so it never fired for the case it
@@ -282,8 +258,8 @@ export async function runTranslation(params: TranslateRequest): Promise<Translat
         .eq('validation_status', 'verified')
         .eq('needs_orthography_review', false)
         .or([
-          `${bridgeColumn}.ilike.${escapeLike(trimmed)}`,
-          `${bridgeColumn}.ilike.%${escapeLike(trimmed)}%`
+          ilikeCondition(bridgeColumn, escapeLike(trimmed)),
+          ilikeCondition(bridgeColumn, `%${escapeLike(trimmed)}%`)
         ].join(','))
         .limit(Math.max(limit * 2, 10))
 
@@ -367,6 +343,10 @@ export async function runTranslation(params: TranslateRequest): Promise<Translat
       .select('source_entry_id, target_entry_id, confidence, reviewed_status')
       .in('source_entry_id', sourceIds)
       .eq('target_language_id', targetLanguageId)
+      // Only links a reviewer has confirmed. Feedback creates 'pending' links
+      // with a confidence the browser supplied, so trusting those let any
+      // signed-in account plant a public translation.
+      .eq('reviewed_status', 'verified')
       .order('confidence', { ascending: false })
       .limit(limit)
     const edgeRows = (edgeRowsData || []) as TranslationEdgeRow[]
@@ -377,6 +357,8 @@ export async function runTranslation(params: TranslateRequest): Promise<Translat
         .from('entries')
         .select('id, headword')
         .in('id', targetIds)
+        .eq('validation_status', 'verified')
+        .eq('needs_orthography_review', false)
       const targets = (targetsData || []) as TargetEntryRow[]
 
       const targetMap = new Map(targets.map((t) => [t.id, t.headword]))

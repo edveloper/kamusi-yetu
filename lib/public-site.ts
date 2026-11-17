@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache'
 import { attachLanguageGroup } from '@/lib/constants/languageGroups'
 import { supabase } from '@/lib/supabase'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { escapeLike, ilikeCondition } from '@/lib/postgrest-filter'
 
 type LanguageRow = {
   id: string
@@ -274,8 +275,10 @@ export async function getEntryEquivalents(entry: PublicEntry, limit = 12) {
   if (!english && !swahili) return []
 
   const filters: string[] = []
-  if (english) filters.push(`english_translation.ilike.${english.replace(/[%_]/g, '')}`)
-  if (swahili) filters.push(`swahili_translation.ilike.${swahili.replace(/[%_]/g, '')}`)
+  // Glosses such as "Hello, how are you?" contain commas, which broke the
+  // unquoted filter and left those entries with no equivalents shown.
+  if (english) filters.push(ilikeCondition('english_translation', escapeLike(english)))
+  if (swahili) filters.push(ilikeCondition('swahili_translation', escapeLike(swahili)))
 
   const { data } = await supabase
     .from('entries')
@@ -515,14 +518,14 @@ export async function getBrowseResults(params: BrowseParams) {
     .eq('needs_orthography_review', false)
 
   if (q) {
-    const safe = q.replace(/[%,()]/g, ' ').trim()
+    const safe = escapeLike(q.trim())
     query = query.or(
       [
-        `headword.ilike.${safe}%`,
-        `headword.ilike.%${safe}%`,
-        `english_translation.ilike.%${safe}%`,
-        `swahili_translation.ilike.%${safe}%`,
-        `primary_definition.ilike.%${safe}%`,
+        ilikeCondition('headword', `${safe}%`),
+        ilikeCondition('headword', `%${safe}%`),
+        ilikeCondition('english_translation', `%${safe}%`),
+        ilikeCondition('swahili_translation', `%${safe}%`),
+        ilikeCondition('primary_definition', `%${safe}%`),
       ].join(',')
     )
   }

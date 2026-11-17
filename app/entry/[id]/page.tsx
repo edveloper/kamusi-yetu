@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getPublicEntry, getEntryEquivalents, getEntryRecordings } from '@/lib/public-site'
 import { SITE_NAME, SITE_URL } from '@/lib/constants/site'
+import { serializeJsonLd } from '@/lib/json-ld'
 import Waveform from '@/components/ui/Waveform'
 import Provenance from '@/components/ui/Provenance'
 import RecordEntryAudio from '@/components/recording/RecordEntryAudio'
@@ -96,7 +97,7 @@ export default async function EntryPage({ params }: Params) {
     <div className="entry-root min-h-screen bg-paper">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
 
       {/* ---- The answer, on the ink ground, above everything else ---- */}

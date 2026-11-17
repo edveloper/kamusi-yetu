@@ -31,6 +31,37 @@ type EntryBridgeRow = {
   swahili_translation: string | null
 }
 
+/**
+ * The only entry columns a moderator's edits may touch. Anything else in a
+ * request body (validation_status, trust_score, created_by...) is dropped, so
+ * status and attribution can only change through the actions themselves.
+ */
+const EDITABLE_ENTRY_FIELDS = [
+  'headword',
+  'primary_definition',
+  'part_of_speech',
+  'dialect_variant',
+  'pronunciation_ipa',
+  'etymology',
+  'audio_url',
+  'english_translation',
+  'swahili_translation',
+  'register',
+  'category',
+  'usage_example'
+] as const
+
+function pickEditableFields(input: unknown): Record<string, string> {
+  if (!input || typeof input !== 'object') return {}
+  const source = input as Record<string, unknown>
+  const picked: Record<string, string> = {}
+  for (const field of EDITABLE_ENTRY_FIELDS) {
+    const value = source[field]
+    if (typeof value === 'string' && value.trim() !== '') picked[field] = value.trim()
+  }
+  return picked
+}
+
 function cleanText(value: unknown) {
   const s = String(value ?? '').trim()
   return s.length > 0 ? s : null
@@ -178,9 +209,10 @@ async function updateEntryStatusAdmin(
   entryId: string,
   status: EntryValidationStatus,
   validatorId: string,
-  updates?: Record<string, string>
+  rawUpdates?: Record<string, string>
 ) {
-  if (updates && Object.keys(updates).length > 0) {
+  const updates = pickEditableFields(rawUpdates)
+  if (Object.keys(updates).length > 0) {
     await validateBridgeAfterUpdate(admin, entryId, updates)
 
     const usageExample = updates.usage_example
@@ -301,20 +333,7 @@ async function applySuggestionAdmin(
     suggestion?.entry_id ?? suggestion?.entry ?? suggestion?.entry_ref ?? suggestion?.entryid ?? null
   if (!entryId) throw new Error('Suggestion does not reference an entry')
 
-  const updatableFields = [
-    'headword',
-    'primary_definition',
-    'part_of_speech',
-    'dialect_variant',
-    'pronunciation_ipa',
-    'etymology',
-    'audio_url',
-    'english_translation',
-    'swahili_translation',
-    'register',
-    'category',
-    'usage_example'
-  ]
+  const updatableFields: readonly string[] = EDITABLE_ENTRY_FIELDS
 
   const updates: Record<string, string> = {}
   for (const field of updatableFields) {
@@ -424,7 +443,29 @@ export async function POST(req: Request) {
      */
     const moderatorId = authData.user.id
 
-    async function assertLanguageAuthority(entryId: string, level: 'review' | 'approve') {
+    // TEMPORARY: admins may review their own work while LughaKonnect has a
+    // single reviewer. Remove this exemption once a second reviewer exists,
+    // so that "checked by a reviewer" always means someone other than the
+    // contributor. Everyone else is already held to the rule.
+    const exemptFromSelfReview = role === 'admin'
+
+    type Level = 'review' | 'approve'
+
+    // Fails closed: anything other than an explicit true (an error, a missing
+    // function, a null) is treated as no authority. The previous check only
+    // refused on an explicit false, so a failed lookup let the action through.
+    async function assertGrant(languageId: string, level: Level) {
+      const { data: allowed, error } = await admin.rpc('has_language_grant', {
+        p_user: moderatorId,
+        p_language: languageId,
+        p_level: level
+      })
+      if (error || allowed !== true) {
+        throw new Error('You do not have review rights for this language.')
+      }
+    }
+
+    async function assertLanguageAuthority(entryId: string, level: Level) {
       const { data: entry } = await admin
         .from('entries')
         .select('language_id, created_by')
@@ -433,19 +474,58 @@ export async function POST(req: Request) {
 
       if (!entry) throw new Error('Entry not found.')
 
-      if (entry.created_by && entry.created_by === moderatorId) {
+      if (!exemptFromSelfReview && entry.created_by && entry.created_by === moderatorId) {
         throw new Error('You cannot review an entry you contributed yourself.')
       }
 
-      const { data: allowed } = await admin.rpc('has_language_grant', {
-        p_user: moderatorId,
-        p_language: entry.language_id,
-        p_level: level
-      })
+      await assertGrant(entry.language_id, level)
+    }
 
-      if (allowed === false) {
-        throw new Error('You do not have review rights for this language.')
+    async function assertSuggestionAuthority(suggestionId: string, level: Level) {
+      const { data: suggestion } = await admin
+        .from('entry_suggestions')
+        .select('entry_id, suggested_by')
+        .eq('id', suggestionId)
+        .single()
+
+      if (!suggestion?.entry_id) throw new Error('Suggestion not found.')
+      if (!exemptFromSelfReview && suggestion.suggested_by === moderatorId) {
+        throw new Error('You cannot review a change you suggested yourself.')
       }
+
+      const { data: entry } = await admin
+        .from('entries')
+        .select('language_id')
+        .eq('id', suggestion.entry_id)
+        .single()
+      if (!entry) throw new Error('Entry not found.')
+
+      await assertGrant(entry.language_id, level)
+    }
+
+    async function assertRecordingAuthority(recordingId: string) {
+      const { data: recording } = await admin
+        .from('recordings')
+        .select('entry_id, speaker:speaker_profiles(user_id)')
+        .eq('id', recordingId)
+        .single()
+
+      if (!recording?.entry_id) throw new Error('Recording not found.')
+
+      const speakerValue = recording.speaker as { user_id?: string } | Array<{ user_id?: string }> | null
+      const speaker = Array.isArray(speakerValue) ? speakerValue[0] : speakerValue
+      if (!exemptFromSelfReview && speaker?.user_id === moderatorId) {
+        throw new Error('You cannot review your own recording.')
+      }
+
+      const { data: entry } = await admin
+        .from('entries')
+        .select('language_id')
+        .eq('id', recording.entry_id)
+        .single()
+      if (!entry) throw new Error('Entry not found.')
+
+      await assertGrant(entry.language_id, 'approve')
     }
 
     const body = (await req.json()) as ModerationAction
@@ -496,6 +576,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true, result })
       }
       case 'review_suggestion': {
+        await assertSuggestionAuthority(body.itemId, 'review')
         const result = await reviewSuggestionAdmin(
           admin,
           body.itemId,
@@ -506,6 +587,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true, result })
       }
       case 'approve_recording': {
+        await assertRecordingAuthority(body.itemId)
         const { data, error } = await admin
           .from('recordings')
           .update({
@@ -521,6 +603,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true, result: data })
       }
       case 'reject_recording': {
+        await assertRecordingAuthority(body.itemId)
         const { data, error } = await admin
           .from('recordings')
           .update({
@@ -536,6 +619,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true, result: data })
       }
       case 'apply_suggestion': {
+        await assertSuggestionAuthority(body.itemId, 'approve')
         const result = await applySuggestionAdmin(admin, body.itemId, authData.user.id, body.note, body.updates)
         return NextResponse.json({ ok: true, result })
       }

@@ -5,6 +5,7 @@ import { getCorpusHeadline, getLanguageDirectory } from '@/lib/public-site'
 import LanguagePicker from '@/components/home/LanguagePicker'
 import LanguageMarquee from '@/components/home/LanguageMarquee'
 import CountUp from '@/components/ui/CountUp'
+import { serializeJsonLd } from '@/lib/json-ld'
 import SearchAutocomplete from '@/components/SearchAutocomplete'
 
 // Searchers do not arrive here. They find a word through a web search and land
@@ -70,7 +71,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
       {/* ---------------------------------------------------------- hero */}
       <section className="border-b border-ink-900 bg-ink-900 text-paper">
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-24">
