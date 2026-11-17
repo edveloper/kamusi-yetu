@@ -29,6 +29,7 @@ function CreateAccount() {
   const [form, setForm] = useState({ email: '', password: '', name: '', language: '' })
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [confirmedAge, setConfirmedAge] = useState(false)
 
   const set = (key: keyof typeof form, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -47,6 +48,10 @@ function CreateAccount() {
     event.preventDefault()
     if (form.password.length < 8) {
       setError('Use at least 8 characters for the password.')
+      return
+    }
+    if (!confirmedAge) {
+      setError('Please confirm you are 18 or over, or supervising a younger speaker.')
       return
     }
 
@@ -209,9 +214,30 @@ function CreateAccount() {
             </div>
           </div>
 
+          <label className="mt-6 flex items-start gap-3 text-sm text-ink-700">
+            <input
+              type="checkbox"
+              required
+              checked={confirmedAge}
+              onChange={(event) => setConfirmedAge(event.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-signal-600"
+            />
+            <span>
+              I am 18 or over, or I am a parent, guardian or teacher setting this up for a younger
+              speaker I will supervise.
+            </span>
+          </label>
+
           <button type="submit" disabled={busy} className="btn-primary mt-8 w-full">
             {busy ? 'Creating your account' : 'Create Account'}
           </button>
+          <p className="mt-4 text-center text-sm text-ink-600">
+            Read how we handle your details in our{' '}
+            <Link href="/privacy" className="text-signal-600 underline underline-offset-4">
+              privacy notice
+            </Link>
+            .
+          </p>
         </form>
       </div>
     </div>

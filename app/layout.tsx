@@ -5,6 +5,7 @@ import './globals.css'
 import Header from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { GoogleAnalytics } from '@/components/google-analytics'
+import { CookieBanner } from '@/components/CookieBanner'
 import { AuthProvider } from '@/lib/contexts/AuthContext' 
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from '@/lib/constants/site'
 
@@ -85,6 +86,7 @@ export default function RootLayout({
           </main>
           <Footer />
         </AuthProvider>
+        <CookieBanner />
         <GoogleAnalytics />
       </body>
     </html>

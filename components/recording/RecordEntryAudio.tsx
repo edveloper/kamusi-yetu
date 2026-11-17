@@ -283,6 +283,13 @@ export default function RecordEntryAudio({
       <Shell>
         <ul className="text-sm text-ink-700 space-y-1.5 mb-4">
           {CONSENT_SUMMARY.map((line) => <li key={line}>{line}</li>)}
+          <li>
+            The full detail is in our{' '}
+            <Link href="/privacy" className="text-signal-600 underline underline-offset-4">
+              privacy notice
+            </Link>
+            .
+          </li>
         </ul>
         <ul className="space-y-3 mb-5">
           {CONSENT_SCOPES.map((scope) => (

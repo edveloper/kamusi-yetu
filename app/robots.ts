@@ -7,11 +7,13 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        // Signed-in and operational surfaces hold nothing a crawler should index.
-        disallow: ['/api/', '/moderate', '/profile', '/login', '/signup', '/reset'],
+        // Account pages are not blocked here on purpose. They carry a noindex
+        // tag (see their layout.tsx), and a crawler only reads that tag on a
+        // page it is allowed to fetch. Blocking them let a linked URL be
+        // indexed anyway, just without a title.
+        disallow: ['/api/'],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
-    host: SITE_URL,
   }
 }

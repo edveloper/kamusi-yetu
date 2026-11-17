@@ -214,7 +214,12 @@ export default async function GuidelinesPage() {
           <p className="mb-4 text-ink-700">
             Your voice is personal data. We record only with explicit consent, stored against the
             exact wording you agreed to, and you can withdraw at any time from your profile. That
-            removes your recordings from the corpus and deletes the audio.
+            removes your recordings from the corpus and deletes the audio. Copies someone downloaded
+            before you withdrew cannot be recalled. The{' '}
+            <Link href="/privacy" className="text-signal-600 underline underline-offset-4">
+              privacy notice
+            </Link>{' '}
+            has the full detail.
           </p>
           <p className="mb-4 text-ink-700">
             Consent is split into separate permissions rather than one blanket agreement. You choose publishing

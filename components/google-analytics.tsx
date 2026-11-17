@@ -1,11 +1,30 @@
-import Script from 'next/script';
+'use client'
 
-// GA4 for LughaKonnect. Measurement IDs are public; the env var only exists to override it.
-// Preview deploys are skipped so test traffic stays out of the reports.
-const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-W2FP9YBNP6';
+import { useSyncExternalStore } from 'react'
+import Script from 'next/script'
+import {
+  GA_ID,
+  getServerChoiceSnapshot,
+  readAnalyticsChoice,
+  subscribeAnalyticsChoice,
+} from '@/lib/analytics-consent'
+
+// GA4 for LughaKonnect. Preview deploys are skipped so test traffic stays out
+// of the reports. Nothing loads until the visitor accepts analytics in the
+// cookie banner.
+
+const ENABLED =
+  process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_VERCEL_ENV !== 'preview'
 
 export function GoogleAnalytics() {
-  if (process.env.NODE_ENV !== 'production' || process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview') return null;
+  const choice = useSyncExternalStore(
+    subscribeAnalyticsChoice,
+    readAnalyticsChoice,
+    getServerChoiceSnapshot
+  )
+
+  if (!ENABLED || choice !== 'granted') return null
+
   return (
     <>
       <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
@@ -16,5 +35,5 @@ gtag('js', new Date());
 gtag('config', '${GA_ID}');`}
       </Script>
     </>
-  );
+  )
 }

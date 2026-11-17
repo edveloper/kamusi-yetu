@@ -8,7 +8,9 @@
  * Written to be read aloud and understood, not to satisfy a lawyer. Consent is
  * only meaningful if the person giving it knows what they are agreeing to.
  */
-export const CONSENT_VERSION = '2026-08-v1'
+// 2026-11-v1 adds that copies shared under CC BY before a withdrawal cannot
+// be recalled, which 2026-08-v1 left unsaid. Scope is otherwise unchanged.
+export const CONSENT_VERSION = '2026-11-v1'
 
 export type ConsentScope = {
   key: 'allow_publication' | 'allow_model_training' | 'allow_redistribution' | 'allow_attribution'
@@ -50,7 +52,7 @@ export const CONSENT_SCOPES: ConsentScope[] = [
 
 export const CONSENT_SUMMARY = [
   'Your voice is personal information. We only record it if you say yes, and you can change your mind at any time.',
-  'If you withdraw, we stop using your recordings and delete the audio files.',
+  'If you withdraw, we stop using your recordings and delete the audio files. Copies other people downloaded before then cannot be called back.',
   'You must be 18 or over to record.',
 ] as const
 

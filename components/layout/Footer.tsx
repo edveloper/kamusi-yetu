@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { CORPUS_LICENCE } from '@/lib/constants/site'
+import { CookieSettingsButton } from '@/components/CookieBanner'
 
 const COLUMNS = [
   {
@@ -24,6 +25,7 @@ const COLUMNS = [
     links: [
       { name: 'The Project', href: '/about' },
       { name: 'Contact', href: '/contact' },
+      { name: 'Privacy', href: '/privacy' },
     ],
   },
 ]
@@ -84,6 +86,7 @@ export function Footer() {
             </a>
             . Credit contributors and their communities.
           </p>
+          <CookieSettingsButton className="text-left font-semibold text-ink-300 underline underline-offset-2 hover:text-paper" />
           <p>
             Built in Kenya by{' '}
             <a
