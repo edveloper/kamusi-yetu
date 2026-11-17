@@ -13,10 +13,10 @@ import {
   getBridgeHealth,
   type BridgeHealthResponse,
 } from '@/lib/api/moderation'
-import EntryActionModal from '@/components/EntryActionModal'
 import RecordingsQueue from '@/components/moderate/RecordingsQueue'
 import OrthographyQueue from '@/components/moderate/OrthographyQueue'
 import Dropdown from '@/components/ui/Dropdown'
+import { supabase } from '@/lib/supabase'
 
 // Three separate jobs, not one list. Recordings and damaged spellings both
 // existed in the database with nothing surfacing them, so a submitted recording
@@ -125,7 +125,9 @@ export default function ModeratePage() {
   const [languageFilter, setLanguageFilter] = useState('all')
   const [kindFilter, setKindFilter] = useState<'all' | 'word' | 'phrase' | 'suggestion'>('all')
   const [busy, setBusy] = useState<Record<string, boolean>>({})
-  const [editing, setEditing] = useState<ModerationItem | null>(null)
+  // Entries with new examples or meanings from contributors, reviewed on the
+  // entry's own edit page alongside everything else about it.
+  const [additions, setAdditions] = useState<Array<{ entryId: string; headword: string; language: string; examples: number; senses: number }>>([])
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -189,6 +191,41 @@ export default function ModeratePage() {
         )
         setStats(next || { thisWeek: 0, score: 0 })
         setHealth(bridge?.summary ?? null)
+
+        // New examples and meanings, grouped by the entry they belong to.
+        const [pendingExamples, pendingSenses] = await Promise.all([
+          supabase
+            .from('entry_usage_examples')
+            .select('entry_id, entry:entries(headword, language:languages(name))')
+            .eq('validation_status', 'pending'),
+          supabase
+            .from('entry_senses')
+            .select('entry_id, entry:entries(headword, language:languages(name))')
+            .eq('validation_status', 'pending'),
+        ])
+        if (cancelled) return
+        const grouped = new Map<string, { entryId: string; headword: string; language: string; examples: number; senses: number }>()
+        const add = (rows: unknown[] | null, kind: 'examples' | 'senses') => {
+          for (const raw of (rows ?? []) as Array<Record<string, unknown>>) {
+            const entryId = String(raw.entry_id)
+            const entryValue = raw.entry as Record<string, unknown> | Array<Record<string, unknown>> | null
+            const entryRow = (Array.isArray(entryValue) ? entryValue[0] : entryValue) ?? {}
+            const langValue = entryRow.language as Record<string, unknown> | Array<Record<string, unknown>> | null
+            const lang = (Array.isArray(langValue) ? langValue[0] : langValue) ?? {}
+            const current = grouped.get(entryId) ?? {
+              entryId,
+              headword: String(entryRow.headword ?? ''),
+              language: String(lang.name ?? ''),
+              examples: 0,
+              senses: 0,
+            }
+            current[kind] += 1
+            grouped.set(entryId, current)
+          }
+        }
+        add(pendingExamples.data, 'examples')
+        add(pendingSenses.data, 'senses')
+        setAdditions([...grouped.values()])
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : 'Could not load the queue.')
@@ -256,34 +293,6 @@ export default function ModeratePage() {
     } catch (err) {
       setItems((prev) => [snapshot, ...prev])
       setError(err instanceof Error ? err.message : 'That action failed.')
-    } finally {
-      mark(item.id, false)
-    }
-  }
-
-  const completeAndApprove = async (data: Record<string, string>) => {
-    if (!editing) return
-    const item = editing
-    mark(item.id, true)
-    setError('')
-
-    const updates = Object.fromEntries(
-      Object.entries(data).filter(
-        ([, value]) => typeof value === 'string' && value.trim() !== ''
-      )
-    ) as Record<string, string>
-
-    try {
-      await runModerationAction(
-        item.item_type === 'entry'
-          ? { action: 'approve_entry', itemId: item.id, updates }
-          : { action: 'apply_suggestion', itemId: item.id, note: 'Completed by reviewer', updates }
-      )
-      drop(item.id)
-      setEditing(null)
-      await refreshStats()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not complete that entry.')
     } finally {
       mark(item.id, false)
     }
@@ -378,6 +387,40 @@ export default function ModeratePage() {
 
         {queue === 'entries' && (
           <>
+            {additions.length > 0 && (
+              <section className="mb-10 border border-ink-200 bg-paper-warm px-5 py-5">
+                <h2 className="label mb-1 text-ink-900">New examples and meanings</h2>
+                <p className="mb-4 text-sm text-ink-600">
+                  Added to entries that already exist. Open one to check them alongside the rest
+                  of the entry, then approve.
+                </p>
+                <ul className="divide-y divide-ink-200">
+                  {additions.map((a) => (
+                    <li key={a.entryId} className="flex flex-wrap items-baseline justify-between gap-3 py-3">
+                      <span>
+                        <span className="font-semibold text-ink-900">{a.headword}</span>
+                        <span className="label ml-2 text-ink-500">{a.language}</span>
+                        <span className="ml-3 text-sm text-ink-600">
+                          {[
+                            a.examples ? `${a.examples} example${a.examples === 1 ? '' : 's'}` : '',
+                            a.senses ? `${a.senses} meaning${a.senses === 1 ? '' : 's'}` : '',
+                          ]
+                            .filter(Boolean)
+                            .join(', ')}
+                        </span>
+                      </span>
+                      <Link
+                        href={`/entry/${a.entryId}/edit`}
+                        className="text-sm font-semibold text-signal-600 underline underline-offset-4"
+                      >
+                        Review In Full
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
             {health && (
               <dl className="mb-10 grid grid-cols-2 gap-x-8 gap-y-6 border-b border-ink-200 pb-8 sm:grid-cols-4">
                 {[
@@ -508,13 +551,16 @@ export default function ModeratePage() {
                         >
                           Publish
                         </button>
-                        <button
-                          onClick={() => setEditing(item)}
-                          disabled={busy[item.id]}
+                        <Link
+                          href={
+                            item.item_type === 'suggestion'
+                              ? `/entry/${item.entry_id}/edit?suggestion=${item.id}`
+                              : `/entry/${item.id}/edit`
+                          }
                           className="border border-ink-300 px-4 py-2 text-sm font-semibold text-ink-700 transition-colors hover:border-ink-900"
                         >
-                          Fix And Publish
-                        </button>
+                          Review In Full
+                        </Link>
                         <button
                           onClick={() => decide(item, 'reject')}
                           disabled={busy[item.id]}
@@ -549,14 +595,6 @@ export default function ModeratePage() {
         )}
       </main>
 
-      {editing && (
-        <EntryActionModal
-          type="edit"
-          entry={{ ...editing, currentUserId: user?.id }}
-          onClose={() => setEditing(null)}
-          onSubmit={completeAndApprove}
-        />
-      )}
     </div>
   )
 }

@@ -98,7 +98,10 @@ export default async function EntryPage({ params }: Params) {
       .join(' · ')
 
   const detail = [
-    entry.pronunciation_ipa && { label: 'Pronunciation', value: entry.pronunciation_ipa, mono: true },
+    entry.pronunciation && { label: 'How it sounds', value: entry.pronunciation },
+    entry.pronunciation_ipa && { label: 'Pronunciation in IPA', value: entry.pronunciation_ipa, mono: true },
+    entry.literal_meaning && { label: 'Word for word', value: entry.literal_meaning },
+    entry.response_text && { label: 'The usual reply', value: entry.response_text },
     entry.dialect_variant && { label: 'Dialect', value: entry.dialect_variant },
     entry.part_of_speech && { label: 'Part of speech', value: entry.part_of_speech },
     entry.category && { label: 'Domain', value: entry.category },
@@ -226,6 +229,34 @@ export default async function EntryPage({ params }: Params) {
                 </div>
               ))}
             </dl>
+          </section>
+        )}
+
+        {entry.senses.length > 0 && (
+          <section className="mb-10 border-t border-ink-200 pt-6">
+            <h2 className="mark label mb-4 text-ink-600">Other meanings</h2>
+            <ol className="space-y-4">
+              {entry.senses.map((sense, index) => (
+                <li key={index} className="flex gap-4">
+                  <span className="font-mono text-sm text-ink-500">{index + 2}</span>
+                  <div>
+                    {sense.definition && <p className="text-ink-900">{sense.definition}</p>}
+                    {(sense.english || sense.swahili) && (
+                      <p className="mt-1 text-sm text-ink-600">
+                        {[sense.english, sense.swahili].filter(Boolean).join(' · ')}
+                      </p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+
+        {entry.usage_note && (
+          <section className="mb-10 border-t border-ink-200 pt-6">
+            <h2 className="mark label mb-3 text-ink-600">How it is used</h2>
+            <p className="leading-relaxed text-ink-800">{entry.usage_note}</p>
           </section>
         )}
 

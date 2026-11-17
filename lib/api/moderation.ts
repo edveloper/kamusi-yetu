@@ -1,11 +1,11 @@
 import { supabase } from '@/lib/supabase'
 
 type ModerationPayload =
-  | { action: 'approve_entry'; itemId: string; updates?: Record<string, string> }
+  | { action: 'approve_entry'; itemId: string; updates?: Record<string, string | null> }
   | { action: 'reject_entry'; itemId: string; note: string }
   | { action: 'flag_entry'; itemId: string; note?: string }
   | { action: 'review_suggestion'; itemId: string; suggestionAction: 'accept' | 'reject'; note?: string }
-  | { action: 'apply_suggestion'; itemId: string; note?: string; updates?: Record<string, string> }
+  | { action: 'apply_suggestion'; itemId: string; note?: string; updates?: Record<string, string | null> }
   | { action: 'approve_recording'; itemId: string }
   | { action: 'reject_recording'; itemId: string; note?: string }
 

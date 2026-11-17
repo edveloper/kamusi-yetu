@@ -1,14 +1,16 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 type EntryValidationStatus = 'pending' | 'verified' | 'flagged' | 'disputed' | 'seeded'
+/** Column to new value; null clears the field. */
+type EntryUpdates = Record<string, string | null>
 import { validateEntryRules } from '@/lib/validation/entry-rules'
 
 type ModerationAction =
-  | { action: 'approve_entry'; itemId: string; updates?: Record<string, string> }
+  | { action: 'approve_entry'; itemId: string; updates?: EntryUpdates }
   | { action: 'reject_entry'; itemId: string; note?: string }
   | { action: 'flag_entry'; itemId: string; note?: string }
   | { action: 'review_suggestion'; itemId: string; suggestionAction: 'accept' | 'reject'; note?: string }
-  | { action: 'apply_suggestion'; itemId: string; note?: string; updates?: Record<string, string> }
+  | { action: 'apply_suggestion'; itemId: string; note?: string; updates?: EntryUpdates }
   | { action: 'approve_recording'; itemId: string }
   | { action: 'reject_recording'; itemId: string; note?: string }
 
@@ -48,16 +50,30 @@ const EDITABLE_ENTRY_FIELDS = [
   'swahili_translation',
   'register',
   'category',
+  'literal_meaning',
+  'response_text',
+  'usage_note',
+  'pronunciation',
+  'source_reference',
+  'source_url',
   'usage_example'
 ] as const
 
-function pickEditableFields(input: unknown): Record<string, string> {
+/**
+ * Keep only allowlisted columns. With keepNulls, an empty string or null is
+ * kept as null so a reviewer can clear a field; without it, empty values are
+ * dropped (used for older suggestion rows that only fill some columns).
+ */
+function pickEditableFields(input: unknown, keepNulls = false): EntryUpdates {
   if (!input || typeof input !== 'object') return {}
   const source = input as Record<string, unknown>
-  const picked: Record<string, string> = {}
+  const picked: EntryUpdates = {}
   for (const field of EDITABLE_ENTRY_FIELDS) {
+    if (!(field in source)) continue
     const value = source[field]
-    if (typeof value === 'string' && value.trim() !== '') picked[field] = value.trim()
+    const text = typeof value === 'string' ? value.trim() : ''
+    if (text) picked[field] = text
+    else if (keepNulls && (value === null || typeof value === 'string')) picked[field] = null
   }
   return picked
 }
@@ -83,7 +99,7 @@ function parseSuggestionDetailsPatch(details: unknown) {
 async function validateBridgeAfterUpdate(
   admin: LooseSupabaseClient,
   entryId: string,
-  updates: Record<string, string>
+  updates: EntryUpdates
 ) {
   const { data: entryRow, error: entryErr } = await admin
     .from('entries')
@@ -209,13 +225,13 @@ async function updateEntryStatusAdmin(
   entryId: string,
   status: EntryValidationStatus,
   validatorId: string,
-  rawUpdates?: Record<string, string>
+  rawUpdates?: EntryUpdates
 ) {
-  const updates = pickEditableFields(rawUpdates)
+  const updates = pickEditableFields(rawUpdates, true)
   if (Object.keys(updates).length > 0) {
     await validateBridgeAfterUpdate(admin, entryId, updates)
 
-    const usageExample = updates.usage_example
+    const usageExample = updates.usage_example ?? undefined
     const { data: updatedEntryRow, error: updateErr } = await admin
       .from('entries')
       .update({
@@ -324,7 +340,7 @@ async function applySuggestionAdmin(
   suggestionId: string,
   moderatorId: string,
   note?: string,
-  overrideUpdates?: Record<string, string>
+  overrideUpdates?: EntryUpdates
 ) {
   const { data: suggestion, error: fetchErr } = await admin
     .from('entry_suggestions')
@@ -338,32 +354,16 @@ async function applySuggestionAdmin(
     suggestion?.entry_id ?? suggestion?.entry ?? suggestion?.entry_ref ?? suggestion?.entryid ?? null
   if (!entryId) throw new Error('Suggestion does not reference an entry')
 
-  const updatableFields: readonly string[] = EDITABLE_ENTRY_FIELDS
-
-  const updates: Record<string, string> = {}
-  for (const field of updatableFields) {
-    if (typeof suggestion[field] === 'string' && suggestion[field].trim() !== '') {
-      updates[field] = suggestion[field]
-    }
-  }
-
-  // Backward-compatible patch support from details JSON payload.
-  // Expected shape in details: { note: string|null, patch: { ...entry fields... } }
-  const patch = parseSuggestionDetailsPatch(suggestion?.details)
-  if (patch) {
-    for (const field of updatableFields) {
-      if (!updates[field] && typeof patch[field] === 'string' && String(patch[field]).trim() !== '') {
-        updates[field] = String(patch[field]).trim()
-      }
-    }
-  }
-
-  if (overrideUpdates) {
-    for (const field of updatableFields) {
-      if (typeof overrideUpdates[field] === 'string' && String(overrideUpdates[field]).trim() !== '') {
-        updates[field] = String(overrideUpdates[field]).trim()
-      }
-    }
+  // Later sources win: the suggestion's own columns, then its patch (sql/119,
+  // or the older details JSON), then whatever the reviewer finally settled on.
+  const patch =
+    suggestion?.patch && typeof suggestion.patch === 'object'
+      ? (suggestion.patch as Record<string, unknown>)
+      : parseSuggestionDetailsPatch(suggestion?.details)
+  const updates: EntryUpdates = {
+    ...pickEditableFields(suggestion),
+    ...pickEditableFields(patch, true),
+    ...pickEditableFields(overrideUpdates, true),
   }
 
   if (Object.keys(updates).length === 0) {
@@ -372,7 +372,7 @@ async function applySuggestionAdmin(
 
   await validateBridgeAfterUpdate(admin, entryId, updates)
 
-  const usageExample = updates.usage_example
+  const usageExample = updates.usage_example ?? undefined
   const entryUpdates = Object.fromEntries(Object.entries(updates).filter(([key]) => key !== 'usage_example'))
 
   const { data: updatedEntry, error: updateErr } = await admin

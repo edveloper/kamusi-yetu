@@ -198,6 +198,13 @@ export type PublicEntry = {
   source_reference: string | null
   /** False until a reviewer has approved it; shown as Not Yet Reviewed. */
   human_reviewed: boolean
+  pronunciation: string | null
+  literal_meaning: string | null
+  usage_note: string | null
+  response_text: string | null
+  source_url: string | null
+  /** Second and later meanings that a reviewer has approved (sql/118). */
+  senses: Array<{ definition: string | null; english: string | null; swahili: string | null; partOfSpeech: string | null }>
   language: { id: string; name: string; code: string; native_name: string | null } | null
   usage_examples: Array<{ text: string; english: string | null; swahili: string | null }>
   /** Who has vouched for this entry, and in what capacity. */
@@ -218,6 +225,7 @@ export async function getPublicEntry(id: string): Promise<PublicEntry | null> {
        dialect_variant, etymology, audio_url, english_translation, swahili_translation,
        trust_score, updated_at, validation_status, needs_orthography_review,
        source_type, source_reference, human_reviewed,
+       pronunciation, literal_meaning, usage_note, response_text, source_url,
        language:languages(id, name, code, native_name)`
     )
     .eq('id', id)
@@ -230,16 +238,24 @@ export async function getPublicEntry(id: string): Promise<PublicEntry | null> {
 
   type AttestationRow = { verdict: string; user_id: string; credential_kind: string }
 
-  const [exampleResult, attestationResult] = await Promise.all([
+  const [exampleResult, attestationResult, senseResult] = await Promise.all([
     supabase
       .from('entry_usage_examples')
       .select('example_text, english_translation, swahili_translation')
       .eq('entry_id', id)
+      .eq('validation_status', 'verified')
       .order('created_at', { ascending: true }),
     supabase
       .from('attestations')
       .select('verdict, user_id, credential_kind')
       .eq('entry_id', id),
+    // Row level security returns only approved meanings to the public.
+    supabase
+      .from('entry_senses')
+      .select('definition, english_translation, swahili_translation, part_of_speech, position')
+      .eq('entry_id', id)
+      .eq('validation_status', 'verified')
+      .order('position', { ascending: true }),
   ])
 
   const exampleRows = exampleResult.data
@@ -260,6 +276,12 @@ export async function getPublicEntry(id: string): Promise<PublicEntry | null> {
     ...(row as unknown as PublicEntry),
     language: (language as PublicEntry['language']) ?? null,
     attestations,
+    senses: ((senseResult.data ?? []) as Array<Record<string, string | null>>).map((sense) => ({
+      definition: sense.definition,
+      english: sense.english_translation,
+      swahili: sense.swahili_translation,
+      partOfSpeech: sense.part_of_speech,
+    })),
     usage_examples: ((exampleRows ?? []) as Array<Record<string, string | null>>)
       .map((example) => ({
         text: String(example.example_text ?? '').trim(),

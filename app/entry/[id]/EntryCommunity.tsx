@@ -506,9 +506,11 @@ export default function EntryCommunity({ entryId }: { entryId: string }) {
 
           {/* Corrections */}
           <div className="grid gap-3 border-t border-ink-200 pt-10 md:grid-cols-2">
-            <button onClick={() => setActiveModal('edit')} className="btn-secondary">
+            {/* The full form, every field: the old modal wrote to columns that
+                do not exist, so corrections never arrived. */}
+            <Link href={`/entry/${id}/edit`} className="btn-secondary text-center">
               Suggest a correction
-            </button>
+            </Link>
             <button
               onClick={() => setActiveModal('report')}
               className="border border-ink-300 px-5 py-3 text-[0.9375rem] font-semibold text-ink-600 transition-colors hover:border-signal-500 hover:text-signal-600"
