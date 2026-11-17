@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { CORPUS_LICENCE, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from '@/lib/constants/site'
+import { CONTACT, CORPUS_LICENCE, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from '@/lib/constants/site'
 import { getCorpusHeadline, getLanguageDirectory } from '@/lib/public-site'
 import LanguagePicker from '@/components/home/LanguagePicker'
 import LanguageMarquee from '@/components/home/LanguageMarquee'
@@ -59,7 +59,7 @@ export default async function HomePage() {
       url: SITE_URL,
       license: CORPUS_LICENCE.url,
       isAccessibleForFree: true,
-      creator: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+      creator: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL, email: CONTACT.info },
       inLanguage: languages.map((language) => language.code),
       keywords: ['Kenyan languages', 'dictionary', 'translation', 'Kiswahili', 'language corpus'],
     },

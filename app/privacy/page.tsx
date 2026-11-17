@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { SITE_URL } from '@/lib/constants/site'
+import { CONTACT, SITE_URL } from '@/lib/constants/site'
 
 // Written for the people who use the site: contributors, speakers deciding
 // whether to record, and visitors. It has to be true of the code as it stands.
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_URL}/privacy` },
 }
 
-const EMAIL = 'ed.veloper10@gmail.com'
+const EMAIL = CONTACT.hello
 const EFFECTIVE_DATE = '17 November 2026'
 
 type Section = { heading: string; body: React.ReactNode }
@@ -178,7 +178,10 @@ const SECTIONS: Section[] = [
         <p className="mt-4">
           You can withdraw recording consent yourself from your{' '}
           <Link href="/profile" className="link">profile</Link>. For anything else, email{' '}
-          <a href={`mailto:${EMAIL}`} className="link">{EMAIL}</a> and we will answer within a
+          <a href={`mailto:${EMAIL}?subject=${encodeURIComponent('Privacy request')}`} className="link">
+            {EMAIL}
+          </a>{' '}
+          and we will answer within a
           week. If you are not satisfied with how we handle your data, you can complain to the
           Office of the Data Protection Commissioner at{' '}
           <a href="https://www.odpc.go.ke" className="link" rel="noopener">odpc.go.ke</a>.

@@ -25,3 +25,9 @@ The corpus (headwords, definitions, translations, usage examples, phrases and re
 - [Guidelines](https://lughakonnect.co.ke/guidelines): standards, method and how to use the data.
 - [About](https://lughakonnect.co.ke/about)
 - [Contact](https://lughakonnect.co.ke/contact)
+
+## Contact
+
+- General: info@lughakonnect.co.ke
+- Using the data, bulk exports and formats: enquiries@lughakonnect.co.ke
+- Partnerships and collaboration: eddie@lughakonnect.co.ke

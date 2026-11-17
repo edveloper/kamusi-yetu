@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { SITE_URL } from '@/lib/constants/site'
+import { CONTACT, SITE_URL } from '@/lib/constants/site'
 
 // Who lands here: someone with a specific reason, and there are only four of
 // them. The old page had a heading, a subheading in two languages, and one
@@ -13,31 +13,35 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_URL}/contact` },
 }
 
-const EMAIL = 'ed.veloper10@gmail.com'
+const EMAIL = CONTACT.hello
 
 const REASONS = [
   {
     title: 'Ask to Review a Language',
     body: 'Tell us which language and how you know it. Growing up with it is a complete answer.',
     subject: 'Reviewing a language on LughaKonnect',
+    to: CONTACT.hello,
     prompt: 'Which language, and how you know it.',
   },
   {
     title: 'Something Here Is Wrong',
     body: 'A wrong meaning, a misspelling, or a word that is not really used. Entry pages have a report link, but this works too.',
     subject: 'A correction for LughaKonnect',
+    to: CONTACT.hello,
     prompt: 'Which entry, and what is wrong with it.',
   },
   {
     title: 'Work Together',
     body: 'Universities, archives, language associations, and anyone holding material already collected. Also engineers and researchers.',
     subject: 'Working together on LughaKonnect',
+    to: CONTACT.eddie,
     prompt: 'Who you are and what you have in mind.',
   },
   {
     title: 'Using the Data',
     body: 'The corpus is CC BY 4.0, so you do not need permission. Get in touch if you want a bulk export or a format that does not exist yet.',
     subject: 'Using the LughaKonnect corpus',
+    to: CONTACT.enquiries,
     prompt: 'What you are building and what format would help.',
   },
 ]
@@ -61,7 +65,7 @@ export default function ContactPage() {
           {REASONS.map((reason) => (
             <li key={reason.title} className="border-b border-ink-200">
               <a
-                href={`mailto:${EMAIL}?subject=${encodeURIComponent(reason.subject)}`}
+                href={`mailto:${reason.to}?subject=${encodeURIComponent(reason.subject)}`}
                 className="group grid gap-x-8 gap-y-2 py-6 transition-colors hover:bg-paper-warm md:grid-cols-[1fr_1.3fr]"
               >
                 <div>
@@ -69,6 +73,7 @@ export default function ContactPage() {
                     {reason.title}
                   </h2>
                   <p className="label mt-1 text-ink-500">{reason.prompt}</p>
+                  <p className="mt-2 font-mono text-sm text-ink-600">{reason.to}</p>
                 </div>
                 <p className="text-ink-700">{reason.body}</p>
               </a>
