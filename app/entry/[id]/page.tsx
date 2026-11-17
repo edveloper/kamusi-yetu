@@ -1,7 +1,12 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { getPublicEntry, getEntryEquivalents, getEntryRecordings } from '@/lib/public-site'
+import { notFound, permanentRedirect } from 'next/navigation'
+import {
+  getPublicEntry,
+  getEntryEquivalents,
+  getEntryRecordings,
+  getEntryRedirect,
+} from '@/lib/public-site'
 import { SITE_NAME, SITE_URL } from '@/lib/constants/site'
 import { serializeJsonLd } from '@/lib/json-ld'
 import Waveform from '@/components/ui/Waveform'
@@ -55,7 +60,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 export default async function EntryPage({ params }: Params) {
   const { id } = await params
   const entry = await getPublicEntry(id)
-  if (!entry) notFound()
+  if (!entry) {
+    // Duplicates merged in the November 2026 cleanup leave a redirect, so old
+    // links and search results land on the entry that was kept.
+    const target = await getEntryRedirect(id)
+    if (target) permanentRedirect(`/entry/${target}`)
+    notFound()
+  }
 
   const [equivalents, recordings] = await Promise.all([
     getEntryEquivalents(entry),
@@ -131,6 +142,17 @@ export default async function EntryPage({ params }: Params) {
             {entry.language?.native_name ? ` · ${entry.language.native_name}` : ''}
             {entry.part_of_speech ? ` · ${entry.part_of_speech}` : ''}
           </p>
+
+          {!entry.human_reviewed && (
+            <p className="mt-4">
+              <Link
+                href="/guidelines"
+                className="inline-block border border-sand-300 px-2.5 py-1 font-mono text-xs font-semibold uppercase tracking-widest text-sand-300 hover:border-paper hover:text-paper"
+              >
+                Not Yet Reviewed
+              </Link>
+            </p>
+          )}
 
           <p className="definition mt-6 max-w-2xl text-paper">{entry.primary_definition}</p>
 

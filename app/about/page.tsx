@@ -118,10 +118,10 @@ export default async function AboutPage() {
             <h2 className="mark label mb-8 text-ink-600">Where it stands</h2>
             <dl className="reveal-rows grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4">
               {[
-                { value: headline.indigenous_entries, label: 'Words a person has checked' },
+                { value: headline.indigenous_entries, label: 'Published entries' },
+                { value: headline.reviewed_entries ?? 0, label: 'Checked by a reviewer' },
                 { value: headline.languages, label: 'Languages' },
                 { value: recordings, label: 'Recordings' },
-                { value: headline.awaiting_curation + headline.awaiting_orthography, label: 'Entries held back for review' },
               ].map((stat) => (
                 <div key={stat.label}>
                   <dd className="headword tabular text-5xl text-ink-900 md:text-6xl">
@@ -134,12 +134,15 @@ export default async function AboutPage() {
 
             <div className="mt-12 grid gap-8 md:grid-cols-2 md:gap-14">
               <p className="text-ink-700">
-                The corpus was seeded from published sources and is now being checked by
-                speakers. {headline.awaiting_curation.toLocaleString()} entries are held back
-                until someone writes a real definition, and{' '}
-                {headline.awaiting_orthography.toLocaleString()} until a speaker confirms the
-                spelling, because an old import damaged it. Held-back entries are excluded from
-                every public count. We would rather publish a smaller number that is true.
+                The corpus started from seed word lists and is now being checked by speakers. Of
+                the {headline.indigenous_entries.toLocaleString()} published entries,{' '}
+                {(headline.reviewed_entries ?? 0).toLocaleString()} have been approved by a
+                reviewer, and the rest are labelled Not Yet Reviewed.{' '}
+                {(headline.awaiting_confirmation ?? 0).toLocaleString()} more are held back until a
+                speaker confirms them, and {headline.awaiting_orthography.toLocaleString()} until a
+                speaker confirms the spelling, because an old import damaged it. Held-back entries
+                are excluded from every public count. We would rather publish a smaller number
+                that is true.
               </p>
               <p className="text-ink-700">
                 {recordings === 0

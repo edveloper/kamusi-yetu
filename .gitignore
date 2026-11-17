@@ -6,3 +6,6 @@ node_modules
 
 # TypeScript incremental build cache
 tsconfig.tsbuildinfo
+
+# Review reports generated for a person to read; regenerated on demand.
+/reports/

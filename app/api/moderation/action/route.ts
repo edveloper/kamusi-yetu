@@ -245,7 +245,12 @@ async function updateEntryStatusAdmin(
     .update({
       validation_status: status,
       trust_score: trustScore,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      // An approval is a person's review: it clears the Not Yet Reviewed badge
+      // and any note that held the entry back (sql/117).
+      ...(status === 'verified'
+        ? { human_reviewed: true, review_note: null, reviewed_by: validatorId, reviewed_at: new Date().toISOString() }
+        : {})
     })
     .eq('id', entryId)
 

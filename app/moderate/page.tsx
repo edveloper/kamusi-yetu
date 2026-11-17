@@ -37,6 +37,8 @@ type ModerationItem = {
   swahili_translation?: string
   category?: string
   register?: string
+  /** Why an entry was held back, e.g. by the Phase 1 cleanup. */
+  review_note?: string
   usage_examples?: Array<{ context_text?: string }>
   created_at?: string
   contributor?: { display_name?: string; avatar_url?: string } | null
@@ -88,6 +90,7 @@ const toItem = (row: Record<string, unknown>, kind: 'entry' | 'suggestion'): Mod
     swahili_translation: str('swahili_translation'),
     category: str('category'),
     register: str('register'),
+    review_note: str('review_note'),
     created_at: str('created_at'),
     usage_examples: Array.isArray(row.usage_examples)
       ? (row.usage_examples as Array<{ context_text?: string }>)
@@ -157,14 +160,19 @@ export default function ModeratePage() {
     ;(async () => {
       setLoadingData(true)
       try {
-        const [langs, entries, suggestions, next, bridge] = await Promise.all([
+        // Flagged entries are held back until a speaker confirms them (the
+        // Phase 1 cleanup flagged headwords that were only Kiswahili), so
+        // they belong in the same queue as new submissions.
+        const [langs, pending, flagged, suggestions, next, bridge] = await Promise.all([
           getLanguages(),
           getEntries({ validation_status: 'pending' }),
+          getEntries({ validation_status: 'flagged' }),
           getPendingSuggestions(100),
           getModeratorStats(user.id),
           getBridgeHealth(),
         ])
         if (cancelled) return
+        const entries = [...(pending ?? []), ...(flagged ?? [])]
 
         setLanguages((langs ?? []) as Language[])
         setItems(
@@ -456,6 +464,12 @@ export default function ModeratePage() {
                           {isPhraseItem(item) ? ' · Phrase' : ''}
                         </span>
                       </div>
+
+                      {item.review_note && (
+                        <p className="mt-2 border-l-2 border-signal-500 pl-3 text-sm text-ink-700">
+                          {item.review_note}
+                        </p>
+                      )}
 
                       {item.primary_definition && (
                         <p className="definition mt-2 text-ink-800">{item.primary_definition}</p>

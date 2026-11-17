@@ -43,7 +43,7 @@ const STATUSES = [
   {
     label: 'Verified',
     tone: 'border-l-petrol-500',
-    body: 'Publicly visible and counted. Reviewed, bridged, and not flagged for spelling.',
+    body: 'Public and counted. Bridged, and not flagged for spelling. Until a reviewer has approved it, it carries a Not Yet Reviewed label, and most of the corpus still does. We would rather show that than imply checks that have not happened.',
   },
   {
     label: 'Pending',
@@ -53,7 +53,12 @@ const STATUSES = [
   {
     label: 'Seeded',
     tone: 'border-l-sand-500',
-    body: 'Imported in bulk from published sources, with a placeholder definition. Not public, not counted, waiting for a human. Roughly 1,200 entries are in this state and we would rather say so than pretend otherwise.',
+    body: 'Imported in bulk with a placeholder definition. Not public, not counted, waiting for a human.',
+  },
+  {
+    label: 'Needs confirmation',
+    tone: 'border-l-sand-500',
+    body: 'The word given was the same as its Kiswahili translation. Sometimes that is a real borrowing, often it was a placeholder. Held back until a speaker of the language confirms it or gives the right word.',
   },
   {
     label: 'Needs orthography review',
@@ -139,8 +144,8 @@ export default async function GuidelinesPage() {
             <dl className="mt-8 grid grid-cols-2 border-l border-t border-ink-200 sm:grid-cols-4">
               {[
                 { label: 'Indigenous entries', value: headline.indigenous_entries },
-                { label: 'Languages', value: headline.languages },
-                { label: 'Awaiting curation', value: headline.awaiting_curation },
+                { label: 'Reviewed', value: headline.reviewed_entries ?? 0 },
+                { label: 'Awaiting confirmation', value: headline.awaiting_confirmation ?? 0 },
                 { label: 'Awaiting spelling', value: headline.awaiting_orthography },
               ].map((cell) => (
                 <div key={cell.label} className="border-b border-r border-ink-200 px-4 py-4">

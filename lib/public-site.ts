@@ -196,6 +196,8 @@ export type PublicEntry = {
   updated_at: string | null
   source_type: string | null
   source_reference: string | null
+  /** False until a reviewer has approved it; shown as Not Yet Reviewed. */
+  human_reviewed: boolean
   language: { id: string; name: string; code: string; native_name: string | null } | null
   usage_examples: Array<{ text: string; english: string | null; swahili: string | null }>
   /** Who has vouched for this entry, and in what capacity. */
@@ -215,7 +217,7 @@ export async function getPublicEntry(id: string): Promise<PublicEntry | null> {
       `id, headword, primary_definition, part_of_speech, category, pronunciation_ipa,
        dialect_variant, etymology, audio_url, english_translation, swahili_translation,
        trust_score, updated_at, validation_status, needs_orthography_review,
-       source_type, source_reference,
+       source_type, source_reference, human_reviewed,
        language:languages(id, name, code, native_name)`
     )
     .eq('id', id)
@@ -266,6 +268,17 @@ export async function getPublicEntry(id: string): Promise<PublicEntry | null> {
       }))
       .filter((example) => example.text.length > 0),
   }
+}
+
+/** Where a merged duplicate now lives (sql/117 entry_redirects), if anywhere. */
+export async function getEntryRedirect(id: string): Promise<string | null> {
+  if (!id) return null
+  const { data } = await supabase
+    .from('entry_redirects')
+    .select('new_id')
+    .eq('old_id', id)
+    .maybeSingle()
+  return (data as { new_id?: string } | null)?.new_id ?? null
 }
 
 /** The other languages that share this entry's meaning, via the bridge glosses. */
@@ -369,6 +382,10 @@ export type CorpusHeadline = {
   languages: number
   awaiting_curation: number
   awaiting_orthography: number
+  /** Public indigenous entries a reviewer has actually approved (sql/117). */
+  reviewed_entries: number
+  /** Held back until a speaker confirms them, e.g. Kiswahili placeholders. */
+  awaiting_confirmation: number
 }
 
 /** The honest figures, from the view rather than from four separate counts. */
