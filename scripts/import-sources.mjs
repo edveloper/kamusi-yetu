@@ -220,6 +220,45 @@ function commonVoice(locale) {
   return kept
 }
 
+// Common Voice releases from Mozilla Data Collective (CC0), for languages that
+// are not in the public repository. Only validated_sentences.tsv is read: the
+// sentences that passed Common Voice's own review. The other files in the
+// release describe recordings and speakers and are never touched. Extract with
+//   tar -xzf <release>.tar.gz -C <locale>/text --wildcards --no-anchored '*.tsv'
+const MDC = {
+  dav: 'https://mozilladatacollective.com/datasets/cmu5w2bh700aso107ffpduqpp',
+  kln: 'https://mozilladatacollective.com/datasets/cmu5webje00bgo1079qb3nubj',
+}
+function commonVoiceRelease(locale) {
+  const base = `${ROOT}/commonvoice/${locale}/text`
+  const release = fs.existsSync(base) ? fs.readdirSync(base).find((d) => d.startsWith('cv-corpus-')) : null
+  const file = release && `${base}/${release}/${locale}/validated_sentences.tsv`
+  if (!file || !fs.existsSync(file)) throw new Error(`No validated_sentences.tsv for ${locale}`)
+  // Plain tab-separated lines: Common Voice does not quote, and sentences may
+  // contain quote marks, so the CSV reader is not used here.
+  const [head, ...lines] = fs.readFileSync(file, 'utf8').split(/\r?\n/)
+  const col = Object.fromEntries(head.split('\t').map((h, i) => [h, i]))
+  const kept = []
+  for (const line of lines) {
+    const cells = line.split('\t')
+    const text = clean(cells[col.sentence])
+    const n = wordCount(text)
+    if (!text || n < 3 || n > 30 || damaged(text)) continue
+    const domain = String(cells[col.sentence_domain] ?? '').trim()
+    kept.push({
+      text, translation_en: null, translation_sw: null,
+      source: 'Common Voice',
+      source_url: MDC[locale],
+      source_origin: `volunteer sentences, ${release.replace('cv-corpus-', 'release ').replace(/-\d{4}-\d{2}-\d{2}$/, '')}`,
+      source_ref: String(cells[col.sentence_id] ?? '').trim() || null,
+      licence: 'CC0-1.0', kind: 'read',
+      domain: domain && domain !== 'general' ? domain.replace(/_/g, ' ') : null,
+      dialect: String(cells[col.variant] ?? '').trim() || null,
+    })
+  }
+  return kept
+}
+
 // -------------------------------------------------------------- the words --
 // Names are not dictionary words. A word that is capitalised in most of the
 // places it appears away from the start of a sentence (Mandela, Siberia) is
@@ -278,11 +317,20 @@ async function existingHeadwordKeys(languageId) {
 
 async function insertBatches(table, rows, conflict) {
   for (let i = 0; i < rows.length; i += 500) {
-    await rest(`${table}?on_conflict=${conflict}`, {
-      method: 'POST',
-      headers: { Prefer: 'resolution=ignore-duplicates,return=minimal' },
-      body: JSON.stringify(rows.slice(i, i + 500)),
-    })
+    // A dropped connection is retried; repeats are ignored by the database.
+    for (let attempt = 1; ; attempt++) {
+      try {
+        await rest(`${table}?on_conflict=${conflict}`, {
+          method: 'POST',
+          headers: { Prefer: 'resolution=ignore-duplicates,return=minimal' },
+          body: JSON.stringify(rows.slice(i, i + 500)),
+        })
+        break
+      } catch (err) {
+        if (attempt >= 4 || !/fetch failed|ECONNRESET|5\d\d /.test(String(err?.message ?? err))) throw err
+        await new Promise((r) => setTimeout(r, 2000 * attempt))
+      }
+    }
     process.stdout.write(`\r  ${table}: ${Math.min(i + 500, rows.length)} / ${rows.length}`)
   }
   process.stdout.write('\n')
@@ -294,6 +342,8 @@ const SOURCES = {
   ki: () => afrivoices('ki', 'Anv-ke/kikuyu'),
   sw: () => { const kept = commonVoice('sw'); return { kept, allText: [], skipped: {}, languages: {} } },
   som: () => { const kept = commonVoice('so'); return { kept, allText: [], skipped: {}, languages: {} } },
+  dav: () => { const kept = commonVoiceRelease('dav'); return { kept, allText: [], skipped: {}, languages: {} } },
+  kal: () => { const kept = commonVoiceRelease('kln'); return { kept, allText: [], skipped: {}, languages: {} } },
 }
 // --only=sw,som loads just those languages; the default is all of them.
 const only = (process.argv.find((a) => a.startsWith('--only=')) ?? '').slice(7).split(',').filter(Boolean)

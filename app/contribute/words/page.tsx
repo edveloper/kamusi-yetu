@@ -199,8 +199,8 @@ function MostUsedWords() {
           <div className="border-y-2 border-ink-900 py-12 text-center">
             <p className="display mb-3 text-3xl text-ink-900">No word list yet</p>
             <p className="mx-auto mb-8 max-w-md text-ink-600">
-              Lists come from recorded speech. So far there are lists for Dholuo, Kikuyu, Swahili
-              and Somali, with more languages on the way.
+              Lists come from recorded speech. So far there are lists for Dholuo, Kikuyu, Swahili,
+              Kalenjin, Taita and Somali, with more on the way.
             </p>
             <Link href="/contribute/gaps" className="btn-primary">
               Fill missing meanings instead
