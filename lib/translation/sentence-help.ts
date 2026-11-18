@@ -7,7 +7,7 @@ import { words } from '@/lib/translation/evaluation'
 
 export const MAX_BREAKDOWN_WORDS = 12
 /** Below this, a "similar" pair mostly shares common words like na and ya. */
-export const SIMILAR_MIN_SCORE = 0.45
+export const SIMILAR_MIN_SCORE = 0.35
 
 export type WordHelp = {
   word: string
