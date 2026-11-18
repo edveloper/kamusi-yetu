@@ -5,6 +5,7 @@
 //
 // AfriVoices-KE (CC BY 4.0, https://huggingface.co/Anv-ke): transcripts.csv and
 // meta.csv for each split. KenTrans (CC BY 4.0): Dholuo-Swahili sentence pairs.
+// Common Voice (CC0): Swahili and Somali sentences.
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -17,7 +18,8 @@ const OUT = 'data/sources'
 
 async function get(url, dest) {
   if (fs.existsSync(dest)) return console.log('have', dest)
-  const res = await fetch(url, { headers: H })
+  // The token only ever goes to Hugging Face.
+  const res = await fetch(url, { headers: url.startsWith('https://huggingface.co/') ? H : {} })
   if (!res.ok) throw new Error(`${res.status} ${url}`)
   fs.mkdirSync(path.dirname(dest), { recursive: true })
   fs.writeFileSync(dest, Buffer.from(await res.arrayBuffer()))
@@ -37,3 +39,16 @@ for (const [repo, short] of [['Anv-ke/Dholuo', 'luo'], ['Anv-ke/kikuyu', 'ki']])
   }
 }
 await get('https://huggingface.co/datasets/Kencorpus/KenTrans/resolve/main/data/dho/dho_combined.txt', `${OUT}/kentrans/dho_combined.txt`)
+
+// Common Voice (CC0): the sentences volunteers read aloud, as published in the
+// project's repository. Swahili and Somali are there; newer languages such as
+// Kidaw'ida only come with the full downloads from Mozilla Data Collective.
+for (const locale of ['sw', 'so']) {
+  const res = await fetch(`https://api.github.com/repos/common-voice/common-voice/contents/server/data/${locale}`)
+  if (!res.ok) throw new Error(`${res.status} Common Voice listing for ${locale}`)
+  for (const file of await res.json()) {
+    if (file.type === 'file' && file.name.endsWith('.txt')) {
+      await get(file.download_url, `${OUT}/commonvoice/${locale}/${file.name}`)
+    }
+  }
+}

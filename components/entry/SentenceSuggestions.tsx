@@ -46,7 +46,7 @@ export default function SentenceSuggestions({ languageId, word, exclude, onUse }
     <div className="mt-6 border border-ink-200 bg-paper-warm px-4 py-4">
       <p className="label mb-1 text-ink-900">Real sentences with &ldquo;{word.trim()}&rdquo;</p>
       <p className="mb-4 text-sm text-ink-600">
-        From recorded speakers. Add one if it uses the word in this meaning.
+        From open collections of real sentences. Add one if it uses the word in this meaning.
       </p>
       {loading && offer.length === 0 ? (
         <p className="text-sm text-ink-500">Looking</p>

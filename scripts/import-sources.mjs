@@ -15,6 +15,8 @@
 //   AfriVoices-KE spontaneous speech: approved transcripts, annotation tags
 //     such as [CS] and [pause] removed.
 //   KenTrans: Dholuo-Kiswahili pairs, recased from capitals.
+//   Common Voice (added November 2026): Swahili and Somali read sentences, CC0.
+//   node scripts/import-sources.mjs --only=sw,som   loads just those two.
 //   Everything: no damaged letters (? in place of ĩ or ũ), 3 to 30 words, no
 //   repeats.
 
@@ -183,24 +185,70 @@ function kentrans() {
   return kept
 }
 
+// ----------------------------------------------------------- Common Voice --
+// Sentences volunteers read aloud (CC0). Files named after a dialect, such as
+// sw-kimvita.txt, are tagged with it. Sentence Collector and Wikipedia files
+// are credited as such, the rest as volunteer contributions.
+function commonVoice(locale) {
+  const dir = `${ROOT}/commonvoice/${locale}`
+  if (!fs.existsSync(dir)) return []
+  const kept = []
+  for (const file of fs.readdirSync(dir).filter((f) => f.endsWith('.txt'))) {
+    const dialectMatch = file.match(/^[a-z]+-(ki[a-z]+|baratz)\.txt$/)
+    const dialect = dialectMatch ? dialectMatch[1][0].toUpperCase() + dialectMatch[1].slice(1) : null
+    const origin = file.startsWith('wiki.')
+      ? 'Wikipedia sentences'
+      : file.startsWith('sentence-collector')
+        ? 'Sentence Collector'
+        : dialect
+          ? `${dialect} sentences`
+          : 'volunteer sentences'
+    const domain = /livestock|agriculture/.test(file) ? 'Agriculture' : null
+    fs.readFileSync(`${dir}/${file}`, 'utf8').split(/\r?\n/).forEach((line, i) => {
+      const text = clean(line)
+      const n = wordCount(text)
+      if (!text || n < 3 || n > 30 || damaged(text)) return
+      kept.push({
+        text, translation_en: null, translation_sw: null,
+        source: 'Common Voice',
+        source_url: `https://github.com/common-voice/common-voice/blob/main/server/data/${locale}/${file}`,
+        source_origin: origin, source_ref: `${file}:${i + 1}`,
+        licence: 'CC0-1.0', kind: 'read', domain, dialect,
+      })
+    })
+  }
+  return kept
+}
+
 // -------------------------------------------------------------- the words --
+// Names are not dictionary words. A word that is capitalised in most of the
+// places it appears away from the start of a sentence (Mandela, Siberia) is
+// treated as a name and left off the list.
 function candidates(texts, existingKeys) {
   const freq = new Map()
   const spelling = new Map()
+  const inner = new Map()
+  const capitalised = new Map()
   for (const t of texts) {
-    for (const raw of t.normalize('NFC').toLowerCase().split(/[^\p{L}'’]+/u)) {
-      const w = raw.replace(/^['’]+|['’]+$/g, '')
-      if (w.length < 2) continue
+    const raws = t.normalize('NFC').split(/[^\p{L}'’]+/u).filter(Boolean)
+    raws.forEach((original, position) => {
+      const w = original.toLowerCase().replace(/^['’]+|['’]+$/g, '')
+      if (w.length < 2) return
       const key = lkNormalize(w)
-      if (!key || key.includes(' ')) continue
+      if (!key || key.includes(' ')) return
       freq.set(key, (freq.get(key) || 0) + 1)
       const forms = spelling.get(key) ?? new Map()
       forms.set(w, (forms.get(w) || 0) + 1)
       spelling.set(key, forms)
-    }
+      if (position > 0) {
+        inner.set(key, (inner.get(key) || 0) + 1)
+        if (/^\p{Lu}/u.test(original)) capitalised.set(key, (capitalised.get(key) || 0) + 1)
+      }
+    })
   }
+  const isName = (key) => (inner.get(key) || 0) >= 3 && (capitalised.get(key) || 0) / inner.get(key) > 0.6
   return [...freq.entries()]
-    .filter(([key, n]) => n >= CANDIDATE_MIN_FREQUENCY && !existingKeys.has(key))
+    .filter(([key, n]) => n >= CANDIDATE_MIN_FREQUENCY && !existingKeys.has(key) && !isName(key))
     .sort((a, b) => b[1] - a[1])
     .slice(0, CANDIDATE_LIMIT)
     .map(([key, n], i) => ({
@@ -240,12 +288,24 @@ async function insertBatches(table, rows, conflict) {
   process.stdout.write('\n')
 }
 
-const languages = await rest('languages?select=id,code&code=in.(luo,ki)')
+// Our language code, and where its sentences come from.
+const SOURCES = {
+  luo: () => { const av = afrivoices('luo', 'Anv-ke/Dholuo'); return { ...av, kept: [...av.kept, ...kentrans()] } },
+  ki: () => afrivoices('ki', 'Anv-ke/kikuyu'),
+  sw: () => { const kept = commonVoice('sw'); return { kept, allText: [], skipped: {}, languages: {} } },
+  som: () => { const kept = commonVoice('so'); return { kept, allText: [], skipped: {}, languages: {} } },
+}
+// --only=sw,som loads just those languages; the default is all of them.
+const only = (process.argv.find((a) => a.startsWith('--only=')) ?? '').slice(7).split(',').filter(Boolean)
+const codes = only.length ? only : Object.keys(SOURCES)
+
+const languages = await rest(`languages?select=id,code&code=in.(${codes.join(',')})`)
 const idOf = Object.fromEntries(languages.map((l) => [l.code, l.id]))
 
-for (const [code, repo] of [['luo', 'Anv-ke/Dholuo'], ['ki', 'Anv-ke/kikuyu']]) {
-  const av = afrivoices(code, repo)
-  const rows = code === 'luo' ? [...av.kept, ...kentrans()] : av.kept
+for (const code of codes) {
+  if (!SOURCES[code] || !idOf[code]) throw new Error(`No source or language for ${code}`)
+  const av = SOURCES[code]()
+  const rows = av.kept
 
   // One copy of each sentence per language.
   const seen = new Set()
