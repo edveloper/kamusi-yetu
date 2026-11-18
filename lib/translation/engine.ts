@@ -185,7 +185,16 @@ export type TranslationOutcome =
   | { ok: true; result: Candidate[] }
   | { ok: false; error: string; status: number }
 
-export async function runTranslation(params: TranslateRequest): Promise<TranslationOutcome> {
+/**
+ * recordGaps is for the translation test (scripts/translation-test.mjs), which
+ * runs hundreds of held-out sentences and must not fill the gaps queue with
+ * them. It is a separate argument so a request body can never switch it off.
+ */
+export async function runTranslation(
+  params: TranslateRequest,
+  options: { recordGaps?: boolean } = {}
+): Promise<TranslationOutcome> {
+  const recordGaps = options.recordGaps ?? true
   try {
     const supabase = getClient()
     if (!supabase) {
@@ -286,7 +295,7 @@ export async function runTranslation(params: TranslateRequest): Promise<Translat
           result: rankCandidates(bridgeSourceCandidates as RankedCandidate[], limit)
         }
       }
-      await recordGap(supabase, text, sourceLanguageId, targetLanguageId)
+      if (recordGaps) await recordGap(supabase, text, sourceLanguageId, targetLanguageId)
       return { ok: true, result: [] }
     }
 
@@ -584,7 +593,7 @@ export async function runTranslation(params: TranslateRequest): Promise<Translat
 
     const ranked = rankCandidates(candidates as RankedCandidate[], limit)
     if (ranked.length === 0) {
-      await recordGap(supabase, text, sourceLanguageId, targetLanguageId)
+      if (recordGaps) await recordGap(supabase, text, sourceLanguageId, targetLanguageId)
     }
 
     return { ok: true, result: ranked }
