@@ -5,6 +5,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { rankCandidates, type TranslationCandidate as RankedCandidate } from '@/lib/translation/pipeline'
 import { eqCondition, escapeLike, ilikeCondition } from '@/lib/postgrest-filter'
+import { normalizeText, splitTerms, termMatch } from '@/lib/translation/matching'
 
 export type TranslateRequest = {
   text?: string
@@ -41,17 +42,6 @@ type BridgeLexiconRow = {
   english_term: string | null
 }
 
-function normalizeText(s: string) {
-  return s
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/['’]/g, '')
-    .replace(/[^a-zA-Z0-9\s]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .toLowerCase()
-    .trim()
-}
-
 function clampLimit(n?: number) {
   if (!n || Number.isNaN(n)) return 10
   return Math.max(1, Math.min(25, n))
@@ -60,13 +50,6 @@ function clampLimit(n?: number) {
 function pickNonEmpty(value: string | null | undefined) {
   const v = String(value || '').trim()
   return v.length > 0 ? v : null
-}
-
-function splitTerms(value: string) {
-  return value
-    .split(/[;,/|]/g)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0)
 }
 
 function addTerm(set: Set<string>, term: string | null | undefined) {
@@ -137,7 +120,7 @@ async function findBridgeMatches(
   return matches.slice(0, limit)
 }
 
-function getClient() {
+export function getClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -242,11 +225,20 @@ export async function runTranslation(
       .eq('validation_status', 'verified')
       .eq('needs_orthography_review', false)
       .or(buildHeadwordMatchClause(text, normalized))
-      .limit(8)
+      .limit(40)
     if (sourceVerifiedErr) throw sourceVerifiedErr
 
     // Verified sources only; see findBridgeMatches for why there is no fallback.
-    let sources = (sourceVerified || []) as EntryRow[]
+    // The search above also finds the typed letters inside longer headwords
+    // ("e" inside every Dholuo phrase); only whole-term matches are kept,
+    // exact ones first. lib/translation/matching.ts explains the rule.
+    const sourceMatches = ((sourceVerified || []) as EntryRow[])
+      .map((row) => ({ row, match: termMatch(row.headword, text) }))
+      .filter((m) => m.match !== null)
+    let sources = [
+      ...sourceMatches.filter((m) => m.match === 'exact'),
+      ...sourceMatches.filter((m) => m.match === 'phrase'),
+    ].map((m) => m.row).slice(0, 8)
     // KY-12. When translating FROM a bridge language, the answer often lives in
     // the TARGET row's gloss, not in a source entry. This used to run only
     // after a source entry had been found, so it never fired for the case it
@@ -262,7 +254,7 @@ export async function runTranslation(
 
       const { data: reverseRows } = await supabase
         .from('entries')
-        .select('id, headword, part_of_speech')
+        .select(`id, headword, part_of_speech, ${bridgeColumn}`)
         .eq('language_id', targetLanguageId)
         .eq('validation_status', 'verified')
         .eq('needs_orthography_review', false)
@@ -270,19 +262,19 @@ export async function runTranslation(
           ilikeCondition(bridgeColumn, escapeLike(trimmed)),
           ilikeCondition(bridgeColumn, `%${escapeLike(trimmed)}%`)
         ].join(','))
-        .limit(Math.max(limit * 2, 10))
+        .limit(40)
 
-      for (const row of (reverseRows || []) as Array<{ id: string; headword: string; part_of_speech: string | null }>) {
-        const exact =
-          normalizeText(String(row.headword)) === normalized ||
-          (reverseRows || []).length === 1
+      for (const row of (reverseRows || []) as Array<Record<string, string | null>>) {
+        // "ya" is inside the gloss "mbaya"; that is not an answer.
+        const match = termMatch(row[bridgeColumn], trimmed)
+        if (!match) continue
         bridgeSourceCandidates.push({
-          translation: row.headword,
-          confidence: exact ? 0.92 : 0.88,
+          translation: String(row.headword),
+          confidence: match === 'exact' ? 0.92 : 0.85,
           path_type: 'direct_bridge',
           match_kind: String(row.part_of_speech || '').toLowerCase() === 'phrase' ? 'phrase' : 'word',
           source_entry_id: '',
-          target_entry_id: row.id,
+          target_entry_id: String(row.id),
           via: via as 'english' | 'swahili'
         })
       }
@@ -568,15 +560,17 @@ export async function runTranslation(
         const sourceHeadword = s.headword
         const { data: reverseMatches } = await supabase
           .from('entries')
-          .select('id, headword')
+          .select(`id, headword, ${bridgeColumn}`)
           .eq('language_id', targetLanguageId)
           .eq('validation_status', 'verified')
           .eq('needs_orthography_review', false)
           .ilike(bridgeColumn, `%${escapeLike(sourceHeadword)}%`)
-          .limit(limit * 2)
+          .limit(40)
 
         if (reverseMatches && reverseMatches.length > 0) {
-          for (const match of reverseMatches as TargetEntryRow[]) {
+          for (const match of reverseMatches as Array<TargetEntryRow & Record<string, string | null>>) {
+            // Whole terms only, as above: "na" must not find "nane".
+            if (!termMatch(match[bridgeColumn], sourceHeadword)) continue
             candidates.push({
               translation: match.headword,
               confidence: phraseAdjustedConfidence(0.9, s, preferPhrase),

@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { SITE_URL } from '@/lib/constants/site'
 import { getTranslatableLanguages, getEntryRecordings, getEntrySummary } from '@/lib/public-site'
 import { runTranslation } from '@/lib/translation/engine'
+import { words } from '@/lib/translation/evaluation'
+import { similarSentences, wordByWord, type SimilarPair, type WordHelp } from '@/lib/translation/sentence-help'
 import type { TranslationPath } from '@/lib/translation/pipeline'
 import TranslateControls from '@/components/translate/TranslateControls'
 import Waveform from '@/components/ui/Waveform'
@@ -79,17 +81,36 @@ export default async function TranslatePage({ searchParams }: { searchParams: Se
   const fromLang = languages.find((l) => l.code === from) ?? null
   const toLang = languages.find((l) => l.code === to) ?? null
 
+  const wordCount = words(q).length
+
   let outcome: Awaited<ReturnType<typeof runTranslation>> | null = null
   if (q && fromLang && toLang) {
-    outcome = await runTranslation({
-      text: q,
-      sourceLanguageId: fromLang.id,
-      targetLanguageId: toLang.id,
-      limit: 8,
-    })
+    outcome = await runTranslation(
+      {
+        text: q,
+        sourceLanguageId: fromLang.id,
+        targetLanguageId: toLang.id,
+        limit: 8,
+      },
+      // A short phrase nobody has recorded is a real gap. A whole sentence is
+      // not: its missing words are logged one by one below instead.
+      { recordGaps: wordCount <= 3 }
+    )
   }
 
   const results = outcome?.ok ? outcome.result : []
+
+  // A sentence with no recorded translation as a whole: show each word, and
+  // real sentence pairs that are close (lib/translation/sentence-help.ts).
+  const sentence = wordCount >= 2 && results.length === 0 && outcome?.ok === true
+  let breakdown: WordHelp[] = []
+  let similar: SimilarPair[] = []
+  if (sentence && fromLang && toLang) {
+    ;[breakdown, similar] = await Promise.all([
+      wordByWord(q, fromLang.id, toLang.id),
+      similarSentences(q, fromLang, toLang),
+    ])
+  }
   const best = results[0] ?? null
   const alternates = results.slice(1)
 
@@ -247,8 +268,96 @@ export default async function TranslatePage({ searchParams }: { searchParams: Se
           </section>
         )}
 
+        {/* --------------------------------------------------------- sentence */}
+        {sentence && (
+          <section aria-label="Sentence help">
+            <p className="label mb-3 text-signal-500">Not recorded as a whole yet</p>
+            <p className="display max-w-2xl text-3xl text-ink-900 sm:text-4xl">
+              No {toLang?.name} translation for this sentence yet
+            </p>
+            <p className="mt-5 max-w-xl text-ink-700">
+              This dictionary translates words and set phrases. Here is each word on its own,
+              {similar.length > 0 ? ' and real sentences that say something similar.' : ' to help you piece it together.'}
+            </p>
+
+            {breakdown.length > 0 && (
+              <div className="mt-10">
+                <h2 className="mark label mb-4 text-ink-600">Word by word</h2>
+                <ul className="border-t border-ink-200">
+                  {breakdown.map((item, index) => (
+                    <li
+                      key={`${item.word}-${index}`}
+                      className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-baseline gap-x-6 border-b border-ink-200 py-3"
+                    >
+                      <span className="break-words text-lg text-ink-700">{item.word}</span>
+                      {item.translation ? (
+                        item.entryId ? (
+                          <Link
+                            href={`/entry/${item.entryId}`}
+                            className="break-words text-lg font-semibold text-ink-900 hover:text-signal-600"
+                          >
+                            {item.translation}
+                          </Link>
+                        ) : (
+                          <span className="break-words text-lg font-semibold text-ink-900">{item.translation}</span>
+                        )
+                      ) : (
+                        <span className="text-sm text-ink-500">
+                          Not recorded yet ·{' '}
+                          <Link
+                            href={`/contribute/gaps?lang=${encodeURIComponent(to)}`}
+                            className="font-semibold text-signal-600 underline underline-offset-2"
+                          >
+                            Add it
+                          </Link>
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                {wordCount > breakdown.length && (
+                  <p className="mt-3 text-sm text-ink-500">The first {breakdown.length} words only.</p>
+                )}
+                <p className="mt-4 max-w-xl text-sm text-ink-600">
+                  This is not a translation. Word order and grammar change between languages, so
+                  read it as a guide to the parts.
+                </p>
+              </div>
+            )}
+
+            {similar.length > 0 && (
+              <div className="mt-12">
+                <h2 className="mark label mb-4 text-ink-600">Real sentences like it</h2>
+                <ul className="space-y-6 border-t border-ink-200 pt-6">
+                  {similar.map((pair) => (
+                    <li key={pair.id} className="border-l-2 border-ink-900 pl-4">
+                      <p className="label mb-1 text-ink-500">{fromLang?.name}</p>
+                      <p className="text-ink-800">{pair.from}</p>
+                      <p className="label mb-1 mt-3 text-ink-500">{toLang?.name}</p>
+                      <p className="text-lg font-semibold text-ink-900">{pair.to}</p>
+                      <p className="mt-2 font-mono text-[11px] text-ink-500">
+                        {pair.sourceUrl ? (
+                          <a href={pair.sourceUrl} className="underline underline-offset-2 hover:text-ink-800" rel="noopener">
+                            {pair.source}
+                          </a>
+                        ) : (
+                          pair.source
+                        )}
+                        {pair.sourceOrigin ? `, ${pair.sourceOrigin}` : ''} · {pair.licence}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-4 max-w-xl text-sm text-ink-600">
+                  Chosen because they share words with yours. They may not mean the same thing.
+                </p>
+              </div>
+            )}
+          </section>
+        )}
+
         {/* ------------------------------------------------------------- miss */}
-        {q && results.length === 0 && (
+        {q && results.length === 0 && !sentence && (
           <section className="land border-y-2 border-ink-900 py-12">
             <p className="label mb-3 text-signal-500">Not recorded yet</p>
             <p className="display max-w-2xl text-3xl text-ink-900 sm:text-4xl">

@@ -132,7 +132,10 @@ export default function TranslateControls({
     meta: language.entries > 0 ? `${language.entries.toLocaleString()} words` : 'empty',
   }))
 
-  const nothingFound = searched && !checking && hints.length === 0 && text.trim().length > 1
+  // Only for a single word: a sentence is never one entry, and the page shows
+  // each of its words instead.
+  const nothingFound =
+    searched && !checking && hints.length === 0 && text.trim().length > 1 && !/\s/.test(text.trim())
 
   return (
     <form
@@ -219,7 +222,7 @@ export default function TranslateControls({
             aria-expanded={open && hints.length > 0}
             aria-controls="translate-hints"
             placeholder={
-              sourceLanguage ? `A word in ${sourceLanguage.name}` : 'A word or a short phrase'
+              sourceLanguage ? `A word, phrase or sentence in ${sourceLanguage.name}` : 'A word, phrase or sentence'
             }
             className="min-w-0 flex-1 border border-ink-700 bg-ink-800 px-4 py-3.5 text-lg text-paper outline-none placeholder:text-ink-500 focus:border-sand-300"
           />

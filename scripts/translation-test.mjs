@@ -132,7 +132,7 @@ for (const d of directions) {
 }
 
 fs.mkdirSync('reports/translation', { recursive: true })
-const file = `reports/translation/${report.date.slice(0, 10)}${LIMIT ? `-limit${LIMIT}` : ''}.json`
+const file = `reports/translation/${report.date.slice(0, 16).replace(/[:T]/g, "-")}${LIMIT ? `-limit${LIMIT}` : ''}.json`
 fs.writeFileSync(file, JSON.stringify(report, null, 2))
 
 console.log('\n(percentages; chrF and copy are 0 to 100)')
