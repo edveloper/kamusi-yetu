@@ -30,6 +30,10 @@ type Props = {
   /** The entry as it stands, to mark what has changed. */
   original?: EntryDraft
   languageName?: string
+  /** Overrides for the gaps queue, which asks for a known meaning. */
+  headwordLabel?: string
+  definitionLabel?: string
+  definitionPlaceholder?: string
 }
 
 const FIELD =
@@ -38,7 +42,16 @@ const LABEL = 'label mb-2 block text-ink-600'
 
 const capitalise = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 
-export default function EntryForm({ mode, draft, onChange, original, languageName }: Props) {
+export default function EntryForm({
+  mode,
+  draft,
+  onChange,
+  original,
+  languageName,
+  headwordLabel,
+  definitionLabel,
+  definitionPlaceholder,
+}: Props) {
   const [showDetail, setShowDetail] = useState(mode === 'review')
   const changed = useMemo(
     () => new Set(original ? changedColumns(original, draft).map((c) => c.key) : []),
@@ -123,7 +136,7 @@ export default function EntryForm({ mode, draft, onChange, original, languageNam
 
       <div className="space-y-6">
         <div>
-          {label('ef-headword', draft.isPhrase ? 'The phrase' : 'The word', 'headword')}
+          {label('ef-headword', headwordLabel ?? (draft.isPhrase ? 'The phrase' : 'The word'), 'headword')}
           {input('ef-headword', 'headword', {
             large: true,
             placeholder: draft.isPhrase ? 'For example, habari yako' : 'For example, amani',
@@ -131,14 +144,15 @@ export default function EntryForm({ mode, draft, onChange, original, languageNam
         </div>
 
         <div>
-          {label('ef-definition', 'What it means', 'definition')}
+          {label('ef-definition', definitionLabel ?? 'What it means', 'definition')}
           {textarea(
             'ef-definition',
             'definition',
             3,
-            draft.isPhrase
-              ? 'What it means and when people say it'
-              : 'A sentence explaining the meaning, not just the English word'
+            definitionPlaceholder ??
+              (draft.isPhrase
+                ? 'What it means and when people say it'
+                : 'A sentence explaining the meaning, not just the English word')
           )}
         </div>
 

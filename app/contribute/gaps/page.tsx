@@ -10,10 +10,12 @@ import { groupLanguages } from '@/lib/constants/languageGroups'
 import {
   getConceptGaps,
   getCoverageForLanguage,
-  submitConceptEntry,
   type ConceptGap,
   type LanguageConceptCoverage,
 } from '@/lib/api/concepts'
+import { createEntryFromDraft, getMyLanguageIds, rememberLanguage } from '@/lib/api/entry-editor'
+import { emptyDraft, emptyExample, type EntryDraft } from '@/lib/entry-draft'
+import EntryForm from '@/components/entry/EntryForm'
 import RecordEntryAudio from '@/components/recording/RecordEntryAudio'
 
 type Language = { id: string; name: string; code?: string | null }
@@ -25,6 +27,10 @@ type Saved = { id: string; headword: string; gloss: string }
  * A blank thirteen-field form asks someone to think of a word. This shows a
  * meaning their language is missing and asks what they call it, which is how
  * vocabulary is actually elicited in the field.
+ *
+ * The shared entry form sits under the meaning, already holding its English
+ * and Kiswahili, so a speaker can add examples, other meanings and the rest
+ * without leaving the queue. Only the word itself is required.
  *
  * The important change is what happens after saving. The recorder appears for
  * the word just added, while the person is still here and still thinking about
@@ -41,8 +47,8 @@ function ContributeGaps() {
   const [gaps, setGaps] = useState<ConceptGap[]>([])
   const [coverage, setCoverage] = useState<LanguageConceptCoverage | null>(null)
   const [index, setIndex] = useState(0)
-  const [word, setWord] = useState('')
-  const [note, setNote] = useState('')
+  const [draft, setDraft] = useState<EntryDraft>(() => emptyDraft(false))
+  const [myLanguageIds, setMyLanguageIds] = useState<string[]>([])
   const [busy, setBusy] = useState(false)
   const [loadingGaps, setLoadingGaps] = useState(false)
   const [error, setError] = useState('')
@@ -53,19 +59,22 @@ function ContributeGaps() {
     if (!authLoading && !user) router.push('/login?next=/contribute/gaps')
   }, [user, authLoading, router])
 
+  // A link that names a language wins; otherwise the first on the profile.
   useEffect(() => {
-    getLanguages()
-      .then((data) => {
+    if (!user) return
+    Promise.all([getLanguages(), getMyLanguageIds(user.id)])
+      .then(([data, ids]) => {
         const list = (data ?? []) as Language[]
         setLanguages(list)
+        setMyLanguageIds(ids)
         const wanted = String(searchParams.get('lang') ?? '').toLowerCase()
-        if (wanted) {
-          const match = list.find((l) => String(l.code ?? '').toLowerCase() === wanted)
-          if (match) setLanguageId(match.id)
-        }
+        const fromLink = wanted ? list.find((l) => String(l.code ?? '').toLowerCase() === wanted) : undefined
+        const fromProfile = ids.map((id) => list.find((l) => l.id === id)).find(Boolean)
+        const chosen = fromLink ?? fromProfile
+        if (chosen) setLanguageId(chosen.id)
       })
       .catch(() => setError('Could not load the language list.'))
-  }, [searchParams])
+  }, [user, searchParams])
 
   const loadGaps = useCallback(async (id: string) => {
     if (!id) return
@@ -79,8 +88,6 @@ function ContributeGaps() {
       setGaps(nextGaps)
       setCoverage(nextCoverage)
       setIndex(0)
-      setWord('')
-      setNote('')
       setJustSaved(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not load the queue.')
@@ -96,9 +103,23 @@ function ContributeGaps() {
   const current = gaps[index] ?? null
   const language = languages.find((l) => l.id === languageId) ?? null
 
+  // Each meaning starts a fresh draft that already carries its translations.
+  useEffect(() => {
+    if (!current) return
+    setDraft({
+      ...emptyDraft(false),
+      english: current.gloss_en ?? '',
+      swahili: current.gloss_sw ?? '',
+      category: current.domain ?? '',
+    })
+  }, [current])
+
+  const onDraftChange = (next: EntryDraft) => {
+    if (next.isPhrase && !draft.isPhrase && next.examples.length === 0) next = { ...next, examples: [emptyExample()] }
+    setDraft(next)
+  }
+
   const advance = () => {
-    setWord('')
-    setNote('')
     setJustSaved(null)
     setIndex((prev) => prev + 1)
   }
@@ -110,19 +131,20 @@ function ContributeGaps() {
     setBusy(true)
     setError('')
     try {
-      const created = await submitConceptEntry({
+      const gloss = current.gloss_en || current.gloss_sw || ''
+      // The meaning is already known here, so a blank definition falls back to
+      // it for single words. Phrases still need their own explanation.
+      const toSave = !draft.isPhrase && !draft.definition.trim() ? { ...draft, definition: gloss } : draft
+      const id = await createEntryFromDraft(toSave, languageId, String(language?.code ?? '').toLowerCase(), user.id, {
         conceptId: current.concept_id,
-        languageId,
-        headword: word,
-        userId: user.id,
-        glossEn: current.gloss_en,
-        glossSw: current.gloss_sw,
-        domain: current.domain,
-        note,
+        elicited: true,
       })
+      if (!myLanguageIds.includes(languageId)) {
+        setMyLanguageIds(await rememberLanguage(user.id, languageId).catch(() => myLanguageIds))
+      }
       const record = {
-        id: created.id,
-        headword: word.trim(),
+        id,
+        headword: draft.headword.trim(),
         gloss: current.gloss_en || current.gloss_sw || '',
       }
       setSaved((prev) => [record, ...prev])
@@ -231,34 +253,17 @@ function ContributeGaps() {
               )}
             </div>
 
-            <label htmlFor="gap-word" className="label mb-2 mt-8 block text-ink-600">
-              In {language?.name}
-            </label>
-            <input
-              id="gap-word"
-              type="text"
-              required
-              autoFocus
-              autoComplete="off"
-              autoCapitalize="none"
-              spellCheck={false}
-              value={word}
-              onChange={(event) => setWord(event.target.value)}
-              placeholder="Type the word"
-              className="w-full border-2 border-ink-300 bg-card px-5 py-4 text-2xl text-ink-900 outline-none placeholder:text-ink-400 focus:border-signal-500"
-            />
-
-            <label htmlFor="gap-note" className="label mb-2 mt-6 block text-ink-600">
-              Anything worth knowing
-            </label>
-            <input
-              id="gap-note"
-              type="text"
-              value={note}
-              onChange={(event) => setNote(event.target.value)}
-              placeholder="When it is used, a shade of meaning, a dialect note"
-              className="w-full border border-ink-300 bg-card px-4 py-3 text-ink-900 outline-none placeholder:text-ink-400 focus:border-ink-900"
-            />
+            <div className="mt-8">
+              <EntryForm
+                mode="contribute"
+                draft={draft}
+                onChange={onDraftChange}
+                languageName={language?.name}
+                headwordLabel={`In ${language?.name ?? 'your language'}`}
+                definitionLabel="What it means (optional for a single word)"
+                definitionPlaceholder={`Leave blank to use "${current.gloss_en || current.gloss_sw}", or explain any shade of meaning`}
+              />
+            </div>
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <button type="submit" disabled={busy} className="btn-primary">
