@@ -143,6 +143,9 @@ async function insertSensesAndExamples(entryId: string, draft: EntryDraft, userI
         english_translation: example.english.trim() || null,
         swahili_translation: example.swahili.trim() || null,
         created_by: userId,
+        ...(example.sourceName
+          ? { source_name: example.sourceName, source_url: example.sourceUrl ?? null, licence: example.licence ?? 'CC-BY-4.0' }
+          : {}),
         ...(status ? { validation_status: status } : {}),
       }))
     )

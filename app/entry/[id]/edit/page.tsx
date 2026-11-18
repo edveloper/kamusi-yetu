@@ -227,6 +227,7 @@ function EditEntry({ id }: { id: string }) {
               onChange={setDraft}
               original={entry.draft}
               languageName={entry.languageName}
+              languageId={entry.languageId}
             />
 
             {changes.length > 0 && (

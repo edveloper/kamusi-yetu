@@ -20,6 +20,10 @@ export type ExampleDraft = {
   english: string
   swahili: string
   status?: string
+  /** Set when the sentence came from a source dataset, so it is credited. */
+  sourceName?: string
+  sourceUrl?: string
+  licence?: string
 }
 
 export type EntryDraft = {

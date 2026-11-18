@@ -1,0 +1,276 @@
+// Load licensed source sentences and the words they show we are missing.
+//
+//   node scripts/fetch-sources.mjs          # once, downloads the text
+//   node scripts/import-sources.mjs          # dry run: counts and samples only
+//   node scripts/import-sources.mjs --apply  # writes to source_sentences and headword_candidates
+//
+// Needs sql/121 applied, and SUPABASE_SERVICE_ROLE_KEY in .env.local for --apply.
+//
+// What is kept (agreed November 2026):
+//   AfriVoices-KE read speech: only prompts the dataset team wrote themselves,
+//     or from Amazon MASSIVE or MedQuAD (both CC BY 4.0). Prompts taken from
+//     BBC, VOA and other news collections are left out of what we store,
+//     because the news text belongs to those outlets. They still count towards
+//     word frequencies, which copy no text.
+//   AfriVoices-KE spontaneous speech: approved transcripts, annotation tags
+//     such as [CS] and [pause] removed.
+//   KenTrans: Dholuo-Kiswahili pairs, recased from capitals.
+//   Everything: no damaged letters (? in place of ĩ or ũ), 3 to 30 words, no
+//   repeats.
+
+import fs from 'node:fs'
+
+const APPLY = process.argv.includes('--apply')
+const ROOT = 'data/sources'
+const CLEAN_ORIGINS = new Set(['self', 'self-generated', 'amazon massive', 'medquad'])
+const CANDIDATE_MIN_FREQUENCY = 5
+const CANDIDATE_LIMIT = 3000
+
+const env = Object.fromEntries(
+  fs.readFileSync('.env.local', 'utf8').split(/\r?\n/).filter((l) => l.includes('='))
+    .map((l) => [l.slice(0, l.indexOf('=')).trim(), l.slice(l.indexOf('=') + 1).trim().replace(/^"|"$/g, '')])
+)
+const URL_ = env.NEXT_PUBLIC_SUPABASE_URL
+const KEY = env.SUPABASE_SERVICE_ROLE_KEY
+const H = { apikey: KEY, Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json' }
+
+// ---------------------------------------------------------------- helpers --
+function parseCsv(text) {
+  const delim = text.split('\n')[0].includes('\t') ? '\t' : ','
+  const rows = []
+  let row = [], cur = '', quoted = false
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i]
+    if (quoted) {
+      if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++ } else quoted = false } else cur += c
+      continue
+    }
+    if (c === '"') quoted = true
+    else if (c === delim) { row.push(cur); cur = '' }
+    else if (c === '\n') { row.push(cur.replace(/\r$/, '')); rows.push(row); row = []; cur = '' }
+    else cur += c
+  }
+  if (cur || row.length) { row.push(cur); rows.push(row) }
+  const head = rows[0]
+  return rows.slice(1).filter((r) => r.length > 1).map((r) => Object.fromEntries(head.map((h, i) => [h, r[i] ?? ''])))
+}
+
+const FROM = 'ĩĨũŨẽẼãÃõÕáÁàÀâÂéÉèÈêÊíÍìÌîÎóÓòÒôÔúÚùÙûÛñÑçÇ'
+const TO = 'iIuUeEaAoOaAaAaAeEeEeEiIiIiIoOoOoOuUuUuUnNcC'
+const lkNormalize = (s) => {
+  let t = ''
+  for (const ch of String(s ?? '')) { const i = FROM.indexOf(ch); t += i >= 0 ? TO[i] : ch }
+  return t.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim()
+}
+const clean = (s) =>
+  String(s ?? '')
+    .replace(/\[\/?\s*(cs|pause|noise|laugh|\?)\s*\]/gi, ' ')
+    .replace(/\((pause|cs|noise|laugh)\)/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+const damaged = (s) => /\p{L}\?\p{L}|^\?\p{L}|\p{L}\?\s/u.test(s) || s.includes('�')
+const wordCount = (s) => s.split(/\s+/).filter(Boolean).length
+
+// Which language is a prompt in: Kiswahili, English, or the target language
+// itself? Some prompts the dataset team wrote are already in Dholuo or Kikuyu,
+// and storing those as a "translation" would be wrong. Function words give a
+// first guess; vocabularies learned from the data itself then decide.
+const SW = /\b(na|ya|wa|kwa|ni|za|katika|kuwa|hii|kama|cha|vya|la|kwamba|pia|sana|lakini)\b/gi
+const EN = /\b(the|and|of|to|is|in|that|for|are|with|this|what|how|you|was)\b/gi
+const tokens = (s) => s.normalize('NFC').toLowerCase().split(/[^\p{L}'’]+/u).filter((w) => w.length > 1)
+
+function learnVocabularies(pairs) {
+  const count = (texts) => {
+    const m = new Map()
+    for (const t of texts) for (const w of tokens(t)) m.set(w, (m.get(w) || 0) + 1)
+    return new Set([...m.entries()].filter(([, n]) => n >= 10).map(([w]) => w))
+  }
+  const target = count(pairs.map((p) => p.text))
+  const sw = count(pairs.filter((p) => (p.prompt.match(SW) || []).length >= 2 && !(p.prompt.match(EN) || []).length).map((p) => p.prompt))
+  const en = count(pairs.filter((p) => (p.prompt.match(EN) || []).length >= 2 && !(p.prompt.match(SW) || []).length).map((p) => p.prompt))
+  return { target, sw, en }
+}
+
+// Checked by hand on samples (November 2026): prompts are Kiswahili or English,
+// never the target language, so the only question is which of the two. Words
+// shared with the target language (na, wa, ya in Kikuyu) are not counted
+// first; if that leaves nothing, every known word counts. No signal at all
+// means no translation is stored, rather than a guess.
+function languageOf(prompt, v) {
+  let s = 0, e = 0, s2 = 0, e2 = 0
+  for (const w of tokens(prompt)) {
+    if (v.sw.has(w)) { s2++; if (!v.target.has(w)) s++ }
+    if (v.en.has(w)) { e2++; if (!v.target.has(w)) e++ }
+  }
+  if (s !== e) return s > e ? 'sw' : 'en'
+  if (s2 !== e2) return s2 > e2 ? 'sw' : 'en'
+  return 'unknown'
+}
+
+const recase = (s) => {
+  const lower = s.toLowerCase().trim()
+  return lower.replace(/(^|[.!?]\s+)(\p{L})/gu, (_, a, b) => a + b.toUpperCase())
+}
+
+// ------------------------------------------------------------- AfriVoices --
+function afrivoices(lang, repo) {
+  const dir = `${ROOT}/afrivoices/${lang}`
+  const kept = []
+  const allText = []
+  let skipped = { origin: 0, damaged: 0, length: 0, rejected: 0 }
+  for (const file of fs.readdirSync(dir).filter((f) => f.includes('transcripts'))) {
+    const spontaneous = file.includes('unscripted')
+    for (const r of parseCsv(fs.readFileSync(`${dir}/${file}`, 'utf8'))) {
+      const text = clean(spontaneous ? r.transcript || r.cleaned_transcript || r.audio_transcript : r.actualSentence)
+      if (!text) continue
+      if (!damaged(text)) allText.push(text)
+      if (spontaneous && r.decision === 'rejected') { skipped.rejected++; continue }
+      if (!spontaneous && !CLEAN_ORIGINS.has(String(r.sentenceSource ?? '').trim().toLowerCase())) { skipped.origin++; continue }
+      if (damaged(text)) { skipped.damaged++; continue }
+      // Annotation the tidy-up could not untangle, e.g. "[account name]cs".
+      if (spontaneous && /[[\]]/.test(text)) { skipped.damaged++; continue }
+      const n = wordCount(text)
+      if (n < 3 || n > 30) { skipped.length++; continue }
+      kept.push({
+        text,
+        prompt: spontaneous ? '' : clean(r.translatedText),
+        translation_en: null,
+        translation_sw: null,
+        source: 'AfriVoices-KE',
+        source_url: `https://huggingface.co/datasets/${repo}`,
+        source_origin: spontaneous ? 'spontaneous speech' : String(r.sentenceSource ?? '').trim(),
+        source_ref: String(r.mediaPathId ?? '').trim() || null,
+        kind: spontaneous ? 'spontaneous' : 'read',
+        domain: String(r.topic || r.domain || '').trim() || null,
+        dialect: String(r.sentenceDialect || '').trim() || null,
+      })
+    }
+  }
+  // Second pass: with the vocabularies known, decide each prompt's language,
+  // then drop the working field so it is not sent to the database.
+  const v = learnVocabularies(kept.filter((k) => k.prompt))
+  const languages = {}
+  const samples = {}
+  const rows = kept.map(({ prompt, ...row }) => {
+    const lang = prompt ? languageOf(prompt, v) : 'none'
+    languages[lang] = (languages[lang] || 0) + 1
+    if (process.argv.includes('--sample') && (samples[lang] ??= []).length < 5 && Math.random() < 0.01) {
+      samples[lang].push(`${prompt.slice(0, 80)}  =>  ${row.text.slice(0, 60)}`)
+    }
+    return { ...row, translation_en: lang === 'en' ? prompt : null, translation_sw: lang === 'sw' ? prompt : null }
+  })
+  for (const [lang, list] of Object.entries(samples)) console.log(`  [${lang}]\n    ` + list.join('\n    '))
+  return { kept: rows, allText, skipped, languages }
+}
+
+// --------------------------------------------------------------- KenTrans --
+function kentrans() {
+  const lines = fs.readFileSync(`${ROOT}/kentrans/dho_combined.txt`, 'utf8').split(/\r?\n/)
+  const kept = []
+  for (let i = 0; i < lines.length - 1; i++) {
+    if (!lines[i].startsWith('O:') || !lines[i + 1].startsWith('T:')) continue
+    const text = recase(clean(lines[i].slice(2)))
+    const sw = recase(clean(lines[i + 1].slice(2)))
+    const n = wordCount(text)
+    if (!text || n < 3 || n > 30 || damaged(text)) continue
+    kept.push({
+      text, translation_en: null, translation_sw: sw,
+      source: 'KenTrans', source_url: 'https://huggingface.co/datasets/Kencorpus/KenTrans',
+      source_origin: 'Kencorpus radio transcripts', source_ref: `dho_combined.txt:${i + 1}`,
+      kind: 'parallel', domain: 'News and Media', dialect: null,
+    })
+  }
+  return kept
+}
+
+// -------------------------------------------------------------- the words --
+function candidates(texts, existingKeys) {
+  const freq = new Map()
+  const spelling = new Map()
+  for (const t of texts) {
+    for (const raw of t.normalize('NFC').toLowerCase().split(/[^\p{L}'’]+/u)) {
+      const w = raw.replace(/^['’]+|['’]+$/g, '')
+      if (w.length < 2) continue
+      const key = lkNormalize(w)
+      if (!key || key.includes(' ')) continue
+      freq.set(key, (freq.get(key) || 0) + 1)
+      const forms = spelling.get(key) ?? new Map()
+      forms.set(w, (forms.get(w) || 0) + 1)
+      spelling.set(key, forms)
+    }
+  }
+  return [...freq.entries()]
+    .filter(([key, n]) => n >= CANDIDATE_MIN_FREQUENCY && !existingKeys.has(key))
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, CANDIDATE_LIMIT)
+    .map(([key, n], i) => ({
+      word: [...spelling.get(key).entries()].sort((a, b) => b[1] - a[1])[0][0],
+      word_key: key,
+      frequency: n,
+      rank: i + 1,
+    }))
+}
+
+// -------------------------------------------------------------------- run --
+async function rest(path, init = {}) {
+  const res = await fetch(`${URL_}/rest/v1/${path}`, { ...init, headers: { ...H, ...(init.headers || {}) } })
+  if (!res.ok) throw new Error(`${res.status} ${path}: ${(await res.text()).slice(0, 300)}`)
+  return res.status === 204 ? null : res.json().catch(() => null)
+}
+
+async function existingHeadwordKeys(languageId) {
+  const keys = new Set()
+  for (let from = 0; ; from += 1000) {
+    const rows = await rest(`entries?select=headword&language_id=eq.${languageId}&validation_status=neq.archived&order=id`, { headers: { Range: `${from}-${from + 999}` } })
+    for (const r of rows) keys.add(lkNormalize(r.headword))
+    if (rows.length < 1000) break
+  }
+  return keys
+}
+
+async function insertBatches(table, rows, conflict) {
+  for (let i = 0; i < rows.length; i += 500) {
+    await rest(`${table}?on_conflict=${conflict}`, {
+      method: 'POST',
+      headers: { Prefer: 'resolution=ignore-duplicates,return=minimal' },
+      body: JSON.stringify(rows.slice(i, i + 500)),
+    })
+    process.stdout.write(`\r  ${table}: ${Math.min(i + 500, rows.length)} / ${rows.length}`)
+  }
+  process.stdout.write('\n')
+}
+
+const languages = await rest('languages?select=id,code&code=in.(luo,ki)')
+const idOf = Object.fromEntries(languages.map((l) => [l.code, l.id]))
+
+for (const [code, repo] of [['luo', 'Anv-ke/Dholuo'], ['ki', 'Anv-ke/kikuyu']]) {
+  const av = afrivoices(code, repo)
+  const rows = code === 'luo' ? [...av.kept, ...kentrans()] : av.kept
+
+  // One copy of each sentence per language.
+  const seen = new Set()
+  const unique = rows.filter((r) => {
+    const k = r.text.toLowerCase()
+    if (seen.has(k)) return false
+    seen.add(k)
+    return true
+  }).map((r) => ({ ...r, language_id: idOf[code] }))
+
+  const existing = await existingHeadwordKeys(idOf[code])
+  const words = candidates([...av.allText, ...unique.map((r) => r.text)], existing)
+    .map((w) => ({ ...w, language_id: idOf[code] }))
+
+  const by = (k) => unique.reduce((a, r) => ((a[r[k] ?? 'none'] = (a[r[k] ?? 'none'] || 0) + 1), a), {})
+  console.log(`\n${code}: ${unique.length} sentences to store`, JSON.stringify(by('kind')))
+  console.log('  with English', unique.filter((r) => r.translation_en).length, '| with Kiswahili', unique.filter((r) => r.translation_sw).length)
+  console.log('  left out', JSON.stringify(av.skipped))
+  console.log('  prompt language', JSON.stringify(av.languages))
+  console.log(`  ${words.length} missing words; top 15:`, words.slice(0, 15).map((w) => `${w.word}(${w.frequency})`).join(' '))
+  console.log('  sample:', JSON.stringify(unique[Math.floor(unique.length / 3)]).slice(0, 300))
+
+  if (APPLY) {
+    await insertBatches('source_sentences', unique, 'language_id,text_key')
+    await insertBatches('headword_candidates', words, 'language_id,word_key')
+  }
+}
+if (!APPLY) console.log('\nDry run. Nothing was written. Run with --apply to load.')

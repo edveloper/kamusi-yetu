@@ -9,3 +9,6 @@ tsconfig.tsbuildinfo
 
 # Review reports generated for a person to read; regenerated on demand.
 /reports/
+
+# Downloaded third-party datasets (text only). Never committed; refetch with scripts/fetch-sources.mjs.
+/data/sources/

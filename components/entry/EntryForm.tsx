@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from 'react'
 import Dropdown from '@/components/ui/Dropdown'
+import SentenceSuggestions from '@/components/entry/SentenceSuggestions'
+import { creditFor } from '@/lib/api/sources'
 import { CATEGORIES } from '@/lib/constants'
 import {
   changedColumns,
@@ -34,6 +36,8 @@ type Props = {
   headwordLabel?: string
   definitionLabel?: string
   definitionPlaceholder?: string
+  /** Enables suggestions of real sentences that contain the headword. */
+  languageId?: string
 }
 
 const FIELD =
@@ -51,6 +55,7 @@ export default function EntryForm({
   headwordLabel,
   definitionLabel,
   definitionPlaceholder,
+  languageId,
 }: Props) {
   const [showDetail, setShowDetail] = useState(mode === 'review')
   const changed = useMemo(
@@ -271,6 +276,32 @@ export default function EntryForm({
           >
             {draft.examples.length === 0 ? 'Add an example' : 'Add another example'}
           </button>
+        )}
+
+        {newExamples < MAX_NEW_EXAMPLES && (
+          <SentenceSuggestions
+            languageId={languageId}
+            word={draft.headword}
+            exclude={draft.examples.map((e) => e.text)}
+            onUse={(sentence) => {
+              // Fill an empty example box if there is one, otherwise add a new one.
+              const used = {
+                text: sentence.text,
+                english: sentence.translation_en ?? '',
+                swahili: sentence.translation_sw ?? '',
+                sourceName: creditFor(sentence),
+                sourceUrl: sentence.source_url ?? undefined,
+                licence: sentence.licence,
+              }
+              const blank = draft.examples.findIndex((e) => !e.id && !e.text.trim() && !e.english.trim() && !e.swahili.trim())
+              set(
+                'examples',
+                blank >= 0
+                  ? draft.examples.map((e, i) => (i === blank ? used : e))
+                  : [...draft.examples, used]
+              )
+            }}
+          />
         )}
       </section>
 

@@ -10,6 +10,7 @@ import { emptyDraft, emptyExample, type EntryDraft } from '@/lib/entry-draft'
 import { groupLanguages } from '@/lib/constants/languageGroups'
 import { supabase } from '@/lib/supabase'
 import EntryForm from '@/components/entry/EntryForm'
+import ContributeTabs from '@/components/contribute/ContributeTabs'
 import RecordEntryAudio from '@/components/recording/RecordEntryAudio'
 import Dropdown from '@/components/ui/Dropdown'
 
@@ -196,6 +197,8 @@ function AddWord() {
               </p>
             )}
 
+            <ContributeTabs active="/contribute" />
+
             {/* The language: buttons for the ones on the profile, a list for any other. */}
             <fieldset className="mb-8">
               <legend className="label mb-3 text-ink-600">Language</legend>
@@ -238,7 +241,13 @@ function AddWord() {
               )}
             </fieldset>
 
-            <EntryForm mode="contribute" draft={draft} onChange={onDraftChange} languageName={language?.name} />
+            <EntryForm
+              mode="contribute"
+              draft={draft}
+              onChange={onDraftChange}
+              languageName={language?.name}
+              languageId={languageId}
+            />
 
             <div className="mt-10 flex flex-wrap items-center gap-4 border-t border-ink-200 pt-8">
               <button type="submit" disabled={busy || duplicate} className="btn-primary">

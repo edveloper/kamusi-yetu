@@ -16,6 +16,7 @@ import {
 import { createEntryFromDraft, getMyLanguageIds, rememberLanguage } from '@/lib/api/entry-editor'
 import { emptyDraft, emptyExample, type EntryDraft } from '@/lib/entry-draft'
 import EntryForm from '@/components/entry/EntryForm'
+import ContributeTabs from '@/components/contribute/ContributeTabs'
 import RecordEntryAudio from '@/components/recording/RecordEntryAudio'
 
 type Language = { id: string; name: string; code?: string | null }
@@ -179,6 +180,8 @@ function ContributeGaps() {
       </header>
 
       <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+        <ContributeTabs active="/contribute/gaps" />
+
         <div className="mb-10">
           <label htmlFor="gap-language" className="label mb-2 block text-ink-600">
             Your language
@@ -259,6 +262,7 @@ function ContributeGaps() {
                 draft={draft}
                 onChange={onDraftChange}
                 languageName={language?.name}
+                languageId={languageId}
                 headwordLabel={`In ${language?.name ?? 'your language'}`}
                 definitionLabel="What it means (optional for a single word)"
                 definitionPlaceholder={`Leave blank to use "${current.gloss_en || current.gloss_sw}", or explain any shade of meaning`}
