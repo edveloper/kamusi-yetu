@@ -78,8 +78,8 @@ dev_ds = Dataset.from_list(dev).map(encode, remove_columns=["src", "tgt", "src_l
 # %%
 model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_ID, dtype=torch.float32)
 # Recompute activations instead of storing them: slower, but fits a 16 GB GPU.
-model.gradient_checkpointing_enable()
-model.enable_input_require_grads()
+# Non-reentrant: NLLB's scaled embeddings bypass the hook the older mode relies on.
+model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
 lora = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.05, task_type="SEQ_2_SEQ_LM",
                   target_modules=["q_proj", "k_proj", "v_proj", "out_proj", "fc1", "fc2"])
 model = get_peft_model(model, lora)
