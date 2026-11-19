@@ -9,11 +9,11 @@
 # The result is still an NLLB derivative under CC BY-NC 4.0: free use only.
 #
 # **Before running** (Kaggle):
-# 1. Settings: Accelerator **GPU T4 x2** (or P100), Internet **on**.
+# 1. Settings: Accelerator **GPU T4 x2** or **P100** (only one GPU is used), Internet **on**.
 # 2. Add Input: your private dataset holding `pairs.tsv`.
 # 3. Add-ons, Secrets: `HF_MODEL_TOKEN`, a token that can write to the model repo below.
 #
-# Then **Run All**. Training takes roughly 2 to 4 hours; the last cell uploads the
+# Then **Run All**. Training takes roughly 4 to 6 hours; the last cell uploads the
 # model to Hugging Face.
 
 # %%
@@ -21,7 +21,8 @@ MODEL_ID = "facebook/nllb-200-distilled-1.3B"
 OUTPUT_REPO = "Edveloper/lughakonnect-nllb"   # private model repo on Hugging Face
 EPOCHS = 1
 LEARNING_RATE = 2e-4
-BATCH_SIZE = 16
+BATCH_SIZE = 8         # per step; GRAD_ACCUM steps make one update of 16
+GRAD_ACCUM = 2
 MAX_LEN = 128
 DEV_SIZE = 400        # pairs kept back to watch progress (the real test is separate)
 SEED = 13
@@ -32,6 +33,11 @@ SEED = 13
 !pip uninstall -y -q torchao
 
 # %%
+import os
+# One GPU only: with two, PyTorch copies the whole model to each and gathers
+# everything on the first, which ran out of memory on Kaggle's T4s.
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 import glob, random, csv
 import torch
 from datasets import Dataset
@@ -71,6 +77,9 @@ dev_ds = Dataset.from_list(dev).map(encode, remove_columns=["src", "tgt", "src_l
 
 # %%
 model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_ID, dtype=torch.float32)
+# Recompute activations instead of storing them: slower, but fits a 16 GB GPU.
+model.gradient_checkpointing_enable()
+model.enable_input_require_grads()
 lora = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.05, task_type="SEQ_2_SEQ_LM",
                   target_modules=["q_proj", "k_proj", "v_proj", "out_proj", "fc1", "fc2"])
 model = get_peft_model(model, lora)
@@ -98,14 +107,14 @@ model.to("cuda")
 print("dev chrF before:", round(dev_chrf(model), 1))
 
 # %%
-steps = len(train_ds) // (BATCH_SIZE * max(1, torch.cuda.device_count())) * EPOCHS
+steps = len(train_ds) // (BATCH_SIZE * GRAD_ACCUM) * EPOCHS
 args = Seq2SeqTrainingArguments(
     output_dir="/kaggle/working/run",
     num_train_epochs=EPOCHS,
     learning_rate=LEARNING_RATE,
     per_device_train_batch_size=BATCH_SIZE,
     per_device_eval_batch_size=BATCH_SIZE,
-    gradient_accumulation_steps=1,
+    gradient_accumulation_steps=GRAD_ACCUM,
     warmup_steps=max(1, int(steps * 0.03)),
     lr_scheduler_type="cosine",
     fp16=True,
