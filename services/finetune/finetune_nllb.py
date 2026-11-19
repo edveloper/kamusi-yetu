@@ -28,6 +28,8 @@ SEED = 13
 
 # %%
 !pip install -q "transformers>=4.44" "peft>=0.11" sacrebleu sentencepiece accelerate
+# Kaggle ships an old torchao that new peft refuses to load; LoRA does not need it.
+!pip uninstall -y -q torchao
 
 # %%
 import glob, random, csv
@@ -68,7 +70,7 @@ train_ds = Dataset.from_list(train).map(encode, remove_columns=["src", "tgt", "s
 dev_ds = Dataset.from_list(dev).map(encode, remove_columns=["src", "tgt", "src_lang", "tgt_lang"])
 
 # %%
-model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_ID, torch_dtype=torch.float32)
+model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_ID, dtype=torch.float32)
 lora = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.05, task_type="SEQ_2_SEQ_LM",
                   target_modules=["q_proj", "k_proj", "v_proj", "out_proj", "fc1", "fc2"])
 model = get_peft_model(model, lora)
