@@ -27,7 +27,7 @@ DEV_SIZE = 400        # pairs kept back to watch progress (the real test is sepa
 SEED = 13
 
 # %%
-!pip install -q "transformers>=4.44" "peft>=0.11" sacrebleu sentencepiece accelerate
+!pip install -q "transformers>=4.44,<5" "peft>=0.11" sacrebleu sentencepiece accelerate
 # Kaggle ships an old torchao that new peft refuses to load; LoRA does not need it.
 !pip uninstall -y -q torchao
 
@@ -98,6 +98,7 @@ model.to("cuda")
 print("dev chrF before:", round(dev_chrf(model), 1))
 
 # %%
+steps = len(train_ds) // (BATCH_SIZE * max(1, torch.cuda.device_count())) * EPOCHS
 args = Seq2SeqTrainingArguments(
     output_dir="/kaggle/working/run",
     num_train_epochs=EPOCHS,
@@ -105,7 +106,7 @@ args = Seq2SeqTrainingArguments(
     per_device_train_batch_size=BATCH_SIZE,
     per_device_eval_batch_size=BATCH_SIZE,
     gradient_accumulation_steps=1,
-    warmup_ratio=0.03,
+    warmup_steps=max(1, int(steps * 0.03)),
     lr_scheduler_type="cosine",
     fp16=True,
     logging_steps=100,

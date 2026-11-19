@@ -738,6 +738,14 @@ export const getTranslatableLanguages = unstable_cache(
       supabase.from('language_coverage').select('language_id, public_entries'),
     ])
 
+    // A failed or empty read must throw rather than return []: unstable_cache
+    // would keep an empty list for five minutes and every language picker on
+    // the site would open on "Nothing here matches". Throwing keeps the last
+    // good page instead.
+    if (languages.error || !languages.data?.length) {
+      throw new Error(`Could not load languages: ${languages.error?.message ?? 'none returned'}`)
+    }
+
     const entriesById = new Map(
       ((counts.data ?? []) as Array<Record<string, unknown>>).map((row) => [
         String(row.language_id),
