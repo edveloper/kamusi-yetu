@@ -12,3 +12,4 @@ tsconfig.tsbuildinfo
 
 # Downloaded third-party datasets (text only). Never committed; refetch with scripts/fetch-sources.mjs.
 /data/sources/
+/data/training/
