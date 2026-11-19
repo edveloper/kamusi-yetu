@@ -5,6 +5,8 @@ import { getTranslatableLanguages, getEntryRecordings, getEntrySummary } from '@
 import { runTranslation } from '@/lib/translation/engine'
 import { words } from '@/lib/translation/evaluation'
 import { similarSentences, wordByWord, type SimilarPair, type WordHelp } from '@/lib/translation/sentence-help'
+import { MACHINE_MAX_CHARS, machinePairSupported } from '@/lib/translation/machine'
+import MachineTranslation from '@/components/translate/MachineTranslation'
 import type { TranslationPath } from '@/lib/translation/pipeline'
 import TranslateControls from '@/components/translate/TranslateControls'
 import Waveform from '@/components/ui/Waveform'
@@ -103,6 +105,15 @@ export default async function TranslatePage({ searchParams }: { searchParams: Se
   // A sentence with no recorded translation as a whole: show each word, and
   // real sentence pairs that are close (lib/translation/sentence-help.ts).
   const sentence = wordCount >= 2 && results.length === 0 && outcome?.ok === true
+  // No checked answer: a labelled machine translation, where NLLB covers both
+  // languages (lib/translation/machine.ts). It loads in the browser afterwards.
+  const machine =
+    Boolean(process.env.HF_TOKEN) &&
+    results.length === 0 && outcome?.ok === true && q.length <= MACHINE_MAX_CHARS && machinePairSupported(from, to)
+  const machineBox =
+    machine && fromLang && toLang ? (
+      <MachineTranslation key={`${from}|${to}|${q}`} q={q} from={from} to={to} fromName={fromLang.name} toName={toLang.name} />
+    ) : null
   let breakdown: WordHelp[] = []
   let similar: SimilarPair[] = []
   if (sentence && fromLang && toLang) {
@@ -273,12 +284,15 @@ export default async function TranslatePage({ searchParams }: { searchParams: Se
           <section aria-label="Sentence help">
             <p className="label mb-3 text-signal-500">Not recorded as a whole yet</p>
             <p className="display max-w-2xl text-3xl text-ink-900 sm:text-4xl">
-              No {toLang?.name} translation for this sentence yet
+              No checked {toLang?.name} translation for this sentence yet
             </p>
             <p className="mt-5 max-w-xl text-ink-700">
-              This dictionary translates words and set phrases. Here is each word on its own,
-              {similar.length > 0 ? ' and real sentences that say something similar.' : ' to help you piece it together.'}
+              This dictionary translates words and set phrases that speakers have checked.
+              {machineBox ? ' Below is a machine translation, then each word on its own' : ' Here is each word on its own'}
+              {similar.length > 0 ? ', and real sentences that say something similar.' : '.'}
             </p>
+
+            {machineBox}
 
             {breakdown.length > 0 && (
               <div className="mt-10">
@@ -378,6 +392,7 @@ export default async function TranslatePage({ searchParams }: { searchParams: Se
                 Search every language
               </Link>
             </div>
+            {machineBox}
           </section>
         )}
 
