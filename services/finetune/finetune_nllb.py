@@ -87,6 +87,7 @@ model.print_trainable_parameters()
 
 # %%
 def translate(texts, src, tgt, m):
+    m.eval()  # generating in training mode drops the decoder cache and gives "? ? ?"
     tokenizer.src_lang = src
     batch = tokenizer(texts, return_tensors="pt", padding=True, truncation=True, max_length=MAX_LEN).to(m.device)
     with torch.no_grad():

@@ -2,7 +2,9 @@
 // (services/translate-space/), NLLB-200 by Meta under CC BY-NC 4.0.
 // Shown free and labelled; never saved into the dictionary (sql/124).
 
-export const MACHINE_MODEL = 'facebook/nllb-200-distilled-1.3B'
+// NLLB-200 distilled 1.3B adapted to Dholuo and Kikuyu (services/finetune/).
+// Also the key for saved answers, so changing it starts a fresh cache.
+export const MACHINE_MODEL = 'Edveloper/lughakonnect-nllb'
 export const MACHINE_LANGUAGES = new Set(['sw', 'en', 'luo', 'ki', 'kam', 'som'])
 export const MACHINE_MAX_CHARS = 400
 

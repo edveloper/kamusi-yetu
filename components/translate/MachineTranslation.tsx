@@ -105,8 +105,9 @@ export default function MachineTranslation({ q, from, to, fromName, toName }: Pr
             {state.translation}
           </p>
           <p className="mt-4 max-w-xl text-sm text-ink-600">
-            By NLLB-200, a translation model from Meta. It is often close and sometimes badly
-            wrong, so check anything important with a speaker.
+            By NLLB-200, a translation model from Meta, adapted by LughaKonnect with sentence pairs
+            from AfriVoices-KE and KenTrans. It is often close and sometimes badly wrong, so check
+            anything important with a speaker.
           </p>
 
           {state.id && (
