@@ -15,6 +15,7 @@ import {
 } from '@/lib/api/moderation'
 import RecordingsQueue from '@/components/moderate/RecordingsQueue'
 import OrthographyQueue from '@/components/moderate/OrthographyQueue'
+import MachineFeedbackQueue from '@/components/moderate/MachineFeedbackQueue'
 import Dropdown from '@/components/ui/Dropdown'
 import { supabase } from '@/lib/supabase'
 
@@ -46,7 +47,7 @@ type ModerationItem = {
 }
 
 type Language = { id: string; name: string }
-type Queue = 'entries' | 'recordings' | 'spelling'
+type Queue = 'entries' | 'recordings' | 'spelling' | 'machine'
 
 const isPhraseItem = (item: ModerationItem) =>
   String(item.part_of_speech || '').toLowerCase() === 'phrase'
@@ -129,6 +130,7 @@ export default function ModeratePage() {
   // entry's own edit page alongside everything else about it.
   const [additions, setAdditions] = useState<Array<{ entryId: string; headword: string; language: string; examples: number; senses: number }>>([])
   const [error, setError] = useState('')
+  const [machineCount, setMachineCount] = useState<number | null>(null)
 
   useEffect(() => {
     if (loading || !user) return
@@ -322,6 +324,7 @@ export default function ModeratePage() {
     ['entries', 'Entries', items.length],
     ['recordings', 'Recordings', null],
     ['spelling', 'Damaged Spellings', null],
+    ['machine', 'Machine Corrections', machineCount],
   ]
 
   return (
@@ -384,6 +387,7 @@ export default function ModeratePage() {
 
         {queue === 'recordings' && <RecordingsQueue />}
         {queue === 'spelling' && <OrthographyQueue />}
+        {queue === 'machine' && <MachineFeedbackQueue onCount={setMachineCount} />}
 
         {queue === 'entries' && (
           <>
