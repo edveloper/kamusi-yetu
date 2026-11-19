@@ -128,8 +128,18 @@ for ex in dev[:6]:
     print("   real: ", ex["tgt"])
 
 # %%
-from kaggle_secrets import UserSecretsClient
-token = UserSecretsClient().get_secret("HF_MODEL_TOKEN")
+# Always keep the trained adapter (small) in the output, so the work is never lost.
+model.save_pretrained("/kaggle/working/adapter")
+tokenizer.save_pretrained("/kaggle/working/adapter")
+print("Adapter saved to /kaggle/working/adapter")
+
+try:
+    from kaggle_secrets import UserSecretsClient
+    token = UserSecretsClient().get_secret("HF_MODEL_TOKEN")
+except Exception:
+    token = None
+if not token:
+    raise SystemExit("No HF_MODEL_TOKEN secret attached: nothing uploaded. Download /kaggle/working/adapter instead.")
 
 merged = model.merge_and_unload()
 merged.save_pretrained("/kaggle/working/merged", safe_serialization=True)
