@@ -4,8 +4,14 @@
 //   node scripts/fetch-sources.mjs
 //
 // AfriVoices-KE (CC BY 4.0, https://huggingface.co/Anv-ke): transcripts.csv and
-// meta.csv for each split. KenTrans (CC BY 4.0): Dholuo-Swahili sentence pairs.
-// Common Voice (CC0): Swahili and Somali sentences.
+// meta.csv for each split. KenTrans (CC BY 4.0): Dholuo and Luhya sentence
+// pairs with Swahili. thinkKenya (CC BY 4.0): Kidaw'ida, Kalenjin and Dholuo
+// pairs with Swahili. Common Voice (CC0): Swahili and Somali sentences.
+//
+// Downloaded by hand from Mozilla Data Collective (needs an account), into
+// data/sources/mdc/<name>/ and unpacked as the import script describes:
+// Common Voice releases, Common Voice Spontaneous Speech, and CLEAR Global's
+// Gamayun Swahili kit.
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -38,7 +44,23 @@ for (const [repo, short] of [['Anv-ke/Dholuo', 'luo'], ['Anv-ke/kikuyu', 'ki']])
     }
   }
 }
-await get('https://huggingface.co/datasets/Kencorpus/KenTrans/resolve/main/data/dho/dho_combined.txt', `${OUT}/kentrans/dho_combined.txt`)
+// KenTrans: Dholuo, and the three Luhya dialects (Bukusu lbk, Marachi lch,
+// Logooli llg), each against Kiswahili.
+for (const file of ['dho', 'lbk', 'lch', 'llg']) {
+  await get(`https://huggingface.co/datasets/Kencorpus/KenTrans/resolve/main/data/${file}/${file}_combined.txt`, `${OUT}/kentrans/${file}_combined.txt`)
+}
+
+// thinkKenya Low-Resource Language Data (CC BY 4.0, gated with automatic
+// approval: accept the terms once on the dataset page). Kidaw'ida, Kalenjin
+// and Dholuo, each against Kiswahili.
+for (const config of ['dav_swa', 'kln_swa', 'luo_swa']) {
+  for (const split of ['train', 'test']) {
+    await get(
+      `https://huggingface.co/datasets/thinkKenya/kenyan-low-resource-language-data/resolve/main/${config}/${split}-00000-of-00001.parquet`,
+      `${OUT}/thinkkenya/${config}_${split}.parquet`
+    )
+  }
+}
 
 // Common Voice (CC0): the sentences volunteers read aloud, as published in the
 // project's repository. Swahili and Somali are there; newer languages such as

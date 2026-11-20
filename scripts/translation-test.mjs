@@ -24,7 +24,7 @@
 
 import fs from 'node:fs'
 import { runTranslation } from '../lib/translation/engine.ts'
-import { HOLD_OUT_PREFIX, chrFOf, normaliseForCompare, words } from '../lib/translation/evaluation.ts'
+import { HOLD_OUT_PREFIX, chrFOf, heldOutFilter, normaliseForCompare, words } from '../lib/translation/evaluation.ts'
 
 const LIMIT = Number((process.argv.find((a) => a.startsWith('--limit=')) ?? '').slice(8)) || 0
 const URL_ = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -47,8 +47,8 @@ async function heldOut(code) {
   for (let from = 0; ; from += 1000) {
     const page = await rest(
       `source_sentences?select=text,translation_en,translation_sw,source,kind` +
-        `&language_id=eq.${lang[code].id}&text_key=like.${HOLD_OUT_PREFIX}*` +
-        `&or=(translation_en.not.is.null,translation_sw.not.is.null)&order=text_key&offset=${from}&limit=1000`
+        `&language_id=eq.${lang[code].id}&and=(${heldOutFilter(code)},or(translation_en.not.is.null,translation_sw.not.is.null))` +
+        `&order=text_key&offset=${from}&limit=1000`
     )
     rows.push(...page)
     if (page.length < 1000) break

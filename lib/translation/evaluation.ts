@@ -11,8 +11,22 @@
 
 export const HOLD_OUT_PREFIX = '00'
 
-export function isHeldOut(textKey: string) {
-  return textKey.startsWith(HOLD_OUT_PREFIX)
+// Languages with fewer pairs keep back a bigger slice, so their test still has
+// a few hundred sentences: text_keys starting 00 up to (share - 1) in hex, out
+// of 256. The 00 slice is always part of it. Changing a share changes the test
+// set, so scores before and after are no longer comparable.
+export const HOLD_OUT_SHARE: Record<string, number> = { dav: 4, kal: 4, bxk: 16, rag: 16, lri: 16 }
+
+export function isHeldOut(textKey: string, code?: string) {
+  const share = (code && HOLD_OUT_SHARE[code]) || 1
+  return parseInt(textKey.slice(0, 2), 16) < share
+}
+
+/** PostgREST condition on text_key for a language's held-out slice, for use inside and=(...). */
+export function heldOutFilter(code: string) {
+  const share = HOLD_OUT_SHARE[code] || 1
+  const prefixes = Array.from({ length: share }, (_, i) => i.toString(16).padStart(2, '0'))
+  return `or(${prefixes.map((p) => `text_key.like.${p}*`).join(',')})`
 }
 
 /** Lower case, accents kept, punctuation and extra spaces gone. */

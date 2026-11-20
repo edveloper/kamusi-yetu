@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { chrFOf, isHeldOut, normaliseForCompare, words } from '../lib/translation/evaluation.ts'
+import { chrFOf, heldOutFilter, isHeldOut, normaliseForCompare, words } from '../lib/translation/evaluation.ts'
 
 test('identical sentences score 100, unrelated ones close to 0', () => {
   assert.equal(chrFOf([['Nĩ wega mũno.', 'nĩ wega mũno']]), 100)
@@ -35,4 +35,15 @@ test('words splits on spaces and punctuation and keeps apostrophes inside', () =
 test('the hold-out rule is fixed by the text key', () => {
   assert.equal(isHeldOut('00a1'), true)
   assert.equal(isHeldOut('0a01'), false)
+  assert.equal(isHeldOut('03ff', 'luo'), false)
+})
+
+test('smaller languages keep back a bigger slice that includes 00', () => {
+  assert.equal(isHeldOut('00a1', 'dav'), true)
+  assert.equal(isHeldOut('03ff', 'dav'), true)
+  assert.equal(isHeldOut('04aa', 'dav'), false)
+  assert.equal(isHeldOut('0fff', 'bxk'), true)
+  assert.equal(isHeldOut('10aa', 'bxk'), false)
+  assert.equal(heldOutFilter('kal'), 'or(text_key.like.00*,text_key.like.01*,text_key.like.02*,text_key.like.03*)')
+  assert.equal(heldOutFilter('ki'), 'or(text_key.like.00*)')
 })
