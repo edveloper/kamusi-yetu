@@ -46,7 +46,10 @@ export async function callTranslateSpace(text: string, from: string, to: string,
   const lines = (await stream.text()).trim().split('\n')
   const kind = lines.find((l) => l.startsWith('event:'))?.slice(6).trim()
   const data = lines.filter((l) => l.startsWith('data:')).pop()?.slice(5).trim()
-  if (kind !== 'complete' || !data) throw new Error(`Space ${kind ?? 'gave no answer'}`)
+  if (kind !== 'complete' || !data) {
+    // An "error" event carries the reason, e.g. "ZeroGPU quota exceeded".
+    throw new Error(`Space ${kind ?? 'gave no answer'}: ${String(data ?? '').slice(0, 300)}`)
+  }
   const [translation] = JSON.parse(data) as [string]
   return String(translation ?? '').trim()
 }

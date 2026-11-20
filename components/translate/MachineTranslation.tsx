@@ -17,7 +17,7 @@ type Props = { q: string; from: string; to: string; fromName: string; toName: st
 type State =
   | { kind: 'loading' }
   | { kind: 'done'; id: string | null; translation: string }
-  | { kind: 'failed'; busy: boolean }
+  | { kind: 'failed'; busy: boolean; quota: boolean }
 
 export default function MachineTranslation({ q, from, to, fromName, toName }: Props) {
   const { user } = useAuth()
@@ -42,9 +42,9 @@ export default function MachineTranslation({ q, from, to, fromName, toName }: Pr
         const json = await res.json().catch(() => ({}))
         if (cancelled) return
         if (res.ok && json.translation) setState({ kind: 'done', id: json.id ?? null, translation: json.translation })
-        else setState({ kind: 'failed', busy: res.status === 429 })
+        else setState({ kind: 'failed', busy: res.status === 429, quota: json.error === 'quota' })
       })
-      .catch(() => !cancelled && setState({ kind: 'failed', busy: false }))
+      .catch(() => !cancelled && setState({ kind: 'failed', busy: false, quota: false }))
     return () => {
       cancelled = true
       clearTimeout(slowTimer)
@@ -77,9 +77,11 @@ export default function MachineTranslation({ q, from, to, fromName, toName }: Pr
   if (state.kind === 'failed') {
     return (
       <div className="mt-10 border border-ink-200 px-5 py-4 text-sm text-ink-600">
-        {state.busy
-          ? 'The machine translator is busy right now. Try again in a few minutes.'
-          : 'The machine translator is not answering right now. Try again later.'}
+        {state.quota
+          ? 'The machine translator has used its free allowance for today. Try again in a few hours.'
+          : state.busy
+            ? 'The machine translator is busy right now. Try again in a few minutes.'
+            : 'The machine translator is not answering right now. Try again later.'}
       </div>
     )
   }

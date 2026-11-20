@@ -57,17 +57,25 @@ export async function POST(req: Request) {
     .from('machine_translations')
     .select('id', { count: 'exact', head: true })
     .gte('created_at', since)
-  if ((count ?? 0) >= NEW_PER_TEN_MINUTES) {
-    return NextResponse.json({ error: 'busy' }, { status: 429 })
+  // Counted per day so we can see how often people are turned away (sql/125).
+  // Never allowed to break the answer itself.
+  const failed = async (reason: 'quota' | 'busy' | 'unavailable', status: number) => {
+    await Promise.resolve(
+      supabase.rpc('record_machine_translation_failure', { p_source: from, p_target: to, p_reason: reason })
+    ).catch(() => {})
+    return NextResponse.json({ error: reason }, { status })
   }
+
+  if ((count ?? 0) >= NEW_PER_TEN_MINUTES) return failed('busy', 429)
 
   let translation: string
   try {
     translation = await callTranslateSpace(q, from, to)
-  } catch {
-    return NextResponse.json({ error: 'unavailable' }, { status: 503 })
+  } catch (err) {
+    const quota = /quota/i.test(err instanceof Error ? err.message : '')
+    return failed(quota ? 'quota' : 'unavailable', 503)
   }
-  if (!translation) return NextResponse.json({ error: 'unavailable' }, { status: 503 })
+  if (!translation) return failed('unavailable', 503)
 
   const { data: stored } = await supabase
     .from('machine_translations')
