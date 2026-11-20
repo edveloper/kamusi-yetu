@@ -14,9 +14,10 @@
 import fs from 'node:fs'
 import { isHeldOut, normaliseForCompare } from '../lib/translation/evaluation.ts'
 
-// Dholuo, Kikuyu, Kidaw'ida, Kalenjin, and the Luhya dialects Bukusu, Logooli
-// and Marachi.
-const LANGUAGES = ['luo', 'ki', 'dav', 'kal', 'bxk', 'rag', 'lri']
+// Dholuo, Kikuyu, Kidaw'ida, Kalenjin, and the Luhya dialects Logooli and
+// Marachi. Bukusu is left out until it has real sentence pairs: what it had
+// was Bible text, removed on 2026-11-21.
+const LANGUAGES = ['luo', 'ki', 'dav', 'kal', 'rag', 'lri']
 
 const URL_ = process.env.NEXT_PUBLIC_SUPABASE_URL
 const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY

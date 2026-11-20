@@ -6,10 +6,13 @@
 // on the Space's MODEL_REVISION. Also the key for saved answers, so changing it
 // starts a fresh cache.
 export const MACHINE_MODEL = 'Edveloper/lughakonnect-nllb@run2'
-export const MACHINE_LANGUAGES = new Set(['sw', 'en', 'luo', 'ki', 'kam', 'som', 'dav', 'kal', 'bxk', 'rag', 'lri'])
+// Bukusu (bxk) is in the run 2 model but not offered: nearly all it learned
+// from was Bible text, since removed from the data (2026-11-21). It returns
+// when there are real Bukusu sentence pairs to train on.
+export const MACHINE_LANGUAGES = new Set(['sw', 'en', 'luo', 'ki', 'kam', 'som', 'dav', 'kal', 'rag', 'lri'])
 // New to the model in run 2 and learned from Kiswahili pairs only (Kidaw'ida,
-// Kalenjin, and the Luhya dialects Bukusu, Logooli and Marachi). Labelled Early.
-export const EARLY_MACHINE_LANGUAGES = new Set(['dav', 'kal', 'bxk', 'rag', 'lri'])
+// Kalenjin, and the Luhya dialects Logooli and Marachi). Labelled Early.
+export const EARLY_MACHINE_LANGUAGES = new Set(['dav', 'kal', 'rag', 'lri'])
 export const MACHINE_MAX_CHARS = 400
 
 export function machinePairIsEarly(from: string, to: string) {

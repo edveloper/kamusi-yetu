@@ -182,15 +182,16 @@ const BIBLE = /\b(yuda|isiraeli|israeli|yosefu|yosefa|farao|daudi|yakobo|aburaha
 const shouting = (s) => { const letters = s.replace(/[^\p{L}]/gu, ''); return letters.length > 3 && letters === letters.toUpperCase() }
 const tidyCase = (s) => (shouting(s) ? recase(s) : s)
 
-// Parts of KenTrans files that are Bible text retold, found by
+// Parts of KenTrans files that are Bible text retold or church hymns, found by
 // scripts/find-bible-lines.mjs and checked by hand (2026-11-21): line ranges,
 // counted from 1, that are left out. The name list (BIBLE) misses most of it.
 // The Bukusu file is Genesis, Deuteronomy and Judges apart from a block of
-// news and death notices (lines 1067 to 1140); the end of the Logooli file is
-// Judges, Ezra and Lamentations.
+// news and death notices (lines 1067 to 1140). In the Logooli file, lines
+// 1320 to 2966 are hymns (probably from a hymn book someone owns) and the end
+// is Judges, Ezra and Lamentations.
 const KENTRANS_BIBLE = {
   'lbk_combined.txt': [[1, 1066], [1141, Infinity]],
-  'llg_combined.txt': [[6848, 7734]],
+  'llg_combined.txt': [[1320, 2966], [6848, 7734]],
 }
 const inBibleRange = (file, line) => (KENTRANS_BIBLE[file] ?? []).some(([a, b]) => line >= a && line <= b)
 
