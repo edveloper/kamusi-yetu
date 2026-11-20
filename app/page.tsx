@@ -1,17 +1,22 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { CONTACT, CORPUS_LICENCE, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from '@/lib/constants/site'
-import { getCorpusHeadline, getLanguageDirectory } from '@/lib/public-site'
+import { getPlatformStatus } from '@/lib/platform-status'
 import LanguagePicker from '@/components/home/LanguagePicker'
 import LanguageMarquee from '@/components/home/LanguageMarquee'
-import CountUp from '@/components/ui/CountUp'
+import StatStrip from '@/components/status/StatStrip'
+import Roadmap from '@/components/status/Roadmap'
+import { LanguageTiles } from '@/components/status/LanguageProgress'
 import { serializeJsonLd } from '@/lib/json-ld'
 import SearchAutocomplete from '@/components/SearchAutocomplete'
 
 // Searchers do not arrive here. They find a word through a web search and land
 // on its entry page. The people who arrive at the homepage are speakers,
 // heritage learners and funders, so the page answers their questions instead of
-// offering a search box none of them came for.
+// offering a search box none of them came for. Since November 2026 the lead is
+// sentence translation, because that is what brings speakers in.
+//
+// Every figure comes from lib/platform-status.ts, shared with About and Coverage.
 
 export const revalidate = 300
 
@@ -29,13 +34,15 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function HomePage() {
-  const [languages, headline] = await Promise.all([
-    getLanguageDirectory(),
-    getCorpusHeadline(),
-  ])
+/** "Dholuo, Kikuyu, Kalenjin and 5 more" */
+function nameList(names: string[], shown = 4) {
+  if (names.length <= shown) return names.slice(0, -1).join(', ') + (names.length > 1 ? ' and ' : '') + names[names.length - 1]
+  return `${names.slice(0, shown).join(', ')} and ${names.length - shown} more`
+}
 
-  const withAudio = languages.filter((language) => language.recordings > 0).length
+export default async function HomePage() {
+  const { languages, totals } = await getPlatformStatus()
+  const translating = languages.filter((l) => l.machine && l.machine !== 'bridge').map((l) => l.name)
 
   // The site as a whole for search engines: a searchable site, and an openly
   // licensed dataset (entries themselves are described as DefinedTerms).
@@ -64,10 +71,6 @@ export default async function HomePage() {
       keywords: ['Kenyan languages', 'dictionary', 'translation', 'Kiswahili', 'language corpus'],
     },
   ]
-  const emptiest = [...languages]
-    .filter((language) => language.entries > 0)
-    .sort((a, b) => a.percentCovered - b.percentCovered)
-    .slice(0, 6)
 
   return (
     <div className="min-h-screen bg-paper">
@@ -75,16 +78,22 @@ export default async function HomePage() {
       {/* ---------------------------------------------------------- hero */}
       <section className="border-b border-ink-900 bg-ink-900 text-paper">
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-24">
-          <p className="mark label mb-6 text-signal-300">Open corpus, CC BY 4.0</p>
+          <p className="mark label mb-6 text-signal-300">Free to use, open data</p>
           <h1 className="display reveal-wipe max-w-4xl text-5xl sm:text-6xl md:text-7xl lg:text-8xl">
             Kenya&apos;s languages,
             <br />
-            in one <span className="text-signal-300">open dataset</span>
+            <span className="text-signal-300">translated</span> and kept
           </h1>
           <p className="definition mt-8 max-w-xl text-ink-300">
-            Words, phrases and recordings from across the country, gathered in one place and
-            licensed so that anyone building software can use them.
+            Write a whole sentence in {nameList(translating)} and read it in Kiswahili or
+            English. Speakers correct the translator as they use it, and the words and sentences
+            behind it are open for anyone to build on.
           </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/translate" className="btn-on-dark">
+              Translate a Sentence
+            </Link>
+          </div>
 
           <div className="mt-12 border-t border-ink-700 pt-10">
             <LanguagePicker languages={languages} />
@@ -95,53 +104,57 @@ export default async function HomePage() {
       <LanguageMarquee languages={languages} />
 
       {/* ------------------------------------------------------- the state */}
-      {headline && (
-        <section aria-labelledby="state-heading" className="border-b border-ink-200">
-          <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-            <h2 id="state-heading" className="mark label mb-8 text-signal-500">
-              Where it stands today
-            </h2>
-            <dl className="reveal-rows grid grid-cols-2 gap-x-8 gap-y-8 md:grid-cols-4">
-              {[
-                {
-                  value: headline.indigenous_entries,
-                  label: 'Words checked by a person',
-                },
-                {
-                  value: headline.languages,
-                  label: `Languages, ${withAudio} with a voice`,
-                },
-                {
-                  value: headline.awaiting_curation,
-                  label: 'Still need a definition',
-                },
-                {
-                  value: headline.awaiting_orthography,
-                  label: 'Still need a speaker',
-                },
-              ].map((stat) => (
-                <div key={stat.label}>
-                  <dd className="headword tabular text-5xl text-ink-900 md:text-6xl">
-                    <CountUp value={stat.value} />
-                  </dd>
-                  <dt className="mt-2 text-sm font-semibold text-ink-700">{stat.label}</dt>
-                </div>
-              ))}
-            </dl>
-            <p className="mt-10 max-w-2xl text-ink-700">
-              The last two numbers are the ones nobody publishes. We do, because a corpus that
-              only shows its good figures is not one you should build on.{' '}
-              <Link
-                href="/guidelines"
-                className="font-semibold text-signal-500 underline underline-offset-2"
-              >
-                How we decide what counts
-              </Link>
-              .
-            </p>
+      <section aria-labelledby="state-heading" className="border-b border-ink-200">
+        <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+          <h2 id="state-heading" className="mark label mb-8 text-signal-500">
+            Where it stands today
+          </h2>
+          <StatStrip totals={totals} />
+          <p className="mt-10 max-w-2xl text-ink-700">
+            The last figure is the one most projects would leave out. We show it, because a
+            dataset that only shows its good numbers is not one you should build on.{' '}
+            <Link href="/guidelines" className="font-semibold text-signal-500 underline underline-offset-2">
+              How we decide what counts
+            </Link>
+            .
+          </p>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------- every language */}
+      <section className="border-b border-ink-200">
+        <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
+          <h2 className="display reveal mb-3 text-2xl md:text-3xl">Where each language is</h2>
+          <p className="mb-8 max-w-2xl text-ink-700">
+            Every language moves through the same four stages. Words, then real sentences with
+            their translations, then a translator trained on those sentences, then recorded
+            voices. A filled square is done, a half-filled one is started.
+          </p>
+          <LanguageTiles languages={languages} />
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/trending" className="btn-secondary">
+              See the Full Coverage
+            </Link>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------ the roadmap */}
+      <section className="border-b border-ink-200">
+        <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
+          <h2 className="display reveal mb-3 text-2xl md:text-3xl">Where this is going</h2>
+          <p className="mb-10 max-w-2xl text-ink-700">
+            Translation first, because that is what brings speakers in, and every correction they
+            make teaches the translator. Words and voice grow alongside.
+          </p>
+          <Roadmap compact />
+          <div className="mt-10">
+            <Link href="/about" className="font-semibold text-signal-500 underline underline-offset-2">
+              The whole plan, and why
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* ------------------------------------------------------ what it is */}
       <section className="border-b border-ink-200">
@@ -149,17 +162,19 @@ export default async function HomePage() {
           <div>
             <h2 className="display reveal mb-4 text-2xl md:text-3xl">What this is</h2>
             <p className="mb-4 text-ink-700">
-              An open corpus of Kenyan languages. Words, phrases, usage and recordings,
-              contributed by speakers and checked by reviewers with standing in that language.
+              A free translator and dictionary for Kenyan languages, and the open data behind
+              them. Words, sentences and recordings, contributed by speakers and checked by
+              reviewers who speak that language.
             </p>
             <p className="mb-4 text-ink-700">
-              It is not a museum piece. The goal is machine-readable language data good enough
-              to build on, so that translation, speech recognition and the devices that use them
-              work in Kipsigis and Dholuo and Rendille, not only in English.
+              The goal is language data good enough to build on, so that translation, speech
+              recognition and the devices that use them work in Dholuo and Kalenjin and Taita, not
+              only in English.
             </p>
             <p className="text-ink-700">
-              Everything here is licensed CC BY 4.0, so anyone can build with it as long as they
-              credit the people it came from.
+              The words, sentences and recordings are licensed CC BY 4.0, so anyone can build with
+              them as long as they credit the people they came from. Machine translations are
+              labelled as such and are never added to that data.
             </p>
           </div>
 
@@ -185,71 +200,11 @@ export default async function HomePage() {
             </form>
             <p className="mt-4 text-sm text-ink-600">
               Or{' '}
-              <Link
-                href="/translate"
-                className="font-semibold text-signal-500 underline underline-offset-2"
-              >
-                move a word between two Kenyan languages
+              <Link href="/translate" className="font-semibold text-signal-500 underline underline-offset-2">
+                translate a whole sentence
               </Link>
               .
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* --------------------------------------------------- where to help */}
-      <section className="border-b border-ink-200">
-        <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
-          <h2 className="display reveal mb-3 text-2xl md:text-3xl">These need the most work</h2>
-          <p className="mb-8 max-w-2xl text-ink-700">
-            Ranked by how much of the core vocabulary is still missing. If you speak one of
-            these, an hour of your time goes further here than anywhere else on the site.
-          </p>
-
-          <ul className="reveal-rows border-t border-ink-200">
-            {emptiest.map((language) => (
-              <li key={language.id} className="border-b border-ink-200">
-                <Link
-                  href={`/contribute/gaps?lang=${language.code}`}
-                  className="grid grid-cols-[1fr_auto] items-center gap-4 py-4 transition-colors hover:bg-paper-warm sm:grid-cols-[1fr_8rem_8rem_auto]"
-                >
-                  <div>
-                    <p className="font-semibold text-ink-900">{language.name}</p>
-                    {language.nativeName && (
-                      <p className="text-sm text-ink-600">{language.nativeName}</p>
-                    )}
-                  </div>
-                  <p className="tabular hidden font-mono text-sm text-ink-600 sm:block">
-                    {language.entries.toLocaleString()} words
-                  </p>
-                  <p className="tabular hidden font-mono text-sm text-ink-600 sm:block">
-                    {language.recordings} recordings
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <div className="hidden h-1.5 w-20 bg-ink-200 sm:block">
-                      <div
-                        className="h-full bg-signal-500"
-                        style={{
-                          width: `${Math.min(100, Math.max(2, language.percentCovered))}%`,
-                        }}
-                      />
-                    </div>
-                    <span className="tabular font-mono text-sm font-semibold text-ink-900">
-                      {language.percentCovered}%
-                    </span>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/contribute/gaps" className="btn-primary">
-              Fill a gap
-            </Link>
-            <Link href="/trending" className="btn-secondary">
-              See every language
-            </Link>
           </div>
         </div>
       </section>
@@ -261,16 +216,16 @@ export default async function HomePage() {
             If your language is not in a system, neither are you
           </h2>
           <p className="mb-6 max-w-2xl text-ink-700">
-            Every word added and every voice recorded is one more piece of evidence that these
-            languages can be worked with. That is what makes them worth supporting in the tools
-            people actually use.
+            Every correction to a translation, every word added and every voice recorded is one
+            more piece of evidence that these languages can be worked with. That is what makes
+            them worth supporting in the tools people actually use.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Link href="/contribute/gaps" className="btn-primary">
-              Add a word from your language
+            <Link href="/translate" className="btn-primary">
+              Check a Translation
             </Link>
-            <Link href="/about" className="btn-secondary">
-              Why this exists
+            <Link href="/contribute/gaps" className="btn-secondary">
+              Add a Word
             </Link>
           </div>
         </div>

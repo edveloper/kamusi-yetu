@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { SITE_URL } from '@/lib/constants/site'
-import { getCorpusHeadline, getLanguageCoverage } from '@/lib/public-site'
-import CountUp from '@/components/ui/CountUp'
+import { getCorpusHeadline } from '@/lib/public-site'
+import { getPlatformStatus } from '@/lib/platform-status'
+import StatStrip from '@/components/status/StatStrip'
+import Roadmap from '@/components/status/Roadmap'
 
 // Funders, journalists and prospective collaborators land here. The job is to
 // establish that this is serious and that the person behind it knows why, in
@@ -21,8 +23,9 @@ export const metadata: Metadata = {
 }
 
 export default async function AboutPage() {
-  const [headline, coverage] = await Promise.all([getCorpusHeadline(), getLanguageCoverage()])
-  const recordings = coverage.reduce((sum, l) => sum + l.verified_recordings, 0)
+  // Figures from lib/platform-status.ts, the same as the home page and Coverage.
+  const [headline, { totals }] = await Promise.all([getCorpusHeadline(), getPlatformStatus()])
+  const recordings = totals.recordings
 
   return (
     <div className="min-h-screen bg-paper">
@@ -77,8 +80,8 @@ export default async function AboutPage() {
             </p>
             <p className="mb-5 text-ink-700">
               My role here is not only technical. I am deciding the data model, the moderation
-              rules, what counts as verified and what does not, and how the translation layer
-              should work as it grows past single words. Those choices matter more than the code.
+              rules, what counts as verified and what does not, and how the machine translation is
+              trained, tested and labelled. Those choices matter more than the code.
             </p>
             <p className="text-ink-700">
               I also build{' '}
@@ -116,26 +119,12 @@ export default async function AboutPage() {
         <section className="border-b border-ink-200">
           <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
             <h2 className="mark label mb-8 text-ink-600">Where it stands</h2>
-            <dl className="reveal-rows grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4">
-              {[
-                { value: headline.indigenous_entries, label: 'Published entries' },
-                { value: headline.reviewed_entries ?? 0, label: 'Checked by a reviewer' },
-                { value: headline.languages, label: 'Languages' },
-                { value: recordings, label: 'Recordings' },
-              ].map((stat) => (
-                <div key={stat.label}>
-                  <dd className="headword tabular text-5xl text-ink-900 md:text-6xl">
-                    <CountUp value={stat.value} />
-                  </dd>
-                  <dt className="mt-2 text-sm font-semibold text-ink-700">{stat.label}</dt>
-                </div>
-              ))}
-            </dl>
+            <StatStrip totals={totals} />
 
             <div className="mt-12 grid gap-8 md:grid-cols-2 md:gap-14">
               <p className="text-ink-700">
-                The corpus started from seed word lists and is now being checked by speakers. Of
-                the {headline.indigenous_entries.toLocaleString()} published entries,{' '}
+                The dictionary started from seed word lists and is now being checked by speakers.
+                Of the {totals.words.toLocaleString()} published words,{' '}
                 {(headline.reviewed_entries ?? 0).toLocaleString()} have been approved by a
                 reviewer, and the rest are labelled Not Yet Reviewed.{' '}
                 {(headline.awaiting_confirmation ?? 0).toLocaleString()} more are held back until a
@@ -145,9 +134,13 @@ export default async function AboutPage() {
                 that is true.
               </p>
               <p className="text-ink-700">
+                The translator learns from real sentences with their Kiswahili or English
+                translations, from openly licensed collections, most of them made by Kenyan
+                researchers, and checked before use. We leave out Bible text and hymns. Every sentence it is tested
+                on is held back from training, so the scores on the Coverage page are fair.{' '}
                 {recordings === 0
-                  ? 'Audio collection is just beginning. It is the priority, because recordings are the one part that cannot be gathered later from speakers who are no longer here.'
-                  : `${recordings.toLocaleString()} recordings so far. Audio is the priority, because it is the one part that cannot be gathered later from speakers who are no longer here.`}{' '}
+                  ? 'Recording has not started yet. Voice is the next big stage, because it is the one part that cannot be gathered later from speakers who are no longer here.'
+                  : `${recordings.toLocaleString()} recordings so far. Voice matters most in the long run, because it cannot be gathered later from speakers who are no longer here.`}{' '}
                 <Link
                   href="/guidelines"
                   className="font-semibold text-signal-600 underline underline-offset-2"
@@ -161,6 +154,25 @@ export default async function AboutPage() {
         </section>
       )}
 
+      {/* ---------------------------------------------------------- the plan */}
+      <section className="border-b border-ink-200">
+        <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
+          <h2 className="mark display mb-4 text-2xl md:text-3xl">Where it is going</h2>
+          <p className="mb-10 max-w-2xl text-ink-700">
+            The plan changed in November 2026. Machine translation now comes first, because the
+            moment people can translate a whole sentence in their own language, they want to help
+            make it better. Each correction a speaker makes becomes training data, so the
+            translator and the open dataset grow together.
+          </p>
+          <Roadmap />
+          <p className="mt-10 text-ink-700">
+            <Link href="/trending" className="font-semibold text-signal-600 underline underline-offset-2">
+              See where every language stands
+            </Link>
+          </p>
+        </div>
+      </section>
+
       {/* ------------------------------------------------------ what it is for */}
       <section className="border-b border-ink-200">
         <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
@@ -172,8 +184,8 @@ export default async function AboutPage() {
                 body: 'Search any Kenyan language, in English, Kiswahili, or the language itself, and hear how a word is actually said.',
               },
               {
-                title: 'Translation Between Kenyan Languages',
-                body: 'Not only to and from English. Two languages that record a word for the same meaning can reach each other directly.',
+                title: 'Translation of Whole Sentences',
+                body: 'Free machine translation between Kenyan languages, Kiswahili and English, clearly labelled as machine output and corrected by speakers as they use it.',
               },
               {
                 title: 'Training Data Anyone Can Use',

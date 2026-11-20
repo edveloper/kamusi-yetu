@@ -3,7 +3,9 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import Dropdown, { type DropdownOption } from '@/components/ui/Dropdown'
-import type { LanguageState } from '@/lib/public-site'
+import type { LanguageStatus } from '@/lib/platform-status'
+import { MACHINE_LEVEL_TEXT } from '@/lib/status-labels'
+import StageTrack from '@/components/status/StageTrack'
 
 /**
  * The homepage hero.
@@ -12,9 +14,10 @@ import type { LanguageState } from '@/lib/public-site'
  * to look up a word, they search the web for it and land on the entry directly.
  * The people who do arrive here already know which language they care about,
  * so that is what we ask, and the answer is a real report on that language
- * rather than a marketing line.
+ * rather than a marketing line. The figures are the same ones Coverage shows
+ * (lib/platform-status.ts).
  */
-export default function LanguagePicker({ languages }: { languages: LanguageState[] }) {
+export default function LanguagePicker({ languages }: { languages: LanguageStatus[] }) {
   const [selectedId, setSelectedId] = useState('')
 
   const selected = useMemo(
@@ -22,52 +25,67 @@ export default function LanguagePicker({ languages }: { languages: LanguageState
     [languages, selectedId]
   )
 
-  // The native name is the second line and the word count sits on the right,
-  // so someone scanning for their own language finds the name they call it by
-  // and can see, before choosing, whether there is anything in it yet.
+  // The native name is the second line and the size sits on the right, so
+  // someone scanning for their own language finds the name they call it by and
+  // can see, before choosing, whether there is anything in it yet.
   const options: DropdownOption[] = useMemo(
     () =>
-      languages.map((language) => ({
-        value: language.id,
-        label: language.name,
-        hint:
-          language.nativeName && language.nativeName !== language.name
-            ? language.nativeName
-            : undefined,
-        meta:
-          language.entries > 0 ? `${language.entries.toLocaleString()} words` : 'nothing yet',
-      })),
+      [...languages]
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((language) => ({
+          value: language.id,
+          label: language.name,
+          hint:
+            language.nativeName && language.nativeName !== language.name
+              ? language.nativeName
+              : undefined,
+          meta:
+            language.entries > 0
+              ? `${language.entries.toLocaleString()} words`
+              : language.sentencePairs
+                ? `${language.sentencePairs.toLocaleString()} sentences`
+                : 'nothing yet',
+        })),
     [languages]
   )
 
-  const nextStep = (language: LanguageState) => {
-    if (language.entries === 0) {
+  // The most useful thing to do next in that language. Where it translates,
+  // that is trying the translator, because every correction teaches it.
+  const nextStep = (language: LanguageStatus) => {
+    if (language.machine && language.machine !== 'bridge') {
       return {
-        label: 'Be the first to add a word',
-        href: `/contribute?lang=${language.code}`,
-        why: 'Nothing has been recorded in this language yet.',
+        label: 'Translate a Sentence',
+        href: `/translate?from=${language.code}&to=sw`,
+        why:
+          language.machine === 'trained'
+            ? 'Whole sentences translate. Tell us when it gets one wrong.'
+            : language.machine === 'early'
+              ? 'Translation is early here. Every correction you make teaches it.'
+              : 'It uses the translator as it comes. Your corrections help us train it.',
       }
     }
-    if (language.recordings === 0) {
+    if (language.entries === 0) {
       return {
-        label: 'Record the first word',
-        href: `/explore?language=${language.id}`,
-        why: 'It has words, but nobody has said one out loud yet.',
+        label: 'Add the First Word',
+        href: `/contribute?lang=${language.code}`,
+        why: 'Nothing has been added in this language yet.',
       }
     }
     if (language.percentCovered < 60) {
       return {
-        label: 'Fill a gap',
+        label: 'Fill a Gap',
         href: `/contribute/gaps?lang=${language.code}`,
         why: `${language.conceptsTotal - language.conceptsCovered} core meanings are still missing.`,
       }
     }
     return {
-      label: 'Add more voices',
+      label: 'Record a Word',
       href: `/explore?language=${language.id}`,
-      why: 'Good word coverage. It needs more speakers recorded.',
+      why: 'Good word coverage. It needs speakers recorded.',
     }
   }
+
+  const translating = languages.filter((l) => l.machine).length
 
   return (
     <div>
@@ -103,11 +121,11 @@ export default function LanguagePicker({ languages }: { languages: LanguageState
             {[
               { label: 'Words', value: selected.entries.toLocaleString() },
               {
-                label: 'Core meanings',
-                value: `${selected.conceptsCovered}/${selected.conceptsTotal}`,
+                label: 'Sentence pairs',
+                value: selected.sentencePairs === null ? 'Not counted' : selected.sentencePairs.toLocaleString(),
               },
+              { label: 'Translation', value: MACHINE_LEVEL_TEXT[selected.machine ?? 'none'].label },
               { label: 'Recordings', value: selected.recordings.toLocaleString() },
-              { label: 'Voices', value: selected.speakers.toLocaleString() },
             ].map((stat) => (
               <div key={stat.label}>
                 <dd className="tabular font-mono text-3xl font-semibold text-paper">
@@ -118,18 +136,13 @@ export default function LanguagePicker({ languages }: { languages: LanguageState
             ))}
           </dl>
 
-          {/* Coverage as a bar, because a number alone does not show how far there is to go. */}
-          <div className="mt-8">
-            <div className="flex h-1.5 w-full bg-ink-700" role="img"
-              aria-label={`${selected.percentCovered}% of core meanings covered`}>
-              <div
-                className="h-full bg-sand-300"
-                style={{ width: `${Math.min(100, Math.max(1, selected.percentCovered))}%` }}
-              />
-            </div>
-            <p className="mt-3 text-[0.9375rem] text-ink-300">
+          {/* The four stages, the same track the Coverage page draws. */}
+          <div className="mt-8 max-w-md">
+            <StageTrack stages={selected.stages} tone="dark" showLabels />
+            <p className="mt-4 text-[0.9375rem] text-ink-300">
+              {MACHINE_LEVEL_TEXT[selected.machine ?? 'none'].body}{' '}
               {selected.recordings === 0
-                ? `No one has recorded a word in ${selected.name} yet. That is the biggest gap.`
+                ? `No one has recorded ${selected.name} yet.`
                 : `${selected.entriesWithAudio} ${selected.entriesWithAudio === 1 ? 'word has' : 'words have'} audio, from ${selected.speakers} ${selected.speakers === 1 ? 'speaker' : 'speakers'}.`}
             </p>
           </div>
@@ -143,8 +156,9 @@ export default function LanguagePicker({ languages }: { languages: LanguageState
         </div>
       ) : (
         <p className="mt-6 max-w-xl text-[0.9375rem] text-ink-300">
-          {languages.length} Kenyan languages are here so far. Pick yours and we will show you
-          exactly what it has, what it is missing, and the fastest way to help.
+          {languages.length} languages so far, {translating} of them with sentence translation.
+          Pick yours and we will show you what it has, what it is missing, and the fastest way to
+          help.
         </p>
       )}
     </div>

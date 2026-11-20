@@ -2,7 +2,7 @@ export const SITE_URL = 'https://lughakonnect.co.ke'
 export const SITE_NAME = 'LughaKonnect'
 export const SITE_TITLE = `${SITE_NAME}. Kenyan Languages, Documented by Their Speakers`
 export const SITE_DESCRIPTION =
-  "An open corpus of Kenya's languages, documented by the people who speak them. Words, phrases and recordings, so these languages are usable by the technology that is coming."
+  "Free sentence translation and an open dictionary for Kenya's languages, built with the people who speak them. Words, sentences and recordings, so these languages work in the technology that is coming."
 
 /**
  * Who to write to. Every address lands in the same Zoho mailbox; separate

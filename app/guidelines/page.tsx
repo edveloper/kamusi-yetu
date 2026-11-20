@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { CORPUS_LICENCE, SITE_NAME, SITE_URL } from '@/lib/constants/site'
 import { getCorpusHeadline } from '@/lib/public-site'
+import { MACHINE_LEVEL_TEXT } from '@/lib/status-labels'
+import MachineTag from '@/components/status/MachineTag'
 
 // Standards and Method, on one page. A researcher deciding whether to trust this
 // and a contributor deciding what belongs are asking the same question from two
@@ -20,12 +22,12 @@ const STAGES = [
   {
     n: '01',
     name: 'Contributed',
-    body: 'Someone who speaks the language supplies a word. Either by filling a gap we asked for, or by adding one we did not know to ask about. Nothing is machine-generated in an indigenous language, ever.',
+    body: 'Someone who speaks the language supplies a word. Either by filling a gap we asked for, or by adding one we did not know to ask about. Nothing machine-generated ever enters the dictionary.',
   },
   {
     n: '02',
     name: 'Bridged',
-    body: 'Every entry carries at least one bridge translation, English or Kiswahili. This is enforced by the database, not by a form. It is what makes the corpus a connected graph rather than 37 separate word lists.',
+    body: 'Every entry carries at least one bridge translation, English or Kiswahili. This is enforced by the database, not by a form. It is what connects the languages to each other rather than leaving a pile of separate word lists.',
   },
   {
     n: '03',
@@ -239,6 +241,46 @@ export default async function GuidelinesPage() {
         </section>
 
         <section className="mb-16">
+          <h2 className="mark display mb-2 text-2xl">Machine translation</h2>
+          <p className="mb-4 text-ink-700">
+            The translator is NLLB-200, a translation model made by Meta, which LughaKonnect trains
+            further on Kenyan sentence pairs. Those are real sentences with a Kiswahili or English
+            translation, from openly licensed collections such as AfriVoices-KE, KenTrans and
+            thinkKenya. We check each collection&apos;s licence before using it, and we leave out
+            Bible text and hymns.
+          </p>
+          <p className="mb-6 text-ink-700">
+            Each language is labelled by how far its translation has come.
+          </p>
+          <div className="mb-6 border border-ink-200">
+            {(['trained', 'early', 'base', 'bridge'] as const).map((level) => (
+              <div
+                key={level}
+                className="grid items-start gap-x-6 gap-y-2 border-b border-ink-200 px-5 py-3.5 last:border-b-0 sm:grid-cols-[8rem_1fr]"
+              >
+                <div><MachineTag level={level} /></div>
+                <p className="text-ink-700">{MACHINE_LEVEL_TEXT[level].body}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mb-4 text-ink-700">
+            We test it on sentences held back from training, and compare what it writes with a
+            speaker&apos;s own translation. The scores are on the{' '}
+            <Link href="/trending" className="text-signal-600 underline underline-offset-4">
+              Coverage
+            </Link>{' '}
+            page.
+          </p>
+          <p className="text-ink-700">
+            Meta licenses the model for non-commercial use only. So machine translations here are
+            free, carry no advertising, are never sold, are always labelled as machine output, and
+            are never added to the open dataset. When a speaker corrects one, the correction is
+            their own sentence. Once a reviewer accepts it, it joins the dataset under the licence
+            below and helps train the next version.
+          </p>
+        </section>
+
+        <section className="mb-16">
           <h2 className="mark display mb-2 text-2xl">Using the data</h2>
           <p className="mb-4 text-ink-700">
             The corpus is licensed{' '}
@@ -267,7 +309,8 @@ export default async function GuidelinesPage() {
             </p>
           </div>
           <p className="mt-6 text-ink-700">
-            Every entry records where it came from, so a claim in this corpus can be traced.
+            Every entry and sentence records where it came from, so a claim in this corpus can be
+            traced.
             Material under a ShareAlike licence is never merged into the corpus, precisely so the
             licence above stays true.
           </p>

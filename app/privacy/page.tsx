@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 }
 
 const EMAIL = CONTACT.hello
-const EFFECTIVE_DATE = '17 November 2026'
+const EFFECTIVE_DATE = '21 November 2026'
 
 type Section = { heading: string; body: React.ReactNode }
 
@@ -44,7 +44,8 @@ const SECTIONS: Section[] = [
         </li>
         <li>
           <strong>What you contribute.</strong> Words, phrases, definitions, examples, suggested
-          corrections, comments, likes and saved words, each linked to your account.
+          corrections, comments, likes and saved words, each linked to your account. So is your
+          verdict on a machine translation and any better translation you give.
         </li>
         <li>
           <strong>Recordings, only if you choose to record.</strong> The audio itself, a record of
@@ -58,6 +59,13 @@ const SECTIONS: Section[] = [
           <strong>Searches with no answer.</strong> When the translator cannot find a word, we keep
           the words searched and the two languages involved, so contributors know what people
           need. These are not linked to you or your account.
+        </li>
+        <li>
+          <strong>Text you ask the machine translator to translate.</strong> It is sent to our
+          translation service, which runs on Hugging Face. The text and its translation are then
+          saved, without your name or account, so the same request is answered instantly next
+          time. Please do not type anything private into the translator. When it cannot answer, we
+          count that by day and language, without keeping the text.
         </li>
         <li>
           <strong>How the site is used, only if you agree.</strong> If you allow analytics in the
@@ -126,13 +134,17 @@ const SECTIONS: Section[] = [
     heading: 'Who else handles your data',
     body: (
       <>
-        <p>We use three services to run the site.</p>
+        <p>We use four services to run the site.</p>
         <ul className="mt-4 space-y-3">
           <li>
             <strong>Supabase</strong> stores the database and the recordings and handles sign-in.
           </li>
           <li>
             <strong>Vercel</strong> hosts the website.
+          </li>
+          <li>
+            <strong>Hugging Face</strong> runs the machine translator. It receives the text to be
+            translated, never your account details.
           </li>
           <li>
             <strong>Google</strong> provides the analytics.
@@ -160,6 +172,10 @@ const SECTIONS: Section[] = [
           other entries, translations and people depend on them. Your name is removed from them.
         </li>
         <li>Unanswered searches, for as long as they help decide what to add next.</li>
+        <li>
+          Saved machine translations, while they help answer repeat requests and check how well
+          the translator is doing.
+        </li>
       </ul>
     ),
   },

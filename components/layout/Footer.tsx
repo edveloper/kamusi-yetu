@@ -47,8 +47,8 @@ export function Footer() {
               </span>
             </Link>
             <p className="mt-4 max-w-xs text-[0.9375rem] leading-relaxed text-ink-300">
-              An open corpus of Kenya&apos;s languages, documented by the people who speak
-              them, so they are usable by the technology being built now.
+              Free translation and open data for Kenya&apos;s languages, built with the people
+              who speak them, so they work in the technology being built now.
             </p>
           </div>
 

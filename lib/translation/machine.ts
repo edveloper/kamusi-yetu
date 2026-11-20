@@ -19,6 +19,42 @@ export function machinePairIsEarly(from: string, to: string) {
   return EARLY_MACHINE_LANGUAGES.has(from) || EARLY_MACHINE_LANGUAGES.has(to)
 }
 
+/**
+ * How far machine translation has come in each language, for the public pages.
+ *   trained  trained on LughaKonnect's sentence pairs and tested on sentences it never saw
+ *   early    new to the model, learning from a smaller set; labelled Early on Translate
+ *   base     Meta's model as it comes, not yet trained on our data
+ *   bridge   Kiswahili: the model already handles it well, and the others
+ *            translate through it
+ * A language not listed has no machine translation yet.
+ */
+export type MachineLevel = 'trained' | 'early' | 'base' | 'bridge'
+
+export function machineLevel(code: string): MachineLevel | null {
+  if (!MACHINE_LANGUAGES.has(code) || code === 'en') return null
+  if (code === 'sw') return 'bridge'
+  if (EARLY_MACHINE_LANGUAGES.has(code)) return 'early'
+  if (code === 'kam' || code === 'som') return 'base'
+  return 'trained'
+}
+
+/**
+ * The held-out test: chrF, 0 to 100, against a speaker's own translation, on
+ * sentences the model never saw in training (scripts in services/finetune and
+ * reports/translation). Kiswahili both ways. null means not measured yet.
+ */
+export const MACHINE_TEST = {
+  date: '21 November 2026',
+  scores: {
+    ki: { toSwahili: 66.1, fromSwahili: 63.6, sentences: 174 },
+    luo: { toSwahili: 53.3, fromSwahili: 52.4, sentences: 281 },
+    dav: { toSwahili: 48.1, fromSwahili: 46.5, sentences: 336 },
+    kal: { toSwahili: 31.9, fromSwahili: 29.2, sentences: 386 },
+    rag: { toSwahili: 35.3, fromSwahili: null, sentences: 181 },
+    lri: { toSwahili: null, fromSwahili: null, sentences: 116 },
+  } as Record<string, { toSwahili: number | null; fromSwahili: number | null; sentences: number }>,
+}
+
 const SPACE_URL = 'https://edveloper-lughakonnect-translate.hf.space/gradio_api/call/translate'
 
 export function machinePairSupported(from: string, to: string) {
