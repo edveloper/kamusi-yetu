@@ -182,12 +182,25 @@ const BIBLE = /\b(yuda|isiraeli|israeli|yosefu|yosefa|farao|daudi|yakobo|aburaha
 const shouting = (s) => { const letters = s.replace(/[^\p{L}]/gu, ''); return letters.length > 3 && letters === letters.toUpperCase() }
 const tidyCase = (s) => (shouting(s) ? recase(s) : s)
 
+// Parts of KenTrans files that are Bible text retold, found by
+// scripts/find-bible-lines.mjs and checked by hand (2026-11-21): line ranges,
+// counted from 1, that are left out. The name list (BIBLE) misses most of it.
+// The Bukusu file is Genesis, Deuteronomy and Judges apart from a block of
+// news and death notices (lines 1067 to 1140); the end of the Logooli file is
+// Judges, Ezra and Lamentations.
+const KENTRANS_BIBLE = {
+  'lbk_combined.txt': [[1, 1066], [1141, Infinity]],
+  'llg_combined.txt': [[6848, 7734]],
+}
+const inBibleRange = (file, line) => (KENTRANS_BIBLE[file] ?? []).some(([a, b]) => line >= a && line <= b)
+
 function kentrans(file, origin, domain) {
   const lines = fs.readFileSync(`${ROOT}/kentrans/${file}`, 'utf8').split(/\r?\n/)
   const kept = []
   let bible = 0
   for (let i = 0; i < lines.length; i++) {
     if (!lines[i].startsWith('O:')) continue
+    if (inBibleRange(file, i + 1)) { bible++; continue }
     // Usually "O:" and "T:" are consecutive lines; some Bukusu lines carry both.
     let [o, t] = lines[i].includes(' T: ') ? lines[i].split(' T: ') : [lines[i], lines[i + 1]]
     if (!t?.replace(/^\s*/, '').startsWith('T:') && !lines[i].includes(' T: ')) continue
