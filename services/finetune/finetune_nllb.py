@@ -67,6 +67,10 @@ except Exception:
     HF_TOKEN = os.environ.get("HF_TOKEN")
 if not HF_TOKEN:
     raise SystemExit("Attach the HF_MODEL_TOKEN secret (Add-ons, Secrets): it is needed to read the run 1 model.")
+# Some library calls ask Hugging Face about the model without passing a token
+# (transformers 4.57 checks every tokenizer against Mistral's), which fails on
+# a private model. They all read HF_TOKEN from the environment.
+os.environ["HF_TOKEN"] = HF_TOKEN
 
 random.seed(SEED)
 # LughaKonnect codes -> NLLB codes. The last five are new to NLLB.
