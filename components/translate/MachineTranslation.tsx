@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/contexts/AuthContext'
+import { machinePairIsEarly } from '@/lib/translation/machine'
+
+const EARLY_NOTE =
+  'This language is new to the translator and it is still learning. Expect more mistakes, and tell us when it gets one wrong. Every correction helps it improve.'
 
 // The machine translation box on the Translate page. It loads after the page,
 // so the dictionary's own answers never wait for the GPU. NLLB-200 is shown
@@ -24,6 +28,7 @@ export default function MachineTranslation({ q, from, to, fromName, toName }: Pr
   const [sent, setSent] = useState(false)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
+  const early = machinePairIsEarly(from, to)
 
   useEffect(() => {
     let cancelled = false
@@ -85,6 +90,11 @@ export default function MachineTranslation({ q, from, to, fromName, toName }: Pr
         <span className="border border-ink-900 bg-ink-900 px-2.5 py-1 text-xs font-semibold text-paper">
           Machine Translation
         </span>
+        {early && (
+          <span className="border border-signal-600 px-2.5 py-1 text-xs font-semibold text-signal-700">
+            Early
+          </span>
+        )}
         <span className="label text-ink-500">
           {fromName} to {toName} · not checked by a speaker
         </span>
@@ -106,9 +116,14 @@ export default function MachineTranslation({ q, from, to, fromName, toName }: Pr
           </p>
           <p className="mt-4 max-w-xl text-sm text-ink-600">
             By NLLB-200, a translation model from Meta, adapted by LughaKonnect with sentence pairs
-            from AfriVoices-KE and KenTrans. It is often close and sometimes badly wrong, so check
-            anything important with a speaker.
+            from AfriVoices-KE, KenTrans and thinkKenya. It is often close and sometimes badly wrong,
+            so check anything important with a speaker.
           </p>
+          {early && (
+            <p className="mt-2 max-w-xl text-sm text-ink-600">
+              {EARLY_NOTE}
+            </p>
+          )}
 
           {state.id && (
             <div className="mt-5 border-t border-ink-200 pt-4">

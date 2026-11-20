@@ -2,11 +2,19 @@
 // (services/translate-space/), NLLB-200 by Meta under CC BY-NC 4.0.
 // Shown free and labelled; never saved into the dictionary (sql/124).
 
-// NLLB-200 distilled 1.3B adapted to Dholuo and Kikuyu (services/finetune/).
-// Also the key for saved answers, so changing it starts a fresh cache.
-export const MACHINE_MODEL = 'Edveloper/lughakonnect-nllb'
-export const MACHINE_LANGUAGES = new Set(['sw', 'en', 'luo', 'ki', 'kam', 'som'])
+// NLLB-200 distilled 1.3B adapted by LughaKonnect (services/finetune/), run 2
+// on the Space's MODEL_REVISION. Also the key for saved answers, so changing it
+// starts a fresh cache.
+export const MACHINE_MODEL = 'Edveloper/lughakonnect-nllb@run2'
+export const MACHINE_LANGUAGES = new Set(['sw', 'en', 'luo', 'ki', 'kam', 'som', 'dav', 'kal', 'bxk', 'rag', 'lri'])
+// New to the model in run 2 and learned from Kiswahili pairs only (Kidaw'ida,
+// Kalenjin, and the Luhya dialects Bukusu, Logooli and Marachi). Labelled Early.
+export const EARLY_MACHINE_LANGUAGES = new Set(['dav', 'kal', 'bxk', 'rag', 'lri'])
 export const MACHINE_MAX_CHARS = 400
+
+export function machinePairIsEarly(from: string, to: string) {
+  return EARLY_MACHINE_LANGUAGES.has(from) || EARLY_MACHINE_LANGUAGES.has(to)
+}
 
 const SPACE_URL = 'https://edveloper-lughakonnect-translate.hf.space/gradio_api/call/translate'
 
