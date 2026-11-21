@@ -60,7 +60,17 @@ def _generate(lines, source, target):
     return tokenizer.batch_decode(output, skip_special_tokens=True)
 
 
-@spaces.GPU(duration=45)
+def _gpu_seconds(text: str, source: str, target: str) -> int:
+    """GPU time to reserve. ZeroGPU checks the reservation against the daily
+    allowance before running, so a flat 45 seconds turned away one-line
+    requests that need about two. A few seconds per line, twice for a Kiswahili
+    pivot."""
+    lines = min(MAX_LINES, max(1, sum(1 for line in str(text or "").split("\n") if line.strip())))
+    pivot = "sw" not in (source, target) and (source in SWAHILI_ONLY or target in SWAHILI_ONLY)
+    return int(min(60, (5 + 1.5 * lines) * (2 if pivot else 1)))
+
+
+@spaces.GPU(duration=_gpu_seconds)
 def translate(text: str, source: str, target: str) -> str:
     """One sentence per line in, one translation per line out."""
     if source not in KNOWN or target not in KNOWN or source == target:
